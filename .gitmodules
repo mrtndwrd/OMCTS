@@ -1,0 +1,3 @@
+[submodule "gvgai"]
+	path = gvgai
+	url = https://github.com/EssexUniversityMCTS/gvgai.git
