@@ -2,6 +2,7 @@
   - 4, 5, 6, 17
   uit reinforcement
   learning, state of the art (PDF van Diederik)
+  (4 en 5 gelezen)
 
 - Uitzoeken: 
 	- Hoe zit de competitie precies in elkaar? Hoe werkt de rating?
