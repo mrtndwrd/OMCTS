@@ -5,36 +5,54 @@
   (4 en 5 gelezen)
 
 - Uitzoeken: 
-	- **Hoe zit de competitie precies in elkaar? Hoe werkt de rating?**
 
-		Er is een trainingset en een validatieset met verschillende games bekend. De
-		trainingset kun je krijgen, je resultaten op de validatieset kun je op de
-		server zien. De uiteindelijke competitie wordt gedraaid op een testset
-		van 10 nieuwe games, ieder bestaande uit 5 verschillende levels. Iedere
-		agent heeft een bepaalde hoeveelheid denktijd per cycle, als die wordt
-		overschreden word je gediskwalificeerd 
+- **Heeft een agent toegang tot de VGDL-descriptie?**
 
-		Rating: 
-		- Wins, score en tijd (in game cycles) worden opgeteld van 5 levels per
-		  game. Diskwalificaties tellen als -1000 score en 0 voor wins
+- **Nadenken over mogelijke transfer-implementaties**
 
-		Rankings worden gedaan op volgorde van wins, daarna score, daarna tijd.
-		Elke entry krijgt punten volgens zijn rank, volgens het F1 scoresysteem.
-		(25, 18, 15, 12, 10, 8, 6, 4, 2 and 1; van eerste tot de tiende rank.
-		Alles daarna heeft 0 punten.)
+- **Hoe zit de competitie precies in elkaar? Hoe werkt de rating?**
 
-	- **Wat is er gedaan op dit gebied? Wat is er al afgetast, en waar valt winst
-	  te behalen?**
+	Er is een trainingset en een validatieset met verschillende games bekend. De
+	trainingset kun je krijgen, je resultaten op de validatieset kun je op de
+	server zien. De uiteindelijke competitie wordt gedraaid op een testset
+	van 10 nieuwe games, ieder bestaande uit 5 verschillende levels. Iedere
+	agent heeft een bepaalde hoeveelheid denktijd per cycle, als die wordt
+	overschreden word je gediskwalificeerd 
 
-		Hoofdstuk 5 van *reinforcement learning, state of the art* omschrijft
-		transfer, een mogelijkheid om geleerde data over te geven naar MDP's
-		met dezelfde state-action set, of andersoortige overeenkomsten
-	- **Welke games worden (werden?) er geboden? *Is het leren, of plannen?***
+	Rating: 
+	- Wins, score en tijd (in game cycles) worden opgeteld van 5 levels per
+	  game. Diskwalificaties tellen als -1000 score en 0 voor wins
 
-		De testset van 2014 staat hier omschreven:
-		http://gvgai.net/evaluation_games.php
-		Dit zijn zo'n beetje allemaal 'leren' games en niet 'planning' (puzzel)
-		games. 
-	- **Weet je altijd wat de goal-state is?**
+	Rankings worden gedaan op volgorde van wins, daarna score, daarna tijd.
+	Elke entry krijgt punten volgens zijn rank, volgens het F1 scoresysteem.
+	(25, 18, 15, 12, 10, 8, 6, 4, 2 and 1; van eerste tot de tiende rank.
+	Alles daarna heeft 0 punten.)
 
-		Nee. Volgens mij weet je dat in principe nooit...
+- **Wat is er gedaan op dit gebied? Wat is er al afgetast, en waar valt winst
+  te behalen?**
+
+	Hoofdstuk 5 van *reinforcement learning, state of the art* omschrijft
+	transfer, een mogelijkheid om geleerde data over te geven naar MDP's
+	met dezelfde state-action set, of andersoortige overeenkomsten
+
+	Voor zover ik kan zien in de oude resultaten is transfer nog niet gebruikt.
+
+	Eerste plek vorig jaar Open loop tree search met UCB (incl. "taboo bias"
+	tegen kort geleden bezochte posities): 
+	In short, an open loop tree search. It builds a tree representing sequences
+	of actions. At every iteration, one node/action is added to the tree. When
+	navigating in the tree, the forward model is always used to generate states
+	(i.e. no state is stored in the tree, which is why I called this "open
+	loop"). To balance exploration/exploitation, it uses a classic UCB formula,
+	with a small addition: a "taboo bias", that gives penalty to actions that
+	lead to avatar positions visited in the recent past.
+
+- **Welke games worden (werden?) er geboden? *Is het leren, of plannen?***
+
+	De testset van 2014 staat hier omschreven:
+	http://gvgai.net/evaluation_games.php
+	Dit zijn zo'n beetje allemaal 'leren' games en niet 'planning' (puzzel)
+	games. 
+- **Weet je altijd wat de goal-state is?**
+
+	Nee. Volgens mij weet je dat in principe nooit...
