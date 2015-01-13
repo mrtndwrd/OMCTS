@@ -1,3 +1,4 @@
 classes/
 *.swp
 dist/
+*\$py.class

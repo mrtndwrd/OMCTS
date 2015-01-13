@@ -20,6 +20,7 @@ public class Test
         String sampleMCTSController = "controllers.sampleMCTS.Agent";
         String sampleOLMCTSController = "controllers.sampleOLMCTS.Agent";
         String sampleGAController = "controllers.sampleGA.Agent";
+        String myController = "mrtndwrd.Agent";
 
         //Available games:
         String gamesPath = "examples/gridphysics/";
@@ -48,7 +49,8 @@ public class Test
         //ArcadeMachine.playOneGame(game, level1, recordActionsFile, seed);
 
         // 2. This plays a game in a level by the controller.
-        ArcadeMachine.runOneGame(game, level1, visuals, sampleMCTSController, recordActionsFile, seed);
+        //ArcadeMachine.runOneGame(game, level1, visuals, sampleMCTSController, recordActionsFile, seed);
+        ArcadeMachine.runOneGame(game, level1, visuals, myController, recordActionsFile, seed);
 
         // 3. This replays a game from an action file previously recorded
         //String readActionsFile = "actionsFile_aliens_lvl0.txt";  //This example is for
