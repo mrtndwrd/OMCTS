@@ -7,7 +7,6 @@
 	<property name="sprites.dir" value="${root.dir}/sprites" />
 
 	<property name="classes.dir" value="${build.dir}/classes" />
-	<property name="lib.dir" value="${build.dir}/lib" />
 
 	<property name="dist.dir" value="${build.dir}/dist" />
 	
@@ -18,7 +17,6 @@
 	</tstamp>
 
 	<path id="class.path">
-		<pathelement location="${lib.dir}/jython.jar"/>
 	</path>
 
 	<!-- CLEAN -->
@@ -59,7 +57,6 @@
 		<java fork="true" classname="Test">
 			<classpath>
 				<path location="${classes.dir}"/>
-				<path location="${lib.dir}/jython.jar"/>
 			</classpath>
 		</java>
 	</target>
