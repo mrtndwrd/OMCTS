@@ -17,4 +17,24 @@ public class Lib
 		s += "sqDist: " + obs.sqDist + "\n\n";
 		return s;
 	}
+
+	public static void printObservationGrid(ArrayList<Observation>[][] observationGrid)
+	{
+		for (int x = 0; x < observationGrid.length; x++)
+		{
+			for (int y = 0; y<observationGrid[x].length; y++)
+			{
+				for (Observation obs : observationGrid[x][y])
+				{
+					System.out.print(obs.itype);
+				}
+				System.out.print(" ");
+			}
+			System.out.println();
+		}
+		//for(ArrayList<Observation>[] obsArrayListArray : stateObs.getObservationGrid())
+		//	for(ArrayList<Observation> obsArrayList : obsArrayListArray)
+		//		for(Observation obs : obsArrayList)
+		//			System.out.println(Lib.observationToString(obs));
+	}
 }

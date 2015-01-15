@@ -26,15 +26,13 @@ public class Agent extends AbstractPlayer
 	{
 		System.out.println("Observation:");
 		// Loop through ArrayList<Observation>[][] getObservationGrid()
-		for(ArrayList<Observation>[] obsArrayListArray : stateObs.getObservationGrid())
-			for(ArrayList<Observation> obsArrayList : obsArrayListArray)
-				for(Observation obs : obsArrayList)
-					System.out.println(Lib.observationToString(obs));
+		Lib.printObservationGrid(stateObs.getObservationGrid());
 		System.out.println("End of constructor");
 	}
 
 	public Types.ACTIONS act(StateObservation stateObs, ElapsedCpuTimer elapsedTimer)
 	{
+		Lib.printObservationGrid(stateObs.getObservationGrid());
 		return Types.ACTIONS.ACTION_NIL;
 	}
 }
