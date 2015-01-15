@@ -1,12 +1,27 @@
 - Lezen: Hoofdstuk
-  4, 5, 6, 17
-  uit *Reinforcement
-  Learning, State of the Art* (PDF van Diederik)
+  4, 5, (6), 17
+  uit *Reinforcement Learning, State of the Art* (PDF van Diederik)
   (4 en 5 gelezen)
 
-- Uitzoeken: 
+Uitzoeken: 
+
+- **Nadenken over hoe je om kunt gaan met sprites die niet per se hetzelfde zijn
+	in een nieuwe game als in een oude**
+	- Geef jezelf een definitie van zelda(?), definieer twee levels, waarin de
+		je bijv. een blokje met een monster omwisselt
+
+	Hoe pas je een policy aan in een nieuw level? Wat kun je doen met informatie
+	die je al geleerd hebt? 
+
+- **Nadenken over gedragshierarchie leren**
 
 - **Heeft een agent toegang tot de VGDL-descriptie?**
+
+	Nee. Het enige wat je hebt is het "observation grid" Hierin staan op init-time
+	de observaties die je aan het begin kunt doen (bijv. het hele level). Aan de
+	hand hiervan kun je niet per se bepalen watvoor game je gaat spelen.
+
+- **Lezen over DYNA en DYNA 2 en Prioritized Sweeping**
 
 - **Nadenken over mogelijke transfer-implementaties**
 
