@@ -48,8 +48,12 @@ public class SingleTreeNode
         int remainingLimit = 5;
         while(remaining > 2*avgTimeTaken && remaining > remainingLimit){
             ElapsedCpuTimer elapsedTimerIteration = new ElapsedCpuTimer();
+            // Select the node to explore (either expanding unexpanded node, or
+            // selecting the best one with UCT)
             SingleTreeNode selected = treePolicy();
+            // Get node value using a max-depth rollout
             double delta = selected.rollOut();
+            // Set values for parents of current node, using new rollout value
             backUp(selected, delta);
 
             numIters++;
@@ -62,6 +66,9 @@ public class SingleTreeNode
         //System.out.println("-- " + numIters + " -- ( " + avgTimeTaken + ")");
     }
 
+    /** Expand the current treenode, if it's not fully expanded. Else, return
+     * the best node using uct(?)
+     */
     public SingleTreeNode treePolicy() {
 
         SingleTreeNode cur = this;
@@ -174,6 +181,8 @@ public class SingleTreeNode
     }
 
 
+    /** Perform a rollout with random actions on the current node of maximally
+     * Agent.ROLLOUT_DEPTH */
     public double rollOut()
     {
         StateObservation rollerState = state.copy();

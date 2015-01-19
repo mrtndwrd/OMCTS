@@ -1,11 +1,16 @@
 package mrtndwrd;
 
 import core.game.Observation;
+import core.game.StateObservation;
+import ontology.Types;
 
 import java.util.ArrayList;
 
 public class Lib
 {
+	public static final double HUGE_NEGATIVE = -10000000.0;
+	public static final double HUGE_POSITIVE =  10000000.0;
+
 	public static String observationToString(Observation obs)
 	{
 		String s = "";
@@ -36,5 +41,21 @@ public class Lib
 		//	for(ArrayList<Observation> obsArrayList : obsArrayListArray)
 		//		for(Observation obs : obsArrayList)
 		//			System.out.println(Lib.observationToString(obs));
+	}
+
+	/** Very simple state evaluation, taken from the MCTS code */
+	public static double simpleValue(StateObservation a_gameState) 
+	{
+		boolean gameOver = a_gameState.isGameOver();
+		Types.WINNER win = a_gameState.getGameWinner();
+		double rawScore = a_gameState.getGameScore();
+
+		if(gameOver && win == Types.WINNER.PLAYER_LOSES)
+			rawScore += HUGE_NEGATIVE;
+
+		if(gameOver && win == Types.WINNER.PLAYER_WINS)
+			rawScore += HUGE_POSITIVE;
+
+		return rawScore;
 	}
 }
