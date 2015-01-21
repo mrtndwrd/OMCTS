@@ -6,6 +6,11 @@ import ontology.Types;
 import tools.Vector2d;
 
 import java.util.ArrayList;
+import java.io.ObjectOutputStream;
+import java.io.FileOutputStream;
+import java.util.HashMap;
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
 
 public class Lib
 {
@@ -141,5 +146,40 @@ public class Lib
 		}
 		// x == y
 		return "same";
+	}
+
+	public static void writeHashMapToFile(HashMap h, String f)
+	{
+		try
+		{
+			FileOutputStream fos = new FileOutputStream(f);
+			ObjectOutputStream oos = new ObjectOutputStream(fos);
+			oos.writeObject(h);
+			oos.close();
+			System.out.println("HashMap written to file");
+		}
+		catch (Exception e)
+		{
+			System.out.println("Couldn't write the hash map to file!");
+			e.printStackTrace();
+		}
+	}
+
+	public static Object loadObjectFromFile(String f)
+	{
+		try
+		{
+			FileInputStream fis = new FileInputStream(f);
+			ObjectInputStream ois = new ObjectInputStream(fis);
+			return ois.readObject();
+		}
+		catch (Exception e)
+		{
+			System.out.println("Couldn't load the hash map from file!");
+			e.printStackTrace();
+			System.out.println("Returning null");
+		}
+		// if all else fails
+		return null;
 	}
 }

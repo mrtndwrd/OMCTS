@@ -3,13 +3,23 @@ package mrtndwrd;
 import core.game.StateObservation;
 import tools.Vector2d;
 import java.util.Arrays;
+import java.io.Serializable;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.lang.ClassNotFoundException;
+import java.io.IOException;
 
 /** Class that enables simple hashing with state observation abstraction. It is
  * possible that two SimplifiedObservations are seen as equal, while the same
  * StateObservation would have been unequal */
-public class SimplifiedObservation
+public class SimplifiedObservation implements Serializable
 {
+	/** The hash code of all stuff in here
+	 * @Serial
+	 */
 	int code = 0;
+
+	private static final long serialVersionUID = 4382473219407506572L;
 
 	public SimplifiedObservation(StateObservation so)
 	{
@@ -70,5 +80,20 @@ public class SimplifiedObservation
 	public int hashCode()
 	{
 		return code;
+	}
+
+	private void readObject(ObjectInputStream aInputStream) 
+		throws ClassNotFoundException, IOException 
+	{
+		//always perform the default de-serialization first
+		aInputStream.defaultReadObject();
+	}
+
+	private void writeObject(ObjectOutputStream aOutputStream)
+		throws IOException 
+	{
+		// perform the default serialization for all non-transient, non-static
+		// fields
+		aOutputStream.defaultWriteObject();
 	}
 }

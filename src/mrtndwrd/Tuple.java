@@ -7,6 +7,8 @@ public class Tuple<X, Y> implements Entry<X, Y>
 	public X x;
 	public Y y;
 
+	public Tuple(){}
+
 	public Tuple(X x_, Y y_){
 		x=x_;
 		y=y_;

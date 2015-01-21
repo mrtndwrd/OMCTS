@@ -75,7 +75,7 @@ public abstract class AbstractPlayer {
     /**
      * Closes the agent, writing actions to file.
      */
-    final public void teardown() {
+    public void teardown() {
         try {
             if(writer!=null) {
                 writer.close();
