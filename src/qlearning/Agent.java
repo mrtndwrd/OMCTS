@@ -39,11 +39,13 @@ public class Agent extends AbstractPlayer
 	// Default value for q
 	private final Double DEFAULT_Q_VALUE = 0.0;
 	// Exploration depth for building q and v
-	private final int EXPLORATION_DEPTH = 100;
+	private final int EXPLORATION_DEPTH = 10;
 	// Epsilon for exploration vs. exploitation
 	private final double EPSILON = .5;
 	// Gamma for bellman equation
 	private final double GAMMA = .9;
+	// Theta for noise
+	private final double THETA = 1e-6;
 
 
 	public Agent(StateObservation so, ElapsedCpuTimer elapsedTimer) 
@@ -72,6 +74,8 @@ public class Agent extends AbstractPlayer
 		int depth;
 		StateObservation soCopy;
 
+		// Currently only the greedy action will have to be taken after this is
+		// done, so we can take as much time as possible!
 		while(elapsedTimer.remainingTimeMillis() > 10.)
 		{
 			soCopy = so.copy();
@@ -83,7 +87,7 @@ public class Agent extends AbstractPlayer
 				// Get a new state and the action that leads to it in an
 				// epsilon-greedy manner
 				// This advances soCopy with the taken action
-				int a = epsilonGreedy(soCopy);
+				int a = epsilonGreedyAction(soCopy);
 				// Advance the state, this should advance everywhere, with pointers and
 				// stuff
 				SimplifiedObservation s = new SimplifiedObservation(soCopy);
@@ -99,26 +103,41 @@ public class Agent extends AbstractPlayer
 	}
 
 	/** Selects an epsilon greedy value based on the internal q table. Returns
-	 * the optimal action
-	 * TODO: CUrrently this.EPSILON is ignored (or assumed 0)
+	 * the optimal action as index of the this.actions array.
 	 */
-	private int epsilonGreedy(StateObservation so)
+	private int epsilonGreedyAction(StateObservation so)
+	{
+		// Select a random action with prob. EPSILON
+		if(random.nextDouble() < EPSILON)
+		{
+			return random.nextInt(actions.length);
+		}
+		// Else, select greedy action:
+		return greedyAction(so);
+	}
+
+	private int greedyAction(StateObservation so)
 	{
 		double value;
 		double maxValue = Lib.HUGE_NEGATIVE;
 		int maxAction = 0;
+		Tuple<SimplifiedObservation, Integer> sa;
+		SimplifiedObservation sso = new SimplifiedObservation (so);
 		// select action with highest value for this sso
 		for (int action=0; action < actions.length; action++)
 		{
+			// Create state-action tuple
+			sa = new Tuple<SimplifiedObservation, Integer>(sso, action);
 			// Get the next action value, with a little bit of noise to enable
 			// random selection
-			value = Utils.noise(q.get(action), EPSILON, random.nextDouble());
+			value = Utils.noise(q.get(sa), THETA, random.nextDouble());
 			if(value > maxValue)
 			{
 				maxValue = value;
 				maxAction = action;
 			}
-			System.out.printf("Max value: %f\n", value);
+			//if(maxValue > 2*THETA)
+			//	System.out.printf("Max value: %f\n", value);
 		}
 		// return the optimal action
 		return maxAction;
@@ -139,7 +158,8 @@ public class Agent extends AbstractPlayer
 	{
 		//Lib.printObservationGrid(so.getObservationGrid());
 		// Create simplified observation:
-		int action = epsilonGreedy(so);
+		explore(so, elapsedTimer);
+		int action = greedyAction(so);
 		return actions[action];
 	}
 }

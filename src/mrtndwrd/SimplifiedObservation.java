@@ -2,6 +2,7 @@ package mrtndwrd;
 
 import core.game.StateObservation;
 import tools.Vector2d;
+import java.util.Arrays;
 
 /** Class that enables simple hashing with state observation abstraction. It is
  * possible that two SimplifiedObservations are seen as equal, while the same
@@ -15,24 +16,36 @@ public class SimplifiedObservation
 		// Initialize with some data. Later more initialize functions could be
 		// added
 		someDataInit(so);
+		//onlyAvatarPositionInit(so);
 	}
 
 	/** Initialize using some of the observed data. Excluded are: The entire
 	 * observation grid, getFromAvatarSprites and getImmovablePositions */
 	private void someDataInit(StateObservation so)
 	{
-		// FIXME: Should check for NULL
 		Vector2d avatarPosition = so.getAvatarPosition();
-		code = 3 * code + avatarPosition.hashCode();
-		code = 5 * code + so.getAvatarOrientation().hashCode();
+		code = 3 * code + avatarPosition.toString().hashCode();
+		code = 5 * code + so.getAvatarOrientation().toString().hashCode();
+		// avatarResources are a HashMap<int, int>. This hashCode should work
+		// fine...
 		code = 7 * code + so.getAvatarResources().hashCode();
-		// Get NPC positions, ordered by distance from the PC
-		code = 11 * code + so.getNPCPositions(avatarPosition).hashCode();
-		//code = 13 * code + so.getMovablePositions(avatarPosition).hashCode();
-		//code = 17 * code + so.getResourcesPositions(avatarPosition).hashCode();
-		code = 19 * code + so.getPortalsPositions(avatarPosition).hashCode();
+		code = 11 * code + Lib.getNearestDistanceAndDirection(
+			so.getNPCPositions(avatarPosition), avatarPosition).hashCode();
+		code = 13 * code + Lib.getNearestDistanceAndDirection(
+			so.getMovablePositions(avatarPosition), avatarPosition).hashCode();
+		code = 17 * code + Lib.getNearestDistanceAndDirection(
+			so.getResourcesPositions(avatarPosition), avatarPosition).hashCode();
+		code = 19 * code + Lib.getNearestDistanceAndDirection(
+			so.getPortalsPositions(avatarPosition), avatarPosition).hashCode();
 		// apparantly the key in zelda is an immovable position...
-		code = 23 * code + so.getImmovablePositions(avatarPosition).hashCode();
+		code = 23 * code + Lib.getNearestDistanceAndDirection(
+			so.getImmovablePositions(avatarPosition), avatarPosition).hashCode();
+	}
+
+	private void onlyAvatarPositionInit(StateObservation so)
+	{
+		Vector2d avatarPosition = so.getAvatarPosition();
+		code = 3 * code + avatarPosition.toString().hashCode();
 	}
 
 	@Override
