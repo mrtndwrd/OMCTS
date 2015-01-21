@@ -1,3 +1,7 @@
+Programmeren:
+- Simpele testgame (predator prey? Misschien nog een lose-condition)
+- Script dat de output parset en kijkt of je score omhoog gaat
+
 - Lezen: Hoofdstuk
   4, 5, (6), 17
   uit *Reinforcement Learning, State of the Art* (PDF van Diederik)

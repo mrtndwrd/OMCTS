@@ -67,6 +67,8 @@ public class Agent extends AbstractPlayer
 			Object o = Lib.loadObjectFromFile(filename);
 			q = (DefaultHashMap<SerializableTuple
 				<SimplifiedObservation, Integer>, Double>) o;
+			System.out.printf("q table loaded from file, time remaining: %d\n", 
+				elapsedTimer.remainingTimeMillis());
 		}
 		catch (Exception e)
 		{
@@ -151,8 +153,6 @@ public class Agent extends AbstractPlayer
 				maxValue = value;
 				maxAction = action;
 			}
-			//if(maxValue > 2*THETA)
-			//	System.out.printf("Max value: %f\n", value);
 		}
 		// return the optimal action
 		return maxAction;
