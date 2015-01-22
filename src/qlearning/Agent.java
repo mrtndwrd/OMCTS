@@ -39,9 +39,11 @@ public class Agent extends AbstractPlayer
 	/** Default value for q */
 	private final Double DEFAULT_Q_VALUE = 0.0;
 	/** Exploration depth for building q and v */
-	private final int EXPLORATION_DEPTH = 30;
+	private final int EXPLORATION_DEPTH = 20;
 	/** Epsilon for exploration vs. exploitation */
 	private final double EPSILON = .3;
+	/** The learning rate of this algorithm */
+	private final double ALPHA = .5;
 	/** Gamma for bellman equation */
 	private final double GAMMA = .9;
 	/** Theta for noise */
@@ -99,7 +101,7 @@ public class Agent extends AbstractPlayer
 			// create histories of actions and states
 			int[] actionHistory = new int[EXPLORATION_DEPTH];
 			SimplifiedObservation[] stateHistory = new SimplifiedObservation[EXPLORATION_DEPTH];
-			for(depth=0; depth<EXPLORATION_DEPTH; depth++)
+			for(depth=0; depth<EXPLORATION_DEPTH && !soCopy.isGameOver(); depth++)
 			{
 				// Get a new state and the action that leads to it in an
 				// epsilon-greedy manner
@@ -115,8 +117,39 @@ public class Agent extends AbstractPlayer
 			}
 			// process the states and actions from this rollout, using the value
 			// of the last visited state
-			backUp(stateHistory, actionHistory, Lib.simpleValue(soCopy));
+			backUp(stateHistory, actionHistory, Lib.simpleValue(soCopy), depth);
 		}
+	}
+
+	/** Update q values using the bellman equation
+	 * @param stateHistory The states visited in the last run. stateHistory[0]
+	 * is the first state
+	 * @param actionHistory The actions taken in each state from stateHistory.
+	 * actionHistory[i] is an action taken in stateHistory[i]
+	 * @param score The score in the last state in stateHistory. This is used in
+	 * combination with this.GAMMA to update all q values
+	 * @param lastDepth Some times stateHistory.length is not
+	 * this.EXPLORATION_DEPTH, because the game was ended before
+	 * this.EXPLORATION_DEPTH was reached. Therefore we need the last depth
+	 */
+	private void backUp(SimplifiedObservation[] stateHistory, int[] actionHistory, double score, int lastDepth)
+	{
+		// Will be used as index in the q table
+		SerializableTuple<SimplifiedObservation, Integer> sa;
+		// Will be used for the score that is currently in the q table
+		double lastScore;
+		double gamma = GAMMA;
+		// We can not be entirely sure that the array is full, since we stop
+		// exploring when a game is over
+		for(int i=lastDepth-1; i>-1 && stateHistory[i] != null; i--)
+		{
+			sa = new SerializableTuple(stateHistory[i], actionHistory[i]);
+			lastScore = q.get(sa);
+			q.put(sa, lastScore + gamma * score);
+			// reduce gamma, because we're a state further from the score
+			gamma *= GAMMA;
+		}
+		//System.out.println("backup done");
 	}
 
 	/** Selects an epsilon greedy value based on the internal q table. Returns
@@ -158,19 +191,9 @@ public class Agent extends AbstractPlayer
 		return maxAction;
 	}
 
-	private void backUp(SimplifiedObservation[] stateHistory, int[] actionHistory, double score)
-	{
-		SerializableTuple<SimplifiedObservation, Integer> sa;
-		for(int i=EXPLORATION_DEPTH-1; i>-1; i--)
-		{
-			score *= GAMMA;
-			sa = new SerializableTuple(stateHistory[i], actionHistory[i]);
-			q.put(sa, score);
-		}
-	}
-
 	public Types.ACTIONS act(StateObservation so, ElapsedCpuTimer elapsedTimer)
 	{
+		//System.out.println("Starting action");
 		// Create simplified observation:
 		explore(so, elapsedTimer);
 		int action = greedyAction(so);

@@ -11,6 +11,7 @@ import java.io.FileOutputStream;
 import java.util.HashMap;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
+import java.io.FileNotFoundException;
 
 public class Lib
 {
@@ -92,20 +93,29 @@ public class Lib
 	{
 		// Sometimes obala isn't instantiated at all!
 		if(obala == null)
+		{
 			return null;
+		}
+		
 		// Hopefully this initializes to a not-null value
 		Observation nearest = null;
 		for(ArrayList<Observation> obal : obala)
 		{
 			// if there's observations in this entry
 			if(obal.size() > 0)
+			{
 				// If we don't have a nearest, make this observation nearest
 				if(nearest != null)
+				{
 					// Take the nearest observation of both
 					if(nearest.sqDist > obal.get(0).sqDist)
+					{
 						nearest = obal.get(0);
+					}
+				}
 				else
 					nearest = obal.get(0);
+			}
 		}
 		return nearest;
 	}
@@ -173,8 +183,14 @@ public class Lib
 			ObjectInputStream ois = new ObjectInputStream(fis);
 			return ois.readObject();
 		}
+		catch (FileNotFoundException e)
+		{
+			// No file (yet) present:
+			System.out.println("No hashMap loaded");
+		}
 		catch (Exception e)
 		{
+			// Something's definitely wrong now!
 			System.out.println("Couldn't load the hash map from file!");
 			e.printStackTrace();
 			System.out.println("Returning null");

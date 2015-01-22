@@ -27,7 +27,7 @@ public class Test
 
         //CIG 2014 Training Set Games
         String games[] = new String[]{"aliens", "boulderdash", "butterflies", "chase", "frogs",
-                "missilecommand", "portals", "sokoban", "survivezombies", "zelda"};
+                "missilecommand", "portals", "sokoban", "survivezombies", "zelda", "prey"};
 
         //CIG 2014 Validation Set Games
         //String games[] = new String[]{"camelRace", "digdug", "firestorms", "infection", "firecaster",
@@ -40,7 +40,7 @@ public class Test
         int seed = new Random().nextInt();
 
         //Game and level to play
-        int gameIdx = 9;
+        int gameIdx = 10;
         int levelIdx = 0; //level names from 0 to 4 (game_lvlN.txt).
         String game = gamesPath + games[gameIdx] + ".txt";
         String level1 = gamesPath + games[gameIdx] + "_lvl" + levelIdx +".txt";
@@ -58,7 +58,7 @@ public class Test
 
         // 4. This plays a single game, in N levels, M times :
         String level2 = gamesPath + games[gameIdx] + "_lvl" + 1 +".txt";
-        int M = 20;
+        int M = 100;
         ArcadeMachine.runGames(game, new String[]{level1}, M, myController, null);
 
         //5. This plays N games, in the first L levels, M times each. Actions to file optional (set saveActions to true).

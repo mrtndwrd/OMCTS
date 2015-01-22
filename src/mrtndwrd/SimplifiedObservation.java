@@ -25,7 +25,8 @@ public class SimplifiedObservation implements Serializable
 	{
 		// Initialize with some data. Later more initialize functions could be
 		// added
-		someDataInit(so);
+		//someDataInit(so);
+		preyInit(so);
 		//onlyAvatarPositionInit(so);
 	}
 
@@ -50,6 +51,22 @@ public class SimplifiedObservation implements Serializable
 		// apparantly the key in zelda is an immovable position...
 		code = 23 * code + Lib.getNearestDistanceAndDirection(
 			so.getImmovablePositions(avatarPosition), avatarPosition).hashCode();
+	}
+
+	/** Simplified init for the prey testing game */
+	private void preyInit(StateObservation so)
+	{
+		Vector2d avatarPosition = so.getAvatarPosition();
+		code = 3 * code + avatarPosition.toString().hashCode();
+		code = 11 * code + Lib.getNearestDistanceAndDirection(
+			so.getNPCPositions(avatarPosition), avatarPosition).hashCode();
+		/*
+		System.out.printf("Position: %s, Prey: %s, code: %d\n", 
+			avatarPosition.toString(),
+			Lib.getNearestDistanceAndDirection(
+				so.getNPCPositions(avatarPosition), avatarPosition).toString(),
+			this.code);
+		*/
 	}
 
 	private void onlyAvatarPositionInit(StateObservation so)
