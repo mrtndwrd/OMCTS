@@ -2,11 +2,17 @@ BasicGame
   SpriteSet
     movable >
       avatar > MovingAvatar img=avatar
-      prey >  img=monster RandomNPC cooldown=1
+      prey > img=monster
+        inactivePrey > RandomNPC cooldown=100
+        slowPrey > RandomNPC cooldown=10
+        fastPrey > RandomNPC cooldown=1
+
 
   LevelMapping
     A > avatar
-    P > prey
+    I > inactivePrey
+    S > slowPrey
+    F > fastPrey
 
   InteractionSet
     prey avatar > killSprite scoreChange=1

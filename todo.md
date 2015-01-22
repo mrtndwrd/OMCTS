@@ -1,5 +1,5 @@
 Programmeren:
-- Script dat de output parset en kijkt of je score omhoog gaat
+- "qlearning" verbeteren met ditte: http://webdocs.cs.ualberta.ca/~sutton/book/ebook/node56.html
 
 - Lezen: Hoofdstuk
   4, 5, (6), 17

@@ -58,7 +58,7 @@ public class Test
 
         // 4. This plays a single game, in N levels, M times :
         String level2 = gamesPath + games[gameIdx] + "_lvl" + 1 +".txt";
-        int M = 100;
+        int M = 10;
         ArcadeMachine.runGames(game, new String[]{level1}, M, myController, null);
 
         //5. This plays N games, in the first L levels, M times each. Actions to file optional (set saveActions to true).
