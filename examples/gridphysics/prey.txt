@@ -1,0 +1,18 @@
+BasicGame
+  SpriteSet
+    movable >
+      avatar > MovingAvatar img=avatar
+      prey >  img=monster RandomNPC cooldown=4
+
+  LevelMapping
+    A > avatar
+    P > prey
+
+  InteractionSet
+    prey avatar > killSprite scoreChange=1
+    movable wall  > stepBack
+  TerminationSet
+    SpriteCounter stype=prey limit=0 win=True
+    Timeout limit=100 win=False
+
+
