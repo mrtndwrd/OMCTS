@@ -1,8 +1,12 @@
 package mrtndwrd;
 
+import java.util.Map;
 import java.util.HashMap;
 
 import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 /** Simple DefaultHashMap from
  * https://stackoverflow.com/questions/7519339/hashmap-to-return-default-value-for-non-found-keys
@@ -21,4 +25,20 @@ public class DefaultHashMap<K,V> extends HashMap<K,V>
 	{
 		return containsKey(k) ? super.get(k) : defaultValue;
 	}
+
+	@Override
+	public String toString()
+	{
+		String s = "";
+		ArrayList<Map.Entry> entryArrayList = new ArrayList<Map.Entry>(this.entrySet());
+		Comparator ec = new Lib.EntryComparator();
+		Collections.sort(entryArrayList, ec);
+		for (Map.Entry e : entryArrayList)
+		{
+			s += String.format("%s -> %s\n", e.getKey(), e.getValue());
+		}
+		return s;
+	}
+
+
 }

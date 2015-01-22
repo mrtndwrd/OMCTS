@@ -1,5 +1,4 @@
 Programmeren:
-- Simpele testgame (predator prey? Misschien nog een lose-condition)
 - Script dat de output parset en kijkt of je score omhoog gaat
 
 - Lezen: Hoofdstuk

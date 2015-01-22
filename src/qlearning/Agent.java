@@ -25,13 +25,12 @@ import java.io.FileOutputStream;
  */
 public class Agent extends AbstractPlayer 
 {
-	/** A static array with all possible actions of the current MDP */
-	public static Types.ACTIONS[] actions;
+	private ArrayList<Types.ACTIONS> possibleActions;
 	/** Mapping from state to value, the "Value Table" */
 	private DefaultHashMap<SimplifiedObservation, Double> v;
 	/** Mapping from State, Action (as index from above actions array) to
 	 * expected Reward (value), the "Q table" */
-	private DefaultHashMap<SerializableTuple<SimplifiedObservation, Integer>, Double> q;
+	private DefaultHashMap<SerializableTuple<SimplifiedObservation, Types.ACTIONS>, Double> q;
 	private Random random = new Random();
 
 	/** Default value for v */
@@ -41,7 +40,7 @@ public class Agent extends AbstractPlayer
 	/** Exploration depth for building q and v */
 	private final int EXPLORATION_DEPTH = 20;
 	/** Epsilon for exploration vs. exploitation */
-	private final double EPSILON = .3;
+	private final double EPSILON = .1;
 	/** The learning rate of this algorithm */
 	private final double ALPHA = .5;
 	/** Gamma for bellman equation */
@@ -56,20 +55,15 @@ public class Agent extends AbstractPlayer
 	{
 		this.filename = "test";
 		//Get the actions in a static array.
-		ArrayList<Types.ACTIONS> act = so.getAvailableActions();
-		actions = new Types.ACTIONS[act.size()];
-		for(int i = 0; i < actions.length; ++i)
-		{
-			actions[i] = act.get(i);
-		}
+		possibleActions = so.getAvailableActions();
 		// Initialize V and Q:
 		v = new DefaultHashMap<SimplifiedObservation, Double>(DEFAULT_V_VALUE);
 		try
 		{
 			Object o = Lib.loadObjectFromFile(filename);
 			q = (DefaultHashMap<SerializableTuple
-				<SimplifiedObservation, Integer>, Double>) o;
-			System.out.printf("q table loaded from file, time remaining: %d\n", 
+				<SimplifiedObservation, Types.ACTIONS>, Double>) o;
+			System.out.printf("time remaining: %d\n", 
 				elapsedTimer.remainingTimeMillis());
 		}
 		catch (Exception e)
@@ -79,7 +73,7 @@ public class Agent extends AbstractPlayer
 		}
 		if(q == null)
 			q = new DefaultHashMap<SerializableTuple
-				<SimplifiedObservation, Integer>, Double> (DEFAULT_Q_VALUE);
+				<SimplifiedObservation, Types.ACTIONS>, Double> (DEFAULT_Q_VALUE);
 		explore(so, elapsedTimer);
 		System.out.printf("End of constructor, miliseconds remaining: %d\n", elapsedTimer.remainingTimeMillis());
 	}
@@ -99,18 +93,18 @@ public class Agent extends AbstractPlayer
 		{
 			soCopy = so.copy();
 			// create histories of actions and states
-			int[] actionHistory = new int[EXPLORATION_DEPTH];
+			Types.ACTIONS[] actionHistory = new Types.ACTIONS[EXPLORATION_DEPTH];
 			SimplifiedObservation[] stateHistory = new SimplifiedObservation[EXPLORATION_DEPTH];
 			for(depth=0; depth<EXPLORATION_DEPTH && !soCopy.isGameOver(); depth++)
 			{
 				// Get a new state and the action that leads to it in an
 				// epsilon-greedy manner
 				// This advances soCopy with the taken action
-				int a = epsilonGreedyAction(soCopy);
+				Types.ACTIONS a = epsilonGreedyAction(soCopy);
 				// Advance the state, this should advance everywhere, with pointers and
 				// stuff
 				SimplifiedObservation s = new SimplifiedObservation(soCopy);
-				soCopy.advance(actions[a]);
+				soCopy.advance(a);
 				// add state-action pair to history arrays
 				stateHistory[depth] = s;
 				actionHistory[depth] = a;
@@ -132,10 +126,10 @@ public class Agent extends AbstractPlayer
 	 * this.EXPLORATION_DEPTH, because the game was ended before
 	 * this.EXPLORATION_DEPTH was reached. Therefore we need the last depth
 	 */
-	private void backUp(SimplifiedObservation[] stateHistory, int[] actionHistory, double score, int lastDepth)
+	private void backUp(SimplifiedObservation[] stateHistory, Types.ACTIONS[] actionHistory, double score, int lastDepth)
 	{
 		// Will be used as index in the q table
-		SerializableTuple<SimplifiedObservation, Integer> sa;
+		SerializableTuple<SimplifiedObservation, Types.ACTIONS> sa;
 		// Will be used for the score that is currently in the q table
 		double lastScore;
 		double gamma = GAMMA;
@@ -145,46 +139,45 @@ public class Agent extends AbstractPlayer
 		{
 			sa = new SerializableTuple(stateHistory[i], actionHistory[i]);
 			lastScore = q.get(sa);
-			q.put(sa, lastScore + gamma * score);
+			q.put(sa, gamma * lastScore + score);
 			// reduce gamma, because we're a state further from the score
 			gamma *= GAMMA;
 		}
-		//System.out.println("backup done");
 	}
 
 	/** Selects an epsilon greedy value based on the internal q table. Returns
 	 * the optimal action as index of the this.actions array.
 	 */
-	private int epsilonGreedyAction(StateObservation so)
+	private Types.ACTIONS epsilonGreedyAction(StateObservation so)
 	{
 		// Select a random action with prob. EPSILON
 		if(random.nextDouble() < EPSILON)
 		{
-			return random.nextInt(actions.length);
+			return possibleActions.get(random.nextInt(possibleActions.size()));
 		}
 		// Else, select greedy action:
 		return greedyAction(so);
 	}
 
-	private int greedyAction(StateObservation so)
+	private Types.ACTIONS greedyAction(StateObservation so)
 	{
 		double value;
 		double maxValue = Lib.HUGE_NEGATIVE;
-		int maxAction = 0;
-		SerializableTuple<SimplifiedObservation, Integer> sa;
+		Types.ACTIONS maxAction = possibleActions.get(0);
+		SerializableTuple<SimplifiedObservation, Types.ACTIONS> sa;
 		SimplifiedObservation sso = new SimplifiedObservation (so);
 		// select action with highest value for this sso
-		for (int action=0; action < actions.length; action++)
+		for (Types.ACTIONS a : possibleActions)
 		{
 			// Create state-action tuple
-			sa = new SerializableTuple<SimplifiedObservation, Integer>(sso, action);
+			sa = new SerializableTuple<SimplifiedObservation, Types.ACTIONS>(sso, a);
 			// Get the next action value, with a little bit of noise to enable
 			// random selection
 			value = Utils.noise(q.get(sa), THETA, random.nextDouble());
 			if(value > maxValue)
 			{
 				maxValue = value;
-				maxAction = action;
+				maxAction = a;
 			}
 		}
 		// return the optimal action
@@ -196,8 +189,7 @@ public class Agent extends AbstractPlayer
 		//System.out.println("Starting action");
 		// Create simplified observation:
 		explore(so, elapsedTimer);
-		int action = greedyAction(so);
-		return actions[action];
+		return greedyAction(so);
 	}
 
 	/** write q to file */

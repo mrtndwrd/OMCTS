@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.io.FileNotFoundException;
+import java.util.Comparator;
+import java.util.Map;
 
 public class Lib
 {
@@ -53,11 +55,11 @@ public class Lib
 		Types.WINNER win = a_gameState.getGameWinner();
 		double rawScore = a_gameState.getGameScore();
 
-		if(gameOver && win == Types.WINNER.PLAYER_LOSES)
-			rawScore += HUGE_NEGATIVE;
+		//if(gameOver && win == Types.WINNER.PLAYER_LOSES)
+		//	rawScore += HUGE_NEGATIVE;
 
-		if(gameOver && win == Types.WINNER.PLAYER_WINS)
-			rawScore += HUGE_POSITIVE;
+		//if(gameOver && win == Types.WINNER.PLAYER_WINS)
+		//	rawScore += HUGE_POSITIVE;
 
 		return rawScore;
 	}
@@ -129,9 +131,9 @@ public class Lib
 		// Same x, either up or down
 		if(obPosition.x == avatarPosition.x)
 		{
-			if(obPosition.y > avatarPosition.y)
+			if(obPosition.y < avatarPosition.y)
 				return "up";
-			else if(obPosition.y < avatarPosition.y)
+			else if(obPosition.y > avatarPosition.y)
 				return "down";
 		}
 		// Same y, either straight right or left
@@ -145,13 +147,13 @@ public class Lib
 		// Different x and y, one of the combinations:
 		else
 		{
-			if(obPosition.x > avatarPosition.x && obPosition.y > avatarPosition.y)
+			if(obPosition.x > avatarPosition.x && obPosition.y < avatarPosition.y)
 				return "upright";
-			else if(obPosition.x > avatarPosition.x && obPosition.y < avatarPosition.y)
+			else if(obPosition.x > avatarPosition.x && obPosition.y > avatarPosition.y)
 				return "downright";
-			else if(obPosition.x < avatarPosition.x && obPosition.y > avatarPosition.y)
-				return "upleft";
 			else if(obPosition.x < avatarPosition.x && obPosition.y < avatarPosition.y)
+				return "upleft";
+			else if(obPosition.x < avatarPosition.x && obPosition.y > avatarPosition.y)
 				return "downleft";
 		}
 		// x == y
@@ -181,7 +183,9 @@ public class Lib
 		{
 			FileInputStream fis = new FileInputStream(f);
 			ObjectInputStream ois = new ObjectInputStream(fis);
-			return ois.readObject();
+			Object o = ois.readObject();
+			System.out.printf("Q table loaded from file %s\n", f);
+			return o;
 		}
 		catch (FileNotFoundException e)
 		{
@@ -197,5 +201,19 @@ public class Lib
 		}
 		// if all else fails
 		return null;
+	}
+
+	public static class EntryComparator implements 
+		Comparator<Map.Entry<SerializableTuple <SimplifiedObservation, ?>, ?>>
+	{
+		public int compare (
+			Map.Entry<SerializableTuple <SimplifiedObservation, ?>, ?> m1,
+			Map.Entry<SerializableTuple <SimplifiedObservation, ?>, ?> m2)
+		{
+			String c1 = m1.getKey().x.getCode();
+			String c2 = m2.getKey().x.getCode();
+			return c1.compareTo(c2);
+		}
+
 	}
 }

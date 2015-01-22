@@ -17,7 +17,7 @@ public class SimplifiedObservation implements Serializable
 	/** The hash code of all stuff in here
 	 * @Serial
 	 */
-	int code = 0;
+	private String code = "";
 
 	private static final long serialVersionUID = 4382473219407506572L;
 
@@ -34,8 +34,9 @@ public class SimplifiedObservation implements Serializable
 	 * observation grid, getFromAvatarSprites and getImmovablePositions */
 	private void someDataInit(StateObservation so)
 	{
+		/* TODO: Change to string
 		Vector2d avatarPosition = so.getAvatarPosition();
-		code = 3 * code + avatarPosition.toString().hashCode();
+		code = [avatarPosition.toString().;
 		code = 5 * code + so.getAvatarOrientation().toString().hashCode();
 		// avatarResources are a HashMap<int, int>. This hashCode should work
 		// fine...
@@ -51,15 +52,16 @@ public class SimplifiedObservation implements Serializable
 		// apparantly the key in zelda is an immovable position...
 		code = 23 * code + Lib.getNearestDistanceAndDirection(
 			so.getImmovablePositions(avatarPosition), avatarPosition).hashCode();
+		*/
 	}
 
 	/** Simplified init for the prey testing game */
 	private void preyInit(StateObservation so)
 	{
 		Vector2d avatarPosition = so.getAvatarPosition();
-		code = 3 * code + avatarPosition.toString().hashCode();
-		code = 11 * code + Lib.getNearestDistanceAndDirection(
-			so.getNPCPositions(avatarPosition), avatarPosition).hashCode();
+		code = String.format("Prey: %s", 
+			Lib.getNearestDistanceAndDirection(
+				so.getNPCPositions(avatarPosition), avatarPosition).toString());
 		/*
 		System.out.printf("Position: %s, Prey: %s, code: %d\n", 
 			avatarPosition.toString(),
@@ -71,8 +73,7 @@ public class SimplifiedObservation implements Serializable
 
 	private void onlyAvatarPositionInit(StateObservation so)
 	{
-		Vector2d avatarPosition = so.getAvatarPosition();
-		code = 3 * code + avatarPosition.toString().hashCode();
+		code = so.getAvatarPosition().toString();
 	}
 
 	@Override
@@ -85,16 +86,29 @@ public class SimplifiedObservation implements Serializable
 		if (o == null || o.getClass() != this.getClass()) 
 		{ 
 			if(o instanceof StateObservation)
+			{
 				return equals(new SimplifiedObservation((StateObservation) o));
+			}
 			else
 				return false; 
 		}
-		// Compare hashcodes
-		return o.hashCode() == code;
+		// Same class, compare hashcodes 
+		return o.hashCode() == this.hashCode();
+	}
+
+	public String getCode() 
+	{
+		return this.code;
 	}
 
 	@Override
 	public int hashCode()
+	{
+		return code.hashCode();
+	}
+
+	@Override
+	public String toString()
 	{
 		return code;
 	}

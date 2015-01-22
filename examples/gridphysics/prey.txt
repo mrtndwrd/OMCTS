@@ -2,7 +2,7 @@ BasicGame
   SpriteSet
     movable >
       avatar > MovingAvatar img=avatar
-      prey >  img=monster RandomNPC cooldown=4
+      prey >  img=monster RandomNPC cooldown=1
 
   LevelMapping
     A > avatar
