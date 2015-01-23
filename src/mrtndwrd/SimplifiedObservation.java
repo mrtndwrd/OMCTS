@@ -25,34 +25,35 @@ public class SimplifiedObservation implements Serializable
 	{
 		// Initialize with some data. Later more initialize functions could be
 		// added
-		someDataInit(so);
+		//someDataInit(so);
+		someDataWithPositionInit(so);
 		//preyInit(so);
 		//onlyAvatarPositionInit(so);
 	}
 
+	private void someDataWithPositionInit(StateObservation so)
+	{
+		Vector2d avatarPosition = so.getAvatarPosition();
+		code = String.format("Position: %s\n Orientation: %s\n Resources: %s\n NPCs: %s\n Movable: %s\n RecoursePositions: %s\n PortalsPositions: %s\n ImmovablePositions: %s",
+			so.getAvatarPosition().toString(),
+			so.getAvatarOrientation().toString(),
+			so.getAvatarResources().toString(),
+			Lib.getNearestDistanceAndDirection(
+				so.getNPCPositions(avatarPosition), avatarPosition).toString(),
+			Lib.getNearestDistanceAndDirection(
+				so.getMovablePositions(avatarPosition), avatarPosition).toString(),
+			Lib.getNearestDistanceAndDirection(
+				so.getResourcesPositions(avatarPosition), avatarPosition).toString(),
+			Lib.getNearestDistanceAndDirection(
+				so.getPortalsPositions(avatarPosition), avatarPosition).toString(),
+			Lib.getNearestDistanceAndDirection(
+				so.getImmovablePositions(avatarPosition), avatarPosition).toString());
+
+	}
 	/** Initialize using some of the observed data. Excluded are: The entire
 	 * observation grid, getFromAvatarSprites and getImmovablePositions */
 	private void someDataInit(StateObservation so)
 	{
-		/* TODO: Change to string
-		Vector2d avatarPosition = so.getAvatarPosition();
-		code = [avatarPosition.toString().;
-		code = 5 * code + so.getAvatarOrientation().toString().hashCode();
-		// avatarResources are a HashMap<int, int>. This hashCode should work
-		// fine...
-		code = 7 * code + so.getAvatarResources().hashCode();
-		code = 11 * code + Lib.getNearestDistanceAndDirection(
-			so.getNPCPositions(avatarPosition), avatarPosition).hashCode();
-		code = 13 * code + Lib.getNearestDistanceAndDirection(
-			so.getMovablePositions(avatarPosition), avatarPosition).hashCode();
-		code = 17 * code + Lib.getNearestDistanceAndDirection(
-			so.getResourcesPositions(avatarPosition), avatarPosition).hashCode();
-		code = 19 * code + Lib.getNearestDistanceAndDirection(
-			so.getPortalsPositions(avatarPosition), avatarPosition).hashCode();
-		// apparantly the key in zelda is an immovable position...
-		code = 23 * code + Lib.getNearestDistanceAndDirection(
-			so.getImmovablePositions(avatarPosition), avatarPosition).hashCode();
-		*/
 		Vector2d avatarPosition = so.getAvatarPosition();
 		code = String.format(" Orientation: %s\n Resources: %s\n NPCs: %s\n Movable: %s\n RecoursePositions: %s\n PortalsPositions: %s\n ImmovablePositions: %s",
 			so.getAvatarOrientation().toString(),

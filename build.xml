@@ -60,12 +60,13 @@
 			</classpath>
 		</java>
 	</target>
-	<target name="runonly" depends="compile">
+	<target name="runonly">
 		<echo message="Executing Test.java ..."/>
 		<java fork="true" classname="Test">
 			<classpath>
 				<path location="${classes.dir}"/>
 			</classpath>
+			<arg value="-Xmx1024m" />
 		</java>
 	</target>
 
