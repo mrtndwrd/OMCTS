@@ -7,11 +7,12 @@ cd ..
 # Create and empty (if needed) output dir
 mkdir -p output
 rm output/*
+ant
 for i in $(eval echo {1..$MAX})
 do
 	echo $i
 	# Run test and remove the q-table data
-	ant run | scripts/getScore.sh > output/o$i
+	ant runonly | scripts/getScore.sh > output/o$i
 	rm test
 done
 python scripts/plot.py output/o* -t
