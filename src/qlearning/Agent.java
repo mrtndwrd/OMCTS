@@ -100,15 +100,21 @@ public class Agent extends AbstractPlayer
 
 		// Currently only the greedy action will have to be taken after this is
 		// done, so we can take as much time as possible!
-		while(elapsedTimer.remainingTimeMillis() > 15.)
+		while(elapsedTimer.remainingTimeMillis() > 5.)
 		{
-			System.out.println("Starting exploration with remaining time " + elapsedTimer.remainingTimeMillis());
+			//System.out.println("Starting exploration with remaining time " + elapsedTimer.remainingTimeMillis());
 			soCopy = so.copy();
 			// create histories of actions and states
 			Types.ACTIONS[] actionHistory = new Types.ACTIONS[EXPLORATION_DEPTH];
 			SimplifiedObservation[] stateHistory = new SimplifiedObservation[EXPLORATION_DEPTH];
 			for(depth=0; depth<EXPLORATION_DEPTH && !soCopy.isGameOver(); depth++)
 			{
+				if(elapsedTimer.remainingTimeMillis() < 4)
+				{
+					System.out.printf("TOO LITTLE TIME AT START, returning with %d milliseconds left\n",
+						elapsedTimer.remainingTimeMillis());
+					return;
+				}
 				// Get a new state and the action that leads to it in an
 				// epsilon-greedy manner
 				// This advances soCopy with the taken action
@@ -118,22 +124,23 @@ public class Agent extends AbstractPlayer
 				// Advance the state, this should advance everywhere, with pointers and
 				// stuff
 				SimplifiedObservation s = new SimplifiedObservation(soCopy);
-				System.out.printf("Before advance, time left: %d\n",
-					elapsedTimer.remainingTimeMillis());
+				//System.out.printf("Before advance, time left: %d\n",
+				//	elapsedTimer.remainingTimeMillis());
 				soCopy.advance(a);
-				System.out.printf("After advance, time left: %d\n",
-					elapsedTimer.remainingTimeMillis());
+				//System.out.printf("After advance, time left: %d\n",
+				//	elapsedTimer.remainingTimeMillis());
 				// add state-action pair to history arrays
 				stateHistory[depth] = s;
 				actionHistory[depth] = a;
 				// Check the remaining time
-				if(elapsedTimer.remainingTimeMillis() < 3)
+				if(elapsedTimer.remainingTimeMillis() < 4)
 				{
-					System.out.println("TOO LITTLE TIME, returning");
+					System.out.printf("TOO LITTLE TIME AT END, returning with %d milliseconds left\n",
+						elapsedTimer.remainingTimeMillis());
 					return;
 				}
 			}
-			System.out.println("Starting backup with remaining time " + elapsedTimer.remainingTimeMillis());
+			//System.out.println("Starting backup with remaining time " + elapsedTimer.remainingTimeMillis());
 			// process the states and actions from this rollout, using the value
 			// of the last visited state
 			backUp(stateHistory, actionHistory, Lib.simpleValue(soCopy), depth, lastNonGreedyDepth);
@@ -274,7 +281,7 @@ public class Agent extends AbstractPlayer
 		//System.out.println("Starting action");
 		// Create simplified observation:
 		explore(so, elapsedTimer);
-		System.out.printf("Returning greedy action with %d time left\n", elapsedTimer.remainingTimeMillis());
+		//System.out.printf("Returning greedy action with %d time left\n", elapsedTimer.remainingTimeMillis());
 		return greedyAction(so);
 	}
 
