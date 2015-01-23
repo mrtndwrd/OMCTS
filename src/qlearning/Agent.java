@@ -17,6 +17,7 @@ import java.util.Random;
 import java.util.concurrent.TimeoutException;
 import java.util.ArrayList;
 import java.io.FileOutputStream;
+import java.lang.Math;
 
 /**
  * User: mrtndwrd
@@ -31,16 +32,24 @@ public class Agent extends AbstractPlayer
 	/** Mapping from State, Action (as index from above actions array) to
 	 * expected Reward (value), the "Q table" */
 	private DefaultHashMap<SerializableTuple<SimplifiedObservation, Types.ACTIONS>, Double> q;
+	/** Numerator of the q table */
+	private DefaultHashMap<SerializableTuple<SimplifiedObservation, Types.ACTIONS>, Double> n
+		= new DefaultHashMap<SerializableTuple<SimplifiedObservation, Types.ACTIONS>, Double>(0.);
+	/** Denominator of the q table */
+	private DefaultHashMap<SerializableTuple<SimplifiedObservation, Types.ACTIONS>, Double> d
+		= new DefaultHashMap<SerializableTuple<SimplifiedObservation, Types.ACTIONS>, Double>(0.);
 	private Random random = new Random();
+	/** Saves the last non-greedy action timestep */
+	private boolean lastActionGreedy = false;
 
 	/** Default value for v */
 	private final Double DEFAULT_V_VALUE = 0.0;
 	/** Default value for q */
 	private final Double DEFAULT_Q_VALUE = 0.0;
 	/** Exploration depth for building q and v */
-	private final int EXPLORATION_DEPTH = 20;
+	private final int EXPLORATION_DEPTH = 15;
 	/** Epsilon for exploration vs. exploitation */
-	private final double EPSILON = .1;
+	private final double EPSILON = .2;
 	/** The learning rate of this algorithm */
 	private final double ALPHA = .1;
 	/** Gamma for bellman equation */
@@ -86,11 +95,14 @@ public class Agent extends AbstractPlayer
 	{
 		int depth;
 		StateObservation soCopy;
+		// initialize lastNonGreedyDepth to 0, in case all actions are greedy
+		int lastNonGreedyDepth = 0;
 
 		// Currently only the greedy action will have to be taken after this is
 		// done, so we can take as much time as possible!
 		while(elapsedTimer.remainingTimeMillis() > 15.)
 		{
+			System.out.println("Starting exploration with remaining time " + elapsedTimer.remainingTimeMillis());
 			soCopy = so.copy();
 			// create histories of actions and states
 			Types.ACTIONS[] actionHistory = new Types.ACTIONS[EXPLORATION_DEPTH];
@@ -101,21 +113,37 @@ public class Agent extends AbstractPlayer
 				// epsilon-greedy manner
 				// This advances soCopy with the taken action
 				Types.ACTIONS a = epsilonGreedyAction(soCopy);
+				if(!lastActionGreedy)
+					lastNonGreedyDepth = depth;
 				// Advance the state, this should advance everywhere, with pointers and
 				// stuff
 				SimplifiedObservation s = new SimplifiedObservation(soCopy);
+				System.out.printf("Before advance, time left: %d\n",
+					elapsedTimer.remainingTimeMillis());
 				soCopy.advance(a);
+				System.out.printf("After advance, time left: %d\n",
+					elapsedTimer.remainingTimeMillis());
 				// add state-action pair to history arrays
 				stateHistory[depth] = s;
 				actionHistory[depth] = a;
+				// Check the remaining time
+				if(elapsedTimer.remainingTimeMillis() < 3)
+				{
+					System.out.println("TOO LITTLE TIME, returning");
+					return;
+				}
 			}
+			System.out.println("Starting backup with remaining time " + elapsedTimer.remainingTimeMillis());
 			// process the states and actions from this rollout, using the value
 			// of the last visited state
-			backUp(stateHistory, actionHistory, Lib.simpleValue(soCopy), depth);
+			backUp(stateHistory, actionHistory, Lib.simpleValue(soCopy), depth, lastNonGreedyDepth);
+			// Reset lastNonGreedyDepth
+			lastNonGreedyDepth = 0;
 		}
 	}
 
-	/** Update q values using the bellman equation
+	/** Update q values using Off-Policy Monte Carlo Control
+	 * http://webdocs.cs.ualberta.ca/~sutton/book/ebook/node56.html
 	 * @param stateHistory The states visited in the last run. stateHistory[0]
 	 * is the first state
 	 * @param actionHistory The actions taken in each state from stateHistory.
@@ -124,40 +152,96 @@ public class Agent extends AbstractPlayer
 	 * combination with this.GAMMA to update all q values
 	 * @param lastDepth Some times stateHistory.length is not
 	 * this.EXPLORATION_DEPTH, because the game was ended before
-	 * this.EXPLORATION_DEPTH was reached. Therefore we need the last depth
+	 * this.EXPLORATION_DEPTH was reached. Therefore we need the last depth.
+	 * This is, in the literature, referred to as T
+	 * @param lastNonGreedyDepth depth at which the last non-greedy action was
+	 * taken
 	 */
-	private void backUp(SimplifiedObservation[] stateHistory, Types.ACTIONS[] actionHistory, double score, int lastDepth)
+	private void backUp(SimplifiedObservation[] stateHistory, 
+		Types.ACTIONS[] actionHistory, double score, int lastDepth, 
+		int lastNonGreedyDepth)
 	{
+		if(lastDepth < lastNonGreedyDepth)
+		{
+			System.out.printf("Something's DEFINITELY wrong! lastDepth: %d, lastNonGreedyDepth: %d\n",
+				lastDepth, lastNonGreedyDepth);
+		}
 		// Will be used as index in the q table
 		SerializableTuple<SimplifiedObservation, Types.ACTIONS> sa;
 		// Will be used for the score that is currently in the q table
 		double lastScore;
-		double gamma = GAMMA;
-		// We can not be entirely sure that the array is full, since we stop
-		// exploring when a game is over
-		for(int i=lastDepth-1; i>-1 && stateHistory[i] != null; i--)
+		// Will be index of the first state-action pair:
+		// t = time of first occurrence of s, a, such that t > lastNonGreedyDepth
+		int t;
+		// Probability of ending up in state s:
+		double w;
+		// newN and newD values for first computing and then setting. This
+		// prevents getting the values twice
+		double newN;
+		double newD;
+		// Loop from t to T-1
+		for(int i=lastNonGreedyDepth; i<lastDepth && stateHistory[i] != null; i++)
 		{
+			// t = time of first occurrence of s, a, such that t > lastNonGreedyDepth
+			t = getFirstStateActionIndex(stateHistory[i], actionHistory[i], 
+				stateHistory, actionHistory, lastNonGreedyDepth);
+			// w = product(1/(pi'(s_k, a_k)))
+			// Simplified version: w = 1/((1-EPSILON)^(T-t))
+			w = 1/Math.pow(1-EPSILON, (lastDepth-t));
 			sa = new SerializableTuple(stateHistory[i], actionHistory[i]);
-			lastScore = q.get(sa);
-			//q.put(sa, gamma * lastScore + score);
-			q.put(sa, lastScore + ALPHA * (gamma * score - lastScore));
-			// reduce gamma, because we're a state further from the score
-			gamma *= GAMMA;
+			newN = n.get(sa) + w * score;
+			n.put(sa, newN);
+			newD = d.get(sa) + w;
+			d.put(sa, newD);
+			q.put(sa, newN/newD);
 		}
 	}
+
+	/** Searches stateHistory and actionHistory for the first occurrence of the
+	 * given state action pair after index 'first'
+	 * */
+	private int getFirstStateActionIndex(SimplifiedObservation state, 
+		Types.ACTIONS action, SimplifiedObservation[] stateHistory, 
+		Types.ACTIONS[] actionHistory, int first)
+	{
+		if(stateHistory.length != actionHistory.length)
+		{
+			System.out.println(
+				"WARNING: stateHistory size differs from actionHistory size!");
+			return 0;
+		}
+		for(int i=first; i<stateHistory.length; i++)
+		{
+			if(state.equals(stateHistory[i]) && action.equals(actionHistory[i]))
+				return i;
+		}
+		System.out.println("WARNING state action pair not found!? Returning last index");
+		return stateHistory.length - 1;
+	}
+
 
 	/** Selects an epsilon greedy value based on the internal q table. Returns
 	 * the optimal action as index of the this.actions array.
 	 */
 	private Types.ACTIONS epsilonGreedyAction(StateObservation so)
 	{
+		// Either way we need to know WHAT the greedy action is, in order to
+		// know whether we have taken a greedy action
+		Types.ACTIONS greedyAction = greedyAction(so);
 		// Select a random action with prob. EPSILON
 		if(random.nextDouble() < EPSILON)
 		{
-			return possibleActions.get(random.nextInt(possibleActions.size()));
+			// Get random action
+			Types.ACTIONS action = possibleActions.get(
+				random.nextInt(possibleActions.size()));
+			// Set whether the last action was greedy to true: This is used for
+			// learning 
+			lastActionGreedy = action == greedyAction;
+			return action;
 		}
 		// Else, select greedy action:
-		return greedyAction(so);
+		lastActionGreedy = true;
+		return greedyAction;
 	}
 
 	private Types.ACTIONS greedyAction(StateObservation so)
@@ -190,6 +274,7 @@ public class Agent extends AbstractPlayer
 		//System.out.println("Starting action");
 		// Create simplified observation:
 		explore(so, elapsedTimer);
+		System.out.printf("Returning greedy action with %d time left\n", elapsedTimer.remainingTimeMillis());
 		return greedyAction(so);
 	}
 

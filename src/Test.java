@@ -20,7 +20,8 @@ public class Test
         String sampleMCTSController = "controllers.sampleMCTS.Agent";
         String sampleOLMCTSController = "controllers.sampleOLMCTS.Agent";
         String sampleGAController = "controllers.sampleGA.Agent";
-        String myController = "qlearning.Agent";
+        //String myController = "qlearning.Agent";
+        String myController = "controllers.sampleOLMCTS.Agent";
 
         //Available games:
         String gamesPath = "examples/gridphysics/";
@@ -40,8 +41,8 @@ public class Test
         int seed = new Random().nextInt();
 
         //Game and level to play
-        int gameIdx = 10;
-        int levelIdx = 1; //level names from 0 to 4 (game_lvlN.txt).
+        int gameIdx = 9;
+        int levelIdx = 0; //level names from 0 to 4 (game_lvlN.txt).
         String game = gamesPath + games[gameIdx] + ".txt";
         String level1 = gamesPath + games[gameIdx] + "_lvl" + levelIdx +".txt";
 
@@ -50,16 +51,16 @@ public class Test
 
         // 2. This plays a game in a level by the controller.
         //ArcadeMachine.runOneGame(game, level1, visuals, sampleMCTSController, recordActionsFile, seed);
-        //ArcadeMachine.runOneGame(game, level1, visuals, myController, recordActionsFile, seed);
+        ArcadeMachine.runOneGame(game, level1, visuals, myController, recordActionsFile, seed);
 
         // 3. This replays a game from an action file previously recorded
         //String readActionsFile = "actionsFile_aliens_lvl0.txt";  //This example is for
         //ArcadeMachine.replayGame(game, level1, visuals, readActionsFile);
 
         // 4. This plays a single game, in N levels, M times :
-        String level2 = gamesPath + games[gameIdx] + "_lvl" + 1 +".txt";
-        int M = 40;
-        ArcadeMachine.runGames(game, new String[]{level1}, M, myController, null);
+        String level2 = gamesPath + games[gameIdx] + "_lvl" + 0 +".txt";
+        int M = 20;
+        //ArcadeMachine.runGames(game, new String[]{level1}, M, myController, null);
 
         //5. This plays N games, in the first L levels, M times each. Actions to file optional (set saveActions to true).
         /*int N = 10, L = 5, M = 2;

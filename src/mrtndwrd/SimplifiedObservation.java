@@ -25,8 +25,8 @@ public class SimplifiedObservation implements Serializable
 	{
 		// Initialize with some data. Later more initialize functions could be
 		// added
-		//someDataInit(so);
-		preyInit(so);
+		someDataInit(so);
+		//preyInit(so);
 		//onlyAvatarPositionInit(so);
 	}
 
@@ -53,6 +53,21 @@ public class SimplifiedObservation implements Serializable
 		code = 23 * code + Lib.getNearestDistanceAndDirection(
 			so.getImmovablePositions(avatarPosition), avatarPosition).hashCode();
 		*/
+		Vector2d avatarPosition = so.getAvatarPosition();
+		code = String.format(" Orientation: %s\n Resources: %s\n NPCs: %s\n Movable: %s\n RecoursePositions: %s\n PortalsPositions: %s\n ImmovablePositions: %s",
+			so.getAvatarOrientation().toString(),
+			so.getAvatarResources().toString(),
+			Lib.getNearestDistanceAndDirection(
+				so.getNPCPositions(avatarPosition), avatarPosition).toString(),
+			Lib.getNearestDistanceAndDirection(
+				so.getMovablePositions(avatarPosition), avatarPosition).toString(),
+			Lib.getNearestDistanceAndDirection(
+				so.getResourcesPositions(avatarPosition), avatarPosition).toString(),
+			Lib.getNearestDistanceAndDirection(
+				so.getPortalsPositions(avatarPosition), avatarPosition).toString(),
+			Lib.getNearestDistanceAndDirection(
+				so.getImmovablePositions(avatarPosition), avatarPosition).toString());
+			
 	}
 
 	/** Simplified init for the prey testing game */
