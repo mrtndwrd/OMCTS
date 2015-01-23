@@ -42,7 +42,7 @@ public class Agent extends AbstractPlayer
 	/** Epsilon for exploration vs. exploitation */
 	private final double EPSILON = .1;
 	/** The learning rate of this algorithm */
-	private final double ALPHA = .5;
+	private final double ALPHA = .1;
 	/** Gamma for bellman equation */
 	private final double GAMMA = .9;
 	/** Theta for noise */
@@ -139,7 +139,8 @@ public class Agent extends AbstractPlayer
 		{
 			sa = new SerializableTuple(stateHistory[i], actionHistory[i]);
 			lastScore = q.get(sa);
-			q.put(sa, gamma * lastScore + score);
+			//q.put(sa, gamma * lastScore + score);
+			q.put(sa, lastScore + ALPHA * (gamma * score - lastScore));
 			// reduce gamma, because we're a state further from the score
 			gamma *= GAMMA;
 		}
