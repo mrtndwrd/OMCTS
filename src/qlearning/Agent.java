@@ -47,9 +47,9 @@ public class Agent extends AbstractPlayer
 	/** Default value for q */
 	private final Double DEFAULT_Q_VALUE = 0.0;
 	/** Exploration depth for building q and v */
-	private final int EXPLORATION_DEPTH = 15;
+	private final int EXPLORATION_DEPTH = 30;
 	/** Epsilon for exploration vs. exploitation */
-	private final double EPSILON = .2;
+	private final double EPSILON = .3;
 	/** The learning rate of this algorithm */
 	private final double ALPHA = .1;
 	/** Gamma for bellman equation */

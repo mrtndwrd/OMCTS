@@ -50,9 +50,13 @@ class HyperVolumePlotter:
         with open(filename) as f:
             data = f.readlines()
             # compare to a random entry all_data. Length should be the same
-            if self.all_data['wins'] and len(data) != len(self.all_data['wins'][0]):
-                print "Ignoring %s, because the length is wrong" % (filename)
-                return
+            for tag in ['wins', 'score', 'time']:
+                # We can assume that all_data[tag] has the same length for every
+                # entry
+                if self.all_data[tag] and len(data) != len(self.all_data[tag][0]):
+                    for i in range(len(self.all_data[tag])):
+                        # Trim one of the data lengths:
+                        self.trim_either(self.all_data[tag][i], data)
             # Create x axis data points
             xs = range(0, len(data))
             # Split all rules in the file by space
@@ -63,6 +67,16 @@ class HyperVolumePlotter:
             self.all_data['wins'].append([float(d[0]) for d in data_split])
             self.all_data['score'].append([float(d[1]) for d in data_split])
             self.all_data['time'].append([float(d[2]) for d in data_split])
+
+    def trim_either(self, d1, d2):
+        """ Removes the last entries from either of the lists in order to get
+        two lists of the same length """
+        if len(d1) > len(d2):
+            del d1[len(d2):]
+        elif len(d2) > len(d1):
+            del d2[len(d1):]
+        print "New length d1: %d d2: %d" % (len(d1), len(d2))
+
 
     def make_plot(self):
         # Plot everything

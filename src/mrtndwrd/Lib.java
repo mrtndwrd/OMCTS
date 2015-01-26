@@ -55,11 +55,11 @@ public class Lib
 		Types.WINNER win = a_gameState.getGameWinner();
 		double rawScore = a_gameState.getGameScore();
 
-		//if(gameOver && win == Types.WINNER.PLAYER_LOSES)
-		//	rawScore += HUGE_NEGATIVE;
+		if(gameOver && win == Types.WINNER.PLAYER_LOSES)
+			rawScore -= 1000;
 
-		//if(gameOver && win == Types.WINNER.PLAYER_WINS)
-		//	rawScore += HUGE_POSITIVE;
+		if(gameOver && win == Types.WINNER.PLAYER_WINS)
+			rawScore += 1000;
 
 		return rawScore;
 	}

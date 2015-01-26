@@ -26,7 +26,7 @@ public class SimplifiedObservation implements Serializable
 		// Initialize with some data. Later more initialize functions could be
 		// added
 		//someDataInit(so);
-		someDataWithPositionInit(so);
+		someDataInit(so);
 		//preyInit(so);
 		//onlyAvatarPositionInit(so);
 	}

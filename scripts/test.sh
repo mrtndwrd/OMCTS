@@ -10,9 +10,10 @@ rm output/*
 ant
 for i in $(eval echo {1..$MAX})
 do
-	echo $i
-	# Run test and remove the q-table data
-	ant runonly | scripts/getScore.sh > output/o$i
 	rm test
+	echo "Running test" $i
+	# Run test and remove the q-table data
+	ant runonly > output/complete_output_$i
+	cat output/complete_output_$i | scripts/getScore.sh > output/o$i
 done
 python scripts/plot.py output/o* -t

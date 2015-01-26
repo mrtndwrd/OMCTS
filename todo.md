@@ -1,5 +1,8 @@
 Programmeren:
 - "qlearning" verbeteren met ditte: http://webdocs.cs.ualberta.ca/~sutton/book/ebook/node56.html
+- Richting vervangen voor a-ster stappen
+- Kijken of monte carlo wel diep genoeg komt
+- Inverteren van objecten tussen 2-level transfer
 
 - Lezen: Hoofdstuk
   4, 5, (6), 17
@@ -7,6 +10,9 @@ Programmeren:
   (4 en 5 gelezen)
 
 Uitzoeken: 
+
+- **Uitzoeken of je erachter kunt komen welke sprites "obstakels" of "muren"
+  zijn
 
 - **Nadenken over hoe je om kunt gaan met sprites die niet per se hetzelfde zijn
 	in een nieuwe game als in een oude**
@@ -18,15 +24,11 @@ Uitzoeken:
 
 - **Nadenken over gedragshierarchie leren**
 
-- **Heeft een agent toegang tot de VGDL-descriptie?**
-
-	Nee. Het enige wat je hebt is het "observation grid" Hierin staan op init-time
-	de observaties die je aan het begin kunt doen (bijv. het hele level). Aan de
-	hand hiervan kun je niet per se bepalen watvoor game je gaat spelen.
-
 - **Lezen over DYNA en DYNA 2 en Prioritized Sweeping**
+	- Prioritized sweeping gelezen
 
 - **Nadenken over mogelijke transfer-implementaties**
+	- Nu: simpelste optie, volledig model overzetten
 
 - **Hoe zit de competitie precies in elkaar? Hoe werkt de rating?**
 
@@ -74,3 +76,9 @@ Uitzoeken:
 - **Weet je altijd wat de goal-state is?**
 
 	Nee. Volgens mij weet je dat in principe nooit...
+
+- **Heeft een agent toegang tot de VGDL-descriptie?**
+
+	Nee. Het enige wat je hebt is het "observation grid" Hierin staan op init-time
+	de observaties die je aan het begin kunt doen (bijv. het hele level). Aan de
+	hand hiervan kun je niet per se bepalen watvoor game je gaat spelen.
