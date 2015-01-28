@@ -3,7 +3,7 @@ package qlearning;
 import mrtndwrd.*;
 
 import controllers.Heuristics.StateHeuristic;
-import controllers.Heuristics.WinScoreHeuristic;
+import controllers.Heuristics.SimpleStateHeuristic;
 import core.game.StateObservation;
 import core.game.Observation;
 import core.player.AbstractPlayer;
@@ -49,19 +49,23 @@ public class Agent extends AbstractPlayer
 	/** Exploration depth for building q and v */
 	private final int EXPLORATION_DEPTH = 30;
 	/** Epsilon for exploration vs. exploitation */
-	private final double EPSILON = .3;
+	private final double EPSILON = .2;
 	/** The learning rate of this algorithm */
 	private final double ALPHA = .1;
-	/** Gamma for bellman equation */
-	private final double GAMMA = .9;
 	/** Theta for noise */
 	private final double THETA = 1e-6;
 
 	/** File to write q table to */
 	private String filename;
 
+	/** Own state heuristic */
+	private StateHeuristic stateHeuristic;
+
 	public Agent(StateObservation so, ElapsedCpuTimer elapsedTimer) 
 	{
+		Lib.printObservationGrid(so.getObservationGrid());
+		AStar aStar = new AStar(so);
+		stateHeuristic = new SimpleStateHeuristic(so);
 		this.filename = "test";
 		//Get the actions in a static array.
 		possibleActions = so.getAvailableActions();
@@ -143,7 +147,7 @@ public class Agent extends AbstractPlayer
 			//System.out.println("Starting backup with remaining time " + elapsedTimer.remainingTimeMillis());
 			// process the states and actions from this rollout, using the value
 			// of the last visited state
-			backUp(stateHistory, actionHistory, Lib.simpleValue(soCopy), depth, lastNonGreedyDepth);
+			backUp(stateHistory, actionHistory, stateHeuristic.evaluateState(soCopy), depth, lastNonGreedyDepth);
 			// Reset lastNonGreedyDepth
 			lastNonGreedyDepth = 0;
 		}
@@ -155,8 +159,7 @@ public class Agent extends AbstractPlayer
 	 * is the first state
 	 * @param actionHistory The actions taken in each state from stateHistory.
 	 * actionHistory[i] is an action taken in stateHistory[i]
-	 * @param score The score in the last state in stateHistory. This is used in
-	 * combination with this.GAMMA to update all q values
+	 * @param score The score in the last state in stateHistory. 
 	 * @param lastDepth Some times stateHistory.length is not
 	 * this.EXPLORATION_DEPTH, because the game was ended before
 	 * this.EXPLORATION_DEPTH was reached. Therefore we need the last depth.

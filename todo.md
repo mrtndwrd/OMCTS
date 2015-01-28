@@ -1,5 +1,4 @@
 Programmeren:
-- "qlearning" verbeteren met ditte: http://webdocs.cs.ualberta.ca/~sutton/book/ebook/node56.html
 - Richting vervangen voor a-ster stappen
 - Kijken of monte carlo wel diep genoeg komt
 - Inverteren van objecten tussen 2-level transfer

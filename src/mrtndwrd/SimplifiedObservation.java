@@ -25,7 +25,6 @@ public class SimplifiedObservation implements Serializable
 	{
 		// Initialize with some data. Later more initialize functions could be
 		// added
-		//someDataInit(so);
 		someDataInit(so);
 		//preyInit(so);
 		//onlyAvatarPositionInit(so);
@@ -68,7 +67,6 @@ public class SimplifiedObservation implements Serializable
 				so.getPortalsPositions(avatarPosition), avatarPosition).toString(),
 			Lib.getNearestDistanceAndDirection(
 				so.getImmovablePositions(avatarPosition), avatarPosition).toString());
-			
 	}
 
 	/** Simplified init for the prey testing game */
