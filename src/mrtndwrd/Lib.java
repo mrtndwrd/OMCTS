@@ -87,6 +87,25 @@ public class Lib
 		return new Tuple<Double, String>(ob.sqDist, direction);
 	}
 
+	/** Searches for the nearest observation in an array of observations, and
+	 * the path towards it. The first action on that path is returned together
+	 * with the distance to the nearest observation */
+	public static Tuple<Double, Types.ACTIONS> getNearestDistanceAndAStarAction(
+		ArrayList<Observation>[] obala, Vector2d avatarPosition, AStar aStar)
+	{
+		// Get the nearest observation:
+		Observation ob = getNearestObservation(obala);
+		if(ob == null)
+			return new Tuple<Double, Types.ACTIONS>(0., Types.ACTIONS.ACTION_NIL);
+		ArrayList<Tuple<Integer, Integer>> path = aStar.aStar(avatarPosition, ob.position);
+		// We at least need our current and goal, else we're already there or
+		// there is no path
+		if(path.size() < 2)
+			return new Tuple<Double, Types.ACTIONS>(0., Types.ACTIONS.ACTION_NIL);
+		Types.ACTIONS action = aStar.neededAction(path.get(path.size()-1), path.get(path.size()-2));
+		return new Tuple<Double, Types.ACTIONS>(ob.sqDist, action);
+	}
+
 	/** Get the nearest observation from an array of ArrayLists of observations,
 	 * assuming that all ArrayLists are already ordered. These ArrayList Arrays
 	 * come from functions like getNPCPositions()

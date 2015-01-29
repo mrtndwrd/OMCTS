@@ -47,9 +47,9 @@ public class Agent extends AbstractPlayer
 	/** Default value for q */
 	private final Double DEFAULT_Q_VALUE = 0.0;
 	/** Exploration depth for building q and v */
-	private final int EXPLORATION_DEPTH = 30;
+	private final int EXPLORATION_DEPTH = 20;
 	/** Epsilon for exploration vs. exploitation */
-	private final double EPSILON = .2;
+	private final double EPSILON = .3;
 	/** The learning rate of this algorithm */
 	private final double ALPHA = .1;
 	/** Theta for noise */
@@ -61,10 +61,13 @@ public class Agent extends AbstractPlayer
 	/** Own state heuristic */
 	private StateHeuristic stateHeuristic;
 
+	/** AStar for searching for stuff */
+	private AStar aStar;
+
 	public Agent(StateObservation so, ElapsedCpuTimer elapsedTimer) 
 	{
 		Lib.printObservationGrid(so.getObservationGrid());
-		AStar aStar = new AStar(so);
+		aStar = new AStar(so);
 		stateHeuristic = new SimpleStateHeuristic(so);
 		this.filename = "test";
 		//Get the actions in a static array.
@@ -89,6 +92,7 @@ public class Agent extends AbstractPlayer
 				<SimplifiedObservation, Types.ACTIONS>, Double> (DEFAULT_Q_VALUE);
 		explore(so, elapsedTimer);
 		System.out.printf("End of constructor, miliseconds remaining: %d\n", elapsedTimer.remainingTimeMillis());
+		//System.out.print(q);
 	}
 
 	/** 
@@ -104,7 +108,7 @@ public class Agent extends AbstractPlayer
 
 		// Currently only the greedy action will have to be taken after this is
 		// done, so we can take as much time as possible!
-		while(elapsedTimer.remainingTimeMillis() > 5.)
+		while(elapsedTimer.remainingTimeMillis() > 10.)
 		{
 			//System.out.println("Starting exploration with remaining time " + elapsedTimer.remainingTimeMillis());
 			soCopy = so.copy();
@@ -127,7 +131,7 @@ public class Agent extends AbstractPlayer
 					lastNonGreedyDepth = depth;
 				// Advance the state, this should advance everywhere, with pointers and
 				// stuff
-				SimplifiedObservation s = new SimplifiedObservation(soCopy);
+				SimplifiedObservation s = new SimplifiedObservation(soCopy, aStar);
 				//System.out.printf("Before advance, time left: %d\n",
 				//	elapsedTimer.remainingTimeMillis());
 				soCopy.advance(a);
@@ -147,7 +151,8 @@ public class Agent extends AbstractPlayer
 			//System.out.println("Starting backup with remaining time " + elapsedTimer.remainingTimeMillis());
 			// process the states and actions from this rollout, using the value
 			// of the last visited state
-			backUp(stateHistory, actionHistory, stateHeuristic.evaluateState(soCopy), depth, lastNonGreedyDepth);
+			//backUp(stateHistory, actionHistory, stateHeuristic.evaluateState(soCopy), depth, lastNonGreedyDepth);
+			backUp(stateHistory, actionHistory, Lib.simpleValue(soCopy), depth, lastNonGreedyDepth);
 			// Reset lastNonGreedyDepth
 			lastNonGreedyDepth = 0;
 		}
@@ -171,6 +176,7 @@ public class Agent extends AbstractPlayer
 		Types.ACTIONS[] actionHistory, double score, int lastDepth, 
 		int lastNonGreedyDepth)
 	{
+		System.out.println("BACKUP");
 		if(lastDepth < lastNonGreedyDepth)
 		{
 			System.out.printf("Something's DEFINITELY wrong! lastDepth: %d, lastNonGreedyDepth: %d\n",
@@ -260,7 +266,7 @@ public class Agent extends AbstractPlayer
 		double maxValue = Lib.HUGE_NEGATIVE;
 		Types.ACTIONS maxAction = possibleActions.get(0);
 		SerializableTuple<SimplifiedObservation, Types.ACTIONS> sa;
-		SimplifiedObservation sso = new SimplifiedObservation (so);
+		SimplifiedObservation sso = new SimplifiedObservation (so, aStar);
 		// select action with highest value for this sso
 		for (Types.ACTIONS a : possibleActions)
 		{

@@ -13,7 +13,7 @@ do
 	rm test
 	echo "Running test" $i
 	# Run test and remove the q-table data
-	ant runonly > output/complete_output_$i
+	java -cp classes Test > output/complete_output_$i
 	cat output/complete_output_$i | scripts/getScore.sh > output/o$i
 done
-python scripts/plot.py output/o* -t
+python scripts/plot.py output/o* -ws

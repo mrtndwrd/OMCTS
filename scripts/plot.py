@@ -5,7 +5,7 @@ import numpy as np
 
 
 class HyperVolumePlotter:
-    def __init__(self, output_file='plot.pdf', true_hypervolume=None,
+    def __init__(self, output_file='plot.pdf',
         y_min=None, y_max=None, wins=False, score=False, time=False):
         self.output_file = output_file
         self.fig = plt.figure(figsize=(5, 5))
@@ -18,30 +18,6 @@ class HyperVolumePlotter:
         self.time = time
         self.all_data = {'wins': [], 'score': [], 'time': []}
 
-    def add_hypervolume(self, data, name=None):
-        if(len(data) == 0):
-            print "Data is still empty for %s" % (name)
-            # exit()
-            return
-        if self.true_hypervolume:
-            # Set the data to the percentage of the true front
-            for key, value in data.iteritems():
-                data[key] = (value/self.true_hypervolume) * 100
-
-        sorted_items = sorted(data.items(), key=lambda x: x[0])
-        xs = [float(x)/(1000000000.*60.) for x in sorted(data.keys())]
-        if type(data.itervalues().next()) == float:
-            ys = [y[1] for y in sorted_items]
-            self.ax.plot(xs, ys, label=name, linewidth=1.0)
-        else:
-            ys = [y[1][0] for y in sorted_items]
-            bounds = ((y[1][0] - y[1][1], y[1][0] + y[1][1])
-                      for y in sorted_items)
-            ymax, ymin = zip(*bounds)
-            self.ax.plot(xs, ys, label=name, linewidth=1.0)
-            col = self.ax.get_lines()[-1].get_color()
-            self.ax.fill_between(xs, ymax, ymin, alpha=.3, edgecolor="w",
-                                 color=col)
     def add_file(self, filename):
         """ Opens filename and adds a plot to the current plot. There has to be
         three columns in the file: wins score time, divided by spaces. All are
@@ -57,8 +33,6 @@ class HyperVolumePlotter:
                     for i in range(len(self.all_data[tag])):
                         # Trim one of the data lengths:
                         self.trim_either(self.all_data[tag][i], data)
-            # Create x axis data points
-            xs = range(0, len(data))
             # Split all rules in the file by space
             data_split = []
             for d in data:

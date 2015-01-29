@@ -3,6 +3,7 @@ package mrtndwrd;
 import core.game.StateObservation;
 import core.game.Observation;
 import tools.Vector2d;
+import ontology.Types;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -65,17 +66,19 @@ public class AStar
 					// This is assumed to be a wall
 					if(obs.itype == 0)
 					{
-						// This means that x is the vertical coordinate from the
-						// left up corner, and y is the horizontal coordinate
+						// This means that x is the horizontal coordinate from the
+						// left up corner, and y is the vertical coordinate
 						// from the left upper corner
 						walls.add(new Tuple<Integer, Integer>((int) obs.position.x/blockSize, (int) obs.position.y/blockSize));
 					}
 				}
 			}
 		}
-		maxY = observationGrid.length;
-		maxX = observationGrid[0].length;
-		System.out.println(this);
+		// X being vertical coordinates, is the inner array
+		maxX = observationGrid.length-1;
+		// Y, the horizontal coordinates, is the outer array
+		maxY = observationGrid[0].length-1;
+		//System.out.println(this);
 	}
 
 	public ArrayList<Tuple<Integer, Integer>> aStar (Vector2d start, Vector2d goal)
@@ -88,6 +91,17 @@ public class AStar
 	 * eliminated from these positions */
 	public ArrayList<Tuple<Integer, Integer>> aStar(Tuple<Integer, Integer> start, Tuple<Integer, Integer> goal)
 	{
+		// Reset everything:
+		openSet.clear();
+		closedSet.clear();
+		gScore.clear();
+		fScore.clear();
+		cameFrom.clear();
+		//System.out.println("Starting a* from " + start + " to " + goal);
+		// We can't go to walls!
+		if(walls.contains(goal))
+			return new ArrayList<Tuple<Integer, Integer>>();
+		this.goal = goal;
 		openSet.add(start);
 		gScore.put(start, 0.);
 		fScore.put(start, fScore(start));
@@ -96,8 +110,10 @@ public class AStar
 		{
 			// current := the node in openset having the lowest f_score[] value
 			current = openSet.poll();
-			if(current == goal)
+			if(current.equals(goal))
+			{
 				return reconstructPath(current);
+			}
 			closedSet.add(current);
 			double currentGScore = gScore.get(current);
 			for(Tuple<Integer, Integer> neighbour : getNeighbours(current))
@@ -120,10 +136,18 @@ public class AStar
 		return new ArrayList<Tuple<Integer, Integer>>();
 	}
 
-	// TODO
 	private ArrayList<Tuple<Integer, Integer>> reconstructPath(Tuple<Integer, Integer> end)
 	{
-		return new ArrayList<Tuple<Integer, Integer>>();
+		//System.out.println("Reconstructing path");
+		ArrayList<Tuple<Integer, Integer>> path = new ArrayList<Tuple<Integer, Integer>>();
+		Tuple<Integer, Integer> current = end;
+		do
+		{
+			path.add(current);
+			current = cameFrom.get(current);
+		}
+		while (current != null);
+		return path;
 	}
 
 	/** Creates a collection of neighbours reachable from node 'node' */
@@ -131,10 +155,31 @@ public class AStar
 	{
 		Collection<Tuple<Integer, Integer>> neighbours = 
 			new ArrayList<Tuple<Integer, Integer>> (4);
-		neighbours.add(new Tuple<Integer, Integer>(node.x + 1, node.y));
-		neighbours.add(new Tuple<Integer, Integer>(node.x - 1, node.y));
-		neighbours.add(new Tuple<Integer, Integer>(node.x, node.y + 1));
-		neighbours.add(new Tuple<Integer, Integer>(node.x, node.y - 1));
+		Tuple<Integer, Integer> nt;
+		if(node.x < maxX)
+		{
+			nt = new Tuple<Integer, Integer>(node.x + 1, node.y);
+			if(!walls.contains(nt))
+				neighbours.add(nt);
+		}
+		if(node.x > 0)
+		{
+			nt = new Tuple<Integer, Integer>(node.x - 1, node.y);
+			if(!walls.contains(nt))
+				neighbours.add(nt);
+		}
+		if(node.y < maxY)
+		{
+			nt = new Tuple<Integer, Integer>(node.x, node.y + 1);
+			if(!walls.contains(nt))
+				neighbours.add(nt);
+		}
+		if(node.y > 0)
+		{
+			nt = new Tuple<Integer, Integer>(node.x, node.y - 1);
+			if(!walls.contains(nt))
+				neighbours.add(nt);
+		}
 		return neighbours;
 	}
 
@@ -173,18 +218,43 @@ public class AStar
 				return -1;
 			return 0;
 		}
+	}
 
+	/** Returns the action that leads from start to end. */
+	public static Types.ACTIONS neededAction(Tuple<Integer, Integer> start, 
+		Tuple<Integer, Integer> end)
+	{
+		if(start.x > end.x)
+		{
+			return Types.ACTIONS.ACTION_LEFT;
+		}
+		else if(start.x < end.x)
+		{
+			return Types.ACTIONS.ACTION_RIGHT;
+		}
+		else if(start.y > end.y)
+		{
+			return Types.ACTIONS.ACTION_UP;
+		}
+		else if(start.y < end.y)
+		{
+			return Types.ACTIONS.ACTION_DOWN;
+		}
+		System.out.println("Probably same location, returning action nil");
+		return Types.ACTIONS.ACTION_NIL;
 	}
 
 	/** Print all the walls! */
 	public String toString()
 	{
 		String s = "Walls: \n";
-		for (int i=0; i<maxX; i++)
+		// First, loop through possible y coordinates (since y is vertical)
+		for (int y=0; y<=maxY; y++)
 		{
-			for (int j=0; j<maxY; j++)
+			// Now loop through x (horizontal)
+			for (int x=0; x<=maxX; x++)
 			{
-				if(walls.contains(new Tuple<Integer, Integer>(j, i)))
+				if(walls.contains(new Tuple<Integer, Integer>(x, y)))
 					s += "W";
 				else
 					s += " ";

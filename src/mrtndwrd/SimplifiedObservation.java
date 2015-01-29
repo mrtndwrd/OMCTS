@@ -21,40 +21,42 @@ public class SimplifiedObservation implements Serializable
 
 	private static final long serialVersionUID = 4382473219407506572L;
 
-	public SimplifiedObservation(StateObservation so)
+	public SimplifiedObservation(StateObservation so, AStar aStar)
 	{
 		// Initialize with some data. Later more initialize functions could be
 		// added
-		someDataInit(so);
+		aStarDataInit(so, aStar);
+		//someDataInit(so);
 		//preyInit(so);
 		//onlyAvatarPositionInit(so);
 	}
 
-	private void someDataWithPositionInit(StateObservation so)
+	private void aStarDataInit(StateObservation so, AStar aStar)
 	{
 		Vector2d avatarPosition = so.getAvatarPosition();
-		code = String.format("Position: %s\n Orientation: %s\n Resources: %s\n NPCs: %s\n Movable: %s\n RecoursePositions: %s\n PortalsPositions: %s\n ImmovablePositions: %s",
-			so.getAvatarPosition().toString(),
+		code = String.format("Orientation: %s\n Resources: %s\n NPCs: %s\n Movable: %s\n ResourcePositions: %s\n PortalsPositions: %s\n ImmovablePositions: %s",
 			so.getAvatarOrientation().toString(),
 			so.getAvatarResources().toString(),
-			Lib.getNearestDistanceAndDirection(
-				so.getNPCPositions(avatarPosition), avatarPosition).toString(),
-			Lib.getNearestDistanceAndDirection(
-				so.getMovablePositions(avatarPosition), avatarPosition).toString(),
-			Lib.getNearestDistanceAndDirection(
-				so.getResourcesPositions(avatarPosition), avatarPosition).toString(),
-			Lib.getNearestDistanceAndDirection(
-				so.getPortalsPositions(avatarPosition), avatarPosition).toString(),
-			Lib.getNearestDistanceAndDirection(
-				so.getImmovablePositions(avatarPosition), avatarPosition).toString());
-
+			Lib.getNearestDistanceAndAStarAction(
+				so.getNPCPositions(avatarPosition), avatarPosition, aStar).toString(),
+			Lib.getNearestDistanceAndAStarAction(
+				so.getMovablePositions(avatarPosition), avatarPosition, aStar).toString(),
+			Lib.getNearestDistanceAndAStarAction(
+				so.getResourcesPositions(avatarPosition), avatarPosition, aStar).toString(),
+			Lib.getNearestDistanceAndAStarAction(
+				so.getPortalsPositions(avatarPosition), avatarPosition, aStar).toString(),
+			Lib.getNearestDistanceAndAStarAction(
+				so.getImmovablePositions(avatarPosition), avatarPosition, aStar).toString());
 	}
+
 	/** Initialize using some of the observed data. Excluded are: The entire
 	 * observation grid, getFromAvatarSprites and getImmovablePositions */
 	private void someDataInit(StateObservation so)
 	{
 		Vector2d avatarPosition = so.getAvatarPosition();
-		code = String.format(" Orientation: %s\n Resources: %s\n NPCs: %s\n Movable: %s\n RecoursePositions: %s\n PortalsPositions: %s\n ImmovablePositions: %s",
+		System.out.printf("avatarPosition: %s, divided by block size: %f, %f\n",
+			avatarPosition, avatarPosition.x/so.getBlockSize(), avatarPosition.y/so.getBlockSize());
+		code = String.format("Orientation: %s\n Resources: %s\n NPCs: %s\n Movable: %s\n ResourcePositions: %s\n PortalsPositions: %s\n ImmovablePositions: %s",
 			so.getAvatarOrientation().toString(),
 			so.getAvatarResources().toString(),
 			Lib.getNearestDistanceAndDirection(
@@ -101,7 +103,7 @@ public class SimplifiedObservation implements Serializable
 		{ 
 			if(o instanceof StateObservation)
 			{
-				return equals(new SimplifiedObservation((StateObservation) o));
+				return equals(new SimplifiedObservation((StateObservation) o, null));
 			}
 			else
 				return false; 
