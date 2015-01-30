@@ -45,11 +45,11 @@ public class Agent extends AbstractPlayer
 	/** Default value for v */
 	private final Double DEFAULT_V_VALUE = 0.0;
 	/** Default value for q */
-	private final Double DEFAULT_Q_VALUE = 0.0;
+	private final Double DEFAULT_Q_VALUE = 20.0;
 	/** Exploration depth for building q and v */
-	private final int EXPLORATION_DEPTH = 20;
+	private final int EXPLORATION_DEPTH = 40;
 	/** Epsilon for exploration vs. exploitation */
-	private final double EPSILON = .3;
+	private final double EPSILON = .5;
 	/** The learning rate of this algorithm */
 	private final double ALPHA = .1;
 	/** Theta for noise */
@@ -66,7 +66,6 @@ public class Agent extends AbstractPlayer
 
 	public Agent(StateObservation so, ElapsedCpuTimer elapsedTimer) 
 	{
-		Lib.printObservationGrid(so.getObservationGrid());
 		aStar = new AStar(so);
 		stateHeuristic = new SimpleStateHeuristic(so);
 		this.filename = "test";
@@ -119,8 +118,8 @@ public class Agent extends AbstractPlayer
 			{
 				if(elapsedTimer.remainingTimeMillis() < 4)
 				{
-					System.out.printf("TOO LITTLE TIME AT START, returning with %d milliseconds left\n",
-						elapsedTimer.remainingTimeMillis());
+					//System.out.printf("TOO LITTLE TIME AT START, returning with %d milliseconds left\n",
+					//	elapsedTimer.remainingTimeMillis());
 					return;
 				}
 				// Get a new state and the action that leads to it in an
@@ -132,23 +131,18 @@ public class Agent extends AbstractPlayer
 				// Advance the state, this should advance everywhere, with pointers and
 				// stuff
 				SimplifiedObservation s = new SimplifiedObservation(soCopy, aStar);
-				//System.out.printf("Before advance, time left: %d\n",
-				//	elapsedTimer.remainingTimeMillis());
 				soCopy.advance(a);
-				//System.out.printf("After advance, time left: %d\n",
-				//	elapsedTimer.remainingTimeMillis());
 				// add state-action pair to history arrays
 				stateHistory[depth] = s;
 				actionHistory[depth] = a;
 				// Check the remaining time
 				if(elapsedTimer.remainingTimeMillis() < 4)
 				{
-					System.out.printf("TOO LITTLE TIME AT END, returning with %d milliseconds left\n",
-						elapsedTimer.remainingTimeMillis());
+					//System.out.printf("TOO LITTLE TIME AT END, returning with %d milliseconds left\n",
+					//	elapsedTimer.remainingTimeMillis());
 					return;
 				}
 			}
-			//System.out.println("Starting backup with remaining time " + elapsedTimer.remainingTimeMillis());
 			// process the states and actions from this rollout, using the value
 			// of the last visited state
 			//backUp(stateHistory, actionHistory, stateHeuristic.evaluateState(soCopy), depth, lastNonGreedyDepth);
@@ -176,7 +170,6 @@ public class Agent extends AbstractPlayer
 		Types.ACTIONS[] actionHistory, double score, int lastDepth, 
 		int lastNonGreedyDepth)
 	{
-		System.out.println("BACKUP");
 		if(lastDepth < lastNonGreedyDepth)
 		{
 			System.out.printf("Something's DEFINITELY wrong! lastDepth: %d, lastNonGreedyDepth: %d\n",
@@ -201,6 +194,7 @@ public class Agent extends AbstractPlayer
 			// t = time of first occurrence of s, a, such that t > lastNonGreedyDepth
 			t = getFirstStateActionIndex(stateHistory[i], actionHistory[i], 
 				stateHistory, actionHistory, lastNonGreedyDepth);
+
 			// w = product(1/(pi'(s_k, a_k)))
 			// Simplified version: w = 1/((1-EPSILON)^(T-t))
 			w = 1/Math.pow(1-EPSILON, (lastDepth-t));

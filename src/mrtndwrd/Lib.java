@@ -56,10 +56,10 @@ public class Lib
 		double rawScore = a_gameState.getGameScore();
 
 		if(gameOver && win == Types.WINNER.PLAYER_LOSES)
-			rawScore -= 1000;
+			rawScore -= 10000;
 
 		if(gameOver && win == Types.WINNER.PLAYER_WINS)
-			rawScore += 1000;
+			rawScore += 10000;
 
 		return rawScore;
 	}
