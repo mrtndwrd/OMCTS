@@ -27,29 +27,23 @@ import java.lang.Math;
 public class Agent extends AbstractPlayer 
 {
 	private ArrayList<Types.ACTIONS> possibleActions;
-	/** Mapping from state to value, the "Value Table" */
-	private DefaultHashMap<SimplifiedObservation, Double> v;
 	/** Mapping from State, Action (as index from above actions array) to
 	 * expected Reward (value), the "Q table" */
 	private DefaultHashMap<SerializableTuple<SimplifiedObservation, Types.ACTIONS>, Double> q;
 	/** Numerator of the q table */
-	private DefaultHashMap<SerializableTuple<SimplifiedObservation, Types.ACTIONS>, Double> n
-		= new DefaultHashMap<SerializableTuple<SimplifiedObservation, Types.ACTIONS>, Double>(0.);
+	private DefaultHashMap<SerializableTuple<SimplifiedObservation, Types.ACTIONS>, Double> n;
 	/** Denominator of the q table */
-	private DefaultHashMap<SerializableTuple<SimplifiedObservation, Types.ACTIONS>, Double> d
-		= new DefaultHashMap<SerializableTuple<SimplifiedObservation, Types.ACTIONS>, Double>(0.);
+	private DefaultHashMap<SerializableTuple<SimplifiedObservation, Types.ACTIONS>, Double> d;
 	private Random random = new Random();
 	/** Saves the last non-greedy action timestep */
 	private boolean lastActionGreedy = false;
 
-	/** Default value for v */
-	private final Double DEFAULT_V_VALUE = 0.0;
 	/** Default value for q */
 	private final Double DEFAULT_Q_VALUE = 20.0;
 	/** Exploration depth for building q and v */
 	private final int EXPLORATION_DEPTH = 40;
 	/** Epsilon for exploration vs. exploitation */
-	private final double EPSILON = .5;
+	private final double EPSILON = .3;
 	/** The learning rate of this algorithm */
 	private final double ALPHA = .1;
 	/** Theta for noise */
@@ -71,12 +65,16 @@ public class Agent extends AbstractPlayer
 		this.filename = "test";
 		//Get the actions in a static array.
 		possibleActions = so.getAvailableActions();
-		// Initialize V and Q:
-		v = new DefaultHashMap<SimplifiedObservation, Double>(DEFAULT_V_VALUE);
 		try
 		{
-			Object o = Lib.loadObjectFromFile(filename);
+			Object o = Lib.loadObjectFromFile(filename + 'q');
 			q = (DefaultHashMap<SerializableTuple
+				<SimplifiedObservation, Types.ACTIONS>, Double>) o;
+			o = Lib.loadObjectFromFile(filename + 'd');
+			d = (DefaultHashMap<SerializableTuple
+				<SimplifiedObservation, Types.ACTIONS>, Double>) o;
+			o = Lib.loadObjectFromFile(filename + 'n');
+			n = (DefaultHashMap<SerializableTuple
 				<SimplifiedObservation, Types.ACTIONS>, Double>) o;
 			System.out.printf("time remaining: %d\n", 
 				elapsedTimer.remainingTimeMillis());
@@ -87,8 +85,21 @@ public class Agent extends AbstractPlayer
 				"probably, it wasn't a hashmap, or the file didn't exist or something. Using empty q table");
 		}
 		if(q == null)
+		{
+			System.out.println("Q not initialized.");
 			q = new DefaultHashMap<SerializableTuple
 				<SimplifiedObservation, Types.ACTIONS>, Double> (DEFAULT_Q_VALUE);
+		}
+		if(d == null)
+		{
+			System.out.println("D not initialized.");
+			d = new DefaultHashMap<SerializableTuple<SimplifiedObservation, Types.ACTIONS>, Double>(0.);
+		}
+		if(n == null)
+		{
+			System.out.println("N not initialized.");
+			n = new DefaultHashMap<SerializableTuple<SimplifiedObservation, Types.ACTIONS>, Double>(0.);
+		}
 		explore(so, elapsedTimer);
 		System.out.printf("End of constructor, miliseconds remaining: %d\n", elapsedTimer.remainingTimeMillis());
 		//System.out.print(q);
@@ -103,7 +114,7 @@ public class Agent extends AbstractPlayer
 		int depth;
 		StateObservation soCopy;
 		// initialize lastNonGreedyDepth to 0, in case all actions are greedy
-		int lastNonGreedyDepth = 0;
+		int lastNonGreedyDepth;
 
 		// Currently only the greedy action will have to be taken after this is
 		// done, so we can take as much time as possible!
@@ -114,6 +125,7 @@ public class Agent extends AbstractPlayer
 			// create histories of actions and states
 			Types.ACTIONS[] actionHistory = new Types.ACTIONS[EXPLORATION_DEPTH];
 			SimplifiedObservation[] stateHistory = new SimplifiedObservation[EXPLORATION_DEPTH];
+			lastNonGreedyDepth = 0;
 			for(depth=0; depth<EXPLORATION_DEPTH && !soCopy.isGameOver(); depth++)
 			{
 				if(elapsedTimer.remainingTimeMillis() < 4)
@@ -292,7 +304,9 @@ public class Agent extends AbstractPlayer
 	@Override
 	public final void teardown()
 	{
-		Lib.writeHashMapToFile(q, filename);
+		Lib.writeHashMapToFile(q, filename + "q");
+		Lib.writeHashMapToFile(d, filename + "d");
+		Lib.writeHashMapToFile(n, filename + "n");
 		super.teardown();
 	}
 }

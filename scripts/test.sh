@@ -12,7 +12,9 @@ for i in $(eval echo {1..$MAX})
 do
 	# movet test file to this iteration's file, so I can check how bad it works
 	# afterwards
-	mv test test$i
+	mv testq testq$i
+	mv testd testd$i
+	mv testn testn$i
 	echo "Running test" $i
 	# Run test and remove the q-table data
 	java -cp classes Test > output/complete_output_$i

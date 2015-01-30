@@ -61,7 +61,8 @@ public class Lib
 		if(gameOver && win == Types.WINNER.PLAYER_WINS)
 			rawScore += 10000;
 
-		return rawScore;
+		// Make quicker better
+		return rawScore - 1 * (double) a_gameState.getGameTick();
 	}
 
 	/** Returns the distance (sqDist) and the direction (as a string from {up,
@@ -203,7 +204,7 @@ public class Lib
 			FileInputStream fis = new FileInputStream(f);
 			ObjectInputStream ois = new ObjectInputStream(fis);
 			Object o = ois.readObject();
-			System.out.printf("Q table loaded from file %s\n", f);
+			System.out.printf("Table loaded from file %s\n", f);
 			return o;
 		}
 		catch (FileNotFoundException e)
