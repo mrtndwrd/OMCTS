@@ -39,13 +39,15 @@ public class Agent extends AbstractPlayer
 	private boolean lastActionGreedy = false;
 
 	/** Default value for q */
-	private final Double DEFAULT_Q_VALUE = 20.0;
+	private final Double DEFAULT_Q_VALUE = 0.0;
 	/** Exploration depth for building q and v */
-	private final int EXPLORATION_DEPTH = 40;
+	private final int EXPLORATION_DEPTH = 20;
 	/** Epsilon for exploration vs. exploitation */
 	private final double EPSILON = .3;
 	/** The learning rate of this algorithm */
 	private final double ALPHA = .1;
+	/** The gamma of this algorithm */
+	private final double GAMMA = .9;
 	/** Theta for noise */
 	private final double THETA = 1e-6;
 
@@ -70,6 +72,8 @@ public class Agent extends AbstractPlayer
 			Object o = Lib.loadObjectFromFile(filename + 'q');
 			q = (DefaultHashMap<SerializableTuple
 				<SimplifiedObservation, Types.ACTIONS>, Double>) o;
+			//System.out.println("Loaded q");
+			//System.out.println(q);
 			o = Lib.loadObjectFromFile(filename + 'd');
 			d = (DefaultHashMap<SerializableTuple
 				<SimplifiedObservation, Types.ACTIONS>, Double>) o;
@@ -130,9 +134,9 @@ public class Agent extends AbstractPlayer
 			{
 				if(elapsedTimer.remainingTimeMillis() < 4)
 				{
-					//System.out.printf("TOO LITTLE TIME AT START, returning with %d milliseconds left\n",
-					//	elapsedTimer.remainingTimeMillis());
-					return;
+					System.out.printf("TOO LITTLE TIME AT START, returning with %d milliseconds left\n",
+						elapsedTimer.remainingTimeMillis());
+					break;
 				}
 				// Get a new state and the action that leads to it in an
 				// epsilon-greedy manner
@@ -150,15 +154,15 @@ public class Agent extends AbstractPlayer
 				// Check the remaining time
 				if(elapsedTimer.remainingTimeMillis() < 4)
 				{
-					//System.out.printf("TOO LITTLE TIME AT END, returning with %d milliseconds left\n",
-					//	elapsedTimer.remainingTimeMillis());
-					return;
+					System.out.printf("TOO LITTLE TIME AT END, returning with %d milliseconds left\n",
+						elapsedTimer.remainingTimeMillis());
+					break;
 				}
 			}
 			// process the states and actions from this rollout, using the value
 			// of the last visited state
-			//backUp(stateHistory, actionHistory, stateHeuristic.evaluateState(soCopy), depth, lastNonGreedyDepth);
-			backUp(stateHistory, actionHistory, Lib.simpleValue(soCopy), depth, lastNonGreedyDepth);
+			backUp(stateHistory, actionHistory, stateHeuristic.evaluateState(soCopy), depth, lastNonGreedyDepth);
+			//backUp(stateHistory, actionHistory, Lib.simpleValue(soCopy), depth, lastNonGreedyDepth);
 			// Reset lastNonGreedyDepth
 			lastNonGreedyDepth = 0;
 		}
@@ -305,6 +309,8 @@ public class Agent extends AbstractPlayer
 	public final void teardown()
 	{
 		Lib.writeHashMapToFile(q, filename + "q");
+		//System.out.println("Written q");
+		//System.out.println(q);
 		Lib.writeHashMapToFile(d, filename + "d");
 		Lib.writeHashMapToFile(n, filename + "n");
 		super.teardown();

@@ -25,10 +25,30 @@ public class SimplifiedObservation implements Serializable
 	{
 		// Initialize with some data. Later more initialize functions could be
 		// added
-		aStarDataInit(so, aStar);
+		//betterAStarDataInit(so, aStar);
+		//aStarDataInit(so, aStar);
 		//someDataInit(so);
 		//preyInit(so);
+		preyAStarInit(so, aStar);
 		//onlyAvatarPositionInit(so);
+	}
+
+	private void betterAStarDataInit(StateObservation so, AStar aStar)
+	{
+		Vector2d avatarPosition = so.getAvatarPosition();
+		code = String.format("Orientation: %s\n Resources: %s\n NPCs: %s\n Movable: %s\n ResourcePositions: %s\n PortalsPositions: %s\n ImmovablePositions: %s",
+			so.getAvatarOrientation().toString(),
+			so.getAvatarResources().toString(),
+			Lib.getPathLengthAndAStarAction(
+				so.getNPCPositions(avatarPosition), avatarPosition, aStar).toString(),
+			Lib.getPathLengthAndAStarAction(
+				so.getMovablePositions(avatarPosition), avatarPosition, aStar).toString(),
+			Lib.getPathLengthAndAStarAction(
+				so.getResourcesPositions(avatarPosition), avatarPosition, aStar).toString(),
+			Lib.getPathLengthAndAStarAction(
+				so.getPortalsPositions(avatarPosition), avatarPosition, aStar).toString(),
+			Lib.getPathLengthAndAStarAction(
+				so.getImmovablePositions(avatarPosition), avatarPosition, aStar).toString());
 	}
 
 	private void aStarDataInit(StateObservation so, AStar aStar)
@@ -85,6 +105,15 @@ public class SimplifiedObservation implements Serializable
 				so.getNPCPositions(avatarPosition), avatarPosition).toString(),
 			this.code);
 		*/
+	}
+
+	private void preyAStarInit(StateObservation so, AStar aStar)
+	{
+		Vector2d avatarPosition = so.getAvatarPosition();
+		code = String.format("Prey: %s", 
+			//so.getAvatarOrientation().toString(),
+			Lib.getPathLengthAndAStarAction(
+				so.getNPCPositions(avatarPosition), avatarPosition, aStar).toString());
 	}
 
 	private void onlyAvatarPositionInit(StateObservation so)

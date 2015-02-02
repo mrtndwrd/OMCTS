@@ -106,7 +106,7 @@ class HyperVolumePlotter:
         plt.xlabel('# Games Played')
         # Title is not needed in LaTeX articles
         # plt.title('Hypervolume')
-        plt.legend(loc="lower right")
+        plt.legend()
 
 
 def setAxLinesBW(ax):

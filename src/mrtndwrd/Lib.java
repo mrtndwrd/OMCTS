@@ -17,8 +17,8 @@ import java.util.Map;
 
 public class Lib
 {
-	public static final double HUGE_NEGATIVE = -10000000.0;
-	public static final double HUGE_POSITIVE =  10000000.0;
+	public static final double HUGE_NEGATIVE = -1000000000.0;
+	public static final double HUGE_POSITIVE =  1000000000.0;
 
 	public static String observationToString(Observation obs)
 	{
@@ -56,13 +56,13 @@ public class Lib
 		double rawScore = a_gameState.getGameScore();
 
 		if(gameOver && win == Types.WINNER.PLAYER_LOSES)
-			rawScore -= 10000;
+			rawScore -= 1000000;
 
 		if(gameOver && win == Types.WINNER.PLAYER_WINS)
-			rawScore += 10000;
+			rawScore += HUGE_POSITIVE; //- 100*a_gameState.getGameTick();
 
 		// Make quicker better
-		return rawScore - 1 * (double) a_gameState.getGameTick();
+		return rawScore;
 	}
 
 	/** Returns the distance (sqDist) and the direction (as a string from {up,
@@ -105,6 +105,28 @@ public class Lib
 			return new Tuple<Double, Types.ACTIONS>(0., Types.ACTIONS.ACTION_NIL);
 		Types.ACTIONS action = aStar.neededAction(path.get(path.size()-1), path.get(path.size()-2));
 		return new Tuple<Double, Types.ACTIONS>(ob.sqDist, action);
+	}
+
+	public static Tuple<String, Types.ACTIONS> getPathLengthAndAStarAction(
+		ArrayList<Observation>[] obala, Vector2d avatarPosition, AStar aStar)
+	{
+		// Get the nearest observation:
+		Observation ob = getNearestObservation(obala);
+		if(ob == null)
+			return new Tuple<String, Types.ACTIONS>("", Types.ACTIONS.ACTION_NIL);
+		ArrayList<Tuple<Integer, Integer>> path = aStar.aStar(avatarPosition, ob.position);
+		// We at least need our current and goal in the path, else we're already
+		// there or there is no path
+		if(path.size() < 2)
+			return new Tuple<String, Types.ACTIONS>("", Types.ACTIONS.ACTION_NIL);
+		Types.ACTIONS action = aStar.neededAction(path.get(path.size()-1), path.get(path.size()-2));
+		String pathLength;
+		// More than 3 moves away, Don't care.
+		if(path.size() > 4)
+			pathLength = ">4";
+		else 
+			pathLength = Integer.toString(path.size());
+		return new Tuple<String, Types.ACTIONS>(pathLength, action);
 	}
 
 	/** Get the nearest observation from an array of ArrayLists of observations,
