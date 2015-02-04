@@ -17,7 +17,7 @@ do
 	mv testd oldTables/testd$date$i
 	mv testn oldTables/testn$date$i
 	mv test oldTables/test$date$i
-	echo "Running test" $i "at" $date
+	echo "Running test" $i "on" `date +%H:%M:%S`
 	# Run test and remove the q-table data
 	java -cp classes Test > output/complete_output_$i
 	cat output/complete_output_$i | scripts/getScore.sh > output/o$i
