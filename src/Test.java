@@ -21,6 +21,7 @@ public class Test
         String sampleOLMCTSController = "controllers.sampleOLMCTS.Agent";
         String sampleGAController = "controllers.sampleGA.Agent";
         String myController = "qlearning.Agent";
+        //String myController = "montecarlo.Agent";
         //String myController = "controllers.sampleOLMCTS.Agent";
 
         //Available games:
@@ -37,12 +38,12 @@ public class Test
 
         //Other settings
         boolean visuals = true;
-        String recordActionsFile = null; //where to record the actions executed. null if not to save.
+        String recordActionsFile = "actions.txt"; //where to record the actions executed. null if not to save.
         int seed = new Random().nextInt();
 
         //Game and level to play
-        int gameIdx = 10;
-        int levelIdx = 1; //level names from 0 to 4 (game_lvlN.txt).
+        int gameIdx = 9;
+        int levelIdx = 0; //level names from 0 to 4 (game_lvlN.txt).
         String game = gamesPath + games[gameIdx] + ".txt";
         String level1 = gamesPath + games[gameIdx] + "_lvl" + levelIdx +".txt";
 
@@ -59,7 +60,7 @@ public class Test
 
         // 4. This plays a single game, in N levels, M times :
         String level2 = gamesPath + games[gameIdx] + "_lvl" + 0 +".txt";
-        int M = 20;
+        int M = 40;
         ArcadeMachine.runGames(game, new String[]{level1}, M, myController, null);
 
         //5. This plays N games, in the first L levels, M times each. Actions to file optional (set saveActions to true).

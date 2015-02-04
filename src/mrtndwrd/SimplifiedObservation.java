@@ -25,11 +25,11 @@ public class SimplifiedObservation implements Serializable
 	{
 		// Initialize with some data. Later more initialize functions could be
 		// added
-		//betterAStarDataInit(so, aStar);
+		betterAStarDataInit(so, aStar);
 		//aStarDataInit(so, aStar);
 		//someDataInit(so);
 		//preyInit(so);
-		preyAStarInit(so, aStar);
+		//preyAStarInit(so, aStar);
 		//onlyAvatarPositionInit(so);
 	}
 
@@ -110,8 +110,8 @@ public class SimplifiedObservation implements Serializable
 	private void preyAStarInit(StateObservation so, AStar aStar)
 	{
 		Vector2d avatarPosition = so.getAvatarPosition();
-		code = String.format("Prey: %s", 
-			//so.getAvatarOrientation().toString(),
+		code = String.format("Orientation: %s, Prey: %s", 
+			so.getAvatarOrientation().toString(),
 			Lib.getPathLengthAndAStarAction(
 				so.getNPCPositions(avatarPosition), avatarPosition, aStar).toString());
 	}

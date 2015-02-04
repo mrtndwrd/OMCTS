@@ -56,10 +56,10 @@ public class Lib
 		double rawScore = a_gameState.getGameScore();
 
 		if(gameOver && win == Types.WINNER.PLAYER_LOSES)
-			rawScore -= 1000000;
+			rawScore += HUGE_NEGATIVE;
 
 		if(gameOver && win == Types.WINNER.PLAYER_WINS)
-			rawScore += HUGE_POSITIVE; //- 100*a_gameState.getGameTick();
+			rawScore += HUGE_POSITIVE;
 
 		// Make quicker better
 		return rawScore;
@@ -122,9 +122,9 @@ public class Lib
 		Types.ACTIONS action = aStar.neededAction(path.get(path.size()-1), path.get(path.size()-2));
 		String pathLength;
 		// More than 3 moves away, Don't care.
-		if(path.size() > 4)
-			pathLength = ">4";
-		else 
+		//if(path.size() > 4)
+			//pathLength = ">4";
+		//else 
 			pathLength = Integer.toString(path.size());
 		return new Tuple<String, Types.ACTIONS>(pathLength, action);
 	}

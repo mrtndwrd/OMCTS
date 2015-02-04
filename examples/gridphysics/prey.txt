@@ -3,7 +3,7 @@ BasicGame
     movable >
       avatar > MovingAvatar img=avatar
       prey > img=monster
-        inactivePrey > RandomNPC cooldown=100
+        inactivePrey > RandomNPC cooldown=3000
         slowPrey > RandomNPC cooldown=10
         fastPrey > RandomNPC cooldown=1
 

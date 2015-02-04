@@ -1,4 +1,4 @@
-package qlearning;
+package montecarlo;
 
 import mrtndwrd.*;
 
