@@ -4,7 +4,7 @@ Programmeren:
 - Inverteren van objecten tussen 2-level transfer
 
 - Lezen: Hoofdstuk
-  4, 5, (6), 17
+  4, 5, 9, 17
   uit *Reinforcement Learning, State of the Art* (PDF van Diederik)
   (4 en 5 gelezen)
 
