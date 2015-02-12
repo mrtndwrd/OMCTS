@@ -2,6 +2,8 @@ import core.ArcadeMachine;
 
 import java.util.Random;
 import java.util.Arrays;
+import java.util.ArrayList;
+import mrtndwrd.Lib;
 
 /**
  * Created with IntelliJ IDEA.
@@ -22,9 +24,14 @@ public class MyTest
 		String gamesPath = "examples/gridphysics/";
 
 		// Default controller
-		String controller = "controllers.sampleMCTS";
+		String controller = "controllers.sampleMCTS.Agent";
 		// Default game
 		String gameName = "prey";
+		// Default level(s)
+		String[] levels = {"0"};
+		// Default number of games to be played:
+		int numberOfGames = 20;
+
 		for (String arg : args)
 		{
 			if(arg.equals("-h") || arg.equals("--help"))
@@ -37,12 +44,34 @@ public class MyTest
 			{
 				controller = arg.replace("-c=", "")
 					.replace("--controller=", "");
+				System.out.printf("Controller set to %s\n", controller);
 			}
 			// Choose game
 			else if(arg.startsWith("-g=") || arg.startsWith("--game="))
 			{
 				gameName = arg.replace("-g=", "")
 					.replace("--game=", "");
+				System.out.printf("gameName set to %s\n", gameName);
+			}
+			else if(arg.startsWith("-l=") || arg.startsWith("--levels="))
+			{
+				arg = arg.replace("-l=", "")
+					.replace("--levels=", "");
+				levels = arg.split(",");
+				System.out.printf("levels set to %s\n", Arrays.asList(levels).toString());
+			}
+			// Sets the file postfix for my kind of qlearning agent
+			else if(arg.startsWith("-p=") || arg.startsWith("--file-postfix="))
+			{
+				Lib.filePostfix = arg.replace("-p=", "")
+					.replace("--file-postfix=", "");
+				System.out.printf("file postfix set to %s\n", Lib.filePostfix);
+			}
+			else if(arg.startsWith("-n=") || arg.startsWith("--number-of-games="))
+			{
+				numberOfGames = Integer.parseInt(arg.replace("-n=", "")
+					.replace("--number-of-games=", ""));
+				System.out.printf("Number of games set to %s\n", numberOfGames);
 			}
 			else
 			{
@@ -65,28 +94,30 @@ public class MyTest
 		String recordActionsFile = "actions.txt"; //where to record the actions executed. null if not to save.
 		int seed = new Random().nextInt();
 
-		//Game and level to play
-		String game = gamesPath + "prey" + ".txt";
-		int levelIdx = 1; //level names from 0 to 4 (game_lvlN.txt).
-		String level1 = gamesPath + gameName + "_lvl" + levelIdx +".txt";
+		//Game and level(s) to play
+		String game = gamesPath + gameName + ".txt";
+		String[] levelNames = new String[levels.length];
+		for(int i=0; i<levels.length; i++)
+		{
+			levelNames[i] = gamesPath + gameName + "_lvl" + levels[i] +".txt";
+		}
 
 		// 1. This starts a game, in a level, played by a human.
-		//ArcadeMachine.playOneGame(game, level1, recordActionsFile, seed);
+		//ArcadeMachine.playOneGame(game, levelNames[0], recordActionsFile, seed);
 
 		// 2. This plays a game in a level by the controller.
-		//ArcadeMachine.runOneGame(game, level1, visuals, sampleMCTSController, recordActionsFile, seed);
-		//ArcadeMachine.runOneGame(game, level1, visuals, controller, recordActionsFile, seed);
+		//ArcadeMachine.runOneGame(game, levelNames[0], visuals, sampleMCTSController, recordActionsFile, seed);
+		//ArcadeMachine.runOneGame(game, levelNames[0], visuals, controller, recordActionsFile, seed);
 
 		// 3. This replays a game from an action file previously recorded
 		//String readActionsFile = "actionsFile_aliens_lvl0.txt";  //This example is for
 		//ArcadeMachine.replayGame(game, level1, visuals, readActionsFile);
 
 		// 4. This plays a single game, in N levels, M times :
-		String level2 = gamesPath + gameName + "_lvl" + 0 +".txt";
-		int M = 40;
-		ArcadeMachine.runGames(game, new String[]{level1}, M, controller, null);
+		ArcadeMachine.runGames(game, levelNames, numberOfGames, controller, null);
 
 		//5. This plays N games, in the first L levels, M times each. Actions to file optional (set saveActions to true).
+		// TODO NOT COMPATIBLE YET WITH COMMAND LINE ARGUMENTS
 		/*int N = 10, L = 5, M = 2;
 		boolean saveActions = false;
 		String[] levels = new String[L];
@@ -109,8 +140,11 @@ public class MyTest
 		System.out.println("Testing program for GVG-AI");
 		System.out.println("Usage: java -cp classes MyTest [<args>]");
 		System.out.println("\t-h\t--help\t\tPrints this message");
-		System.out.println("\t-c=CONTROLLER\t--controller=CONTROLLER\tSet controller to CONTROLLER. This must be an available package and class extending AbstractPlayer");
-		System.out.println("\t-g=GAME\t--game=GAME\tSet game to GAME. Possible games: " + Arrays.toString(games));
+		System.out.println("\t-c=CONTROLLER\t--controller=CONTROLLER\tSet controller to CONTROLLER. This must be an available package and class extending AbstractPlayer. Default: 'controllers.sampleMCTS.Agent'");
+		System.out.println("\t-g=GAME\t--game=GAME\tSet game to GAME. Possible games: " + Arrays.toString(games) + ". Default: 'prey'");
+		System.out.println("\t-l=LEVELS\t--levels=LEVELS\tSet list of levels to LEVEL. This must be an index ranging from 0 to 4, can be comma separated for more values. Default: '0'");
+		System.out.println("\t-p=POSTFIX\t--file-postfix=POSTFIX\tAlgorithms made by Maarten de Waard can save or write files. They will have this postfix. Defaults to an empty string");
+		System.out.println("\t-n=NUMBER\t--number-of-games=NUMBER\tNumber of games to be run by ArcadeMachine.runGames. Defaunt: 20");
 	}
 }
 

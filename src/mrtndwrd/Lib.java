@@ -19,6 +19,10 @@ public class Lib
 {
 	public static final double HUGE_NEGATIVE = -1000000000.0;
 	public static final double HUGE_POSITIVE =  1000000000.0;
+	// This will be used by agents that make files. This postfix can be adjusted
+	// by for example the Test class (that's why it's not final...), in order to
+	// be able to run several agents at the same time
+	public static String filePostfix = "";
 
 	public static String observationToString(Observation obs)
 	{

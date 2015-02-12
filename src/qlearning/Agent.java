@@ -36,11 +36,11 @@ public class Agent extends AbstractPlayer
 	/** Default value for v */
 	private final Double DEFAULT_V_VALUE = 0.0;
 	/** Default value for q */
-	private final Double DEFAULT_Q_VALUE = -1.0;
+	private final Double DEFAULT_Q_VALUE = 10.0;
 	/** Exploration depth for building q and v */
-	private final int INIT_EXPLORATION_DEPTH = 100;
+	private final int INIT_EXPLORATION_DEPTH = 30;
 	/** Exploration depth for building q and v */
-	private final int EXPLORATION_DEPTH = 20;
+	private final int EXPLORATION_DEPTH = 10;
 	/** Epsilon for exploration vs. exploitation */
 	private final double EPSILON = .5;
 	/** The learning rate of this algorithm */
@@ -48,7 +48,7 @@ public class Agent extends AbstractPlayer
 	/** Gamma for bellman equation */
 	private final double GAMMA = .95;
 	/** Theta for noise */
-	private final double THETA = 1e-9;
+	private final double THETA = 1e-6;
 
 	/** File to write q table to */
 	private String filename;
@@ -59,7 +59,7 @@ public class Agent extends AbstractPlayer
 	{
 		// Instantiate a* walls
 		aStar = new AStar(so);
-		this.filename = "test";
+		this.filename = "tables/qlearning" + Lib.filePostfix;
 		//Get the actions in a static array.
 		possibleActions = so.getAvailableActions();
 		// Initialize V and Q:
@@ -112,7 +112,7 @@ public class Agent extends AbstractPlayer
 				// Get a new state and the action that leads to it in an
 				// epsilon-greedy manner
 				// This advances soCopy with the taken action
-				Types.ACTIONS a = epsilonGreedyAction(soCopy);
+				Types.ACTIONS a = epsilonGreedyAction(soCopy, EPSILON);
 				soCopy.advance(a);
 				newState = new SimplifiedObservation(soCopy, aStar);
 				newScore = Lib.simpleValue(soCopy);
@@ -152,10 +152,10 @@ public class Agent extends AbstractPlayer
 	/** Selects an epsilon greedy value based on the internal q table. Returns
 	 * the optimal action as index of the this.actions array.
 	 */
-	private Types.ACTIONS epsilonGreedyAction(StateObservation so)
+	private Types.ACTIONS epsilonGreedyAction(StateObservation so, double epsilon)
 	{
 		// Select a random action with prob. EPSILON
-		if(random.nextDouble() < EPSILON)
+		if(random.nextDouble() < epsilon)
 		{
 			return possibleActions.get(random.nextInt(possibleActions.size()));
 		}
@@ -209,7 +209,8 @@ public class Agent extends AbstractPlayer
 		//System.out.println("Starting action");
 		// Create simplified observation:
 		explore(so, elapsedTimer, EXPLORATION_DEPTH);
-		return greedyAction(so, true);
+		//return greedyAction(so, true);
+		return epsilonGreedyAction(so, .005);
 	}
 
 	/** write q to file */

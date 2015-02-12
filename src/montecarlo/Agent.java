@@ -64,7 +64,7 @@ public class Agent extends AbstractPlayer
 	{
 		aStar = new AStar(so);
 		stateHeuristic = new SimpleStateHeuristic(so);
-		this.filename = "test";
+		this.filename = "tables/montecarlo" + Lib.filePostfix;
 		//Get the actions in a static array.
 		possibleActions = so.getAvailableActions();
 		try
