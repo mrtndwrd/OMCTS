@@ -22,6 +22,7 @@ levels="0"
 
 ant
 rm output/*
+rm tables/*
 
 # Run 3 parallel jobs of java until $max jobs are done
 seq $max | parallel -j3 --eta "java -cp classes MyTest \

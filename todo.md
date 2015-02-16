@@ -1,7 +1,7 @@
 Programmeren:
-- Richting vervangen voor a-ster stappen
 - Kijken of monte carlo wel diep genoeg komt
 - Inverteren van objecten tussen 2-level transfer
+- Prioritized Sweeping
 
 - Lezen: Hoofdstuk
   4, 5, 9, 17
@@ -10,8 +10,18 @@ Programmeren:
 
 Uitzoeken: 
 
-- **Uitzoeken of je erachter kunt komen welke sprites "obstakels" of "muren"
-  zijn
+- **Maak overzicht van voor- en nadelen van verschillende mogelijkheden** Als ik
+  alle ideeën op een rijtje heb: Zorg ervoor dat je nog kunt overstappen naar
+  andere mogelijkheden (generiek programmeren)
+
+- **Hoe leer je de spel-dynamiek?**
+
+- **Hoe kom je aan optie-sets?**
+
+- **Hebben SMDP's speciale oplossingsmethodes?**
+
+- **Wordt de act-functie nog aangeroepen als de game is afgelopen?**
+	nee.
 
 - **Nadenken over hoe je om kunt gaan met sprites die niet per se hetzelfde zijn
 	in een nieuwe game als in een oude**

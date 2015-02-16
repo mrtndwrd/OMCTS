@@ -1,7 +1,9 @@
 classes/
 oldTables/
-output/
+tables/
+output*
 *.swp
 dist/
 *\$py.class
-plot*pdf
+time*pdf
+winScore*pdf

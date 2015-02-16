@@ -76,6 +76,7 @@ public class Agent extends AbstractPlayer
 		{
 			System.out.println(
 				"probably, it wasn't a hashmap, or the file didn't exist or something. Using empty q table");
+			e.printStackTrace();
 		}
 		if(q == null)
 			q = new DefaultHashMap<SerializableTuple
@@ -206,7 +207,6 @@ public class Agent extends AbstractPlayer
 
 	public Types.ACTIONS act(StateObservation so, ElapsedCpuTimer elapsedTimer)
 	{
-		//System.out.println("Starting action");
 		// Create simplified observation:
 		explore(so, elapsedTimer, EXPLORATION_DEPTH);
 		//return greedyAction(so, true);
