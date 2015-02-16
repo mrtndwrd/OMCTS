@@ -23,47 +23,15 @@ import java.io.FileOutputStream;
  * Date: 13-01-2015
  * @author Maarten de Waard
  */
-public class Agent extends AbstractPlayer 
+public class Agent extends AbstractAgent
 {
-	private ArrayList<Types.ACTIONS> possibleActions;
-	/** Mapping from state to value, the "Value Table" */
-	private DefaultHashMap<SimplifiedObservation, Double> v;
-	/** Mapping from State, Action (as index from above actions array) to
-	 * expected Reward (value), the "Q table" */
-	private DefaultHashMap<SerializableTuple<SimplifiedObservation, Types.ACTIONS>, Double> q;
-	private Random random = new Random();
-
-	/** Default value for v */
-	private final Double DEFAULT_V_VALUE = 0.0;
-	/** Default value for q */
-	private final Double DEFAULT_Q_VALUE = 10.0;
 	/** Exploration depth for building q and v */
 	private final int INIT_EXPLORATION_DEPTH = 30;
-	/** Exploration depth for building q and v */
-	private final int EXPLORATION_DEPTH = 10;
-	/** Epsilon for exploration vs. exploitation */
-	private final double EPSILON = .5;
-	/** The learning rate of this algorithm */
-	private final double ALPHA = .3;
-	/** Gamma for bellman equation */
-	private final double GAMMA = .95;
-	/** Theta for noise */
-	private final double THETA = 1e-6;
-
-	/** File to write q table to */
-	private String filename;
-	/** AStar for searching for stuff */
-	private AStar aStar;
 
 	public Agent(StateObservation so, ElapsedCpuTimer elapsedTimer) 
 	{
-		// Instantiate a* walls
-		aStar = new AStar(so);
+		super(so, elapsedTimer);
 		this.filename = "tables/qlearning" + Lib.filePostfix;
-		//Get the actions in a static array.
-		possibleActions = so.getAvailableActions();
-		// Initialize V and Q:
-		v = new DefaultHashMap<SimplifiedObservation, Double>(DEFAULT_V_VALUE);
 		try
 		{
 			Object o = Lib.loadObjectFromFile(filename);
@@ -150,67 +118,11 @@ public class Agent extends AbstractPlayer
 		return maxAQ;
 	}
 
-	/** Selects an epsilon greedy value based on the internal q table. Returns
-	 * the optimal action as index of the this.actions array.
-	 */
-	private Types.ACTIONS epsilonGreedyAction(StateObservation so, double epsilon)
-	{
-		// Select a random action with prob. EPSILON
-		if(random.nextDouble() < epsilon)
-		{
-			return possibleActions.get(random.nextInt(possibleActions.size()));
-		}
-		// Else, select greedy action:
-		return greedyAction(so);
-	}
-
-	/** Take the greedy action, based on HashMap q. 
-	 * @param so The state observation
-	 * @param print if this is true, the observation and greedy action are
-	 * printed 
-	 */
-	private Types.ACTIONS greedyAction(StateObservation so, boolean print)
-	{
-		double value;
-		double maxValue = Lib.HUGE_NEGATIVE;
-		Types.ACTIONS maxAction = possibleActions.get(0);
-		SerializableTuple<SimplifiedObservation, Types.ACTIONS> sa;
-		SimplifiedObservation sso = new SimplifiedObservation (so, aStar);
-		if(print)
-			System.out.println(sso);
-		// select action with highest value for this sso
-		for (Types.ACTIONS a : possibleActions)
-		{
-			// Create state-action tuple
-			sa = new SerializableTuple<SimplifiedObservation, Types.ACTIONS>(sso, a);
-			// Get the next action value, with a little bit of noise to enable
-			// random selection
-			value = Utils.noise(q.get(sa), THETA, random.nextDouble());
-			value = q.get(sa);
-			if(value > maxValue)
-			{
-				maxValue = value;
-				maxAction = a;
-			}
-		}
-		if(print)
-			System.out.printf("Action %s with value %f\n\n", maxAction, maxValue);
-		// return the optimal action
-		return maxAction;
-	}
-
-	/** Overload for backwards compatibility */
-	private Types.ACTIONS greedyAction(StateObservation so)
-	{
-		return greedyAction(so, false);
-	}
-
 	public Types.ACTIONS act(StateObservation so, ElapsedCpuTimer elapsedTimer)
 	{
 		// Create simplified observation:
 		explore(so, elapsedTimer, EXPLORATION_DEPTH);
-		//return greedyAction(so, true);
-		return epsilonGreedyAction(so, .005);
+		return greedyAction(so, true);
 	}
 
 	/** write q to file */
