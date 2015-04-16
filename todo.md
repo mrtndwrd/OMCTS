@@ -1,3 +1,15 @@
+Todo for implementing options:
+- Make option class 
+	- make options for all actions
+	- implement expected reward in the options
+	- 
+- Substitute actions for options
+- Make more elaborate options than just actions
+	- A* route finding to point (enemy, portal, resource)
+	- Option(s) for killing an enemy (with a specific weapon type)
+	- Option(s) for avoiding enemies
+
+
 Programmeren:
 - Kijken of monte carlo wel diep genoeg komt
 - Inverteren van objecten tussen 2-level transfer

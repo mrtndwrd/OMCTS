@@ -57,6 +57,7 @@ public class Agent extends AbstractAgent
 	 * Explore using the state observation and enter values in the V and Q
 	 * tables 
 	 */
+	// TODO: Make smaller, at least by using a function to update the Q-table
 	public void explore(StateObservation so, ElapsedCpuTimer elapsedTimer, 
 		int explorationDepth)
 	{
@@ -118,6 +119,7 @@ public class Agent extends AbstractAgent
 		return maxAQ;
 	}
 
+	// TODO: The reward of the action taken by act is not saved in the q-table
 	public Types.ACTIONS act(StateObservation so, ElapsedCpuTimer elapsedTimer)
 	{
 		// Create simplified observation:
