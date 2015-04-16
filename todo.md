@@ -2,11 +2,11 @@ Programmeren:
 - Kijken of monte carlo wel diep genoeg komt
 - Inverteren van objecten tussen 2-level transfer
 - Prioritized Sweeping
+- Options
 
-- Lezen: Hoofdstuk
-  4, 5, 9, 17
-  uit *Reinforcement Learning, State of the Art* (PDF van Diederik)
-  (4 en 5 gelezen)
+Lezen: 
+Hoofdstuk 4, 5, 9, 17 uit *Reinforcement Learning, State of the Art* (PDF van
+Diederik) (4, 5 gelezen)
 
 Uitzoeken: 
 
