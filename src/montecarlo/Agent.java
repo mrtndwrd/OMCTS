@@ -26,9 +26,9 @@ import java.lang.Math;
  */
 public class Agent extends AbstractAgent
 {
-	private DefaultHashMap<SerializableTuple<SimplifiedObservation, Types.ACTIONS>, Double> n;
+	private DefaultHashMap<SerializableTuple<SimplifiedObservation, Option>, Double> n;
 	/** Denominator of the q table */
-	private DefaultHashMap<SerializableTuple<SimplifiedObservation, Types.ACTIONS>, Double> d;
+	private DefaultHashMap<SerializableTuple<SimplifiedObservation, Option>, Double> d;
 
 	public Agent(StateObservation so, ElapsedCpuTimer elapsedTimer) 
 	{
@@ -39,15 +39,15 @@ public class Agent extends AbstractAgent
 		{
 			Object o = Lib.loadObjectFromFile(filename + 'q');
 			q = (DefaultHashMap<SerializableTuple
-				<SimplifiedObservation, Types.ACTIONS>, Double>) o;
+				<SimplifiedObservation, Option>, Double>) o;
 			//System.out.println("Loaded q");
 			//System.out.println(q);
 			o = Lib.loadObjectFromFile(filename + 'd');
 			d = (DefaultHashMap<SerializableTuple
-				<SimplifiedObservation, Types.ACTIONS>, Double>) o;
+				<SimplifiedObservation, Option>, Double>) o;
 			o = Lib.loadObjectFromFile(filename + 'n');
 			n = (DefaultHashMap<SerializableTuple
-				<SimplifiedObservation, Types.ACTIONS>, Double>) o;
+				<SimplifiedObservation, Option>, Double>) o;
 			System.out.printf("time remaining: %d\n", 
 				elapsedTimer.remainingTimeMillis());
 		}
@@ -60,17 +60,17 @@ public class Agent extends AbstractAgent
 		{
 			System.out.println("Q not initialized.");
 			q = new DefaultHashMap<SerializableTuple
-				<SimplifiedObservation, Types.ACTIONS>, Double> (DEFAULT_Q_VALUE);
+				<SimplifiedObservation, Option>, Double> (DEFAULT_Q_VALUE);
 		}
 		if(d == null)
 		{
 			System.out.println("D not initialized.");
-			d = new DefaultHashMap<SerializableTuple<SimplifiedObservation, Types.ACTIONS>, Double>(0.);
+			d = new DefaultHashMap<SerializableTuple<SimplifiedObservation, Option>, Double>(0.);
 		}
 		if(n == null)
 		{
 			System.out.println("N not initialized.");
-			n = new DefaultHashMap<SerializableTuple<SimplifiedObservation, Types.ACTIONS>, Double>(0.);
+			n = new DefaultHashMap<SerializableTuple<SimplifiedObservation, Option>, Double>(0.);
 		}
 		explore(so, elapsedTimer);
 		System.out.printf("End of constructor, miliseconds remaining: %d\n", elapsedTimer.remainingTimeMillis());
@@ -82,10 +82,14 @@ public class Agent extends AbstractAgent
 	 */
 	public void explore(StateObservation so, ElapsedCpuTimer elapsedTimer)
 	{
+		// Initialize variables for loop:
+		// depth of inner for loop
 		int depth;
+		// state that is advanced to try out a new action
 		StateObservation soCopy;
 		// initialize lastNonGreedyDepth to 0, in case all actions are greedy
 		int lastNonGreedyDepth;
+		Types.ACTIONS a;
 
 		// Currently only the greedy action will have to be taken after this is
 		// done, so we can take as much time as possible!
@@ -94,22 +98,34 @@ public class Agent extends AbstractAgent
 			//System.out.println("Starting exploration with remaining time " + elapsedTimer.remainingTimeMillis());
 			soCopy = so.copy();
 			// create histories of actions and states
-			Types.ACTIONS[] actionHistory = new Types.ACTIONS[EXPLORATION_DEPTH];
-			SimplifiedObservation[] stateHistory = new SimplifiedObservation[EXPLORATION_DEPTH];
+			Option[] optionHistory = new Option()[EXPLORATION_DEPTH];
+			SimplifiedObservation[] stateHistory = 
+				new SimplifiedObservation[EXPLORATION_DEPTH];
 			lastNonGreedyDepth = 0;
+			// At first, use the currently chosen option (TODO: Maybe option
+			// breaking should be introduced later)
+			Option chosenOption = currentOption;
 			for(depth=0; depth<EXPLORATION_DEPTH && !soCopy.isGameOver(); depth++)
 			{
+				// {{{ Check starting time
 				if(elapsedTimer.remainingTimeMillis() < 4)
 				{
 					System.out.printf("TOO LITTLE TIME AT START, returning with %d milliseconds left\n",
 						elapsedTimer.remainingTimeMillis());
 					break;
-				}
-				// Get a new state and the action that leads to it in an
-				// epsilon-greedy manner
+				} // }}}
 				// This advances soCopy with the taken action
-				Types.ACTIONS a = epsilonGreedyAction(soCopy, EPSILON);
-				if(!lastActionGreedy)
+				if(chosenOption.isFinished())
+				{
+					// Add the finished option to the array of chosen options
+					optionHistory[depth] = chosenOption;
+					// TODO: Hier was ik gebleven met edits
+					chosenOption = epsilonGreedyOption(soCopy, EPSILON);
+				}
+				// Get the action from the option
+				a = chosenOption.act();
+				
+				if(!lastOptionGreedy)
 					lastNonGreedyDepth = depth;
 				// Advance the state, this should advance everywhere, with pointers and
 				// stuff
@@ -118,13 +134,13 @@ public class Agent extends AbstractAgent
 				// add state-action pair to history arrays
 				stateHistory[depth] = s;
 				actionHistory[depth] = a;
-				// Check the remaining time
+				// {{{ Check remaining time 
 				if(elapsedTimer.remainingTimeMillis() < 4)
 				{
 					System.out.printf("TOO LITTLE TIME AT END, returning with %d milliseconds left\n",
 						elapsedTimer.remainingTimeMillis());
 					break;
-				}
+				} // }}}
 			}
 			// process the states and actions from this rollout, using the value
 			// of the last visited state
@@ -133,6 +149,31 @@ public class Agent extends AbstractAgent
 			// Reset lastNonGreedyDepth
 			lastNonGreedyDepth = 0;
 		}
+	}
+
+	/** This function does:
+	 * 1. update the option reward
+	 * 2. check if the option is done
+	 * 3. choose a new option if needed
+	 * 4. update the Q-values
+	 * FIXME I should find a way to move this code to the abstract agent...
+	 */
+	private Option updateOption(Option option, SimplifiedObservation sso, 
+			double newScore, double previousScore, boolean greedy)
+	{
+		// Add the new reward to this option
+		option.addReward(newScore - previousScore);
+		if(option.isFinished())
+		{
+			// get a new option
+			if(greedy)
+				option = greedyOption(sso);
+			else
+				option = epsilonGreedyOption(sso, EPSILON);
+		}
+		// If a new option is selected, return the new option. Else the old
+		// option will be returned
+		return option;
 	}
 
 	/** Update q values using Off-Policy Monte Carlo Control

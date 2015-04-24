@@ -36,7 +36,7 @@ public class Agent extends AbstractAgent
 		{
 			Object o = Lib.loadObjectFromFile(filename);
 			q = (DefaultHashMap<SerializableTuple
-				<SimplifiedObservation, Types.ACTIONS>, Double>) o;
+				<SimplifiedObservation, Option>, Double>) o;
 			System.out.printf("time remaining: %d\n", 
 				elapsedTimer.remainingTimeMillis());
 		}
@@ -48,7 +48,7 @@ public class Agent extends AbstractAgent
 		}
 		if(q == null)
 			q = new DefaultHashMap<SerializableTuple
-				<SimplifiedObservation, Types.ACTIONS>, Double> (DEFAULT_Q_VALUE);
+				<SimplifiedObservation, Option>, Double> (DEFAULT_Q_VALUE);
 		explore(so, elapsedTimer, INIT_EXPLORATION_DEPTH);
 		System.out.printf("End of constructor, miliseconds remaining: %d\n", elapsedTimer.remainingTimeMillis());
 	}
@@ -57,15 +57,19 @@ public class Agent extends AbstractAgent
 	 * Explore using the state observation and enter values in the V and Q
 	 * tables 
 	 */
-	// TODO: Make smaller, at least by using a function to update the Q-table
 	public void explore(StateObservation so, ElapsedCpuTimer elapsedTimer, 
 		int explorationDepth)
 	{
+		// Initialize variables for loop:
+		// depth of inner for loop
 		int depth;
+		// state that is advanced to try out a new action
 		StateObservation soCopy;
-		double maxAQ, oldScore, newScore;
-		SerializableTuple<SimplifiedObservation, Types.ACTIONS> sa;
-		SimplifiedObservation newState;
+		double oldScore, newScore;
+		// Key for the q-table
+		SerializableTuple<SimplifiedObservation, Option> sop;
+		// State observations
+		SimplifiedObservation newState, oldState;
 		
 		// Currently only the greedy action will have to be taken after this is
 		// done, so we can take as much time as possible!
@@ -73,27 +77,22 @@ public class Agent extends AbstractAgent
 		{
 			// Copy the state so we can advance it
 			soCopy = so.copy();
-			// Advance the state, this should advance everywhere, with pointers and
-			// stuff
-			SimplifiedObservation s = new SimplifiedObservation(soCopy, aStar);
+			newState = SimplifiedObservation(soCopy);
 			oldScore = Lib.simpleValue(soCopy);
+			// At first, use the currently chosen option (TODO: Maybe option
+			// breaking should be introduced later)
+			Option chosenOption = currentOption;
 			for(depth=0; depth<explorationDepth && !soCopy.isGameOver(); depth++)
 			{
-				// Get a new state and the action that leads to it in an
-				// epsilon-greedy manner
-				// This advances soCopy with the taken action
-				Types.ACTIONS a = epsilonGreedyAction(soCopy, EPSILON);
-				soCopy.advance(a);
-				newState = new SimplifiedObservation(soCopy, aStar);
 				newScore = Lib.simpleValue(soCopy);
-				maxAQ = getMaxQFromState(newState);
-				sa = new SerializableTuple
-					<SimplifiedObservation, Types.ACTIONS>(s, a);
-				// Update rule from
-				// http://webdocs.cs.ualberta.ca/~sutton/book/ebook/node65.html
-				q.put(sa, q.get(sa) + ALPHA * (newScore - oldScore + GAMMA * 
-					maxAQ - q.get(sa)));
-				s = newState;
+				// Update option information and new score and, if needed, do
+				// epsilon-greegy option selection
+				chosenOption = updateOption(oldState, newState, newScore, oldScore, false);
+				// This advances soCopy with the action chosen by the option
+				soCopy.advance(chosenOption.act(soCopy));
+				newState = new SimplifiedObservation(soCopy, aStar);
+				// Set oldState and oldScore to current state and score
+				oldState = newState;
 				oldScore = newScore;
 				if(elapsedTimer.remainingTimeMillis() < 3)
 					return;
@@ -101,16 +100,28 @@ public class Agent extends AbstractAgent
 		}
 	}
 
+	/** updates q values for newState. reward = newScore - oldScore */
+	public void updateQ(SimplifiedObservation oldState, SimplifiedObservation newState, double reward)
+	{
+		double maxAQ = getMaxQFromState(newState);
+		sop = new SerializableTuple
+			<SimplifiedObservation, Option>(oldState, a);
+		// Update rule from
+		// http://webdocs.cs.ualberta.ca/~sutton/book/ebook/node65.html
+		q.put(sop, q.get(sop) + ALPHA * (reward + GAMMA * 
+			maxAQ - q.get(sop)));
+	}
+
 	private double getMaxQFromState(SimplifiedObservation newState)
 	{
-		SerializableTuple<SimplifiedObservation, Types.ACTIONS> sa;
+		SerializableTuple<SimplifiedObservation, Option> sop;
 		double maxAQ = Lib.HUGE_NEGATIVE;
 		double qValue;
-		for (Types.ACTIONS a : possibleActions)
+		for (Option a : possibleOptions)
 		{
-			sa = new SerializableTuple
-				<SimplifiedObservation, Types.ACTIONS>(newState, a);
-			qValue = q.get(sa);
+			sop = new SerializableTuple
+				<SimplifiedObservation, Option>(newState, a);
+			qValue = q.get(sop);
 			if(qValue > maxAQ)
 			{
 				maxAQ = qValue;
@@ -119,12 +130,41 @@ public class Agent extends AbstractAgent
 		return maxAQ;
 	}
 
-	// TODO: The reward of the action taken by act is not saved in the q-table
 	public Types.ACTIONS act(StateObservation so, ElapsedCpuTimer elapsedTimer)
 	{
-		// Create simplified observation:
+		double newScore = Lib.simpleValue(so);
 		explore(so, elapsedTimer, EXPLORATION_DEPTH);
-		return greedyAction(so, true);
+		currentOption = updateOption(this.currentOption, 
+			new SimplifiedObservation(so), newScore, previousScore, true)
+		this.previousScore = newScore;
+		return currentOption.act();
+	}
+
+	/** This function does:
+	 * 1. update the option reward
+	 * 2. check if the option is done
+	 * 3. choose a new option if needed
+	 * 4. update the Q-values
+	 * FIXME I should find a way to move this code to the abstract agent...
+	 */
+	private Option updateOption(Option option, SimplifiedObservation sso, 
+			double newScore, double previousScore, boolean greedy)
+	{
+		// Add the new reward to this option
+		option.addReward(newScore - previousScore);
+		if(option.isFinished())
+		{
+			// Update q values for the finished option
+			updateQ(sso, option.getReward());
+			// get a new option
+			if(greedy)
+				option = greedyOption(sso);
+			else
+				option = epsilonGreedyOption(sso, EPSILON);
+		}
+		// If a new option is selected, return the new option. Else the old
+		// option will be returned
+		return option;
 	}
 
 	/** write q to file */

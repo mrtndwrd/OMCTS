@@ -2,9 +2,9 @@ package mrtndwrd;
 
 import java.io.Serializable;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.IOException;
 import java.lang.ClassNotFoundException;
-import java.io.ObjectOutputStream;
 
 public class SerializableTuple<X extends Serializable, Y extends Serializable> 
 	extends Tuple<X, Y> implements Serializable
