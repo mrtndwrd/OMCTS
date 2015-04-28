@@ -65,11 +65,13 @@ public class Agent extends AbstractAgent
 		int depth;
 		// state that is advanced to try out a new action
 		StateObservation soCopy;
+		// old score and old state will act as surrogates for previousState and
+		// previousScore in this function
 		double oldScore, newScore;
-		// Key for the q-table
-		SerializableTuple<SimplifiedObservation, Option> sop;
 		// State observations
 		SimplifiedObservation newState, oldState;
+		// Key for the q-table
+		SerializableTuple<SimplifiedObservation, Option> sop;
 		
 		// Currently only the greedy action will have to be taken after this is
 		// done, so we can take as much time as possible!
@@ -77,8 +79,10 @@ public class Agent extends AbstractAgent
 		{
 			// Copy the state so we can advance it
 			soCopy = so.copy();
-			newState = SimplifiedObservation(soCopy);
-			oldScore = Lib.simpleValue(soCopy);
+			newState = new SimplifiedObservation(soCopy, aStar);
+			// Initialize with the current old state and score
+			oldScore = previousScore;
+			oldState = previousState;
 			// At first, use the currently chosen option (TODO: Maybe option
 			// breaking should be introduced later)
 			Option chosenOption = currentOption;
@@ -87,7 +91,7 @@ public class Agent extends AbstractAgent
 				newScore = Lib.simpleValue(soCopy);
 				// Update option information and new score and, if needed, do
 				// epsilon-greegy option selection
-				chosenOption = updateOption(oldState, newState, newScore, oldScore, false);
+				chosenOption = updateOption(chosenOption, newState, oldState, newScore, oldScore, false);
 				// This advances soCopy with the action chosen by the option
 				soCopy.advance(chosenOption.act(soCopy));
 				newState = new SimplifiedObservation(soCopy, aStar);
@@ -101,14 +105,14 @@ public class Agent extends AbstractAgent
 	}
 
 	/** updates q values for newState. reward = newScore - oldScore */
-	public void updateQ(SimplifiedObservation oldState, SimplifiedObservation newState, double reward)
+	public void updateQ(Option o, SimplifiedObservation oldState, SimplifiedObservation newState)
 	{
 		double maxAQ = getMaxQFromState(newState);
-		sop = new SerializableTuple
-			<SimplifiedObservation, Option>(oldState, a);
+		SerializableTuple<SimplifiedObservation, Option> sop = 
+			new SerializableTuple <SimplifiedObservation, Option>(oldState, o);
 		// Update rule from
 		// http://webdocs.cs.ualberta.ca/~sutton/book/ebook/node65.html
-		q.put(sop, q.get(sop) + ALPHA * (reward + GAMMA * 
+		q.put(sop, q.get(sop) + ALPHA * (o.getReward() + GAMMA * 
 			maxAQ - q.get(sop)));
 	}
 
@@ -130,48 +134,35 @@ public class Agent extends AbstractAgent
 		return maxAQ;
 	}
 
-	public Types.ACTIONS act(StateObservation so, ElapsedCpuTimer elapsedTimer)
-	{
-		double newScore = Lib.simpleValue(so);
-		explore(so, elapsedTimer, EXPLORATION_DEPTH);
-		currentOption = updateOption(this.currentOption, 
-			new SimplifiedObservation(so), newScore, previousScore, true)
-		this.previousScore = newScore;
-		return currentOption.act();
-	}
-
 	/** This function does:
 	 * 1. update the option reward
 	 * 2. check if the option is done
 	 * 3. choose a new option if needed
 	 * 4. update the Q-values
-	 * FIXME I should find a way to move this code to the abstract agent...
+	 * FIXME: New state/old state somehow should work
 	 */
-	private Option updateOption(Option option, SimplifiedObservation sso, 
-			double newScore, double previousScore, boolean greedy)
+	protected Option updateOption(Option option, SimplifiedObservation newState,
+			SimplifiedObservation oldState, double newScore, double
+			previousScore, boolean greedy)
 	{
 		// Add the new reward to this option
 		option.addReward(newScore - previousScore);
 		if(option.isFinished())
 		{
 			// Update q values for the finished option
-			updateQ(sso, option.getReward());
+			updateQ(option, newState, oldState);
 			// get a new option
 			if(greedy)
-				option = greedyOption(sso);
+				option = greedyOption(newState);
 			else
-				option = epsilonGreedyOption(sso, EPSILON);
+				option = epsilonGreedyOption(newState, EPSILON);
+			// Change oldState to newState. 
+			// TODO: Check if this does change the previousState when called bij
+			// act in the AbstractAgent
+			oldState = newState;
 		}
 		// If a new option is selected, return the new option. Else the old
 		// option will be returned
 		return option;
-	}
-
-	/** write q to file */
-	@Override
-	public final void teardown()
-	{
-		Lib.writeHashMapToFile(q, filename);
-		super.teardown();
 	}
 }

@@ -39,18 +39,17 @@ public class ActionOption extends Option implements Serializable
 	public void reset()
 	{
 		this.step = 0;
-		this.finished = false;
 	}
 
-	private void readObject(ObjectInputStream aInputStream) 
+	protected void readObject(ObjectInputStream aInputStream) 
 		throws ClassNotFoundException, IOException 
 	{
 		//always perform the default de-serialization first
 		super.readObject(aInputStream);
-		action = (Types.ACTION) aInputStream.readObject();
+		action = (Types.ACTIONS) aInputStream.readObject();
 	}
 
-	private void writeObject(ObjectOutputStream aOutputStream)
+	protected void writeObject(ObjectOutputStream aOutputStream)
 		throws IOException 
 	{
 		// perform the default serialization for all non-transient, non-static

@@ -39,6 +39,8 @@ public abstract class AbstractAgent extends AbstractPlayer
 	protected Option currentOption;
 	/** The previous score */
 	protected double previousScore = 0;
+	/** The previous state */
+	protected SimplifiedObservation previousState;
 
 	/** Default value for q */
 	public final Double DEFAULT_Q_VALUE = 0.0;
@@ -72,6 +74,14 @@ public abstract class AbstractAgent extends AbstractPlayer
 		// TODO: More options here!
 	}
 
+	/** Explores until almost all time is up */
+	abstract public void explore(StateObservation so, ElapsedCpuTimer elapsedTimer, int explorationDepth);
+
+	/** Update an option, chosing and returning a new one if needed */
+	abstract protected Option updateOption(Option option, SimplifiedObservation
+			newState, SimplifiedObservation oldState, double newScore, double
+			previousScore, boolean greedy);
+
 	/** Instantiates options array with ActionOptions for all possible actions
 	 */
 	private void setOptionsForActions(ArrayList<Types.ACTIONS> actions)
@@ -85,11 +95,11 @@ public abstract class AbstractAgent extends AbstractPlayer
 	/** Selects an epsilon greedy value based on the internal q table. Returns
 	 * the optimal option as index of the this.actions array.
 	 */
-	protected Option epsilonGreedyOption(StateObservation so, double epsilon)
+	protected Option epsilonGreedyOption(SimplifiedObservation sso, double epsilon)
 	{
 		// Either way we need to know WHAT the greedy option is, in order to
 		// know whether we have taken a greedy option
-		Option greedyOption = greedyOption(so);
+		Option greedyOption = greedyOption(sso);
 		// Select a random option with prob. EPSILON
 		if(random.nextDouble() < epsilon)
 		{
@@ -107,7 +117,7 @@ public abstract class AbstractAgent extends AbstractPlayer
 	}
 
 	/** Take the greedy option, based on HashMap q. 
-	 * @param so The state observation
+	 * @param sso The simplified state observation
 	 * @param print if this is true, the observation and greedy option are
 	 * printed 
 	 */
@@ -140,11 +150,30 @@ public abstract class AbstractAgent extends AbstractPlayer
 		return maxOption.copy();
 	}
 
+	public Types.ACTIONS act(StateObservation so, ElapsedCpuTimer elapsedTimer)
+	{
+		double newScore = Lib.simpleValue(so);
+		explore(so, elapsedTimer, EXPLORATION_DEPTH);
+		// update option. This also updates previousState if needed (or at least
+		// I hope so)
+		currentOption = updateOption(this.currentOption, 
+			new SimplifiedObservation(so, aStar), previousState, newScore, previousScore, true);
+		this.previousScore = newScore;
+		return currentOption.act(so);
+	}
 
 	/** Overload for backwards compatibility */
 	protected Option greedyOption(SimplifiedObservation sso)
 	{
 		return greedyOption(sso, false);
+	}
+
+	/** write q to file */
+	@Override
+	public void teardown()
+	{
+		Lib.writeHashMapToFile(q, filename);
+		super.teardown();
 	}
 
 }

@@ -72,7 +72,7 @@ public class Agent extends AbstractAgent
 			System.out.println("N not initialized.");
 			n = new DefaultHashMap<SerializableTuple<SimplifiedObservation, Option>, Double>(0.);
 		}
-		explore(so, elapsedTimer);
+		explore(so, elapsedTimer, EXPLORATION_DEPTH);
 		System.out.printf("End of constructor, miliseconds remaining: %d\n", elapsedTimer.remainingTimeMillis());
 	}
 
@@ -80,16 +80,23 @@ public class Agent extends AbstractAgent
 	 * Explore using the state observation and enter values in the V and Q
 	 * tables 
 	 */
-	public void explore(StateObservation so, ElapsedCpuTimer elapsedTimer)
+	public void explore(StateObservation so, ElapsedCpuTimer elapsedTimer, int explorationDepth)
 	{
 		// Initialize variables for loop:
 		// depth of inner for loop
 		int depth;
 		// state that is advanced to try out a new action
 		StateObservation soCopy;
+		// Simplified observation made of soCopy
+		SimplifiedObservation s;
 		// initialize lastNonGreedyDepth to 0, in case all actions are greedy
-		int lastNonGreedyDepth;
+		int lastNonGreedyDepth = 0;
+		// Action chosen bij the option
 		Types.ACTIONS a;
+		// used for checking if an option is finished before updating it
+		boolean finished;
+		// score keeping
+		double newScore, oldScore = 0;
 
 		// Currently only the greedy action will have to be taken after this is
 		// done, so we can take as much time as possible!
@@ -97,15 +104,17 @@ public class Agent extends AbstractAgent
 		{
 			//System.out.println("Starting exploration with remaining time " + elapsedTimer.remainingTimeMillis());
 			soCopy = so.copy();
-			// create histories of actions and states
-			Option[] optionHistory = new Option()[EXPLORATION_DEPTH];
+			// create histories of options and states
+			Option[] optionHistory = new Option[explorationDepth];
 			SimplifiedObservation[] stateHistory = 
-				new SimplifiedObservation[EXPLORATION_DEPTH];
+				new SimplifiedObservation[explorationDepth];
 			lastNonGreedyDepth = 0;
+			depth = 0;
 			// At first, use the currently chosen option (TODO: Maybe option
 			// breaking should be introduced later)
 			Option chosenOption = currentOption;
-			for(depth=0; depth<EXPLORATION_DEPTH && !soCopy.isGameOver(); depth++)
+			s = new SimplifiedObservation(soCopy, aStar);
+			while(depth<explorationDepth && !soCopy.isGameOver())
 			{
 				// {{{ Check starting time
 				if(elapsedTimer.remainingTimeMillis() < 4)
@@ -114,26 +123,32 @@ public class Agent extends AbstractAgent
 						elapsedTimer.remainingTimeMillis());
 					break;
 				} // }}}
-				// This advances soCopy with the taken action
-				if(chosenOption.isFinished())
+				newScore = Lib.simpleValue(soCopy);
+				// Firstly, check if the current option is finished
+				finished = chosenOption.isFinished();
+				// Then, update the option, maybe chosing a new one
+				// the oldState is not actually used in this class
+				chosenOption = updateOption(chosenOption, s, null, newScore, oldScore, false);
+				// If a new option is chosen, add it and the current state to 
+				// the history
+				if(finished)
 				{
 					// Add the finished option to the array of chosen options
 					optionHistory[depth] = chosenOption;
-					// TODO: Hier was ik gebleven met edits
-					chosenOption = epsilonGreedyOption(soCopy, EPSILON);
+					stateHistory[depth] = s;
+					depth++;
 				}
 				// Get the action from the option
-				a = chosenOption.act();
+				a = chosenOption.act(soCopy);
 				
 				if(!lastOptionGreedy)
 					lastNonGreedyDepth = depth;
 				// Advance the state, this should advance everywhere, with pointers and
 				// stuff
-				SimplifiedObservation s = new SimplifiedObservation(soCopy, aStar);
 				soCopy.advance(a);
-				// add state-action pair to history arrays
-				stateHistory[depth] = s;
-				actionHistory[depth] = a;
+				s = new SimplifiedObservation(soCopy, aStar);
+				// Set oldState and oldScore to current state and score
+				oldScore = newScore;
 				// {{{ Check remaining time 
 				if(elapsedTimer.remainingTimeMillis() < 4)
 				{
@@ -142,10 +157,9 @@ public class Agent extends AbstractAgent
 					break;
 				} // }}}
 			}
-			// process the states and actions from this rollout, using the value
+			// process the states and options from this rollout, using the value
 			// of the last visited state
-			backUp(stateHistory, actionHistory, stateHeuristic.evaluateState(soCopy), depth, lastNonGreedyDepth);
-			//backUp(stateHistory, actionHistory, Lib.simpleValue(soCopy), depth, lastNonGreedyDepth);
+			backUp(stateHistory, optionHistory, stateHeuristic.evaluateState(soCopy), depth, lastNonGreedyDepth);
 			// Reset lastNonGreedyDepth
 			lastNonGreedyDepth = 0;
 		}
@@ -157,9 +171,11 @@ public class Agent extends AbstractAgent
 	 * 3. choose a new option if needed
 	 * 4. update the Q-values
 	 * FIXME I should find a way to move this code to the abstract agent...
+	 * oldState is not actually used in this class
 	 */
-	private Option updateOption(Option option, SimplifiedObservation sso, 
-			double newScore, double previousScore, boolean greedy)
+	protected Option updateOption(Option option, SimplifiedObservation newState,
+			SimplifiedObservation oldState, double newScore, double
+			previousScore, boolean greedy)
 	{
 		// Add the new reward to this option
 		option.addReward(newScore - previousScore);
@@ -167,9 +183,10 @@ public class Agent extends AbstractAgent
 		{
 			// get a new option
 			if(greedy)
-				option = greedyOption(sso);
+				option = greedyOption(newState);
 			else
-				option = epsilonGreedyOption(sso, EPSILON);
+				option = epsilonGreedyOption(newState, EPSILON);
+			oldState = newState;
 		}
 		// If a new option is selected, return the new option. Else the old
 		// option will be returned
@@ -180,18 +197,18 @@ public class Agent extends AbstractAgent
 	 * http://webdocs.cs.ualberta.ca/~sutton/book/ebook/node56.html
 	 * @param stateHistory The states visited in the last run. stateHistory[0]
 	 * is the first state
-	 * @param actionHistory The actions taken in each state from stateHistory.
-	 * actionHistory[i] is an action taken in stateHistory[i]
+	 * @param optionHistory The options chosen in each state from stateHistory.
+	 * optionHistory[i] is an option chosen in stateHistory[i]
 	 * @param score The score in the last state in stateHistory. 
 	 * @param lastDepth Some times stateHistory.length is not
 	 * this.EXPLORATION_DEPTH, because the game was ended before
 	 * this.EXPLORATION_DEPTH was reached. Therefore we need the last depth.
 	 * This is, in the literature, referred to as T
-	 * @param lastNonGreedyDepth depth at which the last non-greedy action was
-	 * taken
+	 * @param lastNonGreedyDepth depth at which the last non-greedy option was
+	 * selected
 	 */
 	private void backUp(SimplifiedObservation[] stateHistory, 
-		Types.ACTIONS[] actionHistory, double score, int lastDepth, 
+		Option[] optionHistory, double score, int lastDepth, 
 		int lastNonGreedyDepth)
 	{
 		if(lastDepth < lastNonGreedyDepth)
@@ -200,11 +217,11 @@ public class Agent extends AbstractAgent
 				lastDepth, lastNonGreedyDepth);
 		}
 		// Will be used as index in the q table
-		SerializableTuple<SimplifiedObservation, Types.ACTIONS> sa;
+		SerializableTuple<SimplifiedObservation, Option> sa;
 		// Will be used for the score that is currently in the q table
 		double lastScore;
-		// Will be index of the first state-action pair:
-		// t = time of first occurrence of s, a, such that t > lastNonGreedyDepth
+		// Will be index of the first state-option pair:
+		// t = time of first occurrence of s, o, such that t > lastNonGreedyDepth
 		int t;
 		// Probability of ending up in state s:
 		double w;
@@ -216,13 +233,13 @@ public class Agent extends AbstractAgent
 		for(int i=lastNonGreedyDepth; i<lastDepth && stateHistory[i] != null; i++)
 		{
 			// t = time of first occurrence of s, a, such that t > lastNonGreedyDepth
-			t = getFirstStateActionIndex(stateHistory[i], actionHistory[i], 
-				stateHistory, actionHistory, lastNonGreedyDepth);
+			t = getFirstStateOptionIndex(stateHistory[i], optionHistory[i], 
+				stateHistory, optionHistory, lastNonGreedyDepth);
 
 			// w = product(1/(pi'(s_k, a_k)))
 			// Simplified version: w = 1/((1-EPSILON)^(T-t))
 			w = Math.pow(1/(1-EPSILON), (lastDepth-t));
-			sa = new SerializableTuple(stateHistory[i], actionHistory[i]);
+			sa = new SerializableTuple(stateHistory[i], optionHistory[i]);
 			newN = n.get(sa) + w * Math.pow(GAMMA, lastDepth-t) * score;
 			n.put(sa, newN);
 			newD = d.get(sa) + Math.pow(GAMMA, lastDepth-t) * w;
@@ -231,45 +248,32 @@ public class Agent extends AbstractAgent
 		}
 	}
 
-	/** Searches stateHistory and actionHistory for the first occurrence of the
-	 * given state action pair after index 'first'
+	/** Searches stateHistory and optionHistory for the first occurrence of the
+	 * given state/option pair after index 'first'
 	 * */
-	private int getFirstStateActionIndex(SimplifiedObservation state, 
-		Types.ACTIONS action, SimplifiedObservation[] stateHistory, 
-		Types.ACTIONS[] actionHistory, int first)
+	private int getFirstStateOptionIndex(SimplifiedObservation state, 
+		Option option, SimplifiedObservation[] stateHistory, 
+		Option[] optionHistory, int first)
 	{
-		if(stateHistory.length != actionHistory.length)
+		if(stateHistory.length != optionHistory.length)
 		{
-			System.out.println(
-				"WARNING: stateHistory size differs from actionHistory size!");
+			System.err.println(
+				"WARNING: stateHistory size differs from optionHistory size!");
 			return 0;
 		}
 		for(int i=first; i<stateHistory.length; i++)
 		{
-			if(state.equals(stateHistory[i]) && action.equals(actionHistory[i]))
+			if(state.equals(stateHistory[i]) && option.equals(optionHistory[i]))
 				return i;
 		}
-		System.out.println("WARNING state action pair not found!? Returning last index");
+		System.err.println("WARNING state option pair not found!? Returning last index");
 		return stateHistory.length - 1;
-	}
-
-
-	public Types.ACTIONS act(StateObservation so, ElapsedCpuTimer elapsedTimer)
-	{
-		//System.out.println("Starting action");
-		// Create simplified observation:
-		explore(so, elapsedTimer);
-		//System.out.printf("Returning greedy action with %d time left\n", elapsedTimer.remainingTimeMillis());
-		return greedyAction(so, true);
 	}
 
 	/** write q to file */
 	@Override
-	public final void teardown()
+	public void teardown()
 	{
-		Lib.writeHashMapToFile(q, filename + "q");
-		//System.out.println("Written q");
-		//System.out.println(q);
 		Lib.writeHashMapToFile(d, filename + "d");
 		Lib.writeHashMapToFile(n, filename + "n");
 		super.teardown();

@@ -51,14 +51,14 @@ public abstract class Option implements Serializable
 		return this.cumulativeReward;
 	}
 
-	private void readObject(ObjectInputStream aInputStream) 
+	protected void readObject(ObjectInputStream aInputStream) 
 		throws ClassNotFoundException, IOException 
 	{
 		//always perform the default de-serialization first
 		aInputStream.defaultReadObject();
 	}
 
-	private void writeObject(ObjectOutputStream aOutputStream)
+	protected void writeObject(ObjectOutputStream aOutputStream)
 		throws IOException 
 	{
 		// perform the default serialization for all non-transient, non-static
