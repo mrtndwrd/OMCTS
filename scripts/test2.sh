@@ -16,7 +16,7 @@ dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 cd $dir/..
 
 # Variables (command line time?)
-controller="montecarlo.Agent"
+controller="qlearning.Agent"
 game="prey"
 levels="0"
 

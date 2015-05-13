@@ -26,8 +26,8 @@ public class SimplifiedObservation implements Serializable
 		// Initialize with some data. Later more initialize functions could be
 		// added
 		//betterAStarDataInit(so, aStar);
-		aStarDataInit(so, aStar);
-		//someDataInit(so);
+		//aStarDataInit(so, aStar);
+		// someDataInit(so);
 		//preyInit(so);
 		//preyAStarInit(so, aStar);
 		//onlyAvatarPositionInit(so);
@@ -74,8 +74,8 @@ public class SimplifiedObservation implements Serializable
 	private void someDataInit(StateObservation so)
 	{
 		Vector2d avatarPosition = so.getAvatarPosition();
-		System.out.printf("avatarPosition: %s, divided by block size: %f, %f\n",
-			avatarPosition, avatarPosition.x/so.getBlockSize(), avatarPosition.y/so.getBlockSize());
+		//System.out.printf("avatarPosition: %s, divided by block size: %f, %f\n",
+		//	avatarPosition, avatarPosition.x/so.getBlockSize(), avatarPosition.y/so.getBlockSize());
 		code = String.format("Orientation: %s\n Resources: %s\n NPCs: %s\n Movable: %s\n ResourcePositions: %s\n PortalsPositions: %s\n ImmovablePositions: %s",
 			so.getAvatarOrientation().toString(),
 			so.getAvatarResources().toString(),

@@ -43,9 +43,11 @@ public abstract class Option implements Serializable
 	 * in advance, that's done by this function */
 	public void addReward(double reward)
 	{
-		this.cumulativeReward += Math.pow(gamma, step) * reward;
-		//if(reward != 0)
-		//	System.out.printf("Set cumulative reward to %f\n", this.cumulativeReward);
+		if(step == 0)
+			System.err.println("WARNING! Adding reward to option that hasn't done anything yet!");
+		this.cumulativeReward += Math.pow(gamma, step-1) * reward;
+		// if(reward != 0)
+			// System.out.printf("Set cumulative reward to %f\n", this.cumulativeReward);
 	}
 
 	public double getReward()
@@ -53,6 +55,14 @@ public abstract class Option implements Serializable
 		//if(cumulativeReward != 0)
 		//	System.out.printf("Returning cumulative reward %f\n", this.cumulativeReward);
 		return this.cumulativeReward;
+	}
+
+	/** Returns the step count of this option, representing how long the option
+	 * has been in use
+	 */
+	public int getStep()
+	{
+		return this.step;
 	}
 
 	protected void readObject(ObjectInputStream aInputStream) 

@@ -55,7 +55,7 @@ public abstract class AbstractAgent extends AbstractPlayer
 	/** The gamma of this algorithm */
 	public final double GAMMA = .9;
 	/** Theta for noise */
-	public final double THETA = 1e-6;
+	public final double THETA = 1e-5;
 
 	/** File to write q table to */
 	protected String filename;
@@ -148,6 +148,8 @@ public abstract class AbstractAgent extends AbstractPlayer
 			// Get the next option value, with a little bit of noise to enable
 			// random selection
 			value = Utils.noise(q.get(sop), THETA, random.nextDouble());
+			if(print)
+				System.out.printf("Value %s = %f\n", o, value);
 			if(value > maxValue)
 			{
 				maxValue = value;
@@ -163,13 +165,24 @@ public abstract class AbstractAgent extends AbstractPlayer
 	public Types.ACTIONS act(StateObservation so, ElapsedCpuTimer elapsedTimer)
 	{
 		double newScore = score(so);
+		SimplifiedObservation newState = new SimplifiedObservation(so, aStar);
 		//double newScore = so.getGameScore();
 		explore(so, elapsedTimer, EXPLORATION_DEPTH);
-		SimplifiedObservation newState = new SimplifiedObservation(so, aStar);
 		// update option. This also updates previousState if needed (or at least
 		// I hope so)
 		SimplifiedObservation oldState = this.previousState;
-		currentOption = updateOption(this.currentOption, newState, previousState, newScore - previousScore, true);
+		// We can only update from step 2
+		if(this.previousState == null)
+		{
+			// First time, initialize previous state to the current state and currentOption to
+			// greedy option: From now on, stuff can happen!
+			this.previousState = newState;
+			currentOption = greedyOption(newState);
+		}
+		else
+		{
+			currentOption = updateOption(this.currentOption, newState, this.previousState, newScore - previousScore, true);
+		}
 		
 		this.previousScore = newScore;
 		return currentOption.act(so);
@@ -186,6 +199,7 @@ public abstract class AbstractAgent extends AbstractPlayer
 	public void teardown()
 	{
 		Lib.writeHashMapToFile(q, filename);
+		//System.out.println(q);
 		super.teardown();
 	}
 
