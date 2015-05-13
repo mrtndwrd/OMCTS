@@ -44,10 +44,14 @@ public abstract class Option implements Serializable
 	public void addReward(double reward)
 	{
 		this.cumulativeReward += Math.pow(gamma, step) * reward;
+		//if(reward != 0)
+		//	System.out.printf("Set cumulative reward to %f\n", this.cumulativeReward);
 	}
 
 	public double getReward()
 	{
+		//if(cumulativeReward != 0)
+		//	System.out.printf("Returning cumulative reward %f\n", this.cumulativeReward);
 		return this.cumulativeReward;
 	}
 
@@ -65,6 +69,10 @@ public abstract class Option implements Serializable
 		// fields
 		aOutputStream.defaultWriteObject();
 	}
+
+	public abstract int hashCode();
+
+	public abstract boolean equals(Object o);
 
 
 }

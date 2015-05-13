@@ -128,7 +128,7 @@ public class Agent extends AbstractAgent
 				finished = chosenOption.isFinished();
 				// Then, update the option, maybe chosing a new one
 				// the oldState is not actually used in this class
-				chosenOption = updateOption(chosenOption, s, null, newScore, oldScore, false);
+				chosenOption = updateOption(chosenOption, s, null, newScore - oldScore, false);
 				// If a new option is chosen, add it and the current state to 
 				// the history
 				if(finished)
@@ -174,11 +174,10 @@ public class Agent extends AbstractAgent
 	 * oldState is not actually used in this class
 	 */
 	protected Option updateOption(Option option, SimplifiedObservation newState,
-			SimplifiedObservation oldState, double newScore, double
-			previousScore, boolean greedy)
+			SimplifiedObservation oldState, double score, boolean greedy)
 	{
 		// Add the new reward to this option
-		option.addReward(newScore - previousScore);
+		option.addReward(score);
 		if(option.isFinished())
 		{
 			// get a new option

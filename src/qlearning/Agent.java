@@ -49,7 +49,14 @@ public class Agent extends AbstractAgent
 		if(q == null)
 			q = new DefaultHashMap<SerializableTuple
 				<SimplifiedObservation, Option>, Double> (DEFAULT_Q_VALUE);
+		// Instantiate previousState to the starting state to prevent null
+		// pointers.
+		previousState = new SimplifiedObservation(so, aStar);
+		// Instantiate currentOption with an epsilon-greedy option FIXME: Should be in
+		// abstract constructor after initializing q
+		currentOption = epsilonGreedyOption(new SimplifiedObservation(so, aStar), EPSILON);
 		explore(so, elapsedTimer, INIT_EXPLORATION_DEPTH);
+		//System.out.println(q);
 		System.out.printf("End of constructor, miliseconds remaining: %d\n", elapsedTimer.remainingTimeMillis());
 	}
 
@@ -69,43 +76,54 @@ public class Agent extends AbstractAgent
 		// previousScore in this function
 		double oldScore, newScore;
 		// State observations
-		SimplifiedObservation newState, oldState;
+		SimplifiedObservation newState, firstPreviousState;
 		// Key for the q-table
 		SerializableTuple<SimplifiedObservation, Option> sop;
+		 
+		// Save current previousState in firstPreviousState 
+		firstPreviousState = previousState;
 		
 		// Currently only the greedy action will have to be taken after this is
 		// done, so we can take as much time as possible!
-		while(elapsedTimer.remainingTimeMillis() > 5.)
+		outerloop:
+		while(elapsedTimer.remainingTimeMillis() > 10.)
 		{
 			// Copy the state so we can advance it
 			soCopy = so.copy();
-			newState = new SimplifiedObservation(soCopy, aStar);
-			// Initialize with the current old state and score
+			// Initialize with the current old score. we don't need to
+			// initialize the newScore and -State because that's done in the
+			// first few lines of the inner loop
 			oldScore = previousScore;
-			oldState = previousState;
-			// At first, use the currently chosen option (TODO: Maybe option
+			// Start by using the currently chosen option (TODO: Maybe option
 			// breaking should be introduced later)
 			Option chosenOption = currentOption;
 			for(depth=0; depth<explorationDepth && !soCopy.isGameOver(); depth++)
 			{
-				newScore = Lib.simpleValue(soCopy);
-				// Update option information and new score and, if needed, do
-				// epsilon-greegy option selection
-				chosenOption = updateOption(chosenOption, newState, oldState, newScore, oldScore, false);
 				// This advances soCopy with the action chosen by the option
 				soCopy.advance(chosenOption.act(soCopy));
 				newState = new SimplifiedObservation(soCopy, aStar);
-				// Set oldState and oldScore to current state and score
-				oldState = newState;
+				//System.out.println("New state: " + newState.toString());
+				newScore = score(soCopy);
+				//newScore = soCopy.getGameScore();
+				//System.out.println("New Score: " + newScore);
+				// Update option information and new score and, if needed, do
+				// epsilon-greegy option selection
+				chosenOption = updateOption(chosenOption, newState, previousState, newScore - oldScore, false);
+				// set oldScore to current score
 				oldScore = newScore;
-				if(elapsedTimer.remainingTimeMillis() < 3)
-					return;
+				if(elapsedTimer.remainingTimeMillis() < 8.)
+				{
+					break outerloop;
+				}
 			}
 		}
+
+		// Restore current previousState to what it was before exploring
+		this.previousState = firstPreviousState;
 	}
 
-	/** updates q values for newState. reward = newScore - oldScore */
-	public void updateQ(Option o, SimplifiedObservation oldState, SimplifiedObservation newState)
+	/** updates q values for newState. */
+	public void updateQ(Option o, SimplifiedObservation newState, SimplifiedObservation oldState)
 	{
 		double maxAQ = getMaxQFromState(newState);
 		SerializableTuple<SimplifiedObservation, Option> sop = 
@@ -142,13 +160,13 @@ public class Agent extends AbstractAgent
 	 * FIXME: New state/old state somehow should work
 	 */
 	protected Option updateOption(Option option, SimplifiedObservation newState,
-			SimplifiedObservation oldState, double newScore, double
-			previousScore, boolean greedy)
+			SimplifiedObservation oldState, double score, boolean greedy)
 	{
 		// Add the new reward to this option
-		option.addReward(newScore - previousScore);
+		option.addReward(score);
 		if(option.isFinished())
 		{
+			//System.out.printf("UpdateQ wth option %s, newState %s, oldState %s\n", option, newState, oldState);
 			// Update q values for the finished option
 			updateQ(option, newState, oldState);
 			// get a new option
@@ -157,9 +175,9 @@ public class Agent extends AbstractAgent
 			else
 				option = epsilonGreedyOption(newState, EPSILON);
 			// Change oldState to newState. 
-			// TODO: Check if this does change the previousState when called bij
+			// TODO: Check if this does change the previousState when called by
 			// act in the AbstractAgent
-			oldState = newState;
+			this.previousState = newState;
 		}
 		// If a new option is selected, return the new option. Else the old
 		// option will be returned

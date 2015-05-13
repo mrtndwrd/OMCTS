@@ -64,4 +64,26 @@ public class ActionOption extends Option implements Serializable
 		return new ActionOption(gamma, action);
 	}
 
+	public String toString()
+	{
+		return "ActionOption(" + this.action + ")";
+	}
+
+	public int hashCode()
+	{
+		return this.action.hashCode();
+	}
+
+	public boolean equals(Object o)
+	{
+		if(o instanceof ActionOption)
+		{
+			ActionOption oa = (ActionOption) o;
+			return this.action == oa.action;
+		}
+		return false;
+	}
+
+
+
 }

@@ -25,8 +25,8 @@ public class SimplifiedObservation implements Serializable
 	{
 		// Initialize with some data. Later more initialize functions could be
 		// added
-		betterAStarDataInit(so, aStar);
-		//aStarDataInit(so, aStar);
+		//betterAStarDataInit(so, aStar);
+		aStarDataInit(so, aStar);
 		//someDataInit(so);
 		//preyInit(so);
 		//preyAStarInit(so, aStar);

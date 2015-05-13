@@ -37,8 +37,10 @@ public abstract class AbstractAgent extends AbstractPlayer
 	protected boolean lastOptionGreedy = false;
 	/** The option that is currently being followed */
 	protected Option currentOption;
-	/** The previous score */
-	protected double previousScore = 0;
+	/** The previous score, assumes scores always start at 0 (so no games should
+	 * be present that have a score that decreases over time and starts > 0 or
+	 * something) */
+	protected double previousScore;
 	/** The previous state */
 	protected SimplifiedObservation previousState;
 
@@ -69,9 +71,18 @@ public abstract class AbstractAgent extends AbstractPlayer
 		aStar = new AStar(so);
 		stateHeuristic = new SimpleStateHeuristic(so);
 		possibleOptions = new ArrayList<Option>();
+		this.previousScore = score(so);
 		// instantiate possibleOptions with actions
 		setOptionsForActions(so.getAvailableActions());
 		// TODO: More options here!
+	}
+
+	/** Scores the state. This enables simple changing of the scoring method
+	 * without having to change it everywhere
+	 */
+	protected double score(StateObservation so)
+	{
+		return Lib.simpleValue(so);
 	}
 
 	/** Explores until almost all time is up */
@@ -79,8 +90,8 @@ public abstract class AbstractAgent extends AbstractPlayer
 
 	/** Update an option, chosing and returning a new one if needed */
 	abstract protected Option updateOption(Option option, SimplifiedObservation
-			newState, SimplifiedObservation oldState, double newScore, double
-			previousScore, boolean greedy);
+			newState, SimplifiedObservation oldState, double score, 
+			boolean greedy);
 
 	/** Instantiates options array with ActionOptions for all possible actions
 	 */
@@ -137,7 +148,6 @@ public abstract class AbstractAgent extends AbstractPlayer
 			// Get the next option value, with a little bit of noise to enable
 			// random selection
 			value = Utils.noise(q.get(sop), THETA, random.nextDouble());
-			value = q.get(sop);
 			if(value > maxValue)
 			{
 				maxValue = value;
@@ -152,12 +162,15 @@ public abstract class AbstractAgent extends AbstractPlayer
 
 	public Types.ACTIONS act(StateObservation so, ElapsedCpuTimer elapsedTimer)
 	{
-		double newScore = Lib.simpleValue(so);
+		double newScore = score(so);
+		//double newScore = so.getGameScore();
 		explore(so, elapsedTimer, EXPLORATION_DEPTH);
+		SimplifiedObservation newState = new SimplifiedObservation(so, aStar);
 		// update option. This also updates previousState if needed (or at least
 		// I hope so)
-		currentOption = updateOption(this.currentOption, 
-			new SimplifiedObservation(so, aStar), previousState, newScore, previousScore, true);
+		SimplifiedObservation oldState = this.previousState;
+		currentOption = updateOption(this.currentOption, newState, previousState, newScore - previousScore, true);
+		
 		this.previousScore = newScore;
 		return currentOption.act(so);
 	}
