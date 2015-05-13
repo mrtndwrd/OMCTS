@@ -21,52 +21,52 @@ public class SimplifiedObservation implements Serializable
 
 	private static final long serialVersionUID = 4382473219407506572L;
 
-	public SimplifiedObservation(StateObservation so, AStar aStar)
+	public SimplifiedObservation(StateObservation so)
 	{
 		// Initialize with some data. Later more initialize functions could be
 		// added
-		//betterAStarDataInit(so, aStar);
-		//aStarDataInit(so, aStar);
+		betterAStarDataInit(so);
+		//aStarDataInit(so);
 		// someDataInit(so);
 		//preyInit(so);
-		//preyAStarInit(so, aStar);
+		//preyAStarInit(so);
 		//onlyAvatarPositionInit(so);
 	}
 
-	private void betterAStarDataInit(StateObservation so, AStar aStar)
+	private void betterAStarDataInit(StateObservation so)
 	{
 		Vector2d avatarPosition = so.getAvatarPosition();
 		code = String.format("Orientation: %s\n Resources: %s\n NPCs: %s\n Movable: %s\n ResourcePositions: %s\n PortalsPositions: %s\n ImmovablePositions: %s",
 			so.getAvatarOrientation().toString(),
 			so.getAvatarResources().toString(),
 			Lib.getPathLengthAndAStarAction(
-				so.getNPCPositions(avatarPosition), avatarPosition, aStar).toString(),
+				so.getNPCPositions(avatarPosition), avatarPosition).toString(),
 			Lib.getPathLengthAndAStarAction(
-				so.getMovablePositions(avatarPosition), avatarPosition, aStar).toString(),
+				so.getMovablePositions(avatarPosition), avatarPosition).toString(),
 			Lib.getPathLengthAndAStarAction(
-				so.getResourcesPositions(avatarPosition), avatarPosition, aStar).toString(),
+				so.getResourcesPositions(avatarPosition), avatarPosition).toString(),
 			Lib.getPathLengthAndAStarAction(
-				so.getPortalsPositions(avatarPosition), avatarPosition, aStar).toString(),
+				so.getPortalsPositions(avatarPosition), avatarPosition).toString(),
 			Lib.getPathLengthAndAStarAction(
-				so.getImmovablePositions(avatarPosition), avatarPosition, aStar).toString());
+				so.getImmovablePositions(avatarPosition), avatarPosition).toString());
 	}
 
-	private void aStarDataInit(StateObservation so, AStar aStar)
+	private void aStarDataInit(StateObservation so)
 	{
 		Vector2d avatarPosition = so.getAvatarPosition();
 		code = String.format("Orientation: %s\n Resources: %s\n NPCs: %s\n Movable: %s\n ResourcePositions: %s\n PortalsPositions: %s\n ImmovablePositions: %s",
 			so.getAvatarOrientation().toString(),
 			so.getAvatarResources().toString(),
 			Lib.getNearestDistanceAndAStarAction(
-				so.getNPCPositions(avatarPosition), avatarPosition, aStar).toString(),
+				so.getNPCPositions(avatarPosition), avatarPosition).toString(),
 			Lib.getNearestDistanceAndAStarAction(
-				so.getMovablePositions(avatarPosition), avatarPosition, aStar).toString(),
+				so.getMovablePositions(avatarPosition), avatarPosition).toString(),
 			Lib.getNearestDistanceAndAStarAction(
-				so.getResourcesPositions(avatarPosition), avatarPosition, aStar).toString(),
+				so.getResourcesPositions(avatarPosition), avatarPosition).toString(),
 			Lib.getNearestDistanceAndAStarAction(
-				so.getPortalsPositions(avatarPosition), avatarPosition, aStar).toString(),
+				so.getPortalsPositions(avatarPosition), avatarPosition).toString(),
 			Lib.getNearestDistanceAndAStarAction(
-				so.getImmovablePositions(avatarPosition), avatarPosition, aStar).toString());
+				so.getImmovablePositions(avatarPosition), avatarPosition).toString());
 	}
 
 	/** Initialize using some of the observed data. Excluded are: The entire
@@ -107,13 +107,13 @@ public class SimplifiedObservation implements Serializable
 		*/
 	}
 
-	private void preyAStarInit(StateObservation so, AStar aStar)
+	private void preyAStarInit(StateObservation so)
 	{
 		Vector2d avatarPosition = so.getAvatarPosition();
 		code = String.format("Orientation: %s, Prey: %s", 
 			so.getAvatarOrientation().toString(),
 			Lib.getPathLengthAndAStarAction(
-				so.getNPCPositions(avatarPosition), avatarPosition, aStar).toString());
+				so.getNPCPositions(avatarPosition), avatarPosition).toString());
 	}
 
 	private void onlyAvatarPositionInit(StateObservation so)
@@ -132,7 +132,7 @@ public class SimplifiedObservation implements Serializable
 		{ 
 			if(o instanceof StateObservation)
 			{
-				return equals(new SimplifiedObservation((StateObservation) o, null));
+				return equals(new SimplifiedObservation((StateObservation) o));
 			}
 			else
 				return false; 

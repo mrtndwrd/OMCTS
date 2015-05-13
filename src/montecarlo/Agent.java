@@ -113,7 +113,7 @@ public class Agent extends AbstractAgent
 			// At first, use the currently chosen option (TODO: Maybe option
 			// breaking should be introduced later)
 			Option chosenOption = currentOption;
-			s = new SimplifiedObservation(soCopy, aStar);
+			s = new SimplifiedObservation(soCopy);
 			while(depth<explorationDepth && !soCopy.isGameOver())
 			{
 				// {{{ Check starting time
@@ -146,7 +146,7 @@ public class Agent extends AbstractAgent
 				// Advance the state, this should advance everywhere, with pointers and
 				// stuff
 				soCopy.advance(a);
-				s = new SimplifiedObservation(soCopy, aStar);
+				s = new SimplifiedObservation(soCopy);
 				// Set oldState and oldScore to current state and score
 				oldScore = newScore;
 				// {{{ Check remaining time 

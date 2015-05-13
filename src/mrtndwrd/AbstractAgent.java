@@ -64,11 +64,12 @@ public abstract class AbstractAgent extends AbstractPlayer
 	protected StateHeuristic stateHeuristic;
 
 	/** AStar for searching for stuff */
-	protected AStar aStar;
+	public static AStar aStar;
+
 
 	public AbstractAgent(StateObservation so, ElapsedCpuTimer elapsedTimer) 
 	{
-		aStar = new AStar(so);
+		AbstractAgent.aStar = new AStar(so);
 		stateHeuristic = new SimpleStateHeuristic(so);
 		possibleOptions = new ArrayList<Option>();
 		this.previousScore = score(so);
@@ -165,7 +166,7 @@ public abstract class AbstractAgent extends AbstractPlayer
 	public Types.ACTIONS act(StateObservation so, ElapsedCpuTimer elapsedTimer)
 	{
 		double newScore = score(so);
-		SimplifiedObservation newState = new SimplifiedObservation(so, aStar);
+		SimplifiedObservation newState = new SimplifiedObservation(so);
 		//double newScore = so.getGameScore();
 		explore(so, elapsedTimer, EXPLORATION_DEPTH);
 		// update option. This also updates previousState if needed (or at least

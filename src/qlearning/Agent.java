@@ -51,7 +51,7 @@ public class Agent extends AbstractAgent
 				<SimplifiedObservation, Option>, Double> (DEFAULT_Q_VALUE);
 		// Instantiate previousState to the starting state to prevent null
 		// pointers.
-		//previousState = new SimplifiedObservation(so, aStar);
+		//previousState = new SimplifiedObservation(so);
 		// Instantiate currentOption with an epsilon-greedy option FIXME: Should be in
 		// abstract constructor after initializing q
 		explore(so, elapsedTimer, INIT_EXPLORATION_DEPTH);
@@ -98,16 +98,16 @@ public class Agent extends AbstractAgent
 			// breaking should be introduced later)
 			//Option chosenOption = currentOption.copy();
 			if(currentOption == null || currentOption.isFinished())
-				chosenOption = epsilonGreedyOption(new SimplifiedObservation(soCopy, aStar), EPSILON);
+				chosenOption = epsilonGreedyOption(new SimplifiedObservation(soCopy), EPSILON);
 			else
 				chosenOption = this.currentOption;
 			// Instantiate previousState to the current state
-			this.previousState = new SimplifiedObservation(soCopy, aStar);
+			this.previousState = new SimplifiedObservation(soCopy);
 			for(depth=0; depth<explorationDepth && !soCopy.isGameOver(); depth++)
 			{
 				// This advances soCopy with the action chosen by the option
 				soCopy.advance(chosenOption.act(soCopy));
-				newState = new SimplifiedObservation(soCopy, aStar);
+				newState = new SimplifiedObservation(soCopy);
 				newScore = score(soCopy);
 				//newScore = soCopy.getGameScore();
 				// Update option information and new score and, if needed, do
