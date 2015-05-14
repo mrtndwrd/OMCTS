@@ -30,8 +30,8 @@ public abstract class Option implements Serializable
 	/** Choose the action to be taken now. This should increment this.step! */
 	public abstract Types.ACTIONS act(StateObservation so);
 
-	/** True if the option is in a goal state */
-	public abstract boolean isFinished();
+	/** True if the option so is a goal state */
+	public abstract boolean isFinished(StateObservation so);
 	
 	/** Resets the option values, enabling it to be called again next time
 	 * without having interfering values saved in it. */

@@ -32,8 +32,9 @@ public class ActionOption extends Option implements Serializable
 		return this.action;
 	}
 
-	public boolean isFinished()
+	public boolean isFinished(StateObservation so)
 	{
+		// Ignore so, all states are finite states for this option
 		return this.step > 0;
 	}
 

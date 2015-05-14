@@ -2,12 +2,14 @@ package mrtndwrd;
 
 import ontology.Types;
 import core.game.StateObservation;
+import tools.Vector2d;
 
 import java.io.Serializable;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.IOException;
 import java.lang.ClassNotFoundException;
+import java.util.ArrayList;
 
 /** Option that represents going somewhere using aStar. The static aStar
  * variable in AbstractAgent is used. */
@@ -25,7 +27,14 @@ public class AStarOption extends Option implements Serializable
 
 	public Types.ACTIONS act(StateObservation so)
 	{
+		return Types.ACTIONS.ACTION_NIL;
+	}
 
+	public boolean isFinished(StateObservation so)
+	{
+		// This option is finished if the current avatar location is the same as
+		// the goal location
+		return this.goal == so.getAvatarPosition();
 	}
 
 	public void reset()

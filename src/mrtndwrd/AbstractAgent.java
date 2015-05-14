@@ -42,7 +42,7 @@ public abstract class AbstractAgent extends AbstractPlayer
 	 * something) */
 	protected double previousScore;
 	/** The previous state */
-	protected SimplifiedObservation previousState;
+	protected StateObservation previousState;
 
 	/** Default value for q */
 	public final Double DEFAULT_Q_VALUE = 0.0;
@@ -90,9 +90,8 @@ public abstract class AbstractAgent extends AbstractPlayer
 	abstract public void explore(StateObservation so, ElapsedCpuTimer elapsedTimer, int explorationDepth);
 
 	/** Update an option, chosing and returning a new one if needed */
-	abstract protected Option updateOption(Option option, SimplifiedObservation
-			newState, SimplifiedObservation oldState, double score, 
-			boolean greedy);
+	abstract protected Option updateOption(Option option, StateObservation newState, 
+			StateObservation oldState, double score, boolean greedy);
 
 	/** Instantiates options array with ActionOptions for all possible actions
 	 */
@@ -166,23 +165,21 @@ public abstract class AbstractAgent extends AbstractPlayer
 	public Types.ACTIONS act(StateObservation so, ElapsedCpuTimer elapsedTimer)
 	{
 		double newScore = score(so);
-		SimplifiedObservation newState = new SimplifiedObservation(so);
 		//double newScore = so.getGameScore();
 		explore(so, elapsedTimer, EXPLORATION_DEPTH);
-		// update option. This also updates previousState if needed (or at least
-		// I hope so)
-		SimplifiedObservation oldState = this.previousState;
+		// update option. This also updates this.previousState if needed
 		// We can only update from step 2
 		if(this.previousState == null)
 		{
 			// First time, initialize previous state to the current state and currentOption to
 			// greedy option: From now on, stuff can happen!
-			this.previousState = newState;
+			this.previousState = so;
+			SimplifiedObservation newState = new SimplifiedObservation(so);
 			currentOption = greedyOption(newState);
 		}
 		else
 		{
-			currentOption = updateOption(this.currentOption, newState, this.previousState, newScore - previousScore, true);
+			currentOption = updateOption(this.currentOption, so, this.previousState, newScore - previousScore, true);
 		}
 		
 		this.previousScore = newScore;
@@ -200,7 +197,7 @@ public abstract class AbstractAgent extends AbstractPlayer
 	public void teardown()
 	{
 		Lib.writeHashMapToFile(q, filename);
-		//System.out.println(q);
+		System.out.println(q);
 		super.teardown();
 	}
 

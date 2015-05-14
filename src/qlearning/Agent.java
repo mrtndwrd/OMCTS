@@ -51,7 +51,6 @@ public class Agent extends AbstractAgent
 				<SimplifiedObservation, Option>, Double> (DEFAULT_Q_VALUE);
 		// Instantiate previousState to the starting state to prevent null
 		// pointers.
-		//previousState = new SimplifiedObservation(so);
 		// Instantiate currentOption with an epsilon-greedy option FIXME: Should be in
 		// abstract constructor after initializing q
 		explore(so, elapsedTimer, INIT_EXPLORATION_DEPTH);
@@ -73,14 +72,13 @@ public class Agent extends AbstractAgent
 		// old score and old state will act as surrogates for previousState and
 		// previousScore in this function
 		double oldScore, newScore;
-		// State observations
-		SimplifiedObservation newState, firstPreviousState;
+		// Save current previousState in firstPreviousState 
+		StateObservation firstPreviousState = this.previousState;
+		//
 		// Key for the q-table
 		SerializableTuple<SimplifiedObservation, Option> sop;
 		 
-		// Save current previousState in firstPreviousState 
-		firstPreviousState = this.previousState;
-
+		// This loop's surrogate for this.currentOption
 		Option chosenOption;
 		
 		// Currently only the greedy action will have to be taken after this is
@@ -97,22 +95,21 @@ public class Agent extends AbstractAgent
 			// Start by using the currently chosen option (TODO: Maybe option
 			// breaking should be introduced later)
 			//Option chosenOption = currentOption.copy();
-			if(currentOption == null || currentOption.isFinished())
+			if(currentOption == null || currentOption.isFinished(soCopy))
 				chosenOption = epsilonGreedyOption(new SimplifiedObservation(soCopy), EPSILON);
 			else
 				chosenOption = this.currentOption;
 			// Instantiate previousState to the current state
-			this.previousState = new SimplifiedObservation(soCopy);
+			this.previousState = soCopy;
 			for(depth=0; depth<explorationDepth && !soCopy.isGameOver(); depth++)
 			{
 				// This advances soCopy with the action chosen by the option
 				soCopy.advance(chosenOption.act(soCopy));
-				newState = new SimplifiedObservation(soCopy);
 				newScore = score(soCopy);
 				//newScore = soCopy.getGameScore();
 				// Update option information and new score and, if needed, do
 				// epsilon-greegy option selection
-				chosenOption = updateOption(chosenOption, newState, this.previousState, newScore - oldScore, false);
+				chosenOption = updateOption(chosenOption, soCopy, this.previousState, newScore - oldScore, false);
 				// set oldScore to current score
 				oldScore = newScore;
 				if(elapsedTimer.remainingTimeMillis() < 8.)
@@ -163,20 +160,22 @@ public class Agent extends AbstractAgent
 	 * 4. update the Q-values
 	 * FIXME: New state/old state somehow should work
 	 */
-	protected Option updateOption(Option option, SimplifiedObservation newState,
-			SimplifiedObservation oldState, double score, boolean greedy)
+	protected Option updateOption(Option option, StateObservation newState,
+			StateObservation oldState, double score, boolean greedy)
 	{
 		// Add the new reward to this option
 		option.addReward(score);
-		if(option.isFinished())
+		if(option.isFinished(newState))
 		{
+			SimplifiedObservation simpleNewState = new SimplifiedObservation(newState);
+			SimplifiedObservation simpleOldState = new SimplifiedObservation(oldState);
 			// Update q values for the finished option
-			updateQ(option, newState, oldState);
+			updateQ(option, simpleNewState, simpleOldState);
 			// get a new option
 			if(greedy)
-				option = greedyOption(newState, false);
+				option = greedyOption(simpleNewState, true);
 			else
-				option = epsilonGreedyOption(newState, EPSILON);
+				option = epsilonGreedyOption(simpleNewState, EPSILON);
 			// Change oldState to newState. 
 			this.previousState = newState;
 		}
