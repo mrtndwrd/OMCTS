@@ -100,7 +100,7 @@ public class Agent extends AbstractAgent
 			else
 				chosenOption = this.currentOption;
 			// Instantiate previousState to the current state
-			this.previousState = soCopy;
+			this.previousState = soCopy.copy();
 			for(depth=0; depth<explorationDepth && !soCopy.isGameOver(); depth++)
 			{
 				// This advances soCopy with the action chosen by the option
@@ -173,11 +173,11 @@ public class Agent extends AbstractAgent
 			updateQ(option, simpleNewState, simpleOldState);
 			// get a new option
 			if(greedy)
-				option = greedyOption(simpleNewState, true);
+				option = greedyOption(simpleNewState, false);
 			else
 				option = epsilonGreedyOption(simpleNewState, EPSILON);
 			// Change oldState to newState. 
-			this.previousState = newState;
+			this.previousState = newState.copy();
 		}
 		else
 			System.out.println("Option not finished");

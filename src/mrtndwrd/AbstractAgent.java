@@ -197,7 +197,7 @@ public abstract class AbstractAgent extends AbstractPlayer
 	public void teardown()
 	{
 		Lib.writeHashMapToFile(q, filename);
-		System.out.println(q);
+		//System.out.println(q);
 		super.teardown();
 	}
 
