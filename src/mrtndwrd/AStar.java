@@ -69,7 +69,8 @@ public class AStar
 						// This means that x is the horizontal coordinate from the
 						// left up corner, and y is the vertical coordinate
 						// from the left upper corner
-						walls.add(new Tuple<Integer, Integer>((int) obs.position.x/blockSize, (int) obs.position.y/blockSize));
+						//walls.add(new Tuple<Integer, Integer>((int) obs.position.x/blockSize, (int) obs.position.y/blockSize));
+						walls.add(vectorToBlock(obs.position));
 					}
 				}
 			}
@@ -81,15 +82,22 @@ public class AStar
 		//System.out.println(this);
 	}
 
-	public ArrayList<Tuple<Integer, Integer>> aStar (Vector2d start, Vector2d goal)
+	/** Creates a tuple of integers representing block coordinates from a
+	 * vector2d representing field coordinates 
+	 */
+	public SerializableTuple<Integer, Integer> vectorToBlock(Vector2d vector)
 	{
-		return aStar (new Tuple<Integer, Integer>((int) start.x/blockSize, (int)start.y/blockSize), 
-			new Tuple<Integer, Integer>((int) goal.x/blockSize, (int) goal.y/blockSize));
+		return new SerializableTuple<Integer, Integer>((int) vector.x/blockSize, (int)vector.y/blockSize);
+	}
+
+	public ArrayList<SerializableTuple<Integer, Integer>> aStar (Vector2d start, Vector2d goal)
+	{
+		return aStar (vectorToBlock(start), vectorToBlock(goal));
 	}
 
 	/** Run a* with cartesian coordinates. Block size should already be
 	 * eliminated from these positions */
-	public ArrayList<Tuple<Integer, Integer>> aStar(Tuple<Integer, Integer> start, Tuple<Integer, Integer> goal)
+	public ArrayList<SerializableTuple<Integer, Integer>> aStar(Tuple<Integer, Integer> start, Tuple<Integer, Integer> goal)
 	{
 		// Reset everything:
 		openSet.clear();
@@ -100,7 +108,7 @@ public class AStar
 		//System.out.println("Starting a* from " + start + " to " + goal);
 		// We can't go to walls!
 		if(walls.contains(goal))
-			return new ArrayList<Tuple<Integer, Integer>>();
+			return new ArrayList<SerializableTuple<Integer, Integer>>();
 		this.goal = goal;
 		openSet.add(start);
 		gScore.put(start, 0.);
@@ -133,17 +141,17 @@ public class AStar
 			}
 		}
 		// Nothing found...
-		return new ArrayList<Tuple<Integer, Integer>>();
+		return new ArrayList<SerializableTuple<Integer, Integer>>();
 	}
 
-	private ArrayList<Tuple<Integer, Integer>> reconstructPath(Tuple<Integer, Integer> end)
+	private ArrayList<SerializableTuple<Integer, Integer>> reconstructPath(Tuple<Integer, Integer> end)
 	{
 		//System.out.println("Reconstructing path");
-		ArrayList<Tuple<Integer, Integer>> path = new ArrayList<Tuple<Integer, Integer>>();
-		Tuple<Integer, Integer> current = end;
+		ArrayList<SerializableTuple<Integer, Integer>> path = new ArrayList<SerializableTuple<Integer, Integer>>();
+		Tuple<Integer, Integer> current = new SerializableTuple(end);
 		do
 		{
-			path.add(current);
+			path.add(new SerializableTuple(current));
 			current = cameFrom.get(current);
 		}
 		while (current != null);

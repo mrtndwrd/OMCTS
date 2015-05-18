@@ -13,12 +13,22 @@ public class SerializableTuple<X extends Serializable, Y extends Serializable>
 
 	public SerializableTuple()
 	{
-
+		super();
 	}
 
 	public SerializableTuple(X x, Y y)
 	{
 		super(x, y);
+	}
+
+	public SerializableTuple(Tuple<X, Y> t)
+	{
+		super();
+		if(t.x != null && t.y != null)
+		{
+			x = t.x;
+			y = t.y;
+		}
 	}
 	
 	private void readObject(ObjectInputStream aInputStream) 
@@ -39,6 +49,7 @@ public class SerializableTuple<X extends Serializable, Y extends Serializable>
 		aOutputStream.writeObject(x);
 		aOutputStream.writeObject(y);
 	}
+
 }
 
 

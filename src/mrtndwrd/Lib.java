@@ -102,7 +102,7 @@ public class Lib
 		Observation ob = getNearestObservation(obala);
 		if(ob == null)
 			return new Tuple<Double, Types.ACTIONS>(0., Types.ACTIONS.ACTION_NIL);
-		ArrayList<Tuple<Integer, Integer>> path = AbstractAgent.aStar.aStar(avatarPosition, ob.position);
+		ArrayList<SerializableTuple<Integer, Integer>> path = AbstractAgent.aStar.aStar(avatarPosition, ob.position);
 		// We at least need our current and goal, else we're already there or
 		// there is no path
 		if(path.size() < 2)
@@ -118,7 +118,7 @@ public class Lib
 		Observation ob = getNearestObservation(obala);
 		if(ob == null)
 			return new Tuple<String, Types.ACTIONS>("", Types.ACTIONS.ACTION_NIL);
-		ArrayList<Tuple<Integer, Integer>> path = AbstractAgent.aStar.aStar(avatarPosition, ob.position);
+		ArrayList<SerializableTuple<Integer, Integer>> path = AbstractAgent.aStar.aStar(avatarPosition, ob.position);
 		// We at least need our current and goal in the path, else we're already
 		// there or there is no path
 		if(path.size() < 2)
@@ -261,5 +261,10 @@ public class Lib
 			return c1.compareTo(c2);
 		}
 
+	}
+
+	public static enum MOVABLE_TYPE
+	{
+		NPC, MOVABLE
 	}
 }

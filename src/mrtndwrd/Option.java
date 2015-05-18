@@ -44,7 +44,7 @@ public abstract class Option implements Serializable
 	public void addReward(double reward)
 	{
 		if(step == 0)
-			System.err.println("WARNING! Adding reward to option that hasn't done anything yet!");
+			System.err.printf("WARNING! Adding reward to option that hasn't done anything yet! %s\n", this);
 		this.cumulativeReward += Math.pow(gamma, step-1) * reward;
 		// if(reward != 0)
 			// System.out.printf("Set cumulative reward to %f\n", this.cumulativeReward);

@@ -98,7 +98,7 @@ public class Agent extends AbstractAgent
 			if(currentOption == null || currentOption.isFinished(soCopy))
 				chosenOption = epsilonGreedyOption(new SimplifiedObservation(soCopy), EPSILON);
 			else
-				chosenOption = this.currentOption;
+				chosenOption = this.currentOption.copy();
 			// Instantiate previousState to the current state
 			this.previousState = soCopy.copy();
 			for(depth=0; depth<explorationDepth && !soCopy.isGameOver(); depth++)
@@ -179,8 +179,6 @@ public class Agent extends AbstractAgent
 			// Change oldState to newState. 
 			this.previousState = newState.copy();
 		}
-		else
-			System.out.println("Option not finished");
 		// If a new option is selected, return the new option. Else the old
 		// option will be returned
 		return option;

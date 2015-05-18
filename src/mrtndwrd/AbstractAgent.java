@@ -76,6 +76,8 @@ public abstract class AbstractAgent extends AbstractPlayer
 		// instantiate possibleOptions with actions
 		setOptionsForActions(so.getAvailableActions());
 		// TODO: More options here!
+		setGoToPositionOptions(so);
+		setGoToMovableOptions(so);
 	}
 
 	/** Scores the state. This enables simple changing of the scoring method
@@ -101,6 +103,19 @@ public abstract class AbstractAgent extends AbstractPlayer
 		{
 			this.possibleOptions.add(new ActionOption(GAMMA, action));
 		}
+	}
+
+	/** Create aStar options to things in so */
+	private void setGoToPositionOptions(StateObservation so)
+	{
+		// TODO: Loop thrhough EVERY array/ArrayList
+		//this.possibleOptions.add(new GoToPositionOption(GAMMA, so.getNPCPositions()[0].get(0).position));
+	}
+
+	private void setGoToMovableOptions(StateObservation so)
+	{
+		// TODO: Loop thrhough EVERY array/ArrayList
+		this.possibleOptions.add(new GoToMovableOption(GAMMA, Lib.MOVABLE_TYPE.NPC, 0, so.getNPCPositions()[0].get(0).obsID));
 	}
 
 	/** Selects an epsilon greedy value based on the internal q table. Returns
@@ -197,7 +212,7 @@ public abstract class AbstractAgent extends AbstractPlayer
 	public void teardown()
 	{
 		Lib.writeHashMapToFile(q, filename);
-		//System.out.println(q);
+		System.out.println(q);
 		super.teardown();
 	}
 
