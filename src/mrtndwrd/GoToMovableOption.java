@@ -19,13 +19,10 @@ import java.util.ArrayList;
 public class GoToMovableOption extends GoToPositionOption implements Serializable
 {
 	/** Specifies if this follows an NPC or a movable non-npc sprite */
-	public Lib.MOVABLE_TYPE type;
+	protected Lib.MOVABLE_TYPE type;
 
 	/** Specifies the index in the getter of this type, e.g. getNPCPositions */
-	public int index;
-
-	/** Specifies the obsID of the movable/npc that is tracked by this option */
-	public int obsID;
+	protected int index;
 
 	public GoToMovableOption(double gamma, Lib.MOVABLE_TYPE type, int index, int obsID)
 	{
@@ -47,14 +44,14 @@ public class GoToMovableOption extends GoToPositionOption implements Serializabl
 		// function
 		if(this.goal == null && this.step > 0)
 		{
-			//System.out.printf("Goal = null, step = %d\n", step);
+			System.out.printf("Goal = null, step = %d\n", step);
 			this.step++;
 			return Types.ACTIONS.ACTION_NIL;
 		}
 		// Get the location of the goal:
 		SerializableTuple<Integer, Integer> goalLocation = getGoalLocationFromSo(so);
 		// Check if the goal location is still the same:
-		if(this.goal == null || (!this.goal.equals(goalLocation) && goalLocation != null))
+		if(this.goal == null || (goalLocation != null && !this.goal.equals(goalLocation)))
 		{
 			// Set the new goal location
 			this.goal = goalLocation;
@@ -86,9 +83,24 @@ public class GoToMovableOption extends GoToPositionOption implements Serializabl
 			if(o.obsID == this.obsID)
 				return AbstractAgent.aStar.vectorToBlock(o.position);
 		}
-		System.err.println("WARNING: obsID not found!");
+		System.out.printf("WARNING: obsID %d not found!\n", this.obsID);
 		// Probably this obs is already eliminated.
 		return null;
+	}
+
+	public boolean goalExists(StateObservation so)
+	{
+		this.goal = getGoalLocationFromSo(so);
+		return this.goal == null;
+	}
+
+	public boolean isFinished(StateObservation so)
+	{
+		// This class might have made this.goal null because the observation ID
+		// does not exist anymore
+		if (!this.goalExists(so))
+			return true;
+		return super.isFinished(so);
 	}
 
 	public void reset()

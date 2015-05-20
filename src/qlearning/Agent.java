@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.TimeoutException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.io.FileOutputStream;
 
 /**
@@ -74,7 +75,11 @@ public class Agent extends AbstractAgent
 		double oldScore, newScore;
 		// Save current previousState in firstPreviousState 
 		StateObservation firstPreviousState = this.previousState;
-		//
+
+		// Create a shallow copy of the possibleObsIDs and to restore at the end
+		HashSet<Integer> pObsIDs = (HashSet<Integer>) this.optionObsIDs.clone();
+		ArrayList<Option> pOptions = (ArrayList<Option>) this.possibleOptions.clone();
+		
 		// Key for the q-table
 		SerializableTuple<SimplifiedObservation, Option> sop;
 		 
@@ -106,6 +111,9 @@ public class Agent extends AbstractAgent
 				// This advances soCopy with the action chosen by the option
 				soCopy.advance(chosenOption.act(soCopy));
 				newScore = score(soCopy);
+				// Find new possible options
+				setGoToMovableOptions(soCopy);
+				
 				//newScore = soCopy.getGameScore();
 				// Update option information and new score and, if needed, do
 				// epsilon-greegy option selection
@@ -119,8 +127,11 @@ public class Agent extends AbstractAgent
 			}
 		}
 
-		// Restore current previousState to what it was before exploring
+		// Restore current previousState, possibleOptions and possibleObsIDs to
+		// what it was before exploring
 		this.previousState = firstPreviousState;
+		this.possibleOptions = pOptions;
+		this.optionObsIDs = pObsIDs;
 	}
 
 	/** updates q values for newState. */

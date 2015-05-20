@@ -13,11 +13,13 @@ import tools.Utils;
 
 import java.awt.*;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Random;
 import java.util.concurrent.TimeoutException;
 import java.util.ArrayList;
 import java.io.FileOutputStream;
 import java.lang.Math;
+import java.util.Iterator;
 
 /**
  * User: mrtndwrd
@@ -63,6 +65,9 @@ public abstract class AbstractAgent extends AbstractPlayer
 	/** Own state heuristic */
 	protected StateHeuristic stateHeuristic;
 
+	/** A set containing which obsId's already have options in this agent */
+	protected HashSet<Integer> optionObsIDs = new HashSet<Integer>();
+
 	/** AStar for searching for stuff */
 	public static AStar aStar;
 
@@ -106,16 +111,66 @@ public abstract class AbstractAgent extends AbstractPlayer
 	}
 
 	/** Create aStar options to things in so */
-	private void setGoToPositionOptions(StateObservation so)
+	protected void setGoToPositionOptions(StateObservation so)
 	{
 		// TODO: Loop thrhough EVERY array/ArrayList
 		//this.possibleOptions.add(new GoToPositionOption(GAMMA, so.getNPCPositions()[0].get(0).position));
 	}
 
-	private void setGoToMovableOptions(StateObservation so)
+	protected void setGoToMovableOptions(StateObservation so)
 	{
-		// TODO: Loop thrhough EVERY array/ArrayList
-		this.possibleOptions.add(new GoToMovableOption(GAMMA, Lib.MOVABLE_TYPE.NPC, 0, so.getNPCPositions()[0].get(0).obsID));
+		int i = 0;
+		// Holds the ObsIDs that were already present in this.optionObsIDs
+		HashSet<Integer> keepObsIDs = new HashSet<Integer>();
+		// Holds the new obsIDs
+		HashSet<Integer> newObsIDs = new HashSet<Integer>();
+		for(ArrayList<Observation> npcType : so.getNPCPositions())
+		{
+			//System.out.printf("NPC's with id %d:\n [", i);
+			for(Observation npc : npcType)
+			{
+				//System.out.printf("%d, ", npc.obsID);
+				if(! this.optionObsIDs.contains(npc.obsID))
+				{
+					// Create option for this obsID
+					this.possibleOptions.add(new GoToMovableOption(GAMMA, 
+						Lib.MOVABLE_TYPE.NPC, i, npc.obsID));
+				}
+				else
+					// Add to the list of options that should be kept
+					keepObsIDs.add(npc.obsID);
+				newObsIDs.add(npc.obsID);
+			}
+			//System.out.print("]\n");
+			i++;
+		}
+		//System.out.println("New observations: \n" + newObsIDs);
+		//System.out.println("Keep observations: \n" + keepObsIDs);
+		// Remove all "old" obsIDs from this.optionObsIDs. optionObsIDs will
+		// then only contain obsolete obsIDs
+		this.optionObsIDs.removeAll(keepObsIDs);
+		// Now remove all options that have the obsIDs in optionObsIDs.
+		// We use the iterator, in order to ensure removing while iterating is
+		// possible
+		// TODO: Check if this works
+		for (Iterator<Option> it = this.possibleOptions.iterator(); it.hasNext();)
+		{
+			Option option = it.next();
+			// Remove the options that are still in optionObsIDs.
+			if(this.optionObsIDs.contains(option.getObsID()))
+			{
+				it.remove();
+			}
+		}
+		// Now all options are up-to-date. this.optionObsIDs should be updated
+		// to represent the current options list:
+		this.optionObsIDs = newObsIDs;
+		System.out.println("Current option set:");
+		System.out.println(this.possibleOptions);
+		System.out.println("Current optionObsIDs:");
+		System.out.println(this.optionObsIDs);
+
+
 	}
 
 	/** Selects an epsilon greedy value based on the internal q table. Returns
@@ -179,6 +234,7 @@ public abstract class AbstractAgent extends AbstractPlayer
 
 	public Types.ACTIONS act(StateObservation so, ElapsedCpuTimer elapsedTimer)
 	{
+		setGoToMovableOptions(so);
 		double newScore = score(so);
 		//double newScore = so.getGameScore();
 		explore(so, elapsedTimer, EXPLORATION_DEPTH);

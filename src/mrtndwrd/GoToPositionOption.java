@@ -93,6 +93,7 @@ public class GoToPositionOption extends Option implements Serializable
 		return this.goal == AbstractAgent.aStar.vectorToBlock(avatarPosition);
 	}
 
+
 	public void reset()
 	{
 		this.step = 0;

@@ -19,6 +19,9 @@ public abstract class Option implements Serializable
 	protected int step;
 	protected double cumulativeReward;
 
+	/** Specifies the obsID of the movable/npc that is tracked by this option */
+	protected int obsID = -1;
+
 	/** Default constructor, creates option, instantiates variables */
 	public Option(double gamma)
 	{
@@ -32,6 +35,27 @@ public abstract class Option implements Serializable
 
 	/** True if the option so is a goal state */
 	public abstract boolean isFinished(StateObservation so);
+
+	/** True if the goal of this option still exists. For example a
+	 * GoToMovableOption where the movable has been removed from the game would
+	 * return false.
+	 * By default this returns true, since simple options always have an
+	 * existing goal
+	 */
+	public boolean goalExists(StateObservation so)
+	{
+		// For now, I wouldn't know how to check if it still exists, so just
+		// return true:
+		return true;
+	}
+
+	/** If this option has an obsID of an observation it tracks, that can be
+	 * returned by this function. If there's no obsID (default) 'null' will be
+	 * returned */
+	public int getObsID()
+	{
+		return this.obsID;
+	}
 	
 	/** Resets the option values, enabling it to be called again next time
 	 * without having interfering values saved in it. */
