@@ -81,17 +81,18 @@ public class GoToMovableOption extends GoToPositionOption implements Serializabl
 		for (Observation o : observations)
 		{
 			if(o.obsID == this.obsID)
-				return AbstractAgent.aStar.vectorToBlock(o.position);
+				return Agent.aStar.vectorToBlock(o.position);
 		}
-		System.out.printf("WARNING: obsID %d not found!\n", this.obsID);
+		//System.out.printf("WARNING: obsID %d not found!\n", this.obsID);
 		// Probably this obs is already eliminated.
 		return null;
 	}
 
 	public boolean goalExists(StateObservation so)
 	{
-		this.goal = getGoalLocationFromSo(so);
-		return this.goal == null;
+		// Don't change this.goal. That fucks things up!
+		//this.goal = getGoalLocationFromSo(so);
+		return getGoalLocationFromSo(so) != null;
 	}
 
 	public boolean isFinished(StateObservation so)

@@ -26,7 +26,7 @@ public class GoToPositionOption extends Option implements Serializable
 
 	public GoToPositionOption(double gamma, Vector2d goal)
 	{
-		this(gamma, AbstractAgent.aStar.vectorToBlock(goal));
+		this(gamma, Agent.aStar.vectorToBlock(goal));
 	}
 
 	public GoToPositionOption(double gamma, SerializableTuple<Integer, Integer> goal)
@@ -50,7 +50,7 @@ public class GoToPositionOption extends Option implements Serializable
 	 */
 	public Types.ACTIONS act(StateObservation so)
 	{
-		SerializableTuple<Integer, Integer> avatarPosition = AbstractAgent.aStar.vectorToBlock(so.getAvatarPosition());
+		SerializableTuple<Integer, Integer> avatarPosition = Agent.aStar.vectorToBlock(so.getAvatarPosition());
 		// Do nothing if we're already on the goal
 		if(avatarPosition.equals(this.goal))
 		{
@@ -62,7 +62,7 @@ public class GoToPositionOption extends Option implements Serializable
 		if(index < 0)
 		{
 			// Plan a new path
-			this.currentPath = AbstractAgent.aStar.aStar(avatarPosition, goal);
+			this.currentPath = Agent.aStar.aStar(avatarPosition, goal);
 			// current location is at the end of the path
 			index = currentPath.size()-1;
 		}
@@ -71,12 +71,12 @@ public class GoToPositionOption extends Option implements Serializable
 		//System.out.println("Increasing step in GoToPositionOption to " + step + ", goal: " + this.goal + ", position: " + avatarPosition);
 		//System.out.printf("Using path %s at position %s\n", currentPath, avatarPosition);
 		//System.out.printf("Returning action %s to get from %s to %s\n", 
-		//		AbstractAgent.aStar.neededAction(avatarPosition, currentPath.get(index -1)),
+		//		Agent.aStar.neededAction(avatarPosition, currentPath.get(index -1)),
 		//		avatarPosition,
-		//		AbstractAgent.aStar.vectorToBlock(goal));
+		//		goal);
 
 		// Return the action that is needed to get to the next path index.
-		return AbstractAgent.aStar.neededAction(avatarPosition, currentPath.get(index -1));
+		return Agent.aStar.neededAction(avatarPosition, currentPath.get(index -1));
 	}
 
 	/** This option is finished if the avatar's position is the same as
@@ -90,7 +90,7 @@ public class GoToPositionOption extends Option implements Serializable
 		{
 			return true;
 		}
-		return this.goal == AbstractAgent.aStar.vectorToBlock(avatarPosition);
+		return this.goal == Agent.aStar.vectorToBlock(avatarPosition);
 	}
 
 

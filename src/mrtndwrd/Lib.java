@@ -102,12 +102,12 @@ public class Lib
 		Observation ob = getNearestObservation(obala);
 		if(ob == null)
 			return new Tuple<Double, Types.ACTIONS>(0., Types.ACTIONS.ACTION_NIL);
-		ArrayList<SerializableTuple<Integer, Integer>> path = AbstractAgent.aStar.aStar(avatarPosition, ob.position);
+		ArrayList<SerializableTuple<Integer, Integer>> path = Agent.aStar.aStar(avatarPosition, ob.position);
 		// We at least need our current and goal, else we're already there or
 		// there is no path
 		if(path.size() < 2)
 			return new Tuple<Double, Types.ACTIONS>(0., Types.ACTIONS.ACTION_NIL);
-		Types.ACTIONS action = AbstractAgent.aStar.neededAction(path.get(path.size()-1), path.get(path.size()-2));
+		Types.ACTIONS action = Agent.aStar.neededAction(path.get(path.size()-1), path.get(path.size()-2));
 		return new Tuple<Double, Types.ACTIONS>(ob.sqDist, action);
 	}
 
@@ -118,12 +118,12 @@ public class Lib
 		Observation ob = getNearestObservation(obala);
 		if(ob == null)
 			return new Tuple<String, Types.ACTIONS>("", Types.ACTIONS.ACTION_NIL);
-		ArrayList<SerializableTuple<Integer, Integer>> path = AbstractAgent.aStar.aStar(avatarPosition, ob.position);
+		ArrayList<SerializableTuple<Integer, Integer>> path = Agent.aStar.aStar(avatarPosition, ob.position);
 		// We at least need our current and goal in the path, else we're already
 		// there or there is no path
 		if(path.size() < 2)
 			return new Tuple<String, Types.ACTIONS>("", Types.ACTIONS.ACTION_NIL);
-		Types.ACTIONS action = AbstractAgent.aStar.neededAction(path.get(path.size()-1), path.get(path.size()-2));
+		Types.ACTIONS action = Agent.aStar.neededAction(path.get(path.size()-1), path.get(path.size()-2));
 		String pathLength;
 		// More than 3 moves away, Don't care.
 		//if(path.size() > 4)

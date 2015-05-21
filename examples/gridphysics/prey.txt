@@ -5,7 +5,7 @@ BasicGame
       prey > img=monster
         inactivePrey > RandomNPC cooldown=3000
         slowPrey > RandomNPC cooldown=10
-        fastPrey > RandomNPC cooldown=1
+        fastPrey > RandomNPC cooldown=2
 
 
   LevelMapping
