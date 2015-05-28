@@ -7,6 +7,7 @@ import ontology.Types;
 import javax.swing.*;
 import java.awt.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created with IntelliJ IDEA.
@@ -73,12 +74,14 @@ public class VGDLViewer extends JComponent
         int[] gameSpriteOrder = game.getSpriteOrder();
         if(this.spriteGroups != null) for(Integer spriteTypeInt : gameSpriteOrder)
         {
-            Integer[] keys = spriteGroups[spriteTypeInt].getKeys();
-            if(keys!=null) for(Integer spriteKey : keys)
-            {
-                VGDLSprite sp = spriteGroups[spriteTypeInt].getSprite(spriteKey);
-                if(sp != null)
-                    sp.draw(g, game);
+            if(spriteGroups[spriteTypeInt] != null) {
+                ConcurrentHashMap<Integer, VGDLSprite> cMap =spriteGroups[spriteTypeInt].getSprites();
+                Set<Integer> s = cMap.keySet();
+                for (Integer key : s) {
+                    VGDLSprite sp = cMap.get(key);
+                    if (sp != null)
+                        sp.draw(g, game);
+                }
             }
         }
 
@@ -87,13 +90,21 @@ public class VGDLViewer extends JComponent
     }
 
 
+
     /**
      * Paints the sprites.
      * @param spriteGroupsGame sprites to paint.
      */
     public void paint(SpriteGroup[] spriteGroupsGame)
     {
-        this.spriteGroups = spriteGroupsGame;
+        //this.spriteGroups = spriteGroupsGame;
+        this.spriteGroups = new SpriteGroup[spriteGroupsGame.length];
+        for(int i = 0; i < this.spriteGroups.length; ++i)
+        {
+            this.spriteGroups[i] = new SpriteGroup(spriteGroupsGame[i].getItype());
+            this.spriteGroups[i].copyAllSprites(spriteGroupsGame[i].getSprites().values());
+        }
+
         this.repaint();
     }
 

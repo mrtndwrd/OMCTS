@@ -1,6 +1,7 @@
 package ontology.physics;
 
 import core.VGDLSprite;
+import ontology.Types;
 import tools.Vector2d;
 
 import java.awt.*;
@@ -37,8 +38,14 @@ public class GridPhysics implements Physics {
     }
 
     @Override
-    public void passiveMovement(VGDLSprite sprite)
+    public Types.MOVEMENT passiveMovement(VGDLSprite sprite)
     {
+        if(sprite.isFirstTick)
+        {
+            sprite.isFirstTick = false;
+            return Types.MOVEMENT.STILL;
+        }
+
         double speed;
         if(sprite.speed == -1)
             speed = 1;
@@ -47,12 +54,14 @@ public class GridPhysics implements Physics {
 
         if(speed != 0 && sprite.is_oriented)
         {
-            sprite._updatePos(sprite.orientation, (int)(speed * this.gridsize.width));
+            if(sprite._updatePos(sprite.orientation, (int)(speed * this.gridsize.width)))
+                return Types.MOVEMENT.MOVE;
         }
+        return Types.MOVEMENT.STILL;
     }
 
     @Override
-    public void activeMovement(VGDLSprite sprite, Vector2d action, double speed)
+    public Types.MOVEMENT activeMovement(VGDLSprite sprite, Vector2d action, double speed)
     {
         if(speed == 0)
         {
@@ -62,10 +71,19 @@ public class GridPhysics implements Physics {
                 speed = sprite.speed;
         }
 
-        if(speed != 0 && action != null)
+        if(speed != 0 && action != null && action != Types.NONE)
         {
-            sprite._updatePos(action, (int) (speed * this.gridsize.width));
+            if(sprite.rotateInPlace)
+            {
+                boolean change = sprite._updateOrientation(action);
+                if(change)
+                    return Types.MOVEMENT.ROTATE;
+            }
+
+            if(sprite._updatePos(action, (int) (speed * this.gridsize.width)))
+                return Types.MOVEMENT.MOVE;
         }
+        return Types.MOVEMENT.STILL;
     }
 
     /**

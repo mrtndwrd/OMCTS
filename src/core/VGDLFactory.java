@@ -38,10 +38,8 @@ public class VGDLFactory
              "ErraticMissile", "Missile", "RandomMissile", "Walker", "WalkerJumper",
              "ResourcePack", "Chaser", "Fleeing", "RandomInertial", "RandomNPC", "AlternateChaser", "RandomAltChaser",
              "Bomber", "Portal", "SpawnPoint", "SpriteProducer", "Door",
-             "FlakAvatar", "HorizontalAvatar","MovingAvatar", "VerticalAvatar",
-             "NoisyRotatingFlippingAvatar","RotatingAvatar","RotatingFlippingAvatar",
-             "AimedAvatar","AimedFlakAvatar","InertialAvatar","MarioAvatar",
-             "OrientedAvatar","ShootAvatar", "MissileAvatar"};
+             "FlakAvatar", "HorizontalAvatar","MovingAvatar","MissileAvatar",
+             "OrientedAvatar","ShootAvatar", "OngoingAvatar"};
 
 
     /**
@@ -52,19 +50,17 @@ public class VGDLFactory
              ErraticMissile.class, Missile.class, RandomMissile.class, Walker.class, WalkerJumper.class,
              ResourcePack.class, Chaser.class, Fleeing.class, RandomInertial.class, RandomNPC.class, AlternateChaser.class, RandomAltChaser.class,
              Bomber.class, Portal.class, SpawnPoint.class, SpriteProducer.class, Door.class,
-             FlakAvatar.class, HorizontalAvatar.class,MovingAvatar.class, VerticalAvatar.class,
-             NoisyRotatingFlippingAvatar.class,RotatingAvatar.class,RotatingFlippingAvatar.class,
-             AimedAvatar.class,AimedFlakAvatar.class,InertialAvatar.class,MarioAvatar.class,
-             OrientedAvatar.class,ShootAvatar.class, MissileAvatar.class};
+             FlakAvatar.class, HorizontalAvatar.class,MovingAvatar.class,MissileAvatar.class,
+             OrientedAvatar.class,ShootAvatar.class, OngoingAvatar.class};
 
     /**
      * Available effects for VGDL.
      */
     private String[] effectStrings = new String[]
             {
-                "stepBack", "turnAround", "killSprite", "transformTo", "wrapAround", "changeResource",
-                "killIfHasLess", "killIfHasMore", "cloneSprite", "flipDirection", "reverseDirection",
-                "undoAll", "spawnIfHasMore",
+                "stepBack", "turnAround", "killSprite", "transformTo", "transformToSingleton",
+                    "wrapAround", "changeResource", "killIfHasLess", "killIfHasMore", "cloneSprite",
+                    "flipDirection", "reverseDirection", "undoAll", "spawnIfHasMore",
                 "pullWithIt", "wallStop", "collectResource", "killIfOtherHasMore", "killIfFromAbove",
                 "teleportToExit", "bounceForward", "attractGaze"
             };
@@ -74,9 +70,9 @@ public class VGDLFactory
      */
     private Class[] effectClasses = new Class[]
             {
-                StepBack.class, TurnAround.class, KillSprite.class, TransformTo.class, WrapAround.class,ChangeResource.class,
-                KillIfHasLess.class, KillIfHasMore.class, CloneSprite.class, FlipDirection.class, ReverseDirection.class,
-                UndoAll.class, SpawnIfHasMore.class,
+                StepBack.class, TurnAround.class, KillSprite.class, TransformTo.class, TransformToSingleton.class,
+                    WrapAround.class,ChangeResource.class, KillIfHasLess.class, KillIfHasMore.class, CloneSprite.class,
+                    FlipDirection.class, ReverseDirection.class, UndoAll.class, SpawnIfHasMore.class,
                 PullWithIt.class, WallStop.class, CollectResource.class, KillIfOtherHasMore.class, KillIfFromAbove.class,
                 TeleportToExit.class, BounceForward.class, AttractGaze.class
             };

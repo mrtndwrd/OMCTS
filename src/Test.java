@@ -33,8 +33,14 @@ public class Test
 
         //CIG 2014 Validation Set Games
         //String games[] = new String[]{"camelRace", "digdug", "firestorms", "infection", "firecaster",
-        //        "overload", "pacman", "seaquest", "whackamole", "eggomania"};
+        //      "overload", "pacman", "seaquest", "whackamole", "eggomania"};
 
+        //CIG 2015 New Training Set Games
+        //String games[] = new String[]{"bait", "boloadventures", "brainman", "chipschallenge",  "modality",
+        //                              "painter", "realportals", "realsokoban", "thecitadel", "zenpuzzle"};
+
+        //EXTRA GAMES:
+        //String games[] = new String[]{ "solarfox", "bombuzal" };
 
         //Other settings
         boolean visuals = true;
@@ -48,7 +54,7 @@ public class Test
         String level1 = gamesPath + games[gameIdx] + "_lvl" + levelIdx +".txt";
 
         // 1. This starts a game, in a level, played by a human.
-        //ArcadeMachine.playOneGame(game, level1, recordActionsFile, seed);
+        ArcadeMachine.playOneGame(game, level1, recordActionsFile, seed);
 
         // 2. This plays a game in a level by the controller.
         //ArcadeMachine.runOneGame(game, level1, visuals, sampleMCTSController, recordActionsFile, seed);
