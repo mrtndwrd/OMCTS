@@ -2,7 +2,6 @@ package mrtndwrd;
 
 import ontology.Types;
 import core.game.StateObservation;
-import core.game.Observation;
 import tools.Vector2d;
 
 import java.io.Serializable;
@@ -18,18 +17,19 @@ import java.util.ArrayList;
  */
 public class GoToMovableOption extends GoToPositionOption implements Serializable
 {
-	/** Specifies if this follows an NPC or a movable non-npc sprite */
-	protected Lib.MOVABLE_TYPE type;
 
-	/** Specifies the index in the getter of this type, e.g. getNPCPositions */
-	protected int index;
-
-	public GoToMovableOption(double gamma, Lib.MOVABLE_TYPE type, int index, int obsID)
+	public GoToMovableOption(double gamma, Lib.GETTER_TYPE type, int index, 
+			int obsID, StateObservation so)
 	{
-		super(gamma);
-		this.type = type;
-		this.index = index;
-		this.obsID = obsID;
+		super(gamma, type, index, obsID, so);
+	}
+
+	/** Constructor mainly for use by copy. By supplying the current goal
+	 * position, the need for a StateObservation vanishes. */
+	public GoToMovableOption(double gamma, Lib.GETTER_TYPE type, int index, 
+			int obsID, SerializableTuple<Integer, Integer> goal)
+	{
+		super(gamma, type, index, obsID, goal);
 	}
 
 	/** Returns the next action to get to this.goal. This function only plans
@@ -44,7 +44,7 @@ public class GoToMovableOption extends GoToPositionOption implements Serializabl
 		// function
 		if(this.goal == null && this.step > 0)
 		{
-			System.out.printf("Goal = null, step = %d\n", step);
+			System.out.printf("Goal = null, step = %d, this = %s\n", step, this);
 			this.step++;
 			return Types.ACTIONS.ACTION_NIL;
 		}
@@ -69,41 +69,6 @@ public class GoToMovableOption extends GoToPositionOption implements Serializabl
 		return super.act(so);
 	}
 
-	/** Returns the location of the thing that is tracked, based on type, index
-	 * and obsID */
-	private SerializableTuple<Integer, Integer> getGoalLocationFromSo(StateObservation so)
-	{
-		ArrayList<Observation> observations;
-		if(this.type == Lib.MOVABLE_TYPE.NPC)
-			observations = so.getNPCPositions()[index];
-		else
-			observations = so.getMovablePositions()[index];
-		for (Observation o : observations)
-		{
-			if(o.obsID == this.obsID)
-				return Agent.aStar.vectorToBlock(o.position);
-		}
-		//System.out.printf("WARNING: obsID %d not found!\n", this.obsID);
-		// Probably this obs is already eliminated.
-		return null;
-	}
-
-	public boolean goalExists(StateObservation so)
-	{
-		// Don't change this.goal. That fucks things up!
-		//this.goal = getGoalLocationFromSo(so);
-		return getGoalLocationFromSo(so) != null;
-	}
-
-	public boolean isFinished(StateObservation so)
-	{
-		// This class might have made this.goal null because the observation ID
-		// does not exist anymore
-		if (!this.goalExists(so))
-			return true;
-		return super.isFinished(so);
-	}
-
 	public void reset()
 	{
 		super.reset();
@@ -115,7 +80,7 @@ public class GoToMovableOption extends GoToPositionOption implements Serializabl
 	@Override
 	public Option copy()
 	{
-		return new GoToMovableOption(gamma, type, index, obsID);
+		return new GoToMovableOption(gamma, type, index, obsID, goal);
 	}
 
 	public String toString()

@@ -263,8 +263,8 @@ public class Lib
 
 	}
 
-	public static enum MOVABLE_TYPE
+	public static enum GETTER_TYPE
 	{
-		NPC, MOVABLE
+		NPC, MOVABLE, IMMOVABLE, RESOURCE, PORTAL
 	}
 }

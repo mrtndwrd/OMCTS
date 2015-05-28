@@ -9,6 +9,7 @@ import core.player.AbstractPlayer;
 import ontology.Types;
 import tools.ElapsedCpuTimer;
 import tools.Utils;
+import tools.Vector2d;
 
 import java.awt.*;
 import java.util.HashMap;
@@ -27,7 +28,7 @@ import java.util.Iterator;
 public class Agent extends AbstractPlayer
 {
 	/** Exploration depth for building q and v */
-	private final int INIT_EXPLORATION_DEPTH = 30;
+	protected final int INIT_EXPLORATION_DEPTH = 30;
 
 	protected ArrayList<Option> possibleOptions;
 	/** Mapping from State, Option (as index from above options array) to
@@ -80,9 +81,7 @@ public class Agent extends AbstractPlayer
 		this.previousScore = score(so);
 		// instantiate possibleOptions with actions
 		setOptionsForActions(so.getAvailableActions());
-		// TODO: More options here!
-		setGoToPositionOptions(so);
-		setGoToMovableOptions(so);
+		setOptions(so);
 		
 		this.filename = "tables/qlearning" + Lib.filePostfix;
 		try
@@ -163,13 +162,12 @@ public class Agent extends AbstractPlayer
 				soCopy.advance(chosenOption.act(soCopy));
 				newScore = score(soCopy);
 				// Find new possible options
-				setGoToMovableOptions(soCopy);
+				setOptions(soCopy);
 				
 				//newScore = soCopy.getGameScore();
 				// Update option information and new score and, if needed, do
 				// epsilon-greegy option selection
 				chosenOption = updateOption(chosenOption, soCopy, this.previousState, newScore - oldScore, false);
-				// set oldScore to current score
 				oldScore = newScore;
 				if(elapsedTimer.remainingTimeMillis() < 8.)
 				{
@@ -197,7 +195,7 @@ public class Agent extends AbstractPlayer
 			maxAQ - q.get(sop)));
 	}
 
-	private double getMaxQFromState(SimplifiedObservation newState)
+	protected double getMaxQFromState(SimplifiedObservation newState)
 	{
 		SerializableTuple<SimplifiedObservation, Option> sop;
 		double maxAQ = Lib.HUGE_NEGATIVE;
@@ -220,7 +218,6 @@ public class Agent extends AbstractPlayer
 	 * 2. check if the option is done
 	 * 3. choose a new option if needed
 	 * 4. update the Q-values
-	 * FIXME: New state/old state somehow should work
 	 */
 	protected Option updateOption(Option option, StateObservation newState,
 			StateObservation oldState, double score, boolean greedy)
@@ -256,7 +253,7 @@ public class Agent extends AbstractPlayer
 
 	/** Instantiates options array with ActionOptions for all possible actions
 	 */
-	private void setOptionsForActions(ArrayList<Types.ACTIONS> actions)
+	protected void setOptionsForActions(ArrayList<Types.ACTIONS> actions)
 	{
 		for(Types.ACTIONS action : actions)
 		{
@@ -264,49 +261,33 @@ public class Agent extends AbstractPlayer
 		}
 	}
 
-	/** Create aStar options to things in so */
-	protected void setGoToPositionOptions(StateObservation so)
+	protected void setOptions(StateObservation so)
 	{
-		// TODO: Loop thrhough EVERY array/ArrayList
-		//this.possibleOptions.add(new GoToPositionOption(GAMMA, so.getNPCPositions()[0].get(0).position));
-	}
-
-	protected void setGoToMovableOptions(StateObservation so)
-	{
-		int i = 0;
 		// Holds the ObsIDs that were already present in this.optionObsIDs
 		HashSet<Integer> keepObsIDs = new HashSet<Integer>();
 		// Holds the new obsIDs
 		HashSet<Integer> newObsIDs = new HashSet<Integer>();
-		for(ArrayList<Observation> npcType : so.getNPCPositions())
-		{
-			//System.out.printf("NPC's with id %d:\n [", i);
-			for(Observation npc : npcType)
-			{
-				//System.out.printf("%d, ", npc.obsID);
-				if(! this.optionObsIDs.contains(npc.obsID))
-				{
-					// Create option for this obsID
-					this.possibleOptions.add(new GoToMovableOption(GAMMA, 
-						Lib.MOVABLE_TYPE.NPC, i, npc.obsID));
-				}
-				else
-					// Add to the list of options that should be kept
-					keepObsIDs.add(npc.obsID);
-				newObsIDs.add(npc.obsID);
-			}
-			//System.out.print("]\n");
-			i++;
-		}
-		//System.out.println("New observations: \n" + newObsIDs);
-		//System.out.println("Keep observations: \n" + keepObsIDs);
+		
+		// Set options for all types of sprites that exist in this game. If they
+		// don't exist, the getter will return null and no options will be
+		// created.
+		if(so.getNPCPositions() != null)
+			createOptions(so.getNPCPositions(), Lib.GETTER_TYPE.NPC, so, keepObsIDs, newObsIDs);
+		if(so.getMovablePositions() != null)
+			createOptions(so.getMovablePositions(), Lib.GETTER_TYPE.MOVABLE, so, keepObsIDs, newObsIDs);
+		if(so.getImmovablePositions() != null)
+			createOptions(so.getImmovablePositions(), Lib.GETTER_TYPE.IMMOVABLE, so, keepObsIDs, newObsIDs);
+		if(so.getResourcesPositions() != null)
+			createOptions(so.getResourcesPositions(), Lib.GETTER_TYPE.RESOURCE, so, keepObsIDs, newObsIDs);
+		if(so.getPortalsPositions() != null)
+			createOptions(so.getPortalsPositions(), Lib.GETTER_TYPE.PORTAL, so, keepObsIDs, newObsIDs);
+
 		// Remove all "old" obsIDs from this.optionObsIDs. optionObsIDs will
 		// then only contain obsolete obsIDs
 		this.optionObsIDs.removeAll(keepObsIDs);
 		// Now remove all options that have the obsIDs in optionObsIDs.
 		// We use the iterator, in order to ensure removing while iterating is
 		// possible
-		// TODO: Check if this works
 		for (Iterator<Option> it = this.possibleOptions.iterator(); it.hasNext();)
 		{
 			Option option = it.next();
@@ -319,12 +300,44 @@ public class Agent extends AbstractPlayer
 		// Now all options are up-to-date. this.optionObsIDs should be updated
 		// to represent the current options list:
 		this.optionObsIDs = newObsIDs;
-		//System.out.println("Current option set:");
-		//System.out.println(this.possibleOptions);
-		//System.out.println("Current optionObsIDs:");
-		//System.out.println(this.optionObsIDs);
+	}
 
-
+	/** Adds new obsIDs to newObsIDs the set and ID's that should be kept to
+	 * keepObsIDs, based on the ID's in the ArrayList observations
+	 * Also creates options for all new obsIDs
+	 */
+	protected void createOptions(ArrayList<Observation>[] observations,
+			Lib.GETTER_TYPE type,
+			StateObservation so,
+			HashSet<Integer> keepObsIDs,
+			HashSet<Integer> newObsIDs)
+	{
+		int i = 0;
+		// Loop through all types of NPCs
+		for(ArrayList<Observation> observationType : observations)
+		{
+			// Loop through all the NPC's of this type
+			for(Observation observation : observationType)
+			{
+				// Check if this is a new obsID
+				if(! this.optionObsIDs.contains(observation.obsID))
+				{
+					// Create option for this obsID
+					if(type == Lib.GETTER_TYPE.NPC || type == Lib.GETTER_TYPE.MOVABLE)
+						this.possibleOptions.add(new GoToMovableOption(GAMMA, 
+							type, i, observation.obsID, so));
+					else
+						this.possibleOptions.add(new GoToPositionOption(GAMMA, 
+							type, i, observation.obsID, so));
+				}
+				else
+					// Add to the list of options that should be kept
+					keepObsIDs.add(observation.obsID);
+				newObsIDs.add(observation.obsID);
+			}
+			//System.out.print("]\n");
+			i++;
+		}
 	}
 
 	/** Selects an epsilon greedy value based on the internal q table. Returns
@@ -388,7 +401,7 @@ public class Agent extends AbstractPlayer
 
 	public Types.ACTIONS act(StateObservation so, ElapsedCpuTimer elapsedTimer)
 	{
-		setGoToMovableOptions(so);
+		setOptions(so);
 		double newScore = score(so);
 		//double newScore = so.getGameScore();
 		explore(so, elapsedTimer, EXPLORATION_DEPTH);
@@ -422,7 +435,7 @@ public class Agent extends AbstractPlayer
 	public void teardown()
 	{
 		Lib.writeHashMapToFile(q, filename);
-		System.out.println(q);
+		//System.out.println(q);
 		super.teardown();
 	}
 }

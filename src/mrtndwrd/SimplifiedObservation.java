@@ -27,8 +27,8 @@ public class SimplifiedObservation implements Serializable
 		// added
 		//betterAStarDataInit(so);
 		//aStarDataInit(so);
-		// someDataInit(so);
-		preyInit(so);
+		someDataInit(so);
+		//preyInit(so);
 		//preyAStarInit(so);
 		//onlyAvatarPositionInit(so);
 	}
