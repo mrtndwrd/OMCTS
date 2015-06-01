@@ -48,7 +48,8 @@ public class Tuple<X, Y> implements Entry<X, Y>
 		}
 		catch (Exception e)
 		{
-			System.err.println(e.getMessage());
+			System.err.println("ERROR: " + e.getMessage());
+			e.printStackTrace();
 			return false;
 		}
 	}

@@ -27,6 +27,8 @@ public class GoToPositionOption extends Option implements Serializable
 	/** Specifies the index in the getter of this type, e.g. getNPCPositions */
 	protected int index;
 
+	private final int hashCode;
+
 	/** If this is true, the goal is a sprite that can be removed from the game.
 	 * That means that this option is not possible anymore. If this is false,
 	 * the goal is just an x/y location which is always possible to go to */
@@ -42,6 +44,7 @@ public class GoToPositionOption extends Option implements Serializable
 		super(gamma);
 		this.goal = goal;
 		this.goalIsSprite = false;
+		this.hashCode = goal.hashCode();
 	}
 
 	/** Initialize with a position to go to. Goal is converted to block
@@ -60,6 +63,7 @@ public class GoToPositionOption extends Option implements Serializable
 		this.obsID = obsID;
 		this.goal = getGoalLocationFromSo(so);
 		this.goalIsSprite = true;
+		this.hashCode = goal.hashCode();
 	}
 
 	/** Initialize with something that has to be followed, including setting the
@@ -70,16 +74,23 @@ public class GoToPositionOption extends Option implements Serializable
 		this.type = type;
 		this.index = index;
 		this.obsID = obsID;
+		if(goal == null)
+			System.err.println("WARNING! Setting goal to NULL in constructor!");
 		this.goal = goal;
+		this.hashCode = goal.hashCode();
 		this.goalIsSprite = true;
 	}
 
 	/** "Empty" constructor. Only use this if you'll set the goal in a subclass!
+	 * WARNING: Don't expect to be able to use the hashCode variable from this class.
+	 * That means you'd have to override hashCode() from this class as well!
 	 */
 	protected GoToPositionOption(double gamma)
 	{
 		super(gamma);
+		System.out.println("WARNING! Using empty constructor in " + this);
 		this.currentPath = new ArrayList<SerializableTuple<Integer, Integer>>();
+		this.hashCode = 0;
 	}
 
 	/** Returns the next action to get to this.goal. This function only plans
@@ -97,6 +108,7 @@ public class GoToPositionOption extends Option implements Serializable
 		if(this.goal == null || avatarPosition.equals(this.goal))
 		{
 			this.step++;
+			//System.out.println("Already on goal, returning NIL");
 			return Types.ACTIONS.ACTION_NIL;
 		}
 
@@ -223,17 +235,28 @@ public class GoToPositionOption extends Option implements Serializable
 	@Override
 	public Option copy()
 	{
-		return new GoToPositionOption(gamma, goal);
+		if(this.type != null)
+			return new GoToPositionOption(gamma, type, index, obsID, goal);
+		else
+		{
+			System.out.println("WARNING! Type = null!");
+			return new GoToPositionOption(gamma, goal);
+		}
 	}
 
 	public String toString()
 	{
-		return "GoToPositionOption(" + this.goal + ")";
+		//if(this.type != null)
+			return String.format("GoToPositionOption(%s,%d,%d), goal at %s", 
+					type, index, obsID, goal);
+		//else
+		//	return "GoToPositionOption(" + this.goal + ")";
 	}
 
 	public int hashCode()
 	{
-		return this.goal.hashCode();
+		//System.out.println(this);
+		return this.hashCode;
 	}
 
 	public boolean equals(Object o)
@@ -241,7 +264,10 @@ public class GoToPositionOption extends Option implements Serializable
 		if(o instanceof GoToPositionOption)
 		{
 			GoToPositionOption oa = (GoToPositionOption) o;
-			return this.goal.equals(oa.goal);
+			if(this.goal != null && oa.goal != null)
+				return this.goal.equals(oa.goal);
+			else
+				return this.hashCode == oa.hashCode();
 		}
 		return false;
 	}

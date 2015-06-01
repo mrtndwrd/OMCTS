@@ -237,6 +237,8 @@ public class Agent extends AbstractPlayer
 				option = epsilonGreedyOption(simpleNewState, EPSILON);
 			// Change oldState to newState. 
 			this.previousState = newState.copy();
+			if(greedy)
+				System.out.println("Changed to option " + option);
 		}
 		// If a new option is selected, return the new option. Else the old
 		// option will be returned
@@ -376,7 +378,7 @@ public class Agent extends AbstractPlayer
 		Option maxOption = possibleOptions.get(0);
 		SerializableTuple<SimplifiedObservation, Option> sop;
 		if(print)
-			System.out.println(sso);
+			System.out.println("SSO: " + sso);
 		// select option with highest value for this sso
 		for (Option o : possibleOptions)
 		{
@@ -421,6 +423,7 @@ public class Agent extends AbstractPlayer
 		}
 		
 		this.previousScore = newScore;
+		System.out.println("Following option " + currentOption);
 		return currentOption.act(so);
 	}
 
