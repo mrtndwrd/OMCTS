@@ -5,6 +5,7 @@ import tools.ElapsedCpuTimer;
 
 import java.util.Random;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * Created with IntelliJ IDEA.
@@ -40,10 +41,10 @@ public class SingleMCTSPlayer
 	 * Inits the tree with the new observation state in the root.
 	 * @param gameState current state of the game.
 	 */
-	public void init(StateObservation gameState, ArrayList<Option> possibleOptions)
+	public void init(StateObservation gameState, ArrayList<Option> possibleOptions, HashSet<Integer> optionObsIDs)
 	{
-		//Set the game observation to a newly root node.
-		rootNode = new SingleTreeNode(possibleOptions, random);
+		//Set the game observation to a new root node.
+		rootNode = new SingleTreeNode(possibleOptions, optionObsIDs, random);
 		rootNode.state = gameState;
 	}
 

@@ -6,6 +6,7 @@ import tools.ElapsedCpuTimer;
 import tools.Utils;
 
 import java.util.Random;
+import java.util.HashSet;
 import java.util.ArrayList;
 
 public class SingleTreeNode
@@ -33,6 +34,8 @@ public class SingleTreeNode
 
 	private ArrayList<Option> possibleOptions;
 
+	private HashSet<Integer> optionObsIDs;
+
 	public static Random random;
 	/** The depth in the rollout of this node (initialized as parent.node+1) */
 	public int nodeDepth;
@@ -40,13 +43,13 @@ public class SingleTreeNode
 	protected static double[] bounds = new double[]{Double.MAX_VALUE, -Double.MAX_VALUE};
 
 	/** Root node constructor */
-	public SingleTreeNode(ArrayList<Option> possibleOptions, Random rnd) 
+	public SingleTreeNode(ArrayList<Option> possibleOptions, HashSet<Integer> optionObsIDs, Random rnd) 
 	{
-		this(null, null, possibleOptions, rnd);
+		this(null, null, possibleOptions, optionObsIDs, rnd);
 	}
 
 	/** normal constructor */
-	public SingleTreeNode(StateObservation state, SingleTreeNode parent, ArrayList<Option> possibleOptions, Random rnd)
+	public SingleTreeNode(StateObservation state, SingleTreeNode parent, ArrayList<Option> possibleOptions, HashSet<Integer> optionObsIDs, Random rnd)
 	{
 		this.state = state;
 		this.parent = parent;
@@ -132,11 +135,14 @@ public class SingleTreeNode
 		StateObservation nextState = state.copy();
 
 		// Step 1: run this option untill it's finished
-		runOption(nextState, possibleOptions.get(bestOption));
+		runOption(nextState, this.possibleOptions.get(bestOption));
 		// Step 2: get the new option set
 		// setOptions.... TODO - for now, just use actionOptions
+		ArrayList<Option> newOptions = (ArrayList<Option>) this.possibleOptions.clone();
+		HashSet<Integer> newOptionObsIDs = (HashSet<Integer>) this.optionObsIDs.clone();
+		Agent.setOptions(nextState, newOptions, newOptionObsIDs);
 		// Step 3: create a child node
-		SingleTreeNode tn = new SingleTreeNode(nextState, this, (ArrayList<Option>) possibleOptions.clone(), this.random);
+		SingleTreeNode tn = new SingleTreeNode(nextState, this, newOptions, newOptionObsIDs, this.random);
 		children[bestOption] = tn;
 		return tn;
 	}
