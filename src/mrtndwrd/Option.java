@@ -18,6 +18,11 @@ public abstract class Option implements Serializable
 	protected double gamma;
 	protected int step;
 	protected double cumulativeReward;
+	/** If this option has no functionality anymore, we mark it as "finished".
+	 * This includes when the destination is reached, when the goal is gone, or
+	 * when there is no path to a goal. All actions returned after being
+	 * "finished" are ACTION_NIL */
+	protected boolean finished;
 
 	/** Specifies the obsID of the movable/npc that is tracked by this option */
 	protected int obsID = -1;
@@ -88,6 +93,13 @@ public abstract class Option implements Serializable
 	{
 		return this.step;
 	}
+
+	/** Sets this.finished to true */
+	protected void setFinished()
+	{
+		this.finished = true;
+	}
+
 
 	protected void readObject(ObjectInputStream aInputStream) 
 		throws ClassNotFoundException, IOException 

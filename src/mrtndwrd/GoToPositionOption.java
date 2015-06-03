@@ -27,12 +27,11 @@ public class GoToPositionOption extends Option implements Serializable
 	/** Specifies the index in the getter of this type, e.g. getNPCPositions */
 	protected int index;
 
-	private final int hashCode;
-
 	/** If this is true, the goal is a sprite that can be removed from the game.
 	 * That means that this option is not possible anymore. If this is false,
 	 * the goal is just an x/y location which is always possible to go to */
 	protected boolean goalIsSprite;
+
 	
 	/** The last planned path, as long as this is followed, no replanning has to
 	 * be done */
@@ -44,7 +43,6 @@ public class GoToPositionOption extends Option implements Serializable
 		super(gamma);
 		this.goal = goal;
 		this.goalIsSprite = false;
-		this.hashCode = goal.hashCode();
 	}
 
 	/** Initialize with a position to go to. Goal is converted to block
@@ -63,7 +61,6 @@ public class GoToPositionOption extends Option implements Serializable
 		this.obsID = obsID;
 		this.goal = getGoalLocationFromSo(so);
 		this.goalIsSprite = true;
-		this.hashCode = goal.hashCode();
 	}
 
 	/** Initialize with something that has to be followed, including setting the
@@ -77,7 +74,6 @@ public class GoToPositionOption extends Option implements Serializable
 		if(goal == null)
 			System.err.println("WARNING! Setting goal to NULL in constructor!");
 		this.goal = goal;
-		this.hashCode = goal.hashCode();
 		this.goalIsSprite = true;
 	}
 
@@ -90,7 +86,6 @@ public class GoToPositionOption extends Option implements Serializable
 		super(gamma);
 		System.out.println("WARNING! Using empty constructor in " + this);
 		this.currentPath = new ArrayList<SerializableTuple<Integer, Integer>>();
-		this.hashCode = 0;
 	}
 
 	/** Returns the next action to get to this.goal. This function only plans
@@ -99,15 +94,16 @@ public class GoToPositionOption extends Option implements Serializable
 	 */
 	public Types.ACTIONS act(StateObservation so)
 	{
-		if(!goalExists(so))
-		{
-			removeGoal();
-		}
 		SerializableTuple<Integer, Integer> avatarPosition = Agent.aStar.vectorToBlock(so.getAvatarPosition());
-		// Do nothing if we're already on the goal
-		if(this.goal == null || avatarPosition.equals(this.goal))
+		if(!goalExists(so) || avatarPosition.equals(this.goal))
 		{
-			this.step++;
+			setFinished();
+		}
+		// Increase step counter to keep track of everything.
+		this.step++;
+		// Do nothing if we're already done
+		if(this.finished)
+		{
 			//System.out.println("Already on goal, returning NIL");
 			return Types.ACTIONS.ACTION_NIL;
 		}
@@ -120,28 +116,14 @@ public class GoToPositionOption extends Option implements Serializable
 			// current location is at the end of the path
 			index = currentPath.size()-1;
 		}
-		// Increase step counter to keep track of everything.
-		this.step++;
 		if(currentPath.size() == 0 || index < 0)
 		{
-			// No path available, remove the goal.
+			// No path available, we're done.
+			setFinished();
 			return Types.ACTIONS.ACTION_NIL;
 		}
-		//System.out.println("Increasing step in GoToPositionOption to " + step + ", goal: " + this.goal + ", position: " + avatarPosition);
-		//System.out.printf("Using path %s at position %s\n", currentPath, avatarPosition);
-		//System.out.printf("Returning action %s to get from %s to %s\n", 
-		//		Agent.aStar.neededAction(avatarPosition, currentPath.get(index -1)),
-		//		avatarPosition,
-		//		goal);
-
 		// Return the action that is needed to get to the next path index.
 		return Agent.aStar.neededAction(avatarPosition, currentPath.get(index -1));
-	}
-
-	protected void removeGoal()
-	{
-		this.goal = null;
-		this.currentPath = new ArrayList<SerializableTuple<Integer, Integer>>();
 	}
 
 	/** This option is finished if the avatar's position is the same as
@@ -149,17 +131,25 @@ public class GoToPositionOption extends Option implements Serializable
 	 */
 	public boolean isFinished(StateObservation so)
 	{
-		// This class might have made this.goal null because the observation ID
-		// does not exist anymore
-		if (!this.goalExists(so) || currentPath.size() == 0)
+		if(this.finished)
 			return true;
-		Vector2d avatarPosition = so.getAvatarPosition();
-		// Option is also finished when the game is over
-		if(avatarPosition.x == -1 && avatarPosition.y == -1)
+		// There might be some other cases in which this.finished has not been
+		// set yet, let's see:
+		if (!this.goalExists(so) || currentPath.size() == 0)
 		{
+			setFinished();
 			return true;
 		}
-		return this.goal == Agent.aStar.vectorToBlock(avatarPosition);
+		Vector2d avatarPosition = so.getAvatarPosition();
+		// Option is also finished when the game is over or the goal is reached
+		if(avatarPosition.x == -1 && avatarPosition.y == -1 ||
+				this.goal == Agent.aStar.vectorToBlock(avatarPosition))
+		{
+			setFinished();
+			return true;
+		}
+		// If all of the above fails, this is not finished yet!
+		return false;
 	}
 
 	/** Returns the location of the thing that is tracked, based on type, index
@@ -181,29 +171,38 @@ public class GoToPositionOption extends Option implements Serializable
 	/** Returns the observations from the right getter, according to this.type
 	 * @param index the index inside the getter, of the observation type that is
 	 * requested
+	 * FIXME: index might not be constant
 	 */
 	protected ArrayList<Observation> getObservations(StateObservation so, int index)
 	{
-		if(this.type == Lib.GETTER_TYPE.NPC)
-			return so.getNPCPositions()[index];
-		if(this.type == Lib.GETTER_TYPE.MOVABLE)
-			return so.getMovablePositions()[index];
-		if(this.type == Lib.GETTER_TYPE.IMMOVABLE)
-			return so.getImmovablePositions()[index];
-		if(this.type == Lib.GETTER_TYPE.RESOURCE)
-			return so.getResourcesPositions()[index];
-		if(this.type == Lib.GETTER_TYPE.PORTAL)
-			return so.getPortalsPositions()[index];
-		System.err.printf("WARNING: Type %s NOT known in %s!\n", this.type, this);
-		return null;
+		try
+		{
+			if(this.type == Lib.GETTER_TYPE.NPC)
+				return so.getNPCPositions()[index];
+			if(this.type == Lib.GETTER_TYPE.MOVABLE)
+				return so.getMovablePositions()[index];
+			if(this.type == Lib.GETTER_TYPE.IMMOVABLE)
+				return so.getImmovablePositions()[index];
+			if(this.type == Lib.GETTER_TYPE.RESOURCE)
+				return so.getResourcesPositions()[index];
+			if(this.type == Lib.GETTER_TYPE.PORTAL)
+				return so.getPortalsPositions()[index];
+			System.err.printf("WARNING: Type %s NOT known in %s!\n", this.type, this);
+			return new ArrayList<Observation>();
+		}
+		catch(ArrayIndexOutOfBoundsException e)
+		{
+			// When the index does not exist anymore, the 
+			setFinished();
+			return new ArrayList<Observation>();
+		}
 	}
 
+	/** DOES NOT SET this.finished! */
 	public boolean goalExists(StateObservation so)
 	{
 		if(goalIsSprite && getGoalLocationFromSo(so) == null)
 		{
-			// Goal doesn't exist anymore, remove it.
-			removeGoal();
 			return false;
 		}
 		return true;
@@ -213,8 +212,10 @@ public class GoToPositionOption extends Option implements Serializable
 	public void reset()
 	{
 		this.step = 0;
-		this.goal = null;
+		// FIXME: Not sure why I would remove the goal here...
+		// this.goal = null;
 		this.currentPath = new ArrayList<SerializableTuple<Integer, Integer>>();
+		this.finished = false;
 	}
 
 	protected void readObject(ObjectInputStream aInputStream) 
@@ -256,7 +257,7 @@ public class GoToPositionOption extends Option implements Serializable
 	public int hashCode()
 	{
 		//System.out.println(this);
-		return this.hashCode;
+		return this.goal.hashCode();
 	}
 
 	public boolean equals(Object o)
@@ -266,8 +267,6 @@ public class GoToPositionOption extends Option implements Serializable
 			GoToPositionOption oa = (GoToPositionOption) o;
 			if(this.goal != null && oa.goal != null)
 				return this.goal.equals(oa.goal);
-			else
-				return this.hashCode == oa.hashCode();
 		}
 		return false;
 	}
