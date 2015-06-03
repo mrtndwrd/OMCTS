@@ -1,23 +1,12 @@
-Todo for implementing options:
-- Make option class 
-	- make options for all actions
-	- implement expected reward in the options
-	- 
-- Substitute actions for options
+Programmeren: 
+
 - Make more elaborate options than just actions
-	- A* route finding to point (enemy, portal, resource)
 	- Option(s) for killing an enemy (with a specific weapon type)
 	- Option(s) for avoiding enemies
-
-
-- Options for kill and goTo while avoid
+	- Option(s) for goto while avoiding enemies
 - MCTS!
-
-Programmeren:
-- Kijken of monte carlo wel diep genoeg komt
-- Inverteren van objecten tussen 2-level transfer
-- Prioritized Sweeping
-- Options
+- Convert options to use sprite id in stead of index in the getter.
+- Eliminate walls from goto options
 
 Lezen: 
 Hoofdstuk 4, 5, 9, 17 uit *Reinforcement Learning, State of the Art* (PDF van
