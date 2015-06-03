@@ -10,6 +10,9 @@ Todo for implementing options:
 	- Option(s) for avoiding enemies
 
 
+- Options for kill and goTo while avoid
+- MCTS!
+
 Programmeren:
 - Kijken of monte carlo wel diep genoeg komt
 - Inverteren van objecten tussen 2-level transfer
