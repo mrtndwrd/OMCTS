@@ -104,7 +104,7 @@ public class GoToPositionOption extends Option implements Serializable
 		// Do nothing if we're already done
 		if(this.finished)
 		{
-			//System.out.println("Already on goal, returning NIL");
+			System.out.println("Finished, returning NIL");
 			return Types.ACTIONS.ACTION_NIL;
 		}
 
@@ -120,6 +120,7 @@ public class GoToPositionOption extends Option implements Serializable
 		{
 			// No path available, we're done.
 			setFinished();
+			System.out.println("No path available, returning NIL");
 			return Types.ACTIONS.ACTION_NIL;
 		}
 		// Return the action that is needed to get to the next path index.
@@ -163,7 +164,7 @@ public class GoToPositionOption extends Option implements Serializable
 			if(o.obsID == this.obsID)
 				return Agent.aStar.vectorToBlock(o.position);
 		}
-		//System.out.printf("WARNING: obsID %d not found!\n", this.obsID);
+		System.out.printf("WARNING: obsID %d not found!\n", this.obsID);
 		// Probably this obs is already eliminated.
 		return null;
 	}

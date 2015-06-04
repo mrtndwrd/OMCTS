@@ -41,6 +41,9 @@ public class Agent extends AbstractPlayer {
 	/** A set containing which obsId's already have options in this agent */
 	protected HashSet<Integer> optionObsIDs = new HashSet<Integer>();
 
+	/** Currently followed option */
+	private Option currentOption;
+
 	/**
 	 * Public constructor with state observation and time due.
 	 * @param so state observation of the current game.
@@ -48,6 +51,7 @@ public class Agent extends AbstractPlayer {
 	 */
 	public Agent(StateObservation so, ElapsedCpuTimer elapsedTimer)
 	{
+		Agent.aStar = new AStar(so);
 		ArrayList<Types.ACTIONS> act = so.getAvailableActions();
 		
 		// Add the actions to the option set
@@ -63,7 +67,6 @@ public class Agent extends AbstractPlayer {
 
 		//Create the player.
 		mctsPlayer = new SingleMCTSPlayer(new Random());
-		Agent.aStar = new AStar(so);
 	}
 
 	// TODO: Make like setOptions
@@ -137,6 +140,9 @@ public class Agent extends AbstractPlayer {
 			// Loop through all the NPC's of this type
 			for(Observation observation : observationType)
 			{
+				// This is considered to be a wall
+				if(observation.itype == 0)
+					continue;
 				// Check if this is a new obsID
 				if(! optionObsIDs.contains(observation.obsID))
 				{
@@ -169,15 +175,20 @@ public class Agent extends AbstractPlayer {
 	{
 		// Update options:
 		setOptions(stateObs, this.possibleOptions, this.optionObsIDs);
+		if(currentOption == null || currentOption.isFinished(stateObs))
+		{
+			//Set the state observation object as the new root of the tree.
+			mctsPlayer.init(stateObs, this.possibleOptions, this.optionObsIDs);
 
-		//Set the state observation object as the new root of the tree.
-		mctsPlayer.init(stateObs, this.possibleOptions, this.optionObsIDs);
+			//Determine the action using MCTS...
+			int option = mctsPlayer.run(elapsedTimer);
 
-		//Determine the action using MCTS...
-		int action = mctsPlayer.run(elapsedTimer);
-
-		//... and return it.
-		return actions[action];
+			//... and return it.
+			currentOption = this.possibleOptions.get(option);
+		}
+		System.out.println("Chosen option: " + currentOption);
+		System.out.println("Using action: " + currentOption.act(stateObs));
+		return currentOption.act(stateObs);
 	}
 
 }

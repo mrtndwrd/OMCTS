@@ -16,7 +16,7 @@ public class SingleTreeNode
 	private static final double HUGE_POSITIVE =  10000000.0;
 
 	/** mctsSearch continues until there are only so many miliseconds left */
-	public static final int REMAINING_LIMIT = 5;
+	public static final int REMAINING_LIMIT = 15;
 
 	public static double epsilon = 1e-6;
 
@@ -55,6 +55,7 @@ public class SingleTreeNode
 		this.parent = parent;
 		this.random = rnd;
 		this.possibleOptions = possibleOptions;
+		this.optionObsIDs = optionObsIDs;
 		children = new SingleTreeNode[possibleOptions.size()];
 		totValue = 0.0;
 		if(parent != null)
@@ -75,11 +76,16 @@ public class SingleTreeNode
 			ElapsedCpuTimer elapsedTimerIteration = new ElapsedCpuTimer();
 			// Select the node to explore (either expanding unexpanded node, or
 			// selecting the best one with UCT)
+			//System.out.printf("Remaining before treePolicy: %d\n", elapsedTimer.remainingTimeMillis());
 			SingleTreeNode selected = treePolicy();
 			// Get node value using a max-depth rollout
+			//System.out.printf("Remaining before rollOut: %d\n", elapsedTimer.remainingTimeMillis());
 			double delta = selected.rollOut();
 			// Set values for parents of current node, using new rollout value
+			//System.out.printf("Remaining before rollOut: %d\n", elapsedTimer.remainingTimeMillis());
 			backUp(selected, delta);
+			
+			//System.out.printf("Remaining after backUp: %d\n", elapsedTimer.remainingTimeMillis());
 
 			numIters++;
 			acumTimeTaken += (elapsedTimerIteration.elapsedMillis()) ;
@@ -135,9 +141,8 @@ public class SingleTreeNode
 		StateObservation nextState = state.copy();
 
 		// Step 1: run this option untill it's finished
-		runOption(nextState, this.possibleOptions.get(bestOption));
+		runOption(nextState, this.possibleOptions.get(bestOption).copy());
 		// Step 2: get the new option set
-		// setOptions.... TODO - for now, just use actionOptions
 		ArrayList<Option> newOptions = (ArrayList<Option>) this.possibleOptions.clone();
 		HashSet<Integer> newOptionObsIDs = (HashSet<Integer>) this.optionObsIDs.clone();
 		Agent.setOptions(nextState, newOptions, newOptionObsIDs);
