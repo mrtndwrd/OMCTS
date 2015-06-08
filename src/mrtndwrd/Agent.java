@@ -90,15 +90,21 @@ public class Agent extends AbstractPlayer {
 		// don't exist, the getter will return null and no options will be
 		// created.
 		if(so.getNPCPositions() != null)
-			createOptions(so.getNPCPositions(), Lib.GETTER_TYPE.NPC, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
-		if(so.getMovablePositions() != null)
-			createOptions(so.getMovablePositions(), Lib.GETTER_TYPE.MOVABLE, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
-		if(so.getImmovablePositions() != null)
-			createOptions(so.getImmovablePositions(), Lib.GETTER_TYPE.IMMOVABLE, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
-		if(so.getResourcesPositions() != null)
-			createOptions(so.getResourcesPositions(), Lib.GETTER_TYPE.RESOURCE, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
-		if(so.getPortalsPositions() != null)
-			createOptions(so.getPortalsPositions(), Lib.GETTER_TYPE.PORTAL, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
+		{
+			//createOptions(so.getNPCPositions(), Lib.GETTER_TYPE.NPC, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
+			if(so.getAvailableActions().contains(Types.ACTIONS.ACTION_USE))
+				createOptions(so.getNPCPositions(), Lib.GETTER_TYPE.NPC_KILL, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
+		}
+		//if(so.getMovablePositions() != null)
+		//	createOptions(so.getMovablePositions(), Lib.GETTER_TYPE.MOVABLE, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
+		//if(so.getImmovablePositions() != null)
+		//	createOptions(so.getImmovablePositions(), Lib.GETTER_TYPE.IMMOVABLE, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
+		//if(so.getResourcesPositions() != null)
+		//	createOptions(so.getResourcesPositions(), Lib.GETTER_TYPE.RESOURCE, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
+		//if(so.getPortalsPositions() != null)
+		//	createOptions(so.getPortalsPositions(), Lib.GETTER_TYPE.PORTAL, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
+
+		// We can use a weapon! Try to make kill-options
 
 		// Remove all "old" obsIDs from this.optionObsIDs. optionObsIDs will
 		// then only contain obsolete obsIDs
@@ -133,7 +139,6 @@ public class Agent extends AbstractPlayer {
 			ArrayList<Option> possibleOptions,
 			HashSet<Integer> optionObsIDs)
 	{
-		int i = 0;
 		// Loop through all types of NPCs
 		for(ArrayList<Observation> observationType : observations)
 		{
@@ -146,13 +151,16 @@ public class Agent extends AbstractPlayer {
 				// Check if this is a new obsID
 				if(! optionObsIDs.contains(observation.obsID))
 				{
+						possibleOptions.add(new UseSwordOnMovableOption(GAMMA, 
+							type, observation.itype, observation.obsID, so));
 					// Create option for this obsID
-					if(type == Lib.GETTER_TYPE.NPC || type == Lib.GETTER_TYPE.MOVABLE)
-						possibleOptions.add(new GoToMovableOption(GAMMA, 
-							type, i, observation.obsID, so));
-					else
-						possibleOptions.add(new GoToPositionOption(GAMMA, 
-							type, i, observation.obsID, so));
+					//if(type == Lib.GETTER_TYPE.NPC || type == Lib.GETTER_TYPE.MOVABLE)
+					//	possibleOptions.add(new GoToMovableOption(GAMMA, 
+					//		type, observation.itype, observation.obsID, so));
+					//else if (type == Lib.GETTER_TYPE.NPC_KILL)
+					//else
+					//	possibleOptions.add(new GoToPositionOption(GAMMA, 
+					//		type, observation.itype, observation.obsID, so));
 				}
 				else
 					// Add to the list of options that should be kept
@@ -160,7 +168,6 @@ public class Agent extends AbstractPlayer {
 				newObsIDs.add(observation.obsID);
 			}
 			//System.out.print("]\n");
-			i++;
 		}
 	}
 
@@ -183,12 +190,16 @@ public class Agent extends AbstractPlayer {
 			//Determine the action using MCTS...
 			int option = mctsPlayer.run(elapsedTimer);
 
-			//... and return it.
-			currentOption = this.possibleOptions.get(option);
+			//... and return a copy (don't adjust the options in the
+			//possibleOption set. This can give trouble later).
+			currentOption = this.possibleOptions.get(option).copy();
 		}
-		System.out.println("Chosen option: " + currentOption);
-		System.out.println("Using action: " + currentOption.act(stateObs));
-		return currentOption.act(stateObs);
+		Types.ACTIONS action = currentOption.act(stateObs);
+		//System.out.println("Using option " + currentOption);
+		// System.out.println("Orientation: " + stateObs.getAvatarOrientation());
+		// System.out.println("Location: " + stateObs.getAvatarPosition());
+		// System.out.println("Action: " + action);
+		return action;
 	}
 
 }

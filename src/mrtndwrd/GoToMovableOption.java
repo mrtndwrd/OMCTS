@@ -18,18 +18,18 @@ import java.util.ArrayList;
 public class GoToMovableOption extends GoToPositionOption implements Serializable
 {
 
-	public GoToMovableOption(double gamma, Lib.GETTER_TYPE type, int index, 
+	public GoToMovableOption(double gamma, Lib.GETTER_TYPE type, int itype, 
 			int obsID, StateObservation so)
 	{
-		super(gamma, type, index, obsID, so);
+		super(gamma, type, itype, obsID, so);
 	}
 
 	/** Constructor mainly for use by copy. By supplying the current goal
 	 * position, the need for a StateObservation vanishes. */
-	public GoToMovableOption(double gamma, Lib.GETTER_TYPE type, int index, 
+	public GoToMovableOption(double gamma, Lib.GETTER_TYPE type, int itype, 
 			int obsID, SerializableTuple<Integer, Integer> goal)
 	{
-		super(gamma, type, index, obsID, goal);
+		super(gamma, type, itype, obsID, goal);
 	}
 
 	/** Returns the next action to get to this.goal. This function only plans
@@ -39,6 +39,7 @@ public class GoToMovableOption extends GoToPositionOption implements Serializabl
 	@Override
 	public Types.ACTIONS act(StateObservation so)
 	{
+		setGoalLocation(so);
 		// Save the calculation hassle if the goal is already set to null
 		// unfortunately this speed-hack creates redundancy the rest of this
 		// function
@@ -48,6 +49,12 @@ public class GoToMovableOption extends GoToPositionOption implements Serializabl
 			this.step++;
 			return Types.ACTIONS.ACTION_NIL;
 		}
+		// Plan the path
+		return super.act(so);
+	}
+
+	protected void setGoalLocation(StateObservation so)
+	{
 		// Get the location of the goal:
 		SerializableTuple<Integer, Integer> goalLocation = getGoalLocationFromSo(so);
 		// Check if the goal location is still the same:
@@ -58,41 +65,34 @@ public class GoToMovableOption extends GoToPositionOption implements Serializabl
 			// Remove the old path
 			this.currentPath = new ArrayList<SerializableTuple<Integer, Integer>>();
 		}
-		// Check if the goal still exists (for example, NPC's can be killed) 
-		// else return ACTION_NIL
-		if(this.goal == null)
-		{
-			this.step++;
-			return Types.ACTIONS.ACTION_NIL;
-		}
-		// Plan the path
-		return super.act(so);
+
 	}
 
 	public void reset()
 	{
 		super.reset();
 		this.obsID = -1;
-		this.index = -1;
+		this.itype = -1;
 		this.type = null;
 	}
 
 	@Override
 	public Option copy()
 	{
-		return new GoToMovableOption(gamma, type, index, obsID, goal);
+		return new GoToMovableOption(gamma, type, itype, obsID, goal);
 	}
 
+	@Override
 	public String toString()
 	{
-		return String.format("GoToMovableOption(%s,%d,%d)", type, index, obsID);
+		return String.format("GoToMovableOption(%s,%d,%d)", type, itype, obsID);
 	}
 
 	public int hashCode()
 	{
 		int hash = 1;
 		hash = hash * 37 + this.type.hashCode();
-		hash = hash * 41 + this.index;
+		hash = hash * 41 + this.itype;
 		hash = hash * 43 + this.obsID;
 		return hash;
 	}
@@ -103,7 +103,7 @@ public class GoToMovableOption extends GoToPositionOption implements Serializabl
 		{
 			GoToMovableOption oa = (GoToMovableOption) o;
 			return this.type.equals(oa.type) && 
-				this.index == oa.index && this.obsID == obsID;
+				this.itype == oa.itype && this.obsID == obsID;
 		}
 		return false;
 	}

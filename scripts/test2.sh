@@ -17,6 +17,7 @@ cd $dir/..
 
 # Variables (command line time?)
 controller="mrtndwrd.Agent"
+# controller="controllers.sampleMCTS.Agent"
 game="butterflies"
 levels="2"
 

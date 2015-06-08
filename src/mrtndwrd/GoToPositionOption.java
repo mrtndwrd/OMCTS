@@ -24,8 +24,8 @@ public class GoToPositionOption extends Option implements Serializable
 	/** Specifies if this follows an NPC or a movable non-npc sprite */
 	protected Lib.GETTER_TYPE type;
 
-	/** Specifies the index in the getter of this type, e.g. getNPCPositions */
-	protected int index;
+	/** Specifies the itype (sprite type id) in the getter of this type, e.g. getNPCPositions */
+	protected int itype; 
 
 	/** If this is true, the goal is a sprite that can be removed from the game.
 	 * That means that this option is not possible anymore. If this is false,
@@ -53,11 +53,11 @@ public class GoToPositionOption extends Option implements Serializable
 	}
 
 	/** Initialize with something that has to be followed */
-	public GoToPositionOption(double gamma, Lib.GETTER_TYPE type, int index, int obsID, StateObservation so)
+	public GoToPositionOption(double gamma, Lib.GETTER_TYPE type, int itype, int obsID, StateObservation so)
 	{
 		super(gamma);
 		this.type = type;
-		this.index = index;
+		this.itype = itype;
 		this.obsID = obsID;
 		this.goal = getGoalLocationFromSo(so);
 		this.goalIsSprite = true;
@@ -65,11 +65,11 @@ public class GoToPositionOption extends Option implements Serializable
 
 	/** Initialize with something that has to be followed, including setting the
 	 * goal location (so no StateObservation is needed) */
-	public GoToPositionOption(double gamma, Lib.GETTER_TYPE type, int index, int obsID, SerializableTuple<Integer, Integer> goal)
+	public GoToPositionOption(double gamma, Lib.GETTER_TYPE type, int itype, int obsID, SerializableTuple<Integer, Integer> goal)
 	{
 		super(gamma);
 		this.type = type;
-		this.index = index;
+		this.itype = itype;
 		this.obsID = obsID;
 		if(goal == null)
 			System.err.println("WARNING! Setting goal to NULL in constructor!");
@@ -153,12 +153,12 @@ public class GoToPositionOption extends Option implements Serializable
 		return false;
 	}
 
-	/** Returns the location of the thing that is tracked, based on type, index
+	/** Returns the location of the thing that is tracked, based on type, itype
 	 * and obsID */
 	protected SerializableTuple<Integer, Integer> getGoalLocationFromSo(StateObservation so)
 	{
 		ArrayList<Observation> observations;
-		observations = getObservations(so, index);
+		observations = getObservations(so, itype);
 		for (Observation o : observations)
 		{
 			if(o.obsID == this.obsID)
@@ -170,33 +170,37 @@ public class GoToPositionOption extends Option implements Serializable
 	}
 
 	/** Returns the observations from the right getter, according to this.type
-	 * @param index the index inside the getter, of the observation type that is
+	 * @param itype the itype inside the getter, of the observation type that is
 	 * requested
-	 * FIXME: index might not be constant
 	 */
-	protected ArrayList<Observation> getObservations(StateObservation so, int index)
+	protected ArrayList<Observation> getObservations(StateObservation so, int itype)
 	{
-		try
+		ArrayList<Observation>[] observations = null;
+
+		if(this.type == Lib.GETTER_TYPE.NPC || this.type == Lib.GETTER_TYPE.NPC_KILL)
+			observations = so.getNPCPositions();
+		if(this.type == Lib.GETTER_TYPE.MOVABLE)
+			observations = so.getMovablePositions();
+		if(this.type == Lib.GETTER_TYPE.IMMOVABLE)
+			observations = so.getImmovablePositions();
+		if(this.type == Lib.GETTER_TYPE.RESOURCE)
+			observations = so.getResourcesPositions();
+		if(this.type == Lib.GETTER_TYPE.PORTAL)
+			observations = so.getPortalsPositions();
+		if(observations == null)
 		{
-			if(this.type == Lib.GETTER_TYPE.NPC)
-				return so.getNPCPositions()[index];
-			if(this.type == Lib.GETTER_TYPE.MOVABLE)
-				return so.getMovablePositions()[index];
-			if(this.type == Lib.GETTER_TYPE.IMMOVABLE)
-				return so.getImmovablePositions()[index];
-			if(this.type == Lib.GETTER_TYPE.RESOURCE)
-				return so.getResourcesPositions()[index];
-			if(this.type == Lib.GETTER_TYPE.PORTAL)
-				return so.getPortalsPositions()[index];
 			System.err.printf("WARNING: Type %s NOT known in %s!\n", this.type, this);
 			return new ArrayList<Observation>();
 		}
-		catch(ArrayIndexOutOfBoundsException e)
+
+		for(ArrayList<Observation> o : observations)
 		{
-			// When the index does not exist anymore, the 
-			setFinished();
-			return new ArrayList<Observation>();
+			// check if iType matches
+			if(o.get(0).itype == this.itype)
+				return o;
 		}
+		System.out.printf("Itype %d not found in type %s\n", this.itype, this.type);
+		return new ArrayList<Observation>();
 	}
 
 	/** DOES NOT SET this.finished! */
@@ -238,7 +242,7 @@ public class GoToPositionOption extends Option implements Serializable
 	public Option copy()
 	{
 		if(this.type != null)
-			return new GoToPositionOption(gamma, type, index, obsID, goal);
+			return new GoToPositionOption(gamma, type, itype, obsID, goal);
 		else
 		{
 			System.out.println("WARNING! Type = null!");
@@ -250,7 +254,7 @@ public class GoToPositionOption extends Option implements Serializable
 	{
 		//if(this.type != null)
 			return String.format("GoToPositionOption(%s,%d,%d), goal at %s", 
-					type, index, obsID, goal);
+					type, itype, obsID, goal);
 		//else
 		//	return "GoToPositionOption(" + this.goal + ")";
 	}
@@ -259,6 +263,11 @@ public class GoToPositionOption extends Option implements Serializable
 	{
 		//System.out.println(this);
 		return this.goal.hashCode();
+	}
+
+	protected String getSubtype()
+	{
+		return super.getSubtype() + this.itype;
 	}
 
 	public boolean equals(Object o)

@@ -61,6 +61,19 @@ public abstract class Option implements Serializable
 	{
 		return this.obsID;
 	}
+
+	/** It's possible to specify a specific subtype with this function */
+	protected String getSubtype()
+	{
+		return "";
+	}
+
+	/** Returns string for type and subtype of this option. Used to index what
+	 * (sub)types of options are feasible with some kind of uct */
+	public String getType()
+	{
+		return this.getClass().getName() + this.getSubtype();
+	}
 	
 	/** Resets the option values, enabling it to be called again next time
 	 * without having interfering values saved in it. */

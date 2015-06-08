@@ -252,6 +252,65 @@ public class AStar
 		return Types.ACTIONS.ACTION_NIL;
 	}
 
+	/** Returns the direction of the observation position obPosition, relative
+	 * to the avatarPosition as a string from {up, upright, right, downright,
+	 * down, downleft, left, upleft, same}
+	 */
+	public String getDirection(Vector2d obPosition, Vector2d avatarPosition)
+	{
+		// Same x, either up or down
+		if(obPosition.x == avatarPosition.x)
+		{
+			if(obPosition.y < avatarPosition.y)
+				return "up";
+			else if(obPosition.y > avatarPosition.y)
+				return "down";
+		}
+		// Same y, either straight right or left
+		else if(obPosition.y == avatarPosition.y)
+		{
+			if(obPosition.x > avatarPosition.x)
+				return "right";
+			else if(obPosition.x < avatarPosition.x)
+				return "left";
+		}
+		// Different x and y, one of the combinations:
+		else
+		{
+			if(obPosition.x > avatarPosition.x && obPosition.y < avatarPosition.y)
+				return "upright";
+			else if(obPosition.x > avatarPosition.x && obPosition.y > avatarPosition.y)
+				return "downright";
+			else if(obPosition.x < avatarPosition.x && obPosition.y < avatarPosition.y)
+				return "upleft";
+			else if(obPosition.x < avatarPosition.x && obPosition.y > avatarPosition.y)
+				return "downleft";
+		}
+		// x == y
+		return "same";
+	}
+	
+	/** Get orientation: up = (0, -1), down = (0, 1), left = (-1, 0), 
+	 * right = (1, 0) */
+	public static Vector2d direction(SerializableTuple<Integer, Integer> from, 
+			SerializableTuple<Integer, Integer> to)
+	{
+		double i, j;
+		if(from.x > to.x)
+			j = -1;
+		else if (from.x < to.x)
+			j = 1;
+		else
+			j = 0;
+		if(from.y > to.y)
+			i = -1;
+		else if (from.y < to.y)
+			i = 1;
+		else
+			i = 0;
+		return new Vector2d(j, i);
+	}
+
 	/** Print all the walls! */
 	public String toString()
 	{
