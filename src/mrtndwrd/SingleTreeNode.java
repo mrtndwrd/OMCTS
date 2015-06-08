@@ -16,7 +16,7 @@ public class SingleTreeNode
 	private static final double HUGE_POSITIVE =  10000000.0;
 
 	/** mctsSearch continues until there are only so many miliseconds left */
-	public static final int REMAINING_LIMIT = 15;
+	public static final int REMAINING_LIMIT = 5;
 
 	public static double epsilon = 1e-6;
 
@@ -226,7 +226,10 @@ public class SingleTreeNode
 
 
 	/** Perform a rollout with random actions on the current node of maximally
-	 * Agent.ROLLOUT_DEPTH */
+	 * Agent.ROLLOUT_DEPTH. 
+	 * @return Delta is the "simpleValue" of the last state the rollOut
+	 * arrives in. 
+	 */
 	public double rollOut()
 	{
 		StateObservation rollerState = state.copy();

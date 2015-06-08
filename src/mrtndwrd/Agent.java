@@ -20,7 +20,7 @@ import java.util.Random;
  */
 public class Agent extends AbstractPlayer {
 
-	public static int ROLLOUT_DEPTH = 10;
+	public static int ROLLOUT_DEPTH = 15;
 	public static double K = Math.sqrt(2);
 
 	/** AStar for searching for stuff */
@@ -56,7 +56,7 @@ public class Agent extends AbstractPlayer {
 		
 		// Add the actions to the option set
 		setOptionsForActions(act);
-		setOptions(so, this.possibleOptions, this.optionObsIDs);
+		//setOptions(so, this.possibleOptions, this.optionObsIDs);
 		
 		// Create actions for rollout
 		actions = new Types.ACTIONS[act.size()];
@@ -181,7 +181,8 @@ public class Agent extends AbstractPlayer {
 	public Types.ACTIONS act(StateObservation stateObs, ElapsedCpuTimer elapsedTimer) 
 	{
 		// Update options:
-		setOptions(stateObs, this.possibleOptions, this.optionObsIDs);
+		//setOptions(stateObs, this.possibleOptions, this.optionObsIDs);
+		System.out.println("Available options: " + this.possibleOptions);
 		if(currentOption == null || currentOption.isFinished(stateObs))
 		{
 			//Set the state observation object as the new root of the tree.
