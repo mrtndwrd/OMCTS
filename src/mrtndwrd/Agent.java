@@ -21,6 +21,7 @@ import java.util.Random;
 public class Agent extends AbstractPlayer {
 
 	public static int ROLLOUT_DEPTH = 15;
+	/** Constant C (also known as K) for exploration vs. exploitation */
 	public static double K = Math.sqrt(2);
 
 	/** AStar for searching for stuff */
