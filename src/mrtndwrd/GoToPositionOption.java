@@ -196,8 +196,9 @@ public class GoToPositionOption extends Option implements Serializable
 		for(ArrayList<Observation> o : observations)
 		{
 			// check if iType matches
-			if(o.get(0).itype == this.itype)
-				return o;
+			if(o.size() > 0)
+				if(o.get(0).itype == this.itype)
+					return o;
 		}
 		System.out.printf("Itype %d not found in type %s\n", this.itype, this.type);
 		return new ArrayList<Observation>();

@@ -40,7 +40,7 @@ public class Agent extends AbstractPlayer {
 	public ArrayList<Option> possibleOptions = new ArrayList<Option>();
 
 	/** A set containing which obsId's already have options in this agent */
-	protected HashSet<Integer> optionObsIDs = new HashSet<Integer>();
+	public HashSet<Integer> optionObsIDs = new HashSet<Integer>();
 
 	/** Currently followed option */
 	private Option currentOption;
@@ -57,7 +57,7 @@ public class Agent extends AbstractPlayer {
 		
 		// Add the actions to the option set
 		setOptionsForActions(act);
-		//setOptions(so, this.possibleOptions, this.optionObsIDs);
+		setOptions(so, this.possibleOptions, this.optionObsIDs);
 		
 		// Create actions for rollout
 		actions = new Types.ACTIONS[act.size()];
@@ -93,6 +93,8 @@ public class Agent extends AbstractPlayer {
 		if(so.getNPCPositions() != null)
 		{
 			//createOptions(so.getNPCPositions(), Lib.GETTER_TYPE.NPC, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
+
+			// We can use a weapon! Try to make kill-options
 			if(so.getAvailableActions().contains(Types.ACTIONS.ACTION_USE))
 				createOptions(so.getNPCPositions(), Lib.GETTER_TYPE.NPC_KILL, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
 		}
@@ -105,7 +107,6 @@ public class Agent extends AbstractPlayer {
 		//if(so.getPortalsPositions() != null)
 		//	createOptions(so.getPortalsPositions(), Lib.GETTER_TYPE.PORTAL, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
 
-		// We can use a weapon! Try to make kill-options
 
 		// Remove all "old" obsIDs from this.optionObsIDs. optionObsIDs will
 		// then only contain obsolete obsIDs
@@ -124,7 +125,8 @@ public class Agent extends AbstractPlayer {
 		}
 		// Now all options are up-to-date. this.optionObsIDs should be updated
 		// to represent the current options list:
-		optionObsIDs = newObsIDs;
+		optionObsIDs.clear();
+		optionObsIDs.addAll(newObsIDs);
 	}
 
 	/** Adds new obsIDs to newObsIDs and ID's that should be kept to
@@ -152,8 +154,10 @@ public class Agent extends AbstractPlayer {
 				// Check if this is a new obsID
 				if(! optionObsIDs.contains(observation.obsID))
 				{
-						possibleOptions.add(new UseSwordOnMovableOption(GAMMA, 
-							type, observation.itype, observation.obsID, so));
+					System.out.println("Adding option to optionObsIDs: " + optionObsIDs);
+					possibleOptions.add(new UseSwordOnMovableOption(GAMMA, 
+						type, observation.itype, observation.obsID, so));
+
 					// Create option for this obsID
 					//if(type == Lib.GETTER_TYPE.NPC || type == Lib.GETTER_TYPE.MOVABLE)
 					//	possibleOptions.add(new GoToMovableOption(GAMMA, 
@@ -182,7 +186,7 @@ public class Agent extends AbstractPlayer {
 	public Types.ACTIONS act(StateObservation stateObs, ElapsedCpuTimer elapsedTimer) 
 	{
 		// Update options:
-		//setOptions(stateObs, this.possibleOptions, this.optionObsIDs);
+		setOptions(stateObs, this.possibleOptions, this.optionObsIDs);
 		System.out.println("Available options: " + this.possibleOptions);
 		if(currentOption == null || currentOption.isFinished(stateObs))
 		{
