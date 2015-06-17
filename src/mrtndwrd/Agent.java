@@ -20,7 +20,7 @@ import java.util.Random;
  */
 public class Agent extends AbstractPlayer {
 
-	public static int ROLLOUT_DEPTH = 15;
+	public static int ROLLOUT_DEPTH = 20;
 	/** Constant C (also known as K) for exploration vs. exploitation */
 	public static double K = Math.sqrt(2);
 
@@ -60,7 +60,7 @@ public class Agent extends AbstractPlayer {
 		ArrayList<Types.ACTIONS> act = so.getAvailableActions();
 		
 		// Add the actions to the option set
-		//setOptionsForActions(act);
+		setOptionsForActions(act);
 		setOptions(so, this.possibleOptions, this.optionObsIDs);
 		
 		// Create actions for rollout
@@ -96,8 +96,7 @@ public class Agent extends AbstractPlayer {
 		// created.
 		if(so.getNPCPositions() != null)
 		{
-			//createOptions(so.getNPCPositions(), Lib.GETTER_TYPE.NPC, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
-
+			createOptions(so.getNPCPositions(), Lib.GETTER_TYPE.NPC, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
 			// We can use a weapon! Try to make kill-options
 			if(so.getAvailableActions().contains(Types.ACTIONS.ACTION_USE))
 				createOptions(so.getNPCPositions(), Lib.GETTER_TYPE.NPC_KILL, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);

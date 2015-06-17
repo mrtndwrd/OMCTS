@@ -164,7 +164,6 @@ public class GoToPositionOption extends Option implements Serializable
 			if(o.obsID == this.obsID)
 				return Agent.aStar.vectorToBlock(o.position);
 		}
-		System.out.printf("WARNING: obsID %d not found!\n", this.obsID);
 		// Probably this obs is already eliminated.
 		return null;
 	}
@@ -200,7 +199,6 @@ public class GoToPositionOption extends Option implements Serializable
 				if(o.get(0).itype == this.itype)
 					return o;
 		}
-		System.out.printf("Itype %d not found in type %s\n", this.itype, this.type);
 		return new ArrayList<Observation>();
 	}
 
