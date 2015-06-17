@@ -24,6 +24,10 @@ public class Agent extends AbstractPlayer {
 	/** Constant C (also known as K) for exploration vs. exploitation */
 	public static double K = Math.sqrt(2);
 
+	/** If this is true, an option is not by definition followed until the end
+	 * while exploiting */
+	public static final boolean OPTION_BREAKING = false;
+
 	/** AStar for searching for stuff */
 	public static AStar aStar;
 
@@ -56,7 +60,7 @@ public class Agent extends AbstractPlayer {
 		ArrayList<Types.ACTIONS> act = so.getAvailableActions();
 		
 		// Add the actions to the option set
-		setOptionsForActions(act);
+		//setOptionsForActions(act);
 		setOptions(so, this.possibleOptions, this.optionObsIDs);
 		
 		// Create actions for rollout
@@ -98,14 +102,14 @@ public class Agent extends AbstractPlayer {
 			if(so.getAvailableActions().contains(Types.ACTIONS.ACTION_USE))
 				createOptions(so.getNPCPositions(), Lib.GETTER_TYPE.NPC_KILL, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
 		}
-		//if(so.getMovablePositions() != null)
-		//	createOptions(so.getMovablePositions(), Lib.GETTER_TYPE.MOVABLE, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
-		//if(so.getImmovablePositions() != null)
-		//	createOptions(so.getImmovablePositions(), Lib.GETTER_TYPE.IMMOVABLE, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
-		//if(so.getResourcesPositions() != null)
-		//	createOptions(so.getResourcesPositions(), Lib.GETTER_TYPE.RESOURCE, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
-		//if(so.getPortalsPositions() != null)
-		//	createOptions(so.getPortalsPositions(), Lib.GETTER_TYPE.PORTAL, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
+		if(so.getMovablePositions() != null)
+			createOptions(so.getMovablePositions(), Lib.GETTER_TYPE.MOVABLE, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
+		if(so.getImmovablePositions() != null)
+			createOptions(so.getImmovablePositions(), Lib.GETTER_TYPE.IMMOVABLE, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
+		if(so.getResourcesPositions() != null)
+			createOptions(so.getResourcesPositions(), Lib.GETTER_TYPE.RESOURCE, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
+		if(so.getPortalsPositions() != null)
+			createOptions(so.getPortalsPositions(), Lib.GETTER_TYPE.PORTAL, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
 
 
 		// Remove all "old" obsIDs from this.optionObsIDs. optionObsIDs will
@@ -155,17 +159,17 @@ public class Agent extends AbstractPlayer {
 				if(! optionObsIDs.contains(observation.obsID))
 				{
 					System.out.println("Adding option to optionObsIDs: " + optionObsIDs);
-					possibleOptions.add(new UseSwordOnMovableOption(GAMMA, 
-						type, observation.itype, observation.obsID, so));
 
 					// Create option for this obsID
-					//if(type == Lib.GETTER_TYPE.NPC || type == Lib.GETTER_TYPE.MOVABLE)
-					//	possibleOptions.add(new GoToMovableOption(GAMMA, 
-					//		type, observation.itype, observation.obsID, so));
-					//else if (type == Lib.GETTER_TYPE.NPC_KILL)
-					//else
-					//	possibleOptions.add(new GoToPositionOption(GAMMA, 
-					//		type, observation.itype, observation.obsID, so));
+					if(type == Lib.GETTER_TYPE.NPC || type == Lib.GETTER_TYPE.MOVABLE)
+						possibleOptions.add(new GoToMovableOption(GAMMA, 
+							type, observation.itype, observation.obsID, so));
+					else if (type == Lib.GETTER_TYPE.NPC_KILL)
+						possibleOptions.add(new UseSwordOnMovableOption(GAMMA, 
+							type, observation.itype, observation.obsID, so));
+					else
+						possibleOptions.add(new GoToPositionOption(GAMMA, 
+							type, observation.itype, observation.obsID, so));
 				}
 				else
 					// Add to the list of options that should be kept
@@ -187,8 +191,9 @@ public class Agent extends AbstractPlayer {
 	{
 		// Update options:
 		setOptions(stateObs, this.possibleOptions, this.optionObsIDs);
-		System.out.println("Available options: " + this.possibleOptions);
-		if(currentOption == null || currentOption.isFinished(stateObs))
+		//System.out.println("Available options: " + this.possibleOptions);
+		// TODO: True here is a test case
+		if(true || currentOption == null || currentOption.isFinished(stateObs))
 		{
 			//Set the state observation object as the new root of the tree.
 			mctsPlayer.init(stateObs, this.possibleOptions, this.optionObsIDs);
@@ -201,7 +206,7 @@ public class Agent extends AbstractPlayer {
 			currentOption = this.possibleOptions.get(option).copy();
 		}
 		Types.ACTIONS action = currentOption.act(stateObs);
-		//System.out.println("Using option " + currentOption);
+		System.out.println("Using option " + currentOption);
 		// System.out.println("Orientation: " + stateObs.getAvatarOrientation());
 		// System.out.println("Location: " + stateObs.getAvatarPosition());
 		// System.out.println("Action: " + action);

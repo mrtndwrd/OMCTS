@@ -53,20 +53,23 @@ public class UseSwordOnMovableOption extends GoToMovableOption implements Serial
 			return Types.ACTIONS.ACTION_NIL;
 		}
 		SerializableTuple<Integer, Integer> avatarPosition = Agent.aStar.vectorToBlock(so.getAvatarPosition());
-		System.out.printf("Avatar position: %s, goal position: %s\n", avatarPosition, this.goal);
+		//System.out.printf("Avatar position: %s, goal position: %s\n", avatarPosition, this.goal);
 		// Check if you're next to the enemy
-		if(Agent.aStar.distance(avatarPosition, this.goal) < 3)
+		if(AStar.distance(avatarPosition, this.goal) < 3)
 		{
 			// Check if you're aimed at the enemy
 			if(so.getAvatarOrientation().equals(AStar.direction(avatarPosition, this.goal)))
 			{
 				// FIRE!
-				System.out.println("FIRE!!!!");
+				//System.out.println("FIRE!!!!");
 				return Types.ACTIONS.ACTION_USE;
 			}
-			// TODO: Prevent the agent from walking into the NPC here
-			// I think this should work as-is when using super.act()
-			// return turnToGoal(so);
+			// Else: Move away from the enemy
+			//else if(Agent.aStar.distance(avatarPosition, this.goal) == 1)
+			else
+			{
+				return AStar.moveAway(avatarPosition, this.goal);
+			}
 		}
 		// Too far away, just go to the enemy
 		return super.act(so);

@@ -16,7 +16,7 @@ public class SingleTreeNode
 	private static final double HUGE_POSITIVE =  10000000.0;
 
 	/** mctsSearch continues until there are only so many miliseconds left */
-	public static final int REMAINING_LIMIT = 5;
+	public static final int REMAINING_LIMIT = 3;
 
 	public static double epsilon = 1e-6;
 
@@ -36,6 +36,10 @@ public class SingleTreeNode
 
 	private HashSet<Integer> optionObsIDs;
 
+	/** The option that is chosen in this node. This option is followed until it
+	 * is finished, thereby representing a specific subtree in the whole */
+	private Option chosenOption;
+
 	public static Random random;
 	/** The depth in the rollout of this node (initialized as parent.node+1) */
 	public int nodeDepth;
@@ -45,18 +49,30 @@ public class SingleTreeNode
 	/** Root node constructor */
 	public SingleTreeNode(ArrayList<Option> possibleOptions, HashSet<Integer> optionObsIDs, Random rnd) 
 	{
-		this(null, null, possibleOptions, optionObsIDs, rnd);
+		this(null, null, null, possibleOptions, optionObsIDs, rnd);
 	}
 
 	/** normal constructor */
-	public SingleTreeNode(StateObservation state, SingleTreeNode parent, ArrayList<Option> possibleOptions, HashSet<Integer> optionObsIDs, Random rnd)
+	public SingleTreeNode(StateObservation state, SingleTreeNode parent, Option chosenOption, ArrayList<Option> possibleOptions, HashSet<Integer> optionObsIDs, Random rnd)
 	{
 		this.state = state;
 		this.parent = parent;
 		this.random = rnd;
 		this.possibleOptions = possibleOptions;
 		this.optionObsIDs = optionObsIDs;
-		children = new SingleTreeNode[possibleOptions.size()];
+		// Create the possibility of chosing new options
+		if(chosenOption == null || chosenOption.isFinished(state) || Agent.OPTION_BREAKING)
+		{
+			children = new SingleTreeNode[possibleOptions.size()];
+			this.chosenOption = null;
+		}
+		// The only child is the continuation of this option.
+		else
+		{
+			children = new SingleTreeNode[1];
+			this.chosenOption = chosenOption;
+		}
+
 		totValue = 0.0;
 		if(parent != null)
 			nodeDepth = parent.nodeDepth+1;
@@ -106,6 +122,8 @@ public class SingleTreeNode
 
 		while (!cur.state.isGameOver() && cur.nodeDepth < Agent.ROLLOUT_DEPTH)
 		{
+			// TODO: This always fully expands, we don't necessarily want
+			// that...
 			if (cur.notFullyExpanded()) 
 			{
 				return cur.expand();
@@ -124,33 +142,46 @@ public class SingleTreeNode
 
 	public SingleTreeNode expand() 
 	{
+		Option nextOption;
 		int bestOption = 0;
-		double bestValue = -1;
-
-		// Select random option with index that isn't taken yet.
-		for (int i = 0; i < children.length; i++) 
+		// If there's no chosenOption, we'll have to choose a new one
+		if(this.chosenOption == null)
 		{
-			double x = random.nextDouble();
-			if (x > bestValue && children[i] == null) 
+			double bestValue = -1;
+
+			// Select random option with index that isn't taken yet.
+			for (int i = 0; i < children.length; i++) 
 			{
-				bestOption = i;
-				bestValue = x;
+				double x = random.nextDouble();
+				if (x > bestValue && children[i] == null) 
+				{
+					bestOption = i;
+					bestValue = x;
+				}
 			}
+			nextOption = this.possibleOptions.get(bestOption).copy();
+		}
+		// Else, this node will just expand the chosenOption into child 0 (its
+		// only child) until it's done! 
+		else
+		{
+			bestOption = 0;
+			nextOption = chosenOption.copy();
 		}
 
 		StateObservation nextState = state.copy();
-
-		// Step 1: run this option untill it's finished
-		runOption(nextState, this.possibleOptions.get(bestOption).copy());
+		// Step 1: Follow the option:
+		nextState.advance(nextOption.act(nextState));
 		// Step 2: get the new option set
 		ArrayList<Option> newOptions = (ArrayList<Option>) this.possibleOptions.clone();
 		HashSet<Integer> newOptionObsIDs = (HashSet<Integer>) this.optionObsIDs.clone();
 		Agent.setOptions(nextState, newOptions, newOptionObsIDs);
 		// Step 3: create a child node
-		SingleTreeNode tn = new SingleTreeNode(nextState, this, newOptions, newOptionObsIDs, this.random);
+		SingleTreeNode tn = new SingleTreeNode(nextState, this, nextOption, newOptions, newOptionObsIDs, this.random);
 		children[bestOption] = tn;
 		return tn;
 	}
+
 
 	private void runOption(StateObservation nextState, Option option)
 	{
@@ -162,6 +193,11 @@ public class SingleTreeNode
 
 	public SingleTreeNode uct() 
 	{
+		// For speeding up the situration where an option is being followed, and
+		// just 1 child exists
+		if(this.children.length == 1)
+			return this.children[0];
+
 		SingleTreeNode selected = null;
 		double bestValue = -Double.MAX_VALUE;
 		for (SingleTreeNode child : this.children)
@@ -193,38 +229,6 @@ public class SingleTreeNode
 		return selected;
 	}
 
-	/** Not used, not edited to work with options: */
-	// public SingleTreeNode egreedy() 
-	// {
-	// 	SingleTreeNode selected = null;
-	// 	if(random.nextDouble() < egreedyEpsilon)
-	// 	{
-	// 		//Choose randomly
-	// 		int selectedIdx = random.nextInt(children.length);
-	// 		selected = this.children[selectedIdx];
-
-	// 	}else{
-	// 		//pick the best Q.
-	// 		double bestValue = -Double.MAX_VALUE;
-	// 		for (SingleTreeNode child : this.children)
-	// 		{
-	// 			double hvVal = child.totValue;
-	// 			hvVal = Utils.noise(hvVal, this.epsilon, this.random.nextDouble());	 //break ties randomly
-	// 			// small sampleRandom numbers: break ties in unexpanded nodes
-	// 			if (hvVal > bestValue) {
-	// 				selected = child;
-	// 				bestValue = hvVal;
-	// 			}
-	// 		}
-	// 	}
-	// 	if (selected == null)
-	// 	{
-	// 		throw new RuntimeException("Warning! returning null: " + this.children.length);
-	// 	}
-	// 	return selected;
-	// }
-
-
 	/** Perform a rollout with random actions on the current node of maximally
 	 * Agent.ROLLOUT_DEPTH. 
 	 * @return Delta is the "simpleValue" of the last state the rollOut
@@ -237,9 +241,13 @@ public class SingleTreeNode
 
 		while (!finishRollout(rollerState,thisDepth)) 
 		{
-			// TODO: Random action selection, or option selection (try both)
-			int action = random.nextInt(Agent.actions.length);
-			rollerState.advance(Agent.actions[action]);
+			Types.ACTIONS action;
+			// First, follow this node's option, then follow a random policy
+			if(chosenOption != null && !chosenOption.isFinished(rollerState))
+				action = chosenOption.act(rollerState);
+			else
+				action = Agent.actions[random.nextInt(Agent.actions.length)];
+			rollerState.advance(action);
 			thisDepth++;
 		}
 

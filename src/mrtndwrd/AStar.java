@@ -203,7 +203,7 @@ public class AStar
 		return distance(node, goal);
 	}
 
-	public double distance(Tuple<Integer, Integer> node, 
+	public static double distance(Tuple<Integer, Integer> node, 
 		Tuple<Integer, Integer> goal)
 	{
 		// sqrt(x^2 + y^2)
@@ -309,6 +309,31 @@ public class AStar
 		else
 			i = 0;
 		return new Vector2d(j, i);
+	}
+
+	/** Returns the action that moves away from the goal. Opposite of
+	 * "neededAction" */
+	public static Types.ACTIONS moveAway(SerializableTuple<Integer, Integer> location,
+			SerializableTuple<Integer, Integer> goal)
+	{
+		if(location.x < goal.x)
+		{
+			return Types.ACTIONS.ACTION_LEFT;
+		}
+		else if(location.x > goal.x)
+		{
+			return Types.ACTIONS.ACTION_RIGHT;
+		}
+		else if(location.y < goal.y)
+		{
+			return Types.ACTIONS.ACTION_UP;
+		}
+		else if(location.y > goal.y)
+		{
+			return Types.ACTIONS.ACTION_DOWN;
+		}
+		System.out.println("Probably same location, returning action nil");
+		return Types.ACTIONS.ACTION_NIL;
 	}
 
 	/** Print all the walls! */
