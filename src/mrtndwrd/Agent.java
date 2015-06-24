@@ -209,6 +209,7 @@ public class Agent extends AbstractPlayer {
 		// System.out.println("Orientation: " + stateObs.getAvatarOrientation());
 		// System.out.println("Location: " + stateObs.getAvatarPosition());
 		// System.out.println("Action: " + action);
+		System.out.println("Astar:\n" + aStar);
 		return action;
 	}
 

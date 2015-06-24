@@ -170,8 +170,9 @@ public class SingleTreeNode
 		}
 
 		StateObservation nextState = state.copy();
+		Types.ACTIONS action = nextOption.act(nextState);
 		// Step 1: Follow the option:
-		nextState.advance(nextOption.act(nextState));
+		nextState.advance(action);
 		// Step 2: get the new option set
 		ArrayList<Option> newOptions = (ArrayList<Option>) this.possibleOptions.clone();
 		HashSet<Integer> newOptionObsIDs = (HashSet<Integer>) this.optionObsIDs.clone();
@@ -179,6 +180,8 @@ public class SingleTreeNode
 		// Step 3: create a child node
 		SingleTreeNode tn = new SingleTreeNode(nextState, this, nextOption, newOptions, newOptionObsIDs, this.random);
 		children[bestOption] = tn;
+		// Step 4: Check if the walls are still up to date
+		AStar.checkForWalls(state, action, nextState);
 		return tn;
 	}
 

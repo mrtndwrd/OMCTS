@@ -120,7 +120,7 @@ public class GoToPositionOption extends Option implements Serializable
 		{
 			// No path available, we're done.
 			setFinished();
-			System.out.println("No path available, returning NIL");
+			System.out.printf("No path available to go to %s in %s, returning NIL\n", this.goal, Agent.aStar);
 			return Types.ACTIONS.ACTION_NIL;
 		}
 		// Return the action that is needed to get to the next path index.

@@ -17,16 +17,23 @@ import java.util.Comparator;
 public class AStar
 {
 	/** The size of (movement) blocks in the current game */
-	private int blockSize;
+	private static int blockSize;
 
-	/** The set of walls extracted from the first state observation */
-	private Set<Tuple<Integer, Integer>> walls;
+	/** The set of walls updated by setWalls. This set is static so that no
+	 * observation is directly needed to use AStar*/
+	private static Set<Tuple<Integer, Integer>> walls;
 
 	/** Max x coordinate (min is assumed to be 0) */
 	public int maxX;
 
 	/** Max y coordinate (min is assumed to be 0) */
 	public int maxY;
+
+	/** Dynamic set of observation iTypes that are identified as inpenetrable */
+	public static HashSet<Integer> wallITypes;
+
+	/** Dynamic set of observation iTypes that are identified as inpenetrable */
+	public static HashSet<Integer> passableITypes;
 
 	private Tuple<Integer, Integer> goal;
 
@@ -53,39 +60,21 @@ public class AStar
 		openSet = new PriorityQueue<Tuple<Integer, Integer>>(10, new TupleComparator());
 		closedSet = new HashSet<Tuple<Integer, Integer>>();
 		cameFrom = new HashMap<Tuple<Integer, Integer>, Tuple<Integer, Integer>>();
-
-		ArrayList<Observation> observationGrid[][] = so.getObservationGrid();
-		Vector2d position;
+		this.wallITypes = new HashSet<Integer>();
+		this.passableITypes = new HashSet<Integer>();
+		// this.wallITypes.add(0);
 		// Extract walls from observationGrid
-		for (int i = 0; i < observationGrid.length; i++)
-		{
-			for (int j = 0; j<observationGrid[i].length; j++)
-			{
-				for (Observation obs : observationGrid[i][j])
-				{
-					// This is assumed to be a wall
-					if(obs.itype == 0)
-					{
-						// This means that x is the horizontal coordinate from the
-						// left up corner, and y is the vertical coordinate
-						// from the left upper corner
-						//walls.add(new Tuple<Integer, Integer>((int) obs.position.x/blockSize, (int) obs.position.y/blockSize));
-						walls.add(vectorToBlock(obs.position));
-					}
-				}
-			}
-		}
+		setWalls(so.getObservationGrid());
 		// X being vertical coordinates, is the inner array
-		maxX = observationGrid.length-1;
+		maxX = so.getObservationGrid().length-1;
 		// Y, the horizontal coordinates, is the outer array
-		maxY = observationGrid[0].length-1;
-		//System.out.println(this);
+		maxY = so.getObservationGrid()[0].length-1;
 	}
 
 	/** Creates a tuple of integers representing block coordinates from a
 	 * vector2d representing field coordinates 
 	 */
-	public SerializableTuple<Integer, Integer> vectorToBlock(Vector2d vector)
+	public static SerializableTuple<Integer, Integer> vectorToBlock(Vector2d vector)
 	{
 		return new SerializableTuple<Integer, Integer>((int) vector.x/blockSize, (int)vector.y/blockSize);
 	}
@@ -106,9 +95,9 @@ public class AStar
 		fScore.clear();
 		cameFrom.clear();
 		//System.out.println("Starting a* from " + start + " to " + goal);
-		// We can't go to walls!
-		if(walls.contains(goal))
-			return new ArrayList<SerializableTuple<Integer, Integer>>();
+		// We can't go to walls! (BUT WE CAN TRY!)
+		//if(walls.contains(goal))
+		//	return new ArrayList<SerializableTuple<Integer, Integer>>();
 		this.goal = goal;
 		openSet.add(start);
 		gScore.put(start, 0.);
@@ -252,44 +241,21 @@ public class AStar
 		return Types.ACTIONS.ACTION_NIL;
 	}
 
-	/** Returns the direction of the observation position obPosition, relative
-	 * to the avatarPosition as a string from {up, upright, right, downright,
-	 * down, downleft, left, upleft, same}
-	 */
-	public String getDirection(Vector2d obPosition, Vector2d avatarPosition)
+	public static SerializableTuple<Integer, Integer> applyAction(SerializableTuple<Integer, Integer> location,
+			Types.ACTIONS action)
 	{
-		// Same x, either up or down
-		if(obPosition.x == avatarPosition.x)
-		{
-			if(obPosition.y < avatarPosition.y)
-				return "up";
-			else if(obPosition.y > avatarPosition.y)
-				return "down";
-		}
-		// Same y, either straight right or left
-		else if(obPosition.y == avatarPosition.y)
-		{
-			if(obPosition.x > avatarPosition.x)
-				return "right";
-			else if(obPosition.x < avatarPosition.x)
-				return "left";
-		}
-		// Different x and y, one of the combinations:
-		else
-		{
-			if(obPosition.x > avatarPosition.x && obPosition.y < avatarPosition.y)
-				return "upright";
-			else if(obPosition.x > avatarPosition.x && obPosition.y > avatarPosition.y)
-				return "downright";
-			else if(obPosition.x < avatarPosition.x && obPosition.y < avatarPosition.y)
-				return "upleft";
-			else if(obPosition.x < avatarPosition.x && obPosition.y > avatarPosition.y)
-				return "downleft";
-		}
-		// x == y
-		return "same";
+		SerializableTuple<Integer, Integer> endLocation = new SerializableTuple<Integer, Integer>(location);
+		if(action == Types.ACTIONS.ACTION_LEFT)
+			endLocation.x -= 1;
+		else if(action == Types.ACTIONS.ACTION_RIGHT)
+			endLocation.x += 1;
+		else if(action == Types.ACTIONS.ACTION_UP)
+			endLocation.y -= 1;
+		else if(action == Types.ACTIONS.ACTION_DOWN)
+			endLocation.y += 1;
+		return endLocation;
 	}
-	
+
 	/** Get orientation: up = (0, -1), down = (0, 1), left = (-1, 0), 
 	 * right = (1, 0) */
 	public static Vector2d direction(SerializableTuple<Integer, Integer> from, 
@@ -334,6 +300,81 @@ public class AStar
 		}
 		System.out.println("Probably same location, returning action nil");
 		return Types.ACTIONS.ACTION_NIL;
+	}
+
+	/** sets the argument walls to the inpenetrable sprites in observationGrid
+	 */
+	public static void setWalls(ArrayList<Observation>[][] observationGrid)
+	{
+		walls.clear();
+		for (int i = 0; i < observationGrid.length; i++)
+		{
+			for (int j = 0; j<observationGrid[i].length; j++)
+			{
+				for (Observation obs : observationGrid[i][j])
+				{
+					// This is assumed to be a wall
+					if(AStar.wallITypes.contains(obs.itype))
+					{
+						// This means that x is the horizontal coordinate from the
+						// left up corner, and y is the vertical coordinate
+						// from the left upper corner
+						walls.add(vectorToBlock(obs.position));
+					}
+				}
+			}
+		}
+	}
+
+	public static void checkForWalls(StateObservation state, Types.ACTIONS action, StateObservation nextState)
+	{
+		SerializableTuple<Integer, Integer> startLocation = vectorToBlock(state.getAvatarPosition());
+		Vector2d startOrientation = state.getAvatarOrientation();
+		Vector2d endOrientation = state.getAvatarOrientation();
+		SerializableTuple<Integer, Integer> endLocation = vectorToBlock(state.getAvatarPosition());
+		ArrayList<Observation> observations;
+
+		System.out.println("Start location: " + startLocation);
+		System.out.println("Action: " + action);
+		System.out.println("End location: " + endLocation);
+
+		// If orientation changed, we assume that no movement was made
+		if(startOrientation.equals(endOrientation))
+		{
+			// if location didn't change, there was probably something in the
+			// way
+			if(startLocation.equals(endLocation) 
+					&& !action.equals(Types.ACTIONS.ACTION_NIL)
+					&& !action.equals(Types.ACTIONS.ACTION_USE))
+			{
+				//System.out.println("Wall detected");
+				// Get the expected endLocation when applying action
+				endLocation = applyAction(startLocation, action);
+				// Get the sprite itypes on the endLocation:
+				observations = nextState.getObservationGrid()
+					[endLocation.x][endLocation.y];
+				for(Observation obs : observations)
+				{
+					System.out.printf("Adding %d to wall iTypes\n", obs.itype);
+					// Add the iType of obs to the list of wall-observations, if
+					// we don't think it's passable
+					if(!passableITypes.contains(obs.itype))
+						wallITypes.add(obs.itype);
+				}
+			}
+		}
+		// Finally, we're pretty sure that we are now on a not-wall sprite, so
+		// if anythin would have caused us thinking that the sprite we are now
+		// on is a wall-sprite, remove it from the wallITypes:
+		observations = nextState.getObservationGrid()[startLocation.x][startLocation.y];
+		for(Observation obs : observations)
+		{
+			wallITypes.remove(obs.itype);
+			passableITypes.add(obs.itype);
+		}
+		//System.out.println("WallITypes updated to:" + wallITypes);
+		// Update walls representation
+		setWalls(nextState.getObservationGrid());
 	}
 
 	/** Print all the walls! */
