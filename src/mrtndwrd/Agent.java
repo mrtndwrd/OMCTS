@@ -157,8 +157,6 @@ public class Agent extends AbstractPlayer {
 				// Check if this is a new obsID
 				if(! optionObsIDs.contains(observation.obsID))
 				{
-					System.out.println("Adding option to optionObsIDs: " + optionObsIDs);
-
 					// Create option for this obsID
 					if(type == Lib.GETTER_TYPE.NPC || type == Lib.GETTER_TYPE.MOVABLE)
 						possibleOptions.add(new GoToMovableOption(GAMMA, 
@@ -188,6 +186,7 @@ public class Agent extends AbstractPlayer {
 	 */
 	public Types.ACTIONS act(StateObservation stateObs, ElapsedCpuTimer elapsedTimer) 
 	{
+		AStar.lastObservationGrid = stateObs.getObservationGrid();
 		// Update options:
 		setOptions(stateObs, this.possibleOptions, this.optionObsIDs);
 		//System.out.println("Available options: " + this.possibleOptions);

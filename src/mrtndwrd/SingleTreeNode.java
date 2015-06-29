@@ -16,7 +16,7 @@ public class SingleTreeNode
 	private static final double HUGE_POSITIVE =  10000000.0;
 
 	/** mctsSearch continues until there are only so many miliseconds left */
-	public static final int REMAINING_LIMIT = 3;
+	public static final int REMAINING_LIMIT = 10;
 
 	public static double epsilon = 1e-6;
 
@@ -180,7 +180,8 @@ public class SingleTreeNode
 		// Step 3: create a child node
 		SingleTreeNode tn = new SingleTreeNode(nextState, this, nextOption, newOptions, newOptionObsIDs, this.random);
 		children[bestOption] = tn;
-		// Step 4: Check if the walls are still up to date
+		// Step 4: Set the observation grid to the new grid:
+		AStar.lastObservationGrid = nextState.getObservationGrid();
 		AStar.checkForWalls(state, action, nextState);
 		return tn;
 	}

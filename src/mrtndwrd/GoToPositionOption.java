@@ -249,15 +249,14 @@ public class GoToPositionOption extends Option implements Serializable
 		}
 	}
 
+	@Override
 	public String toString()
 	{
-		//if(this.type != null)
-			return String.format("GoToPositionOption(%s,%d,%d), goal at %s", 
-					type, itype, obsID, goal);
-		//else
-		//	return "GoToPositionOption(" + this.goal + ")";
+		return String.format("GoToPositionOption(%s,%d,%d), goal at %s", 
+				type, itype, obsID, goal);
 	}
 
+	@Override
 	public int hashCode()
 	{
 		//System.out.println(this);
@@ -269,6 +268,7 @@ public class GoToPositionOption extends Option implements Serializable
 		return super.getSubtype() + this.itype;
 	}
 
+	@Override
 	public boolean equals(Object o)
 	{
 		if(o instanceof GoToPositionOption)

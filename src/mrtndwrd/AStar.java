@@ -30,10 +30,7 @@ public class AStar
 	public int maxY;
 
 	/** Dynamic set of observation iTypes that are identified as inpenetrable */
-	public static HashSet<Integer> wallITypes;
-
-	/** Dynamic set of observation iTypes that are identified as inpenetrable */
-	public static HashSet<Integer> passableITypes;
+	public static DefaultHashMap<Integer, Integer> wallITypeScore;
 
 	private Tuple<Integer, Integer> goal;
 
@@ -50,21 +47,22 @@ public class AStar
 	/** Set of nodes that has been checked */
 	HashSet<Tuple<Integer, Integer>> closedSet;
 
+	public static ArrayList<Observation>[][] lastObservationGrid;
+
 	/** Initialize the grid. Assumes 0's in the observationGrid are walls */
 	public AStar(StateObservation so)
 	{
 		blockSize = so.getBlockSize();
 
 		walls = new HashSet<Tuple<Integer, Integer>>();
+		lastObservationGrid = so.getObservationGrid();
 
 		openSet = new PriorityQueue<Tuple<Integer, Integer>>(10, new TupleComparator());
 		closedSet = new HashSet<Tuple<Integer, Integer>>();
 		cameFrom = new HashMap<Tuple<Integer, Integer>, Tuple<Integer, Integer>>();
-		this.wallITypes = new HashSet<Integer>();
-		this.passableITypes = new HashSet<Integer>();
-		// this.wallITypes.add(0);
+		this.wallITypeScore = new DefaultHashMap<Integer, Integer>(0);
 		// Extract walls from observationGrid
-		setWalls(so.getObservationGrid());
+		// setWalls(so.getObservationGrid());
 		// X being vertical coordinates, is the inner array
 		maxX = so.getObservationGrid().length-1;
 		// Y, the horizontal coordinates, is the outer array
@@ -117,8 +115,10 @@ public class AStar
 			{
 				if(closedSet.contains(neighbour))
 					continue;
+				// Add the newly applied distance and the wallScore to this
+				// path's gScore
 				double tentativeGScore = currentGScore
-					+ distance(current, neighbour);
+					+ distance(current, neighbour) + wallScore(neighbour);
 				if(!openSet.contains(neighbour) || tentativeGScore < currentGScore)
 				{
 					cameFrom.put(neighbour, current);
@@ -144,6 +144,7 @@ public class AStar
 			current = cameFrom.get(current);
 		}
 		while (current != null);
+		//System.out.println("Path found: " + path);
 		return path;
 	}
 
@@ -189,7 +190,28 @@ public class AStar
 
 	private double heuristic(Tuple<Integer, Integer> node)
 	{
+		// Get the distance from the node to the goal
+		double distance = distance(node, goal);
+		// Now add a number for the sprites on the node. This will bias the
+		// algorithm against trying to go through walls
+		distance += (double) wallScore(node);
+		// System.out.println("Returning heuristic " + distance + " for node " + node + " to goal " + goal);
 		return distance(node, goal);
+	}
+
+	private int wallScore(Tuple<Integer, Integer> node)
+	{
+		return wallScore(node.x, node.y);
+	}
+
+	private int wallScore(int x, int y)
+	{
+		int score = 0;
+		for(Observation obs : lastObservationGrid[x][y])
+		{
+			score += wallITypeScore.get(obs.itype);
+		}
+		return score;
 	}
 
 	public static double distance(Tuple<Integer, Integer> node, 
@@ -304,27 +326,27 @@ public class AStar
 
 	/** sets the argument walls to the inpenetrable sprites in observationGrid
 	 */
-	public static void setWalls(ArrayList<Observation>[][] observationGrid)
-	{
-		walls.clear();
-		for (int i = 0; i < observationGrid.length; i++)
-		{
-			for (int j = 0; j<observationGrid[i].length; j++)
-			{
-				for (Observation obs : observationGrid[i][j])
-				{
-					// This is assumed to be a wall
-					if(AStar.wallITypes.contains(obs.itype))
-					{
-						// This means that x is the horizontal coordinate from the
-						// left up corner, and y is the vertical coordinate
-						// from the left upper corner
-						walls.add(vectorToBlock(obs.position));
-					}
-				}
-			}
-		}
-	}
+	// public static void setWalls(ArrayList<Observation>[][] observationGrid)
+	// {
+	// 	walls.clear();
+	// 	for (int i = 0; i < observationGrid.length; i++)
+	// 	{
+	// 		for (int j = 0; j<observationGrid[i].length; j++)
+	// 		{
+	// 			for (Observation obs : observationGrid[i][j])
+	// 			{
+	// 				// This is assumed to be a wall
+	// 				if(AStar.wallITypes.contains(obs.itype))
+	// 				{
+	// 					// This means that x is the horizontal coordinate from the
+	// 					// left up corner, and y is the vertical coordinate
+	// 					// from the left upper corner
+	// 					walls.add(vectorToBlock(obs.position));
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// }
 
 	public static void checkForWalls(StateObservation state, Types.ACTIONS action, StateObservation nextState)
 	{
@@ -333,10 +355,6 @@ public class AStar
 		Vector2d endOrientation = state.getAvatarOrientation();
 		SerializableTuple<Integer, Integer> endLocation = vectorToBlock(state.getAvatarPosition());
 		ArrayList<Observation> observations;
-
-		System.out.println("Start location: " + startLocation);
-		System.out.println("Action: " + action);
-		System.out.println("End location: " + endLocation);
 
 		// If orientation changed, we assume that no movement was made
 		if(startOrientation.equals(endOrientation))
@@ -347,7 +365,7 @@ public class AStar
 					&& !action.equals(Types.ACTIONS.ACTION_NIL)
 					&& !action.equals(Types.ACTIONS.ACTION_USE))
 			{
-				//System.out.println("Wall detected");
+				System.out.println("Start: " + startLocation + "End: " + endLocation + " Speed: " + state.getAvatarSpeed() + " Wall detected");
 				// Get the expected endLocation when applying action
 				endLocation = applyAction(startLocation, action);
 				// Get the sprite itypes on the endLocation:
@@ -355,26 +373,23 @@ public class AStar
 					[endLocation.x][endLocation.y];
 				for(Observation obs : observations)
 				{
-					System.out.printf("Adding %d to wall iTypes\n", obs.itype);
-					// Add the iType of obs to the list of wall-observations, if
-					// we don't think it's passable
-					if(!passableITypes.contains(obs.itype))
-						wallITypes.add(obs.itype);
+					// System.out.printf("Adding %d to wall iTypes\n", obs.itype);
+					// Increase the wall-score of this iType
+					wallITypeScore.put(obs.itype, wallITypeScore.get(obs.itype) + 1);
 				}
+			}
+			else
+			{
+				System.out.println("Start: " + startLocation + "End: " + endLocation + " Speed: " + state.getAvatarSpeed() + " NO Wall detected");
 			}
 		}
 		// Finally, we're pretty sure that we are now on a not-wall sprite, so
-		// if anythin would have caused us thinking that the sprite we are now
-		// on is a wall-sprite, remove it from the wallITypes:
+		// decrease the wall-score for this sprite:
 		observations = nextState.getObservationGrid()[startLocation.x][startLocation.y];
 		for(Observation obs : observations)
 		{
-			wallITypes.remove(obs.itype);
-			passableITypes.add(obs.itype);
+			wallITypeScore.put(obs.itype, Math.max(0, wallITypeScore.get(obs.itype) - 1));
 		}
-		//System.out.println("WallITypes updated to:" + wallITypes);
-		// Update walls representation
-		setWalls(nextState.getObservationGrid());
 	}
 
 	/** Print all the walls! */
@@ -387,13 +402,11 @@ public class AStar
 			// Now loop through x (horizontal)
 			for (int x=0; x<=maxX; x++)
 			{
-				if(walls.contains(new Tuple<Integer, Integer>(x, y)))
-					s += "W";
-				else
-					s += " ";
+				s += String.format("%5d ", wallScore(x, y));
 			}
 			s += "\n";
 		}
+		s += wallITypeScore.toString();
 		return s;
 	}
 }
