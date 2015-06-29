@@ -55,6 +55,7 @@ public class SingleTreeNode
 	/** normal constructor */
 	public SingleTreeNode(StateObservation state, SingleTreeNode parent, Option chosenOption, ArrayList<Option> possibleOptions, HashSet<Integer> optionObsIDs, Random rnd)
 	{
+		System.out.println("New node");
 		this.state = state;
 		this.parent = parent;
 		this.random = rnd;

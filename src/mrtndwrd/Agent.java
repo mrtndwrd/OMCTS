@@ -20,7 +20,7 @@ import java.util.Random;
  */
 public class Agent extends AbstractPlayer {
 
-	public static int ROLLOUT_DEPTH = 20;
+	public static int ROLLOUT_DEPTH = 5;
 	/** Constant C (also known as K) for exploration vs. exploitation */
 	public static double K = Math.sqrt(2);
 
@@ -204,11 +204,12 @@ public class Agent extends AbstractPlayer {
 			currentOption = this.possibleOptions.get(option).copy();
 		}
 		Types.ACTIONS action = currentOption.act(stateObs);
-		System.out.println("Using option " + currentOption);
+		System.out.println();
+		//System.out.println("Using option " + currentOption);
 		// System.out.println("Orientation: " + stateObs.getAvatarOrientation());
 		// System.out.println("Location: " + stateObs.getAvatarPosition());
 		// System.out.println("Action: " + action);
-		System.out.println("Astar:\n" + aStar);
+		//System.out.println("Astar:\n" + aStar);
 		return action;
 	}
 

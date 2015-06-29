@@ -352,9 +352,10 @@ public class AStar
 	{
 		SerializableTuple<Integer, Integer> startLocation = vectorToBlock(state.getAvatarPosition());
 		Vector2d startOrientation = state.getAvatarOrientation();
-		Vector2d endOrientation = state.getAvatarOrientation();
-		SerializableTuple<Integer, Integer> endLocation = vectorToBlock(state.getAvatarPosition());
+		SerializableTuple<Integer, Integer> endLocation = vectorToBlock(nextState.getAvatarPosition());
+		Vector2d endOrientation = nextState.getAvatarOrientation();
 		ArrayList<Observation> observations;
+		SerializableTuple<Integer, Integer> expectedEndLocation = applyAction(startLocation, action);
 
 		// If orientation changed, we assume that no movement was made
 		if(startOrientation.equals(endOrientation))
@@ -365,12 +366,11 @@ public class AStar
 					&& !action.equals(Types.ACTIONS.ACTION_NIL)
 					&& !action.equals(Types.ACTIONS.ACTION_USE))
 			{
-				System.out.println("Start: " + startLocation + "End: " + endLocation + " Speed: " + state.getAvatarSpeed() + " Wall detected");
+				//System.out.println("Start: " + startLocation + "End: " + endLocation + " Speed: " + state.getAvatarSpeed() + " Wall detected");
 				// Get the expected endLocation when applying action
-				endLocation = applyAction(startLocation, action);
 				// Get the sprite itypes on the endLocation:
 				observations = nextState.getObservationGrid()
-					[endLocation.x][endLocation.y];
+					[expectedEndLocation.x][expectedEndLocation.y];
 				for(Observation obs : observations)
 				{
 					// System.out.printf("Adding %d to wall iTypes\n", obs.itype);
@@ -378,18 +378,25 @@ public class AStar
 					wallITypeScore.put(obs.itype, wallITypeScore.get(obs.itype) + 1);
 				}
 			}
-			else
-			{
-				System.out.println("Start: " + startLocation + "End: " + endLocation + " Speed: " + state.getAvatarSpeed() + " NO Wall detected");
-			}
+			//else
+			//{
+			//	// We know that there's a sprite that's penetrable in the
+			//	// endLocation, In for example the boulderdash game, this is an
+			//	// important addition, since the mud disappears when we go and
+			//	// stand on it
+			//	observations = state.getObservationGrid()
+			//		[expectedEndLocation.x][expectedEndLocation.y];
+			//	System.out.println("Start: " + startLocation + "End: " + endLocation + " Speed: " + state.getAvatarSpeed() + " NO Wall detected");
+			//	for(Observation obs : observations)
+			//	{
+			//		wallITypeScore.put(obs.itype, 
+			//				Math.max(0, wallITypeScore.get(obs.itype) - 1));
+			//	}
+			//}
 		}
 		// Finally, we're pretty sure that we are now on a not-wall sprite, so
 		// decrease the wall-score for this sprite:
-		observations = nextState.getObservationGrid()[startLocation.x][startLocation.y];
-		for(Observation obs : observations)
-		{
-			wallITypeScore.put(obs.itype, Math.max(0, wallITypeScore.get(obs.itype) - 1));
-		}
+		// observations = nextState.getObservationGrid()[startLocation.x][startLocation.y];
 	}
 
 	/** Print all the walls! */
@@ -406,7 +413,6 @@ public class AStar
 			}
 			s += "\n";
 		}
-		s += wallITypeScore.toString();
 		return s;
 	}
 }

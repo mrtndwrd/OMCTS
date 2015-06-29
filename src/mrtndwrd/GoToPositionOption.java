@@ -109,7 +109,8 @@ public class GoToPositionOption extends Option implements Serializable
 		}
 
 		int index = currentPath.indexOf(avatarPosition);
-		if(index < 0)
+		// Some times: recalculate in case the world has changed.
+		if(so.getGameTick() % 15 == 0 || index < 0)
 		{
 			// Plan a new path
 			this.currentPath = Agent.aStar.aStar(avatarPosition, goal);
