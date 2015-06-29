@@ -72,7 +72,7 @@ public class GoToPositionOption extends Option implements Serializable
 		this.itype = itype;
 		this.obsID = obsID;
 		if(goal == null)
-			System.err.println("WARNING! Setting goal to NULL in constructor!");
+			System.out.println("WARNING! Setting goal to NULL in constructor!");
 		this.goal = goal;
 		this.goalIsSprite = true;
 	}
@@ -104,12 +104,12 @@ public class GoToPositionOption extends Option implements Serializable
 		// Do nothing if we're already done
 		if(this.finished)
 		{
-			System.out.println("Finished, returning NIL");
 			return Types.ACTIONS.ACTION_NIL;
 		}
 
 		int index = currentPath.indexOf(avatarPosition);
-		// Some times: recalculate in case the world has changed.
+
+		// Sometimes: recalculate in case the world has changed.
 		if(so.getGameTick() % 15 == 0 || index < 0)
 		{
 			// Plan a new path
@@ -117,6 +117,7 @@ public class GoToPositionOption extends Option implements Serializable
 			// current location is at the end of the path
 			index = currentPath.size()-1;
 		}
+
 		if(currentPath.size() == 0 || index < 0)
 		{
 			// No path available, we're done.
@@ -124,8 +125,9 @@ public class GoToPositionOption extends Option implements Serializable
 			System.out.printf("No path available to go to %s in %s, returning NIL\n", this.goal, Agent.aStar);
 			return Types.ACTIONS.ACTION_NIL;
 		}
+
 		// Return the action that is needed to get to the next path index.
-		return Agent.aStar.neededAction(avatarPosition, currentPath.get(index -1));
+		return Agent.aStar.neededAction(avatarPosition, currentPath.get(index - 1));
 	}
 
 	/** This option is finished if the avatar's position is the same as
@@ -135,13 +137,15 @@ public class GoToPositionOption extends Option implements Serializable
 	{
 		if(this.finished)
 			return true;
+
 		// There might be some other cases in which this.finished has not been
-		// set yet, let's see:
+		// set yet:
 		if (!this.goalExists(so) || currentPath.size() == 0)
 		{
 			setFinished();
 			return true;
 		}
+
 		Vector2d avatarPosition = so.getAvatarPosition();
 		// Option is also finished when the game is over or the goal is reached
 		if(avatarPosition.x == -1 && avatarPosition.y == -1 ||
@@ -150,6 +154,7 @@ public class GoToPositionOption extends Option implements Serializable
 			setFinished();
 			return true;
 		}
+
 		// If all of the above fails, this is not finished yet!
 		return false;
 	}
@@ -165,6 +170,7 @@ public class GoToPositionOption extends Option implements Serializable
 			if(o.obsID == this.obsID)
 				return Agent.aStar.vectorToBlock(o.position);
 		}
+
 		// Probably this obs is already eliminated.
 		return null;
 	}
@@ -189,7 +195,7 @@ public class GoToPositionOption extends Option implements Serializable
 			observations = so.getPortalsPositions();
 		if(observations == null)
 		{
-			System.err.printf("WARNING: Type %s NOT known in %s!\n", this.type, this);
+			System.out.printf("WARNING: Type %s NOT known in %s!\n", this.type, this);
 			return new ArrayList<Observation>();
 		}
 
@@ -217,8 +223,6 @@ public class GoToPositionOption extends Option implements Serializable
 	public void reset()
 	{
 		this.step = 0;
-		// FIXME: Not sure why I would remove the goal here...
-		// this.goal = null;
 		this.currentPath = new ArrayList<SerializableTuple<Integer, Integer>>();
 		this.finished = false;
 	}

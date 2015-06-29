@@ -20,6 +20,7 @@ public class Lib
 {
 	public static final double HUGE_NEGATIVE = -1000000000.0;
 	public static final double HUGE_POSITIVE =  1000000000.0;
+
 	// This will be used by agents that make files. This postfix can be adjusted
 	// by for example the Test class (that's why it's not final...), in order to
 	// be able to run several agents at the same time
@@ -70,70 +71,6 @@ public class Lib
 		return rawScore;
 	}
 
-	/** Returns the distance (sqDist) and the direction (as a string from {up,
-	 * upright, right, rightdown, down, downleft, left, leftup}) of the nearest
-	 * observation in an array of arraylists of observations. These ArrayList Arrays
-	 * come from functions like getNPCPositions()
-	 * @param obala Array of ArrayLists of Observations
-	 * @param avatarPosition the current position of the avatar, used for
-	 * calculating the direction. 
-	 * Returns a Tuple of '0., ""' when there is no observation. The empty
-	 * direction should help for disambiguating between something that is on the
-	 * same spot (which should have '0., "same"')
-	 */
-	public static Tuple<Double, String> getNearestDistanceAndDirection(
-		ArrayList<Observation>[] obala, Vector2d avatarPosition)
-	{
-		// Get the nearest observation:
-		Observation ob = getNearestObservation(obala);
-		if(ob == null)
-			return new Tuple<Double, String>(0., "");
-		// Get the direction of the nearest observation
-		String direction = getDirection(ob.position, avatarPosition);
-		return new Tuple<Double, String>(ob.sqDist, direction);
-	}
-
-	/** Searches for the nearest observation in an array of observations, and
-	 * the path towards it. The first action on that path is returned together
-	 * with the distance to the nearest observation */
-	public static Tuple<Double, Types.ACTIONS> getNearestDistanceAndAStarAction(
-		ArrayList<Observation>[] obala, Vector2d avatarPosition)
-	{
-		// Get the nearest observation:
-		Observation ob = getNearestObservation(obala);
-		if(ob == null)
-			return new Tuple<Double, Types.ACTIONS>(0., Types.ACTIONS.ACTION_NIL);
-		ArrayList<SerializableTuple<Integer, Integer>> path = Agent.aStar.aStar(avatarPosition, ob.position);
-		// We at least need our current and goal, else we're already there or
-		// there is no path
-		if(path.size() < 2)
-			return new Tuple<Double, Types.ACTIONS>(0., Types.ACTIONS.ACTION_NIL);
-		Types.ACTIONS action = Agent.aStar.neededAction(path.get(path.size()-1), path.get(path.size()-2));
-		return new Tuple<Double, Types.ACTIONS>(ob.sqDist, action);
-	}
-
-	public static Tuple<String, Types.ACTIONS> getPathLengthAndAStarAction(
-		ArrayList<Observation>[] obala, Vector2d avatarPosition)
-	{
-		// Get the nearest observation:
-		Observation ob = getNearestObservation(obala);
-		if(ob == null)
-			return new Tuple<String, Types.ACTIONS>("", Types.ACTIONS.ACTION_NIL);
-		ArrayList<SerializableTuple<Integer, Integer>> path = Agent.aStar.aStar(avatarPosition, ob.position);
-		// We at least need our current and goal in the path, else we're already
-		// there or there is no path
-		if(path.size() < 2)
-			return new Tuple<String, Types.ACTIONS>("", Types.ACTIONS.ACTION_NIL);
-		Types.ACTIONS action = Agent.aStar.neededAction(path.get(path.size()-1), path.get(path.size()-2));
-		String pathLength;
-		// More than 3 moves away, Don't care.
-		//if(path.size() > 4)
-			//pathLength = ">4";
-		//else 
-			pathLength = Integer.toString(path.size());
-		return new Tuple<String, Types.ACTIONS>(pathLength, action);
-	}
-
 	/** Get the nearest observation from an array of ArrayLists of observations,
 	 * assuming that all ArrayLists are already ordered. These ArrayList Arrays
 	 * come from functions like getNPCPositions()
@@ -167,44 +104,6 @@ public class Lib
 			}
 		}
 		return nearest;
-	}
-
-	/** Returns the direction of the observation position obPosition, relative
-	 * to the avatarPosition as a string from {up, upright, right, downright,
-	 * down, downleft, left, upleft, same}
-	 */
-	public static String getDirection(Vector2d obPosition, Vector2d avatarPosition)
-	{
-		// Same x, either up or down
-		if(obPosition.x == avatarPosition.x)
-		{
-			if(obPosition.y < avatarPosition.y)
-				return "up";
-			else if(obPosition.y > avatarPosition.y)
-				return "down";
-		}
-		// Same y, either straight right or left
-		else if(obPosition.y == avatarPosition.y)
-		{
-			if(obPosition.x > avatarPosition.x)
-				return "right";
-			else if(obPosition.x < avatarPosition.x)
-				return "left";
-		}
-		// Different x and y, one of the combinations:
-		else
-		{
-			if(obPosition.x > avatarPosition.x && obPosition.y < avatarPosition.y)
-				return "upright";
-			else if(obPosition.x > avatarPosition.x && obPosition.y > avatarPosition.y)
-				return "downright";
-			else if(obPosition.x < avatarPosition.x && obPosition.y < avatarPosition.y)
-				return "upleft";
-			else if(obPosition.x < avatarPosition.x && obPosition.y > avatarPosition.y)
-				return "downleft";
-		}
-		// x == y
-		return "same";
 	}
 
 	public static void writeHashMapToFile(HashMap h, String f)
@@ -248,20 +147,6 @@ public class Lib
 		}
 		// if all else fails
 		return null;
-	}
-
-	public static class EntryComparator implements 
-		Comparator<Map.Entry<SerializableTuple <SimplifiedObservation, ?>, ?>>
-	{
-		public int compare (
-			Map.Entry<SerializableTuple <SimplifiedObservation, ?>, ?> m1,
-			Map.Entry<SerializableTuple <SimplifiedObservation, ?>, ?> m2)
-		{
-			String c1 = m1.getKey().x.getCode();
-			String c2 = m2.getKey().x.getCode();
-			return c1.compareTo(c2);
-		}
-
 	}
 
 	public static enum GETTER_TYPE

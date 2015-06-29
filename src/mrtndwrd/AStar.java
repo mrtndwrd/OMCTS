@@ -19,10 +19,6 @@ public class AStar
 	/** The size of (movement) blocks in the current game */
 	private static int blockSize;
 
-	/** The set of walls updated by setWalls. This set is static so that no
-	 * observation is directly needed to use AStar*/
-	private static Set<Tuple<Integer, Integer>> walls;
-
 	/** Max x coordinate (min is assumed to be 0) */
 	public int maxX;
 
@@ -30,7 +26,7 @@ public class AStar
 	public int maxY;
 
 	/** Dynamic set of observation iTypes that are identified as inpenetrable */
-	public static DefaultHashMap<Integer, Integer> wallITypeScore;
+	private DefaultHashMap<Integer, Integer> wallITypeScore;
 
 	private Tuple<Integer, Integer> goal;
 
@@ -47,26 +43,28 @@ public class AStar
 	/** Set of nodes that has been checked */
 	HashSet<Tuple<Integer, Integer>> closedSet;
 
-	public static ArrayList<Observation>[][] lastObservationGrid;
+	private ArrayList<Observation>[][] lastObservationGrid;
 
 	/** Initialize the grid. Assumes 0's in the observationGrid are walls */
 	public AStar(StateObservation so)
 	{
 		blockSize = so.getBlockSize();
-
-		walls = new HashSet<Tuple<Integer, Integer>>();
-		lastObservationGrid = so.getObservationGrid();
+		setLastObservationGrid(so.getObservationGrid());
 
 		openSet = new PriorityQueue<Tuple<Integer, Integer>>(10, new TupleComparator());
 		closedSet = new HashSet<Tuple<Integer, Integer>>();
 		cameFrom = new HashMap<Tuple<Integer, Integer>, Tuple<Integer, Integer>>();
 		this.wallITypeScore = new DefaultHashMap<Integer, Integer>(0);
-		// Extract walls from observationGrid
-		// setWalls(so.getObservationGrid());
-		// X being vertical coordinates, is the inner array
+
+		// X, vertical coordinates, is the inner array
 		maxX = so.getObservationGrid().length-1;
 		// Y, the horizontal coordinates, is the outer array
 		maxY = so.getObservationGrid()[0].length-1;
+	}
+
+	public void setLastObservationGrid(ArrayList<Observation>[][] observationGrid)
+	{
+		this.lastObservationGrid = observationGrid;
 	}
 
 	/** Creates a tuple of integers representing block coordinates from a
@@ -92,15 +90,13 @@ public class AStar
 		gScore.clear();
 		fScore.clear();
 		cameFrom.clear();
-		//System.out.println("Starting a* from " + start + " to " + goal);
-		// We can't go to walls! (BUT WE CAN TRY!)
-		//if(walls.contains(goal))
-		//	return new ArrayList<SerializableTuple<Integer, Integer>>();
+
 		this.goal = goal;
 		openSet.add(start);
 		gScore.put(start, 0.);
 		fScore.put(start, fScore(start));
 		Tuple<Integer, Integer> current;
+
 		while(openSet.size() != 0)
 		{
 			// current := the node in openset having the lowest f_score[] value
@@ -115,10 +111,13 @@ public class AStar
 			{
 				if(closedSet.contains(neighbour))
 					continue;
+
 				// Add the newly applied distance and the wallScore to this
-				// path's gScore
+				// path's gScore (we'll try to go through anything with a high
+				// wall score if that's the only way)
 				double tentativeGScore = currentGScore
 					+ distance(current, neighbour) + wallScore(neighbour);
+
 				if(!openSet.contains(neighbour) || tentativeGScore < currentGScore)
 				{
 					cameFrom.put(neighbour, current);
@@ -133,18 +132,20 @@ public class AStar
 		return new ArrayList<SerializableTuple<Integer, Integer>>();
 	}
 
+	/** Recreates the path. The first entry is the goal, the last entry is the
+	 * current location */
 	private ArrayList<SerializableTuple<Integer, Integer>> reconstructPath(Tuple<Integer, Integer> end)
 	{
-		//System.out.println("Reconstructing path");
 		ArrayList<SerializableTuple<Integer, Integer>> path = new ArrayList<SerializableTuple<Integer, Integer>>();
 		Tuple<Integer, Integer> current = new SerializableTuple(end);
+
 		do
 		{
 			path.add(new SerializableTuple(current));
 			current = cameFrom.get(current);
 		}
 		while (current != null);
-		//System.out.println("Path found: " + path);
+
 		return path;
 	}
 
@@ -157,26 +158,22 @@ public class AStar
 		if(node.x < maxX)
 		{
 			nt = new Tuple<Integer, Integer>(node.x + 1, node.y);
-			if(!walls.contains(nt))
-				neighbours.add(nt);
+			neighbours.add(nt);
 		}
 		if(node.x > 0)
 		{
 			nt = new Tuple<Integer, Integer>(node.x - 1, node.y);
-			if(!walls.contains(nt))
-				neighbours.add(nt);
+			neighbours.add(nt);
 		}
 		if(node.y < maxY)
 		{
 			nt = new Tuple<Integer, Integer>(node.x, node.y + 1);
-			if(!walls.contains(nt))
-				neighbours.add(nt);
+			neighbours.add(nt);
 		}
 		if(node.y > 0)
 		{
 			nt = new Tuple<Integer, Integer>(node.x, node.y - 1);
-			if(!walls.contains(nt))
-				neighbours.add(nt);
+			neighbours.add(nt);
 		}
 		return neighbours;
 	}
@@ -188,15 +185,11 @@ public class AStar
 		return gScore.get(node) + heuristic(node);
 	}
 
+	/** Heuristic based on the euclidian distance and the chance of the current
+	 * node being a wall */
 	private double heuristic(Tuple<Integer, Integer> node)
 	{
-		// Get the distance from the node to the goal
-		double distance = distance(node, goal);
-		// Now add a number for the sprites on the node. This will bias the
-		// algorithm against trying to go through walls
-		distance += (double) wallScore(node);
-		// System.out.println("Returning heuristic " + distance + " for node " + node + " to goal " + goal);
-		return distance(node, goal);
+		return distance(node, goal) + wallScore(node);
 	}
 
 	private int wallScore(Tuple<Integer, Integer> node)
@@ -324,31 +317,7 @@ public class AStar
 		return Types.ACTIONS.ACTION_NIL;
 	}
 
-	/** sets the argument walls to the inpenetrable sprites in observationGrid
-	 */
-	// public static void setWalls(ArrayList<Observation>[][] observationGrid)
-	// {
-	// 	walls.clear();
-	// 	for (int i = 0; i < observationGrid.length; i++)
-	// 	{
-	// 		for (int j = 0; j<observationGrid[i].length; j++)
-	// 		{
-	// 			for (Observation obs : observationGrid[i][j])
-	// 			{
-	// 				// This is assumed to be a wall
-	// 				if(AStar.wallITypes.contains(obs.itype))
-	// 				{
-	// 					// This means that x is the horizontal coordinate from the
-	// 					// left up corner, and y is the vertical coordinate
-	// 					// from the left upper corner
-	// 					walls.add(vectorToBlock(obs.position));
-	// 				}
-	// 			}
-	// 		}
-	// 	}
-	// }
-
-	public static void checkForWalls(StateObservation state, Types.ACTIONS action, StateObservation nextState)
+	public void checkForWalls(StateObservation state, Types.ACTIONS action, StateObservation nextState)
 	{
 		SerializableTuple<Integer, Integer> startLocation = vectorToBlock(state.getAvatarPosition());
 		Vector2d startOrientation = state.getAvatarOrientation();
@@ -366,37 +335,20 @@ public class AStar
 					&& !action.equals(Types.ACTIONS.ACTION_NIL)
 					&& !action.equals(Types.ACTIONS.ACTION_USE))
 			{
-				//System.out.println("Start: " + startLocation + "End: " + endLocation + " Speed: " + state.getAvatarSpeed() + " Wall detected");
-				// Get the expected endLocation when applying action
 				// Get the sprite itypes on the endLocation:
-				observations = nextState.getObservationGrid()
-					[expectedEndLocation.x][expectedEndLocation.y];
-				for(Observation obs : observations)
+				if(expectedEndLocation.x < maxX && expectedEndLocation.y < maxY && 
+						expectedEndLocation.x >= 0 && expectedEndLocation.y >= 0)
 				{
-					// System.out.printf("Adding %d to wall iTypes\n", obs.itype);
-					// Increase the wall-score of this iType
-					wallITypeScore.put(obs.itype, wallITypeScore.get(obs.itype) + 1);
+					observations = nextState.getObservationGrid()
+						[expectedEndLocation.x][expectedEndLocation.y];
+					for(Observation obs : observations)
+					{
+						// Increase the wall-score of this iType
+						wallITypeScore.put(obs.itype, wallITypeScore.get(obs.itype) + 1);
+					}
 				}
 			}
-			//else
-			//{
-			//	// We know that there's a sprite that's penetrable in the
-			//	// endLocation, In for example the boulderdash game, this is an
-			//	// important addition, since the mud disappears when we go and
-			//	// stand on it
-			//	observations = state.getObservationGrid()
-			//		[expectedEndLocation.x][expectedEndLocation.y];
-			//	System.out.println("Start: " + startLocation + "End: " + endLocation + " Speed: " + state.getAvatarSpeed() + " NO Wall detected");
-			//	for(Observation obs : observations)
-			//	{
-			//		wallITypeScore.put(obs.itype, 
-			//				Math.max(0, wallITypeScore.get(obs.itype) - 1));
-			//	}
-			//}
 		}
-		// Finally, we're pretty sure that we are now on a not-wall sprite, so
-		// decrease the wall-score for this sprite:
-		// observations = nextState.getObservationGrid()[startLocation.x][startLocation.y];
 	}
 
 	/** Print all the walls! */

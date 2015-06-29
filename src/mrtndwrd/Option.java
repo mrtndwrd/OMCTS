@@ -14,10 +14,10 @@ import java.lang.ClassNotFoundException;
  * approach to reinforcement learning */
 public abstract class Option implements Serializable
 {
-	
 	protected double gamma;
 	protected int step;
 	protected double cumulativeReward;
+
 	/** If this option has no functionality anymore, we mark it as "finished".
 	 * This includes when the destination is reached, when the goal is gone, or
 	 * when there is no path to a goal. All actions returned after being
@@ -44,13 +44,11 @@ public abstract class Option implements Serializable
 	/** True if the goal of this option still exists. For example a
 	 * GoToMovableOption where the movable has been removed from the game would
 	 * return false.
-	 * By default this returns true, since simple options always have an
-	 * existing goal
+	 * By default this returns true, since simple options don't have a goal
+	 * (which should be treated the same as having an existing goal)
 	 */
 	public boolean goalExists(StateObservation so)
 	{
-		// For now, I wouldn't know how to check if it still exists, so just
-		// return true:
 		return true;
 	}
 
@@ -86,16 +84,12 @@ public abstract class Option implements Serializable
 	public void addReward(double reward)
 	{
 		if(step == 0)
-			System.err.printf("WARNING! Adding reward to option that hasn't done anything yet! %s\n", this);
+			System.out.printf("WARNING! Adding reward to option that hasn't done anything yet! %s\n", this);
 		this.cumulativeReward += Math.pow(gamma, step-1) * reward;
-		// if(reward != 0)
-			// System.out.printf("Set cumulative reward to %f\n", this.cumulativeReward);
 	}
 
 	public double getReward()
 	{
-		//if(cumulativeReward != 0)
-		//	System.out.printf("Returning cumulative reward %f\n", this.cumulativeReward);
 		return this.cumulativeReward;
 	}
 
@@ -132,6 +126,4 @@ public abstract class Option implements Serializable
 	public abstract int hashCode();
 
 	public abstract boolean equals(Object o);
-
-
 }

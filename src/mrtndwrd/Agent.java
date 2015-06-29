@@ -20,7 +20,7 @@ import java.util.Random;
  */
 public class Agent extends AbstractPlayer {
 
-	public static int ROLLOUT_DEPTH = 5;
+	public static int ROLLOUT_DEPTH = 7;
 	/** Constant C (also known as K) for exploration vs. exploitation */
 	public static double K = Math.sqrt(2);
 
@@ -110,10 +110,10 @@ public class Agent extends AbstractPlayer {
 		if(so.getPortalsPositions() != null)
 			createOptions(so.getPortalsPositions(), Lib.GETTER_TYPE.PORTAL, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
 
-
 		// Remove all "old" obsIDs from this.optionObsIDs. optionObsIDs will
 		// then only contain obsolete obsIDs
 		optionObsIDs.removeAll(keepObsIDs);
+
 		// Now remove all options that have the obsIDs in optionObsIDs.
 		// We use the iterator, in order to ensure removing while iterating is
 		// possible
@@ -126,6 +126,7 @@ public class Agent extends AbstractPlayer {
 				it.remove();
 			}
 		}
+
 		// Now all options are up-to-date. this.optionObsIDs should be updated
 		// to represent the current options list:
 		optionObsIDs.clear();
@@ -169,11 +170,12 @@ public class Agent extends AbstractPlayer {
 							type, observation.itype, observation.obsID, so));
 				}
 				else
+				{
 					// Add to the list of options that should be kept
 					keepObsIDs.add(observation.obsID);
+				}
 				newObsIDs.add(observation.obsID);
 			}
-			//System.out.print("]\n");
 		}
 	}
 
@@ -186,10 +188,11 @@ public class Agent extends AbstractPlayer {
 	 */
 	public Types.ACTIONS act(StateObservation stateObs, ElapsedCpuTimer elapsedTimer) 
 	{
-		AStar.lastObservationGrid = stateObs.getObservationGrid();
+		aStar.setLastObservationGrid(stateObs.getObservationGrid());
+
 		// Update options:
 		setOptions(stateObs, this.possibleOptions, this.optionObsIDs);
-		//System.out.println("Available options: " + this.possibleOptions);
+
 		// TODO: True here is a test case
 		if(true || currentOption == null || currentOption.isFinished(stateObs))
 		{
@@ -204,13 +207,11 @@ public class Agent extends AbstractPlayer {
 			currentOption = this.possibleOptions.get(option).copy();
 		}
 		Types.ACTIONS action = currentOption.act(stateObs);
-		System.out.println();
-		//System.out.println("Using option " + currentOption);
+		// System.out.println("Using option " + currentOption);
 		// System.out.println("Orientation: " + stateObs.getAvatarOrientation());
 		// System.out.println("Location: " + stateObs.getAvatarPosition());
 		// System.out.println("Action: " + action);
-		//System.out.println("Astar:\n" + aStar);
+		// System.out.println("Astar:\n" + aStar);
 		return action;
 	}
-
 }

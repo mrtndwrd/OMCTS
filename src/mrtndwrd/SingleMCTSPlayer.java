@@ -32,9 +32,6 @@ public class SingleMCTSPlayer
 	public SingleMCTSPlayer(Random random)
 	{
 		this.random = random;
-		// Not sure why this was here, shouldn't be needed when you always use
-		// init
-		//rootNode = new SingleTreeNode(random);
 	}
 
 	/**
@@ -60,8 +57,6 @@ public class SingleMCTSPlayer
 
 		//Determine the best action to take and return it.
 		int action = rootNode.mostVisitedAction();
-		//int action = rootNode.bestAction();
 		return action;
 	}
-
 }

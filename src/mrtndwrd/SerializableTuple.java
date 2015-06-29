@@ -51,6 +51,3 @@ public class SerializableTuple<X extends Serializable, Y extends Serializable>
 	}
 
 }
-
-
-

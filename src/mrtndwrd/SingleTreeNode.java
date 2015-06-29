@@ -55,7 +55,6 @@ public class SingleTreeNode
 	/** normal constructor */
 	public SingleTreeNode(StateObservation state, SingleTreeNode parent, Option chosenOption, ArrayList<Option> possibleOptions, HashSet<Integer> optionObsIDs, Random rnd)
 	{
-		System.out.println("New node");
 		this.state = state;
 		this.parent = parent;
 		this.random = rnd;
@@ -91,27 +90,27 @@ public class SingleTreeNode
 		while(remaining > 2*avgTimeTaken && remaining > REMAINING_LIMIT)
 		{
 			ElapsedCpuTimer elapsedTimerIteration = new ElapsedCpuTimer();
+
 			// Select the node to explore (either expanding unexpanded node, or
 			// selecting the best one with UCT)
 			//System.out.printf("Remaining before treePolicy: %d\n", elapsedTimer.remainingTimeMillis());
 			SingleTreeNode selected = treePolicy();
+
 			// Get node value using a max-depth rollout
 			//System.out.printf("Remaining before rollOut: %d\n", elapsedTimer.remainingTimeMillis());
 			double delta = selected.rollOut();
+
 			// Set values for parents of current node, using new rollout value
 			//System.out.printf("Remaining before rollOut: %d\n", elapsedTimer.remainingTimeMillis());
 			backUp(selected, delta);
-			
 			//System.out.printf("Remaining after backUp: %d\n", elapsedTimer.remainingTimeMillis());
 
 			numIters++;
 			acumTimeTaken += (elapsedTimerIteration.elapsedMillis()) ;
 
-			avgTimeTaken  = acumTimeTaken/numIters;
+			avgTimeTaken = acumTimeTaken/numIters;
 			remaining = elapsedTimer.remainingTimeMillis();
-			//System.out.println(elapsedTimerIteration.elapsedMillis() + " --> " + acumTimeTaken + " (" + remaining + ")");
 		}
-		//System.out.println("-- " + numIters + " -- ( " + avgTimeTaken + ")");
 	}
 
 	/** Expand the current treenode, if it's not fully expanded. Else, return
@@ -132,7 +131,6 @@ public class SingleTreeNode
 			else 
 			{
 				SingleTreeNode next = cur.uct();
-				//SingleTreeNode next = cur.egreedy();
 				cur = next;
 			}
 		}
@@ -149,7 +147,6 @@ public class SingleTreeNode
 		if(this.chosenOption == null)
 		{
 			double bestValue = -1;
-
 			// Select random option with index that isn't taken yet.
 			for (int i = 0; i < children.length; i++) 
 			{
@@ -162,6 +159,7 @@ public class SingleTreeNode
 			}
 			nextOption = this.possibleOptions.get(bestOption).copy();
 		}
+
 		// Else, this node will just expand the chosenOption into child 0 (its
 		// only child) until it's done! 
 		else
@@ -172,18 +170,22 @@ public class SingleTreeNode
 
 		StateObservation nextState = state.copy();
 		Types.ACTIONS action = nextOption.act(nextState);
+
 		// Step 1: Follow the option:
 		nextState.advance(action);
+
 		// Step 2: get the new option set
 		ArrayList<Option> newOptions = (ArrayList<Option>) this.possibleOptions.clone();
 		HashSet<Integer> newOptionObsIDs = (HashSet<Integer>) this.optionObsIDs.clone();
 		Agent.setOptions(nextState, newOptions, newOptionObsIDs);
+
 		// Step 3: create a child node
 		SingleTreeNode tn = new SingleTreeNode(nextState, this, nextOption, newOptions, newOptionObsIDs, this.random);
 		children[bestOption] = tn;
+
 		// Step 4: Set the observation grid to the new grid:
-		AStar.lastObservationGrid = nextState.getObservationGrid();
-		AStar.checkForWalls(state, action, nextState);
+		Agent.aStar.setLastObservationGrid(nextState.getObservationGrid());
+		Agent.aStar.checkForWalls(state, action, nextState);
 		return tn;
 	}
 
@@ -354,7 +356,6 @@ public class SingleTreeNode
 		}
 		return selected;
 	}
-
 
 	public boolean notFullyExpanded() 
 	{

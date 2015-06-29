@@ -27,7 +27,7 @@ public class ActionOption extends Option implements Serializable
 		// Set finished to true, since this option has to take the action once
 		// and then will be finished
 		if(this.step > 0)
-			System.err.println("WARNING action option not terminated?");
+			System.out.println("WARNING action option not terminated?");
 		this.step++;
 		return this.action;
 	}
@@ -86,7 +86,4 @@ public class ActionOption extends Option implements Serializable
 		}
 		return false;
 	}
-
-
-
 }

@@ -31,8 +31,6 @@ public class DefaultHashMap<K,V> extends HashMap<K,V>
 	{
 		String s = "";
 		ArrayList<Map.Entry> entryArrayList = new ArrayList<Map.Entry>(this.entrySet());
-		//Comparator ec = new Lib.EntryComparator();
-		//Collections.sort(entryArrayList, ec);
 		for (Map.Entry e : entryArrayList)
 		{
 			s += String.format("%s -> %s\n", e.getKey(), e.getValue());

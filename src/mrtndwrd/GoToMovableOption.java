@@ -32,14 +32,14 @@ public class GoToMovableOption extends GoToPositionOption implements Serializabl
 		super(gamma, type, itype, obsID, goal);
 	}
 
-	/** Returns the next action to get to this.goal. This function only plans
-	 * around walls, not around other objects or NPC's. Only plans a new path if
-	 * the current location is not anymore in the currentPath. 
+	/** Returns the next action to get to this.goal. Only plans a new path if
+	 * the current location is not present in the currentPath. 
 	 */
 	@Override
 	public Types.ACTIONS act(StateObservation so)
 	{
 		setGoalLocation(so);
+
 		// Save the calculation hassle if the goal is already set to null
 		// unfortunately this speed-hack creates redundancy the rest of this
 		// function
@@ -49,6 +49,7 @@ public class GoToMovableOption extends GoToPositionOption implements Serializabl
 			this.step++;
 			return Types.ACTIONS.ACTION_NIL;
 		}
+
 		// Plan the path
 		return super.act(so);
 	}
@@ -65,7 +66,6 @@ public class GoToMovableOption extends GoToPositionOption implements Serializabl
 			// Remove the old path
 			this.currentPath = new ArrayList<SerializableTuple<Integer, Integer>>();
 		}
-
 	}
 
 	public void reset()
