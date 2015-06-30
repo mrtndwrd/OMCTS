@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.PriorityQueue;
 import java.util.Comparator;
 
+@SuppressWarnings("unchecked")
 public class AStar
 {
 	/** The size of (movement) blocks in the current game */
@@ -137,11 +138,11 @@ public class AStar
 	private ArrayList<SerializableTuple<Integer, Integer>> reconstructPath(Tuple<Integer, Integer> end)
 	{
 		ArrayList<SerializableTuple<Integer, Integer>> path = new ArrayList<SerializableTuple<Integer, Integer>>();
-		Tuple<Integer, Integer> current = new SerializableTuple(end);
+		Tuple<Integer, Integer> current = new SerializableTuple<Integer, Integer>(end);
 
 		do
 		{
-			path.add(new SerializableTuple(current));
+			path.add(new SerializableTuple<Integer, Integer>(current));
 			current = cameFrom.get(current);
 		}
 		while (current != null);

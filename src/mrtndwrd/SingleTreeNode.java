@@ -9,6 +9,7 @@ import java.util.Random;
 import java.util.HashSet;
 import java.util.ArrayList;
 
+@SuppressWarnings("unchecked")
 public class SingleTreeNode
 {
 	private static final double HUGE_NEGATIVE = -10000000.0;

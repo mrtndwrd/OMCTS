@@ -6,6 +6,7 @@ import java.io.ObjectOutputStream;
 import java.io.IOException;
 import java.lang.ClassNotFoundException;
 
+@SuppressWarnings("unchecked")
 public class SerializableTuple<X extends Serializable, Y extends Serializable> 
 	extends Tuple<X, Y> implements Serializable
 {
