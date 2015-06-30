@@ -45,6 +45,14 @@ public class GoToPositionOption extends Option implements Serializable
 		this.goalIsSprite = false;
 	}
 
+	/** Initialize with a position to go to */
+	public GoToPositionOption(double gamma, int step, double cumulativeReward, SerializableTuple<Integer, Integer> goal)
+	{
+		super(gamma, step, cumulativeReward);
+		this.goal = goal;
+		this.goalIsSprite = false;
+	}
+
 	/** Initialize with a position to go to. Goal is converted to block
 	 * coordinates */
 	public GoToPositionOption(double gamma, Vector2d goal)
@@ -68,6 +76,18 @@ public class GoToPositionOption extends Option implements Serializable
 	public GoToPositionOption(double gamma, Lib.GETTER_TYPE type, int itype, int obsID, SerializableTuple<Integer, Integer> goal)
 	{
 		super(gamma);
+		this.type = type;
+		this.itype = itype;
+		this.obsID = obsID;
+		if(goal == null)
+			System.out.println("WARNING! Setting goal to NULL in constructor!");
+		this.goal = goal;
+		this.goalIsSprite = true;
+	}
+
+	public GoToPositionOption(double gamma, int step, double cumulativeReward, Lib.GETTER_TYPE type, int itype, int obsID, SerializableTuple<Integer, Integer> goal)
+	{
+		super(gamma, step, cumulativeReward);
 		this.type = type;
 		this.itype = itype;
 		this.obsID = obsID;
@@ -222,9 +242,8 @@ public class GoToPositionOption extends Option implements Serializable
 
 	public void reset()
 	{
-		this.step = 0;
+		super.reset();
 		this.currentPath = new ArrayList<SerializableTuple<Integer, Integer>>();
-		this.finished = false;
 	}
 
 	protected void readObject(ObjectInputStream aInputStream) 
@@ -246,11 +265,11 @@ public class GoToPositionOption extends Option implements Serializable
 	public Option copy()
 	{
 		if(this.type != null)
-			return new GoToPositionOption(gamma, type, itype, obsID, goal);
+			return new GoToPositionOption(gamma, step, cumulativeReward, type, itype, obsID, goal);
 		else
 		{
 			System.out.println("WARNING! Type = null!");
-			return new GoToPositionOption(gamma, goal);
+			return new GoToPositionOption(gamma, step, cumulativeReward, goal);
 		}
 	}
 

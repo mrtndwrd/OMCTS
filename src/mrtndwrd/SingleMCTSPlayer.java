@@ -59,4 +59,9 @@ public class SingleMCTSPlayer
 		int action = rootNode.mostVisitedAction();
 		return action;
 	}
+
+	public String printRootNode()
+	{
+		return rootNode.toString();
+	}
 }

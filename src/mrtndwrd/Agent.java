@@ -20,13 +20,9 @@ import java.util.Random;
  */
 public class Agent extends AbstractPlayer {
 
-	public static int ROLLOUT_DEPTH = 7;
+	public static int ROLLOUT_DEPTH = 5;
 	/** Constant C (also known as K) for exploration vs. exploitation */
 	public static double K = Math.sqrt(2);
-
-	/** If this is true, an option is not by definition followed until the end
-	 * while exploiting */
-	public static final boolean OPTION_BREAKING = false;
 
 	/** AStar for searching for stuff */
 	public static AStar aStar;
@@ -45,6 +41,13 @@ public class Agent extends AbstractPlayer {
 
 	/** A set containing which obsId's already have options in this agent */
 	public HashSet<Integer> optionObsIDs = new HashSet<Integer>();
+
+	/** Numerator of the ranking (top part of fraction) */
+	public static DefaultHashMap<String, Double> optionRankingN;
+	/** Denominator of the ranking (lower part of fraction) */
+	public static DefaultHashMap<String, Double> optionRankingD;
+	/** Ranking of an option */
+	public static DefaultHashMap<String, Double> optionRanking;
 
 	/** Currently followed option */
 	private Option currentOption;
@@ -69,9 +72,18 @@ public class Agent extends AbstractPlayer {
 		{
 			actions[i] = act.get(i);
 		}
+		optionRankingN = new DefaultHashMap<String, Double>(0.);
+		optionRankingD = new DefaultHashMap<String, Double>(0.);
+		optionRanking = new DefaultHashMap<String, Double>(0.);
 
 		//Create the player.
 		mctsPlayer = new SingleMCTSPlayer(new Random());
+
+		// Set the state observation object as the root of the tree.
+		mctsPlayer.init(so, this.possibleOptions, this.optionObsIDs);
+
+		// Startup the optionRanking
+		mctsPlayer.run(elapsedTimer);
 	}
 
 	// TODO: Make like setOptions
@@ -193,7 +205,8 @@ public class Agent extends AbstractPlayer {
 		// Update options:
 		setOptions(stateObs, this.possibleOptions, this.optionObsIDs);
 
-		// TODO: True here is a test case
+		// FIXME: True here is a test case, but that's probably what we want:
+		// this results in more "careful" policy chosing
 		if(true || currentOption == null || currentOption.isFinished(stateObs))
 		{
 			//Set the state observation object as the new root of the tree.
@@ -212,6 +225,9 @@ public class Agent extends AbstractPlayer {
 		// System.out.println("Location: " + stateObs.getAvatarPosition());
 		// System.out.println("Action: " + action);
 		// System.out.println("Astar:\n" + aStar);
+		// System.out.println(mctsPlayer.printRootNode());
+		// System.out.println("Option rankings: ");
+		// System.out.println(optionRanking);
 		return action;
 	}
 }

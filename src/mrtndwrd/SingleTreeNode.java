@@ -45,6 +45,8 @@ public class SingleTreeNode
 	/** The depth in the rollout of this node (initialized as parent.node+1) */
 	public int nodeDepth;
 
+	private boolean chosenOptionFinished;
+
 	protected static double[] bounds = new double[]{Double.MAX_VALUE, -Double.MAX_VALUE};
 
 	/** Root node constructor */
@@ -61,17 +63,23 @@ public class SingleTreeNode
 		this.random = rnd;
 		this.possibleOptions = possibleOptions;
 		this.optionObsIDs = optionObsIDs;
+		this.chosenOption = chosenOption;
+
 		// Create the possibility of chosing new options
-		if(chosenOption == null || chosenOption.isFinished(state) || Agent.OPTION_BREAKING)
+		if(chosenOption == null || chosenOption.isFinished(state))
 		{
+			this.chosenOptionFinished = true;
+			// Update the option ranking if needed
+			if(chosenOption != null && chosenOption.isFinished(state))
+				chosenOption.updateOptionRanking();
+
 			children = new SingleTreeNode[possibleOptions.size()];
-			this.chosenOption = null;
 		}
 		// The only child is the continuation of this option.
 		else
 		{
+			this.chosenOptionFinished = false;
 			children = new SingleTreeNode[1];
-			this.chosenOption = chosenOption;
 		}
 
 		totValue = 0.0;
@@ -125,15 +133,15 @@ public class SingleTreeNode
 		{
 			// TODO: This always fully expands, we don't necessarily want
 			// that...
-			if (cur.notFullyExpanded()) 
-			{
-				return cur.expand();
-			} 
-			else 
-			{
-				SingleTreeNode next = cur.uct();
-				cur = next;
-			}
+			//if (cur.notFullyExpanded()) 
+			//{
+			//	return cur.expand();
+			//} 
+			//else 
+			//{
+			SingleTreeNode next = cur.uct();
+			cur = next;
+			//}
 		}
 
 		return cur;
@@ -144,8 +152,9 @@ public class SingleTreeNode
 	{
 		Option nextOption;
 		int bestOption = 0;
+
 		// If there's no chosenOption, we'll have to choose a new one
-		if(this.chosenOption == null)
+		if(chosenOptionFinished)
 		{
 			double bestValue = -1;
 			// Select random option with index that isn't taken yet.
@@ -160,63 +169,92 @@ public class SingleTreeNode
 			}
 			nextOption = this.possibleOptions.get(bestOption).copy();
 		}
-
 		// Else, this node will just expand the chosenOption into child 0 (its
 		// only child) until it's done! 
 		else
 		{
 			bestOption = 0;
-			nextOption = chosenOption.copy();
+			// FIXME: Should this be .copy()?
+			nextOption = chosenOption;
 		}
 
-		StateObservation nextState = state.copy();
+		SingleTreeNode tn = expandChild(bestOption, nextOption);
+		return tn;
+	}
+
+	public SingleTreeNode expandChild(int id, Option nextOption)
+	{
+		StateObservation nextState = this.state.copy();
 		Types.ACTIONS action = nextOption.act(nextState);
 
 		// Step 1: Follow the option:
 		nextState.advance(action);
 
-		// Step 2: get the new option set
+		// Step 2: Update the option's values:
+		nextOption.addReward(Lib.simpleValue(nextState) - Lib.simpleValue(state));
+		//nextOption.addReward(state.getGameScore() - nextState.getGameScore());
+
+		// Step 3: get the new option set
 		ArrayList<Option> newOptions = (ArrayList<Option>) this.possibleOptions.clone();
 		HashSet<Integer> newOptionObsIDs = (HashSet<Integer>) this.optionObsIDs.clone();
 		Agent.setOptions(nextState, newOptions, newOptionObsIDs);
 
-		// Step 3: create a child node
+		// Step 4: create a child node
 		SingleTreeNode tn = new SingleTreeNode(nextState, this, nextOption, newOptions, newOptionObsIDs, this.random);
-		children[bestOption] = tn;
+		children[id] = tn;
 
-		// Step 4: Set the observation grid to the new grid:
+		// Step 5: Set the observation grid to the new grid:
 		Agent.aStar.setLastObservationGrid(nextState.getObservationGrid());
 		Agent.aStar.checkForWalls(state, action, nextState);
 		return tn;
 	}
 
-
-	private void runOption(StateObservation nextState, Option option)
-	{
-		while(!option.isFinished(nextState))
-		{
-			nextState.advance(option.act(nextState));
-		}
-	}
-
 	public SingleTreeNode uct() 
 	{
-		// For speeding up the situration where an option is being followed, and
+		// For speeding up the situation where an option is being followed, and
 		// just 1 child exists
-		if(this.children.length == 1)
-			return this.children[0];
-
-		SingleTreeNode selected = null;
-		double bestValue = -Double.MAX_VALUE;
-		for (SingleTreeNode child : this.children)
+		if(!chosenOptionFinished)
 		{
-			double hvVal = child.totValue;
-			double childValue =  hvVal / (child.nVisits + this.epsilon);
+			if(this.children[0] == null)
+				// FIXME: This might need .copy() (but I don't think so);
+				expandChild(0, chosenOption);
+			return this.children[0];
+		}
+
+		int selectedId = -1;
+		double bestValue = -Double.MAX_VALUE;
+		// Defines if a child already exists in the array, or still has the
+		// "null" value
+		boolean expandChild;
+		boolean bestExpandChild = false;
+		double hvVal;
+		int visits;
+		//for (SingleTreeNode child : this.children)
+		for (int i=0; i<this.children.length; i++)
+		{
+			expandChild = false;
+			if(children[i] == null)
+			{
+				expandChild = true;
+				// set hvVal to the option's expected value
+				hvVal = .1 * Agent.optionRanking.get(this.possibleOptions.get(i).getType());
+				visits = 0;
+
+			}
+			else
+			{
+				hvVal = ((this.children[i].totValue + 
+							.1 * Agent.optionRanking.get(this.possibleOptions.get(i).getType()))
+						/ 2);
+				visits = this.children[i].nVisits;
+			}
+
+			double childValue =  hvVal / (visits + this.epsilon);
 
 			childValue = Utils.normalise(childValue, bounds[0], bounds[1]);
 
 			double uctValue = childValue +
-					Agent.K * Math.sqrt(Math.log(this.nVisits + 1) / (child.nVisits + this.epsilon));
+					Agent.K * Math.sqrt(Math.log(this.nVisits + 1) / (visits + this.epsilon));
 
 			// small sampleRandom numbers: break ties in unexpanded nodes
 			uctValue = Utils.noise(uctValue, this.epsilon, this.random.nextDouble());	 //break ties randomly
@@ -224,20 +262,33 @@ public class SingleTreeNode
 			// small sampleRandom numbers: break ties in unexpanded nodes
 			if (uctValue > bestValue) 
 			{
-				selected = child;
+				selectedId = i;
 				bestValue = uctValue;
+				bestExpandChild = expandChild;
 			}
 		}
 
-		if (selected == null)
+		if (selectedId == -1)
 		{
 			throw new RuntimeException("Warning! returning null: " + bestValue + " : " + this.children.length);
+		}
+
+		SingleTreeNode selected;
+		if(bestExpandChild)
+		{
+			Option nextOption = this.possibleOptions.get(selectedId).copy();
+			selected = expandChild(selectedId, nextOption);
+		}
+		else
+		{
+			selected = children[selectedId];
 		}
 
 		return selected;
 	}
 
-	/** Perform a rollout with random actions on the current node of maximally
+	/** Perform a rollout with actions taken from chosenOption, and when that's
+	 * finished random actions, on the current node of maximally
 	 * Agent.ROLLOUT_DEPTH. 
 	 * @return Delta is the "simpleValue" of the last state the rollOut
 	 * arrives in. 
@@ -246,17 +297,52 @@ public class SingleTreeNode
 	{
 		StateObservation rollerState = state.copy();
 		int thisDepth = this.nodeDepth;
-
+		Option rollerOption = null;
+		if(chosenOption != null)
+			rollerOption = chosenOption.copy();
+		// Instantiate "rollerOptionFinished" to whether it's null:
+		boolean rollerOptionFinished = rollerOption == null;
+		double lastScore = Lib.simpleValue(rollerState);
+		//double lastScore = rollerState.getGameScore();
 		while (!finishRollout(rollerState,thisDepth)) 
 		{
 			Types.ACTIONS action;
-			// First, follow this node's option, then follow a random policy
-			if(chosenOption != null && !chosenOption.isFinished(rollerState))
-				action = chosenOption.act(rollerState);
+			if(!rollerOptionFinished)
+			{
+				// Set the lastScore for the next iteration 
+				lastScore = Lib.simpleValue(rollerState);
+				//lastScore = rollerState.getGameScore();
+
+				// If the option is finished, update the Agent's option ranking
+				if(rollerOption.isFinished(rollerState))
+				{
+					rollerOption.updateOptionRanking();
+					rollerOptionFinished = true;
+				}
+			}
+			// If possible follow this node's option, then follow a random policy
+			if(!rollerOptionFinished)
+			{
+				action = rollerOption.act(rollerState);
+				rollerState.advance(action);
+				// Update the option's reward
+				rollerOption.addReward(Lib.simpleValue(rollerState) - lastScore);
+				//rollerOption.addReward(lastScore - rollerState.getGameScore());
+			}
 			else
+			{
 				action = Agent.actions[random.nextInt(Agent.actions.length)];
-			rollerState.advance(action);
+				rollerState.advance(action);
+			}
 			thisDepth++;
+		}
+
+		// Update the ranking with how far this option has come if it hasn't
+		// finished
+		if(!rollerOptionFinished)
+		{
+			// Update the ranking for the finished option
+			rollerOption.updateOptionRanking();
 		}
 
 		double delta = Lib.simpleValue(rollerState);
@@ -324,7 +410,8 @@ public class SingleTreeNode
 		{
 			System.out.println("Unexpected selection!");
 			selected = 0;
-		}else if(allEqual)
+		}
+		else if(allEqual)
 		{
 			//If all are equal, we opt to choose for the one with the best Q.
 			selected = bestAction();
@@ -370,4 +457,33 @@ public class SingleTreeNode
 
 		return false;
 	}
+	
+	public String print(int depth)
+	{
+		String s = "";
+		if(this.parent == null)
+			s += "root";
+		else
+			s += String.format("%s (%f)", chosenOption, totValue);
+		for(SingleTreeNode node : children)
+		{
+			if(node != null)
+			{
+				s += "\n";
+				for(int i=0; i<depth; i++)
+				{
+					s += "|\t";
+				}
+				s += "\\- ";
+				s += node.print(depth+1);
+			}
+		}
+		return s;
+	}
+
+	public String toString()
+	{
+		return print(0);
+	}
+
 }

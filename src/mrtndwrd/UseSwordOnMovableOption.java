@@ -23,15 +23,16 @@ public class UseSwordOnMovableOption extends GoToMovableOption implements Serial
 		super(gamma, type, itype, obsID, so);
 	}
 
-	public UseSwordOnMovableOption(double gamma, Lib.GETTER_TYPE type, int itype, int obsID, SerializableTuple<Integer, Integer> goal)
+	/** Copy constructor */
+	public UseSwordOnMovableOption(double gamma, int step, double cumulativeReward, Lib.GETTER_TYPE type, int itype, int obsID, SerializableTuple<Integer, Integer> goal)
 	{
-		super(gamma, type, itype, obsID, goal);
+		super(gamma, step, cumulativeReward, type, itype, obsID, goal);
 	}
 
 	@Override
 	public Option copy()
 	{
-		return new UseSwordOnMovableOption(gamma, type, itype, obsID, goal);
+		return new UseSwordOnMovableOption(gamma, step, cumulativeReward, type, itype, obsID, goal);
 	}
 
 	@Override
@@ -39,6 +40,7 @@ public class UseSwordOnMovableOption extends GoToMovableOption implements Serial
 	{
 		return String.format("UseSwordOnMovableOption(%s,%d,%d)", type, itype, obsID);
 	}
+
 	@Override
 	public Types.ACTIONS act(StateObservation so)
 	{
@@ -62,12 +64,14 @@ public class UseSwordOnMovableOption extends GoToMovableOption implements Serial
 			{
 				// FIRE!
 				//System.out.println("FIRE!!!!");
+				this.step++;
 				return Types.ACTIONS.ACTION_USE;
 			}
 			// Else: Move away from the enemy
 			//else if(Agent.aStar.distance(avatarPosition, this.goal) == 1)
 			else
 			{
+				this.step++;
 				return AStar.moveAway(avatarPosition, this.goal);
 			}
 		}

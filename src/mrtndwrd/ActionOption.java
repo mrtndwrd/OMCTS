@@ -21,6 +21,13 @@ public class ActionOption extends Option implements Serializable
 		this.action = action;
 	}
 
+	/** Copy constructor */
+	public ActionOption(double gamma, int step, double cumulativeReward, Types.ACTIONS action)
+	{
+		super(gamma, step, cumulativeReward);
+		this.action = action;
+	}
+
 	/** Return the action that this option represents */
 	public Types.ACTIONS act(StateObservation so)
 	{
@@ -64,7 +71,7 @@ public class ActionOption extends Option implements Serializable
 	@Override
 	public Option copy()
 	{
-		return new ActionOption(gamma, action);
+		return new ActionOption(gamma, step, cumulativeReward, action);
 	}
 
 	public String toString()

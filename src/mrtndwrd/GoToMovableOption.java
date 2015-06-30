@@ -26,10 +26,11 @@ public class GoToMovableOption extends GoToPositionOption implements Serializabl
 
 	/** Constructor mainly for use by copy. By supplying the current goal
 	 * position, the need for a StateObservation vanishes. */
-	public GoToMovableOption(double gamma, Lib.GETTER_TYPE type, int itype, 
-			int obsID, SerializableTuple<Integer, Integer> goal)
+	public GoToMovableOption(double gamma, int step, double cumulativeReward,
+			Lib.GETTER_TYPE type, int itype, int obsID,
+			SerializableTuple<Integer, Integer> goal)
 	{
-		super(gamma, type, itype, obsID, goal);
+		super(gamma, step, cumulativeReward, type, itype, obsID, goal);
 	}
 
 	/** Returns the next action to get to this.goal. Only plans a new path if
@@ -79,7 +80,7 @@ public class GoToMovableOption extends GoToPositionOption implements Serializabl
 	@Override
 	public Option copy()
 	{
-		return new GoToMovableOption(gamma, type, itype, obsID, goal);
+		return new GoToMovableOption(gamma, step, cumulativeReward, type, itype, obsID, goal);
 	}
 
 	@Override

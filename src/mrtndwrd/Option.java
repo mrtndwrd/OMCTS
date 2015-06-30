@@ -35,6 +35,13 @@ public abstract class Option implements Serializable
 		this.cumulativeReward = 0;
 	}
 
+	public Option(double gamma, int step, double cumulativeReward)
+	{
+		this.gamma = gamma;
+		this.step = step;
+		this.cumulativeReward = cumulativeReward;
+	}
+
 	/** Choose the action to be taken now. This should increment this.step! */
 	public abstract Types.ACTIONS act(StateObservation so);
 
@@ -75,7 +82,12 @@ public abstract class Option implements Serializable
 	
 	/** Resets the option values, enabling it to be called again next time
 	 * without having interfering values saved in it. */
-	public abstract void reset();
+	public void reset()
+	{
+		this.step = 0;
+		this.cumulativeReward = 0;
+		this.finished = false;
+	}
 
 	public abstract Option copy();
 
@@ -86,6 +98,22 @@ public abstract class Option implements Serializable
 		if(step == 0)
 			System.out.printf("WARNING! Adding reward to option that hasn't done anything yet! %s\n", this);
 		this.cumulativeReward += Math.pow(gamma, step-1) * reward;
+	}
+
+	/** Updates Agent.optionRanking with the current discounted 'reward' of the
+	 * option. */
+	public void updateOptionRanking()
+	{
+		String type = this.getType();
+		// Set the D and N values for this type
+		Agent.optionRankingD.put(type, Agent.optionRankingD.get(type) + getReward());
+		Agent.optionRankingN.put(type, Agent.optionRankingN.get(type) + 1);
+
+		// Set actual values to D/N
+		Agent.optionRanking.put(type, Agent.optionRankingD.get(type) / 
+				Agent.optionRankingN.get(type));
+
+		setFinished();
 	}
 
 	public double getReward()
