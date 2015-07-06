@@ -8,3 +8,5 @@ dist/
 time*pdf
 winScore*pdf
 actions.txt
+*.pdf
+*.log
