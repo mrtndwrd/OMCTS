@@ -1,4 +1,14 @@
-Programmeren: 
+TODO 
+====
+
+## Option rankings:
+- Update an option ranking with the option's return
+- Update an option ranking when:
+	- the option isn't used anymore (after rollout_depth has been reached)
+	- the option is finished
+
+
+## Programmeren: 
 
 - Make more elaborate options than just actions
 	- Option(s) for killing an enemy (with a specific weapon type)
@@ -8,11 +18,11 @@ Programmeren:
 - Convert options to use sprite id in stead of index in the getter.
 - Eliminate walls from goto options
 
-Lezen: 
+## Lezen: 
 Hoofdstuk 4, 5, 9, 17 uit *Reinforcement Learning, State of the Art* (PDF van
 Diederik) (4, 5 gelezen)
 
-Uitzoeken: 
+## Uitzoeken: 
 
 - **Maak overzicht van voor- en nadelen van verschillende mogelijkheden** Als ik
   alle ideeën op een rijtje heb: Zorg ervoor dat je nog kunt overstappen naar
