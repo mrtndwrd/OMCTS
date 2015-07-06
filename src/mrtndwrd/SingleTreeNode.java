@@ -37,6 +37,10 @@ public class SingleTreeNode
 
 	private HashSet<Integer> optionObsIDs;
 
+	/** When this is true, something just expanded this node. This will be reset
+	 * by the treePolicy */
+	private boolean expanded; 
+
 	/** The option that is chosen in this node. This option is followed until it
 	 * is finished, thereby representing a specific subtree in the whole */
 	private Option chosenOption;
@@ -64,6 +68,7 @@ public class SingleTreeNode
 		this.possibleOptions = possibleOptions;
 		this.optionObsIDs = optionObsIDs;
 		this.chosenOption = chosenOption;
+		this.expanded = false;
 
 		// Create the possibility of chosing new options
 		if(chosenOption == null || chosenOption.isFinished(state))
@@ -128,7 +133,7 @@ public class SingleTreeNode
 	public SingleTreeNode treePolicy() 
 	{
 		SingleTreeNode cur = this;
-
+		SingleTreeNode next;
 		while (!cur.state.isGameOver() && cur.nodeDepth < Agent.ROLLOUT_DEPTH)
 		{
 			// TODO: This always fully expands, we don't necessarily want
@@ -139,7 +144,15 @@ public class SingleTreeNode
 			//} 
 			//else 
 			//{
-			SingleTreeNode next = cur.uct();
+			next = cur.uct();
+			// If we have expanded, return the new node for rollouts
+			if(this.expanded)
+			{
+				// Also reset expanded to false
+				this.expanded = false;
+				return next;
+			}
+			// Else: continue with this node
 			cur = next;
 			//}
 		}
@@ -184,6 +197,7 @@ public class SingleTreeNode
 
 	public SingleTreeNode expandChild(int id, Option nextOption)
 	{
+		this.expanded = true;
 		StateObservation nextState = this.state.copy();
 		Types.ACTIONS action = nextOption.act(nextState);
 
@@ -243,9 +257,9 @@ public class SingleTreeNode
 			}
 			else
 			{
-				hvVal = ((this.children[i].totValue + 
-							.1 * Agent.optionRanking.get(this.possibleOptions.get(i).getType()))
-						/ 2);
+				hvVal = ((this.children[i].totValue
+							+ .1 * Agent.optionRanking.get(this.possibleOptions.get(i).getType())) / 2
+					);
 				visits = this.children[i].nVisits;
 			}
 
@@ -344,7 +358,7 @@ public class SingleTreeNode
 			// Update the ranking for the finished option
 			rollerOption.updateOptionRanking();
 		}
-
+		
 		double delta = Lib.simpleValue(rollerState);
 
 		if(delta < bounds[0])

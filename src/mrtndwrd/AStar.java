@@ -200,6 +200,9 @@ public class AStar
 
 	private int wallScore(int x, int y)
 	{
+		// IMPOSSIBLE!
+		if(x < 0 || y < 0 || x > maxX || y > maxY)
+			return 999999999;
 		int score = 0;
 		for(Observation obs : lastObservationGrid[x][y])
 		{
@@ -253,7 +256,7 @@ public class AStar
 		{
 			return Types.ACTIONS.ACTION_DOWN;
 		}
-		System.out.println("Probably same location, returning action nil");
+		// System.out.println("Probably same location, returning action nil");
 		return Types.ACTIONS.ACTION_NIL;
 	}
 
@@ -314,8 +317,8 @@ public class AStar
 		{
 			return Types.ACTIONS.ACTION_DOWN;
 		}
-		System.out.println("Probably same location, returning action nil");
-		return Types.ACTIONS.ACTION_NIL;
+		// System.out.println("Probably same location, returning action left");
+		return Types.ACTIONS.ACTION_LEFT;
 	}
 
 	public void checkForWalls(StateObservation state, Types.ACTIONS action, StateObservation nextState)

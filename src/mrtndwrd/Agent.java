@@ -20,7 +20,7 @@ import java.util.Random;
  */
 public class Agent extends AbstractPlayer {
 
-	public static int ROLLOUT_DEPTH = 5;
+	public static int ROLLOUT_DEPTH = 7;
 	/** Constant C (also known as K) for exploration vs. exploitation */
 	public static double K = Math.sqrt(2);
 
@@ -201,7 +201,10 @@ public class Agent extends AbstractPlayer {
 	public Types.ACTIONS act(StateObservation stateObs, ElapsedCpuTimer elapsedTimer) 
 	{
 		aStar.setLastObservationGrid(stateObs.getObservationGrid());
-
+		if(stateObs.getAvatarPosition().x == -1
+				&& stateObs.getAvatarPosition().y == -1)
+			// You dead, man!
+			return Types.ACTIONS.ACTION_NIL;
 		// Update options:
 		setOptions(stateObs, this.possibleOptions, this.optionObsIDs);
 

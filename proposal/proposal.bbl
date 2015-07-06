@@ -1,9 +1,0 @@
-\begin{thebibliography}{1}
-
-\bibitem{sutton1999between}
-R.~S. Sutton, D.~Precup, and S.~Singh.
-\newblock Between mdps and semi-mdps: A framework for temporal abstraction in
-  reinforcement learning.
-\newblock {\em Artificial intelligence}, 112(1):181--211, 1999.
-
-\end{thebibliography}
