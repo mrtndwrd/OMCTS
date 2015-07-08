@@ -20,7 +20,7 @@ import java.util.Random;
  */
 public class Agent extends AbstractPlayer {
 
-	public static int ROLLOUT_DEPTH = 7;
+	public static int ROLLOUT_DEPTH = 15;
 	/** Constant C (also known as K) for exploration vs. exploitation */
 	public static double K = Math.sqrt(2);
 
@@ -35,6 +35,9 @@ public class Agent extends AbstractPlayer {
 
 	/** The gamma of this algorithm */
 	public static final double GAMMA = .9;
+
+	/** AMAF alpha for determining how many times we count the optionRanking */
+	public static final double ALPHA = .1;
 
 	/** The set of all options that are currently available */
 	public ArrayList<Option> possibleOptions = new ArrayList<Option>();
@@ -228,9 +231,8 @@ public class Agent extends AbstractPlayer {
 		// System.out.println("Location: " + stateObs.getAvatarPosition());
 		// System.out.println("Action: " + action);
 		// System.out.println("Astar:\n" + aStar);
-		// System.out.println(mctsPlayer.printRootNode());
-		// System.out.println("Option rankings: ");
-		// System.out.println(optionRanking);
+		System.out.println("Tree:\n" + mctsPlayer.printRootNode());
+		System.out.println("Option ranking:\n" + optionRanking);
 		return action;
 	}
 }

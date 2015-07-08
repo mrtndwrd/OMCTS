@@ -101,12 +101,20 @@ public abstract class Option implements Serializable
 	}
 
 	/** Updates Agent.optionRanking with the current discounted 'reward' of the
-	 * option. */
+	 * option. This should always be done when an option is finished, so
+	 * setFinished() is called in the end. */
 	public void updateOptionRanking()
 	{
 		String type = this.getType();
 		// Set the D and N values for this type
-		Agent.optionRankingD.put(type, Agent.optionRankingD.get(type) + getReward());
+		// optionRanking = (1/ LIMIT(.9^n)   ) * optionRanking 
+		//               = (1/ (1/(1-GAMMA)) ) * optionRanking
+		//               = (1-GAMMA)           * optionRanking
+		// For example: GAMMA = .9 would result in all option values
+		// being maximally 10 times the state values. To fix this, we
+		// multiply by .1
+		Agent.optionRankingD.put(type, Agent.optionRankingD.get(type) + 
+			((1-Agent.GAMMA) * getReward()));
 		Agent.optionRankingN.put(type, Agent.optionRankingN.get(type) + 1);
 
 		// Set actual values to D/N

@@ -17,7 +17,7 @@ public class SingleTreeNode
 	private static final double HUGE_POSITIVE =  10000000.0;
 
 	/** mctsSearch continues until there are only so many miliseconds left */
-	public static final int REMAINING_LIMIT = 10;
+	public static final int REMAINING_LIMIT = 50;
 
 	public static double epsilon = 1e-6;
 
@@ -205,8 +205,8 @@ public class SingleTreeNode
 		nextState.advance(action);
 
 		// Step 2: Update the option's values:
-		nextOption.addReward(Lib.simpleValue(nextState) - Lib.simpleValue(state));
-		//nextOption.addReward(state.getGameScore() - nextState.getGameScore());
+		//nextOption.addReward(Lib.simpleValue(nextState) - Lib.simpleValue(state));
+		nextOption.addReward(state.getGameScore() - nextState.getGameScore());
 
 		// Step 3: get the new option set
 		ArrayList<Option> newOptions = (ArrayList<Option>) this.possibleOptions.clone();
@@ -247,19 +247,21 @@ public class SingleTreeNode
 		for (int i=0; i<this.children.length; i++)
 		{
 			expandChild = false;
+			// Initialize hvVal with the optionRanking
+			hvVal = Agent.optionRanking.get(this.possibleOptions.get(i).getType());
 			if(children[i] == null)
 			{
 				expandChild = true;
 				// set hvVal to the option's expected value
-				hvVal = .1 * Agent.optionRanking.get(this.possibleOptions.get(i).getType());
 				visits = 0;
-
+				// Keep hvVal as it is now: this encourages exploration towards
+				// good options
 			}
 			else
 			{
-				hvVal = ((this.children[i].totValue
-							+ .1 * Agent.optionRanking.get(this.possibleOptions.get(i).getType())) / 2
-					);
+				// Count the optionRanking only ALPHA times
+				hvVal = (1 - Agent.ALPHA) * this.children[i].totValue
+							+ Agent.ALPHA * hvVal;
 				visits = this.children[i].nVisits;
 			}
 
@@ -316,16 +318,16 @@ public class SingleTreeNode
 			rollerOption = chosenOption.copy();
 		// Instantiate "rollerOptionFinished" to whether it's null:
 		boolean rollerOptionFinished = rollerOption == null;
-		double lastScore = Lib.simpleValue(rollerState);
-		//double lastScore = rollerState.getGameScore();
+		//double lastScore = Lib.simpleValue(rollerState);
+		double lastScore = rollerState.getGameScore();
 		while (!finishRollout(rollerState,thisDepth)) 
 		{
 			Types.ACTIONS action;
 			if(!rollerOptionFinished)
 			{
 				// Set the lastScore for the next iteration 
-				lastScore = Lib.simpleValue(rollerState);
-				//lastScore = rollerState.getGameScore();
+				//lastScore = Lib.simpleValue(rollerState);
+				lastScore = rollerState.getGameScore();
 
 				// If the option is finished, update the Agent's option ranking
 				if(rollerOption.isFinished(rollerState))
@@ -340,8 +342,8 @@ public class SingleTreeNode
 				action = rollerOption.act(rollerState);
 				rollerState.advance(action);
 				// Update the option's reward
-				rollerOption.addReward(Lib.simpleValue(rollerState) - lastScore);
-				//rollerOption.addReward(lastScore - rollerState.getGameScore());
+				//rollerOption.addReward(Lib.simpleValue(rollerState) - lastScore);
+				rollerOption.addReward(lastScore - rollerState.getGameScore());
 			}
 			else
 			{
