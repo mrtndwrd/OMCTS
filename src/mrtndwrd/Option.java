@@ -105,6 +105,12 @@ public abstract class Option implements Serializable
 	 * setFinished() is called in the end. */
 	public void updateOptionRanking()
 	{
+		// Ignore 0-rewards. only positive or negative rewards interest me
+		if(getReward() == 0)
+		{
+			setFinished();
+			return;
+		}
 		String type = this.getType();
 		// Set the D and N values for this type
 		// optionRanking = (1/ LIMIT(.9^n)   ) * optionRanking 

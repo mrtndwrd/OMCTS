@@ -20,7 +20,7 @@ import java.util.Random;
  */
 public class Agent extends AbstractPlayer {
 
-	public static int ROLLOUT_DEPTH = 12;
+	public static int ROLLOUT_DEPTH = 10;
 
 	/** Constant C (also known as K) for exploration vs. exploitation */
 	public static double K = Math.sqrt(2);
@@ -120,8 +120,8 @@ public class Agent extends AbstractPlayer {
 		}
 		if(so.getMovablePositions() != null)
 			createOptions(so.getMovablePositions(), Lib.GETTER_TYPE.MOVABLE, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
-		if(so.getImmovablePositions() != null)
-			createOptions(so.getImmovablePositions(), Lib.GETTER_TYPE.IMMOVABLE, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
+		//if(so.getImmovablePositions() != null)
+		//	createOptions(so.getImmovablePositions(), Lib.GETTER_TYPE.IMMOVABLE, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
 		if(so.getResourcesPositions() != null)
 			createOptions(so.getResourcesPositions(), Lib.GETTER_TYPE.RESOURCE, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
 		if(so.getPortalsPositions() != null)
@@ -180,8 +180,9 @@ public class Agent extends AbstractPlayer {
 					{
 						possibleOptions.add(new GoToMovableOption(GAMMA, 
 							type, observation.itype, observation.obsID, so));
-						possibleOptions.add(new GoNearMovableOption(GAMMA, 
-							type, observation.itype, observation.obsID, so));
+						if(type == Lib.GETTER_TYPE.NPC)
+							possibleOptions.add(new GoNearMovableOption(GAMMA, 
+								type, observation.itype, observation.obsID, so));
 					}
 					// else if (type == Lib.GETTER_TYPE.NPC_KILL)
 					// 	possibleOptions.add(new UseSwordOnMovableOption(GAMMA, 
@@ -232,13 +233,13 @@ public class Agent extends AbstractPlayer {
 			currentOption = this.possibleOptions.get(option).copy();
 		}
 		Types.ACTIONS action = currentOption.act(stateObs);
-		System.out.println("Using option " + currentOption);
-		// System.out.println("Orientation: " + stateObs.getAvatarOrientation());
-		// System.out.println("Location: " + stateObs.getAvatarPosition());
-		// System.out.println("Action: " + action);
-		// System.out.println("Astar:\n" + aStar);
 		//System.out.println("Tree:\n" + mctsPlayer.printRootNode());
+		//System.out.println("Orientation: " + stateObs.getAvatarOrientation());
+		//System.out.println("Location: " + stateObs.getAvatarPosition());
+		//System.out.println("Action: " + action);
+		//System.out.println("Astar:\n" + aStar);
 		//System.out.println("Option ranking:\n" + optionRanking);
+		//System.out.println("Using option " + currentOption);
 		return action;
 	}
 }

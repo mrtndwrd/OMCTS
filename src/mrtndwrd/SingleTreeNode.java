@@ -17,7 +17,7 @@ public class SingleTreeNode
 	private static final double HUGE_POSITIVE =  10000000.0;
 
 	/** mctsSearch continues until there are only so many miliseconds left */
-	public static final int REMAINING_LIMIT = 15;
+	public static final int REMAINING_LIMIT = 10;
 
 	public static double epsilon = 1e-6;
 
@@ -69,7 +69,6 @@ public class SingleTreeNode
 		this.optionObsIDs = optionObsIDs;
 		this.chosenOption = chosenOption;
 		this.expanded = false;
-
 		// Create the possibility of chosing new options
 		if(chosenOption == null || chosenOption.isFinished(state))
 		{
@@ -110,6 +109,8 @@ public class SingleTreeNode
 			//System.out.printf("Remaining before treePolicy: %d\n", elapsedTimer.remainingTimeMillis());
 			SingleTreeNode selected = treePolicy();
 
+			// System.out.println("Selected: " + selected);
+
 			// Get node value using a max-depth rollout
 			//System.out.printf("Remaining before rollOut: %d\n", elapsedTimer.remainingTimeMillis());
 			double delta = selected.rollOut();
@@ -136,14 +137,6 @@ public class SingleTreeNode
 		SingleTreeNode next;
 		while (!cur.state.isGameOver() && cur.nodeDepth < Agent.ROLLOUT_DEPTH)
 		{
-			// TODO: This always fully expands, we don't necessarily want
-			// that...
-			//if (cur.notFullyExpanded()) 
-			//{
-			//	return cur.expand();
-			//} 
-			//else 
-			//{
 			next = cur.uct();
 			// If we have expanded, return the new node for rollouts
 			if(this.expanded)
@@ -154,7 +147,6 @@ public class SingleTreeNode
 			}
 			// Else: continue with this node
 			cur = next;
-			//}
 		}
 
 		return cur;
@@ -322,34 +314,38 @@ public class SingleTreeNode
 		double lastScore = rollerState.getGameScore();
 		while (!finishRollout(rollerState,thisDepth)) 
 		{
-			Types.ACTIONS action;
-			if(!rollerOptionFinished)
-			{
-				// Set the lastScore for the next iteration 
-				//lastScore = Lib.simpleValue(rollerState);
-				lastScore = rollerState.getGameScore();
+			// System.out.println("Roller depth " + thisDepth);
+			// if(this.parent != null)
+			// 	System.out.println(this.parent);
 
-				// If the option is finished, update the Agent's option ranking
-				if(rollerOption.isFinished(rollerState))
-				{
-					rollerOption.updateOptionRanking();
-					rollerOptionFinished = true;
-				}
-			}
-			// If possible follow this node's option, then follow a random policy
-			if(!rollerOptionFinished)
-			{
-				action = rollerOption.act(rollerState);
-				rollerState.advance(action);
-				// Update the option's reward
-				//rollerOption.addReward(Lib.simpleValue(rollerState) - lastScore);
-				rollerOption.addReward(lastScore - rollerState.getGameScore());
-			}
-			else
-			{
+			Types.ACTIONS action;
+			//if(!rollerOptionFinished)
+			//{
+			//	// Set the lastScore for the next iteration 
+			//	//lastScore = Lib.simpleValue(rollerState);
+			//	lastScore = rollerState.getGameScore();
+
+			//	// If the option is finished, update the Agent's option ranking
+			//	if(rollerOption.isFinished(rollerState))
+			//	{
+			//		rollerOption.updateOptionRanking();
+			//		rollerOptionFinished = true;
+			//	}
+			//}
+			//// If possible follow this node's option, then follow a random policy
+			//if(!rollerOptionFinished)
+			//{
+			//	action = rollerOption.act(rollerState);
+			//	rollerState.advance(action);
+			//	// Update the option's reward
+			//	//rollerOption.addReward(Lib.simpleValue(rollerState) - lastScore);
+			//	rollerOption.addReward(lastScore - rollerState.getGameScore());
+			//}
+			//else
+			//{
 				action = Agent.actions[random.nextInt(Agent.actions.length)];
 				rollerState.advance(action);
-			}
+			//}
 			thisDepth++;
 		}
 

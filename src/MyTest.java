@@ -114,25 +114,24 @@ public class MyTest
 		//ArcadeMachine.replayGame(game, level1, visuals, readActionsFile);
 
 		// 4. This plays a single game, in N levels, M times :
-		ArcadeMachine.runGames(game, levelNames, numberOfGames, controller, null);
-
+		if(!gameName.equals("all"))
+		{
+			ArcadeMachine.runGames(game, levelNames, numberOfGames, controller, null);
+		}
 		//5. This plays N games, in the first L levels, M times each. Actions to file optional (set saveActions to true).
 		// TODO NOT COMPATIBLE YET WITH COMMAND LINE ARGUMENTS
-		/*int N = 10, L = 5, M = 2;
-		boolean saveActions = false;
-		String[] levels = new String[L];
-		String[] actionFiles = new String[L*M];
-		for(int i = 0; i < N; ++i)
+		else
 		{
-			int actionIdx = 0;
-			game = gamesPath + games[i] + ".txt";
-			for(int j = 0; j < L; ++j){
-				levels[j] = gamesPath + games[i] + "_lvl" + j +".txt";
-				if(saveActions) for(int k = 0; k < M; ++k)
-					actionFiles[actionIdx++] = "actions_game_" + i + "_level_" + j + "_" + k + ".txt";
+			int N = 10;
+			for(int i = 0; i < N; ++i)
+			{
+				game = gamesPath + games[i] + ".txt";
+				for(int j = 0; j < L; ++j){
+					levelNames = gamesPath + games[i] + "_lvl" + j +".txt";
+				}
+				ArcadeMachine.runGames(game, levelNames, numberOfGames, controller, null);
 			}
-			ArcadeMachine.runGames(game, levels, M, sampleMCTSController, saveActions? actionFiles:null);
-		}*/
+		}
 	}
 
 	public static void printHelpMessage()
@@ -141,7 +140,7 @@ public class MyTest
 		System.out.println("Usage: java -cp classes MyTest [<args>]");
 		System.out.println("\t-h\t--help\t\tPrints this message");
 		System.out.println("\t-c=CONTROLLER\t--controller=CONTROLLER\tSet controller to CONTROLLER. This must be an available package and class extending AbstractPlayer. Default: 'controllers.sampleMCTS.Agent'");
-		System.out.println("\t-g=GAME\t--game=GAME\tSet game to GAME. Possible games: " + Arrays.toString(games) + ". Default: 'prey'");
+		System.out.println("\t-g=GAME\t--game=GAME\tSet game to GAME. Possible games: " + Arrays.toString(games) + " or 'all' for all games. Default: 'prey'");
 		System.out.println("\t-l=LEVELS\t--levels=LEVELS\tSet list of levels to LEVEL. This must be an index ranging from 0 to 4, can be comma separated for more values. Default: '0'");
 		System.out.println("\t-p=POSTFIX\t--file-postfix=POSTFIX\tAlgorithms made by Maarten de Waard can save or write files. They will have this postfix. Defaults to an empty string");
 		System.out.println("\t-n=NUMBER\t--number-of-games=NUMBER\tNumber of games to be run by ArcadeMachine.runGames. Defaunt: 20");
