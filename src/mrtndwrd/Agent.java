@@ -20,7 +20,8 @@ import java.util.Random;
  */
 public class Agent extends AbstractPlayer {
 
-	public static int ROLLOUT_DEPTH = 15;
+	public static int ROLLOUT_DEPTH = 12;
+
 	/** Constant C (also known as K) for exploration vs. exploitation */
 	public static double K = Math.sqrt(2);
 
@@ -37,7 +38,7 @@ public class Agent extends AbstractPlayer {
 	public static final double GAMMA = .9;
 
 	/** AMAF alpha for determining how many times we count the optionRanking */
-	public static final double ALPHA = .1;
+	public static final double ALPHA = .3;
 
 	/** The set of all options that are currently available */
 	public ArrayList<Option> possibleOptions = new ArrayList<Option>();
@@ -113,8 +114,9 @@ public class Agent extends AbstractPlayer {
 		{
 			createOptions(so.getNPCPositions(), Lib.GETTER_TYPE.NPC, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
 			// We can use a weapon! Try to make kill-options
-			if(so.getAvailableActions().contains(Types.ACTIONS.ACTION_USE))
-				createOptions(so.getNPCPositions(), Lib.GETTER_TYPE.NPC_KILL, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
+			// if(so.getAvailableActions().contains(Types.ACTIONS.ACTION_USE))
+			// 	createOptions(so.getNPCPositions(), Lib.GETTER_TYPE.NPC_KILL, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
+
 		}
 		if(so.getMovablePositions() != null)
 			createOptions(so.getMovablePositions(), Lib.GETTER_TYPE.MOVABLE, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
@@ -175,11 +177,15 @@ public class Agent extends AbstractPlayer {
 				{
 					// Create option for this obsID
 					if(type == Lib.GETTER_TYPE.NPC || type == Lib.GETTER_TYPE.MOVABLE)
+					{
 						possibleOptions.add(new GoToMovableOption(GAMMA, 
 							type, observation.itype, observation.obsID, so));
-					else if (type == Lib.GETTER_TYPE.NPC_KILL)
-						possibleOptions.add(new UseSwordOnMovableOption(GAMMA, 
+						possibleOptions.add(new GoNearMovableOption(GAMMA, 
 							type, observation.itype, observation.obsID, so));
+					}
+					// else if (type == Lib.GETTER_TYPE.NPC_KILL)
+					// 	possibleOptions.add(new UseSwordOnMovableOption(GAMMA, 
+					// 		type, observation.itype, observation.obsID, so));
 					else
 						possibleOptions.add(new GoToPositionOption(GAMMA, 
 							type, observation.itype, observation.obsID, so));
@@ -226,13 +232,13 @@ public class Agent extends AbstractPlayer {
 			currentOption = this.possibleOptions.get(option).copy();
 		}
 		Types.ACTIONS action = currentOption.act(stateObs);
-		// System.out.println("Using option " + currentOption);
+		System.out.println("Using option " + currentOption);
 		// System.out.println("Orientation: " + stateObs.getAvatarOrientation());
 		// System.out.println("Location: " + stateObs.getAvatarPosition());
 		// System.out.println("Action: " + action);
 		// System.out.println("Astar:\n" + aStar);
-		System.out.println("Tree:\n" + mctsPlayer.printRootNode());
-		System.out.println("Option ranking:\n" + optionRanking);
+		//System.out.println("Tree:\n" + mctsPlayer.printRootNode());
+		//System.out.println("Option ranking:\n" + optionRanking);
 		return action;
 	}
 }

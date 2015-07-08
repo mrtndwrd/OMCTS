@@ -17,7 +17,7 @@ public class SingleTreeNode
 	private static final double HUGE_POSITIVE =  10000000.0;
 
 	/** mctsSearch continues until there are only so many miliseconds left */
-	public static final int REMAINING_LIMIT = 50;
+	public static final int REMAINING_LIMIT = 15;
 
 	public static double epsilon = 1e-6;
 
@@ -393,7 +393,6 @@ public class SingleTreeNode
 			n = n.parent;
 		}
 	}
-
 
 	public int mostVisitedAction() 
 	{
