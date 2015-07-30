@@ -79,10 +79,7 @@ public class MyTest
 				printHelpMessage();
 				System.exit(1);
 			}
-
 		}
-
-
 
 		//CIG 2014 Validation Set Games
 		//String games[] = new String[]{"camelRace", "digdug", "firestorms", "infection", "firecaster",
@@ -119,16 +116,15 @@ public class MyTest
 			ArcadeMachine.runGames(game, levelNames, numberOfGames, controller, null);
 		}
 		//5. This plays N games, in the first L levels, M times each. Actions to file optional (set saveActions to true).
-		// TODO NOT COMPATIBLE YET WITH COMMAND LINE ARGUMENTS
 		else
 		{
 			int N = 10;
 			for(int i = 0; i < N; ++i)
 			{
 				game = gamesPath + games[i] + ".txt";
-				for(int j = 0; j < L; ++j){
-					levelNames = gamesPath + games[i] + "_lvl" + j +".txt";
-				}
+				// for(int j = 0; j < L; ++j){
+				// 	levelNames = gamesPath + games[i] + "_lvl" + j +".txt";
+				// }
 				ArcadeMachine.runGames(game, levelNames, numberOfGames, controller, null);
 			}
 		}
