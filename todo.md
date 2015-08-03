@@ -7,6 +7,7 @@ TODO
 - Check if SingleTreeNode should use Lib.simpleValue or state.getGameScore
 
 ## Programmeren: 
+- option for pushing boxes around (sokoban, other puzzle games)
 
 ## Lezen: 
 Hoofdstuk 4, 5, 9, 17 uit *Reinforcement Learning, State of the Art* (PDF van
