@@ -1,22 +1,17 @@
 TODO 
 ====
 
-## Option rankings:
-- Update an option ranking with the option's return
-- Update an option ranking when:
-	- the option isn't used anymore (after rollout_depth has been reached)
-	- the option is finished
-
+## Test
+- check if using random rollout is better than option-rollout
+- check if my stuff is actually better than simple mcts
 
 ## Programmeren: 
 
 - Make more elaborate options than just actions
-	- Option(s) for killing an enemy (with a specific weapon type)
 	- Option(s) for avoiding enemies
 	- Option(s) for goto while avoiding enemies
-- MCTS!
-- Convert options to use sprite id in stead of index in the getter.
-- Eliminate walls from goto options
+- Make a test-case that saves the data in some kind of understandable way
+  (keeping game name, algorithm name and scores at the very least)
 
 ## Lezen: 
 Hoofdstuk 4, 5, 9, 17 uit *Reinforcement Learning, State of the Art* (PDF van
