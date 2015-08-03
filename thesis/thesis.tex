@@ -1,0 +1,64 @@
+\documentclass[a4]{report}
+\usepackage[dvips]{graphicx}
+\usepackage[latin1]{inputenc}
+
+\usepackage{hyperref}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[usenames]{xcolor}
+\usepackage{verbatim}
+\usepackage{graphicx}
+\usepackage{microtype}
+\usepackage{tikz}
+\usepackage{wrapfig}
+\usepackage{bm}
+
+\newcommand{\todo}[1]{{\bfseries\sffamily{\textcolor{red}{TODO:} #1}}}
+\newcommand{\cn}{{\colorbox{red}{\color{white}{[citation needed]}}}}
+
+\usepackage{illcmolthesis} % For title page, slightly modified
+
+\title{Monte Carlo Tree Search with Options for General Video Game Playing}
+\author{\href{mailto:mrtndwrd@gmail.com}{Maarten de Waard}}
+\birthdate{November 14\textsuperscript{th}, 1989}
+\birthplace{Alkmaar, the Netherlands}
+\defensedate{November 28\textsuperscript{th}, 2015}  %% TODO: UPDATE BEFORE HAND IN!
+\supervisor{\href{mailto:S.C.J.Bakkes@uva.com}{Sander Bakkes}}
+\committeemember{\href{mailto:L.Dorst@uva.nl}{dr.ir.\ Leo Dorst}}
+\committeemember{\href{mailto:D.M.Roijers@uva.nl}{Diederik Roijers, Msc.}}
+%% TODO: UPDATE BEFORE HAND IN!
+\degree{MSc in Artificial Intelligence}
+
+\begin{document}
+%\frontmatter
+
+\maketitle
+
+\begin{abstract}
+	abstract here
+\end{abstract}
+
+\tableofcontents
+
+\input{sections/introduction}
+
+\input{sections/related}
+
+\input{sections/method}
+
+\input{sections/results}
+
+\input{sections/conclusion}
+% ****************************************************************************
+% BIBLIOGRAPHY AREA
+% ****************************************************************************
+
+%\bibliographystyle{abbrv}
+\bibliography{references}
+
+% ****************************************************************************
+% END OF BIBLIOGRAPHY AREA
+% ****************************************************************************
+\end{document}
