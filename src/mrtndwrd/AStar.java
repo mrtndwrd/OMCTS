@@ -329,27 +329,34 @@ public class AStar
 		Vector2d endOrientation = nextState.getAvatarOrientation();
 		ArrayList<Observation> observations;
 		SerializableTuple<Integer, Integer> expectedEndLocation = applyAction(startLocation, action);
+		boolean killSprite = false;
+		if(nextState.isGameOver() && nextState.getGameWinner() 
+						== Types.WINNER.PLAYER_LOSES)
+		{
+			killSprite = true;
+		}
 
 		// If orientation changed, we assume that no movement was made
-		if(startOrientation.equals(endOrientation))
-		{
-			// if location didn't change, there was probably something in the
-			// way
-			if(startLocation.equals(endLocation) 
+		// if location didn't change, there was probably something in the
+		// way
+		if(killSprite || 
+				(startOrientation.equals(endOrientation) && 
+					startLocation.equals(endLocation) 
 					&& !action.equals(Types.ACTIONS.ACTION_NIL)
-					&& !action.equals(Types.ACTIONS.ACTION_USE))
+					&& !action.equals(Types.ACTIONS.ACTION_USE)))
+		{
+			// Killsprites are worse than walls
+			// Get the sprite itypes on the endLocation:
+			if(expectedEndLocation.x < maxX && expectedEndLocation.y < maxY && 
+					expectedEndLocation.x >= 0 && expectedEndLocation.y >= 0)
 			{
-				// Get the sprite itypes on the endLocation:
-				if(expectedEndLocation.x < maxX && expectedEndLocation.y < maxY && 
-						expectedEndLocation.x >= 0 && expectedEndLocation.y >= 0)
+				observations = nextState.getObservationGrid()
+					[expectedEndLocation.x][expectedEndLocation.y];
+				for(Observation obs : observations)
 				{
-					observations = nextState.getObservationGrid()
-						[expectedEndLocation.x][expectedEndLocation.y];
-					for(Observation obs : observations)
-					{
-						// Increase the wall-score of this iType
-						wallITypeScore.put(obs.itype, wallITypeScore.get(obs.itype) + 1);
-					}
+					// Increase the wall-score of this iType
+					wallITypeScore.put(obs.itype, 
+							wallITypeScore.get(obs.itype) + 1);
 				}
 			}
 		}

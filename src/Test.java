@@ -22,7 +22,7 @@ public class Test
         String sampleGAController = "controllers.sampleGA.Agent";
         String myController = "mrtndwrd.Agent";
         //String myController = "montecarlo.Agent";
-        //String myController = "controllers.sampleOLMCTS.Agent";
+        //String myController = "controllers.sampleMCTS.Agent";
 
         //Available games:
         String gamesPath = "examples/gridphysics/";
@@ -48,17 +48,17 @@ public class Test
         int seed = new Random().nextInt();
 
         //Game and level to play
-        int gameIdx = 1;
+        int gameIdx = 4;
         int levelIdx = 0; //level names from 0 to 4 (game_lvlN.txt).
         String game = gamesPath + games[gameIdx] + ".txt";
         String level1 = gamesPath + games[gameIdx] + "_lvl" + levelIdx +".txt";
 
         // 1. This starts a game, in a level, played by a human.
-        //ArcadeMachine.playOneGame(game, level1, recordActionsFile, seed);
+        // ArcadeMachine.playOneGame(game, level1, recordActionsFile, seed);
 
         // 2. This plays a game in a level by the controller.
         //ArcadeMachine.runOneGame(game, level1, visuals, sampleMCTSController, recordActionsFile, seed);
-        //ArcadeMachine.runOneGame(game, level1, visuals, myController, recordActionsFile, seed);
+        ArcadeMachine.runOneGame(game, level1, visuals, myController, recordActionsFile, seed);
 
         // 3. This replays a game from an action file previously recorded
         //String readActionsFile = "actionsFile_aliens_lvl0.txt";  //This example is for
@@ -83,7 +83,7 @@ public class Test
                 if(saveActions) for(int k = 0; k < M; ++k)
                     actionFiles[actionIdx++] = "actions_game_" + i + "_level_" + j + "_" + k + ".txt";
             }
-            ArcadeMachine.runGames(game, levels, M, myController, saveActions? actionFiles:null);
+            //ArcadeMachine.runGames(game, levels, M, myController, saveActions? actionFiles:null);
         }
     }
 }

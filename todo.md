@@ -4,14 +4,9 @@ TODO
 ## Test
 - check if using random rollout is better than option-rollout
 - check if my stuff is actually better than simple mcts
+- Check if SingleTreeNode should use Lib.simpleValue or state.getGameScore
 
 ## Programmeren: 
-
-- Make more elaborate options than just actions
-	- Option(s) for avoiding enemies
-	- Option(s) for goto while avoiding enemies
-- Make a test-case that saves the data in some kind of understandable way
-  (keeping game name, algorithm name and scores at the very least)
 
 ## Lezen: 
 Hoofdstuk 4, 5, 9, 17 uit *Reinforcement Learning, State of the Art* (PDF van

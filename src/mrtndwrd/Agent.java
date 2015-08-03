@@ -35,7 +35,7 @@ public class Agent extends AbstractPlayer {
 	public static Types.ACTIONS[] actions;
 
 	/** The gamma of this algorithm */
-	public static final double GAMMA = .9;
+	public static final double GAMMA = .5;
 
 	/** AMAF alpha for determining how many times we count the optionRanking */
 	public static final double ALPHA = .3;
@@ -218,28 +218,26 @@ public class Agent extends AbstractPlayer {
 		// Update options:
 		setOptions(stateObs, this.possibleOptions, this.optionObsIDs);
 
-		// FIXME: True here is a test case, but that's probably what we want:
-		// this results in more "careful" policy chosing
-		if(true || currentOption == null || currentOption.isFinished(stateObs))
-		{
-			//Set the state observation object as the new root of the tree.
-			mctsPlayer.init(stateObs, this.possibleOptions, this.optionObsIDs);
+		// Always choose a new option here, that's safer
 
-			//Determine the action using MCTS...
-			int option = mctsPlayer.run(elapsedTimer);
+		// Set the state observation object as the new root of the tree.
+		mctsPlayer.init(stateObs, this.possibleOptions, this.optionObsIDs);
 
-			//... and return a copy (don't adjust the options in the
-			//possibleOption set. This can give trouble later).
-			currentOption = this.possibleOptions.get(option).copy();
-		}
+		// Determine the action using MCTS...
+		int option = mctsPlayer.run(elapsedTimer);
+
+		//... and return a copy (don't adjust the options in the
+		//possibleOption set. This can give trouble later).
+		currentOption = this.possibleOptions.get(option).copy();
+
 		Types.ACTIONS action = currentOption.act(stateObs);
 		//System.out.println("Tree:\n" + mctsPlayer.printRootNode());
 		//System.out.println("Orientation: " + stateObs.getAvatarOrientation());
 		//System.out.println("Location: " + stateObs.getAvatarPosition());
 		//System.out.println("Action: " + action);
-		//System.out.println("Astar:\n" + aStar);
+		System.out.println("Astar:\n" + aStar);
 		//System.out.println("Option ranking:\n" + optionRanking);
-		//System.out.println("Using option " + currentOption);
+		System.out.println("Using option " + currentOption);
 		return action;
 	}
 }

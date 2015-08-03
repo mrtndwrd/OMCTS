@@ -17,7 +17,7 @@ public class SingleTreeNode
 	private static final double HUGE_POSITIVE =  10000000.0;
 
 	/** mctsSearch continues until there are only so many miliseconds left */
-	public static final int REMAINING_LIMIT = 10;
+	public static final int REMAINING_LIMIT = 15;
 
 	public static double epsilon = 1e-6;
 
@@ -197,8 +197,8 @@ public class SingleTreeNode
 		nextState.advance(action);
 
 		// Step 2: Update the option's values:
-		//nextOption.addReward(Lib.simpleValue(nextState) - Lib.simpleValue(state));
-		nextOption.addReward(state.getGameScore() - nextState.getGameScore());
+		nextOption.addReward(Lib.simpleValue(state) - Lib.simpleValue(nextState));
+		//nextOption.addReward(state.getGameScore() - nextState.getGameScore());
 
 		// Step 3: get the new option set
 		ArrayList<Option> newOptions = (ArrayList<Option>) this.possibleOptions.clone();
@@ -310,8 +310,8 @@ public class SingleTreeNode
 			rollerOption = chosenOption.copy();
 		// Instantiate "rollerOptionFinished" to whether it's null:
 		boolean rollerOptionFinished = rollerOption == null;
-		//double lastScore = Lib.simpleValue(rollerState);
-		double lastScore = rollerState.getGameScore();
+		double lastScore = Lib.simpleValue(rollerState);
+		//double lastScore = rollerState.getGameScore();
 		while (!finishRollout(rollerState,thisDepth)) 
 		{
 			// System.out.println("Roller depth " + thisDepth);
@@ -351,11 +351,11 @@ public class SingleTreeNode
 
 		// Update the ranking with how far this option has come if it hasn't
 		// finished
-		if(!rollerOptionFinished)
-		{
-			// Update the ranking for the finished option
-			rollerOption.updateOptionRanking();
-		}
+		// if(!rollerOptionFinished)
+		// {
+		// 	// Update the ranking for the finished option
+		// 	rollerOption.updateOptionRanking();
+		// }
 		
 		double delta = Lib.simpleValue(rollerState);
 
