@@ -10,3 +10,6 @@ winScore*pdf
 actions.txt
 *.pdf
 *.log
+*.aux
+*.out
+src/mrtndwrd.zip
