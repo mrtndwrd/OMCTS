@@ -36,7 +36,7 @@ seq $max | parallel -j3 --eta "java -cp classes MyTest \
 # Extract the score from the outputs
 for i in $(eval echo {1..$max})
 do
-	cat output/complete_output_$i | scripts/getScore.sh > output/o$i
+	cat output/complete_output_$i | scripts/get-score.sh > output/o$i
 done
 # Make the plots
 python scripts/plot.py output/o* -ws -o winScore.pdf
