@@ -15,9 +15,21 @@ import mrtndwrd.Lib;
 public class MyTest
 {
 
-	//CIG 2014 Training Set Games
-	private static String games[] = new String[]{"aliens", "boulderdash", "butterflies", "chase", "frogs",
-			"missilecommand", "portals", "sokoban", "survivezombies", "zelda", "prey"};
+	// List of all games, used for help
+	private static String allGames[] = new String[]{
+		//CIG 2014 Training Set Games
+		"aliens", "boulderdash", "butterflies", "chase", "frogs",
+			"missilecommand", "portals", "sokoban", "survivezombies", "zelda", "prey",
+		//CIG 2014 Validation Set Games
+		"camelRace", "digdug", "firestorms", "infection", "firecaster",
+			"overload", "pacman", "seaquest", "whackamole", "eggomania",
+		//CIG 2015 New Training Set Games
+		"bait", "boloadventures", "brainman", "chipschallenge",  "modality",
+			"painter", "realportals", "realsokoban", "thecitadel", "zenpuzzle",
+		//CIG 2014 TEST SET / GECCO 2015 VALIDATION SET
+		"roguelike", "surround", "catapults", "plants", "plaqueattack",
+			"jaws", "labyrinth", "boulderchase", "escape", "lemmings"};
+
 	public static void main(String[] args)
 	{
 		//Available games:
@@ -121,7 +133,7 @@ public class MyTest
 			int N = 10;
 			for(int i = 0; i < N; ++i)
 			{
-				game = gamesPath + games[i] + ".txt";
+				game = gamesPath + allGames[i] + ".txt";
 				// for(int j = 0; j < L; ++j){
 				// 	levelNames = gamesPath + games[i] + "_lvl" + j +".txt";
 				// }
@@ -136,7 +148,7 @@ public class MyTest
 		System.out.println("Usage: java -cp classes MyTest [<args>]");
 		System.out.println("\t-h\t--help\t\tPrints this message");
 		System.out.println("\t-c=CONTROLLER\t--controller=CONTROLLER\tSet controller to CONTROLLER. This must be an available package and class extending AbstractPlayer. Default: 'controllers.sampleMCTS.Agent'");
-		System.out.println("\t-g=GAME\t--game=GAME\tSet game to GAME. Possible games: " + Arrays.toString(games) + " or 'all' for all games. Default: 'prey'");
+		System.out.println("\t-g=GAME\t--game=GAME\tSet game to GAME. Possible games: " + Arrays.toString(allGames) + " or 'all' for all games. Default: 'prey'");
 		System.out.println("\t-l=LEVELS\t--levels=LEVELS\tSet list of levels to LEVEL. This must be an index ranging from 0 to 4, can be comma separated for more values. Default: '0'");
 		System.out.println("\t-p=POSTFIX\t--file-postfix=POSTFIX\tAlgorithms made by Maarten de Waard can save or write files. They will have this postfix. Defaults to an empty string");
 		System.out.println("\t-n=NUMBER\t--number-of-games=NUMBER\tNumber of games to be run by ArcadeMachine.runGames. Defaunt: 20");
