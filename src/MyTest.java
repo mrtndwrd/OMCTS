@@ -4,6 +4,7 @@ import java.util.Random;
 import java.util.Arrays;
 import java.util.ArrayList;
 import mrtndwrd.Lib;
+import mrtndwrd.Agent;
 
 /**
  * Created with IntelliJ IDEA.
@@ -85,6 +86,18 @@ public class MyTest
 					.replace("--number-of-games=", ""));
 				System.out.printf("Number of games set to %s\n", numberOfGames);
 			}
+			else if(arg.startsWith("-c=") || arg.startsWith("--gamma="))
+			{
+				Agent.GAMMA = Double.parseDouble(arg.replace("-c=", "")
+					.replace("--gamma=", ""));
+				System.out.printf("GAMMA set to %f\n", Agent.GAMMA);
+			}
+			else if(arg.startsWith("-a=") || arg.startsWith("--alpha="))
+			{
+				Agent.ALPHA= Double.parseDouble(arg.replace("-a=", "")
+					.replace("--alpha=", ""));
+				System.out.printf("ALPHA set to %f\n", Agent.ALPHA);
+			}
 			else
 			{
 				System.out.printf("Unrecognized argument: %s\n", arg);
@@ -151,7 +164,9 @@ public class MyTest
 		System.out.println("\t-g=GAME\t--game=GAME\tSet game to GAME. Possible games: " + Arrays.toString(allGames) + " or 'all' for all games. Default: 'prey'");
 		System.out.println("\t-l=LEVELS\t--levels=LEVELS\tSet list of levels to LEVEL. This must be an index ranging from 0 to 4, can be comma separated for more values. Default: '0'");
 		System.out.println("\t-p=POSTFIX\t--file-postfix=POSTFIX\tAlgorithms made by Maarten de Waard can save or write files. They will have this postfix. Defaults to an empty string");
-		System.out.println("\t-n=NUMBER\t--number-of-games=NUMBER\tNumber of games to be run by ArcadeMachine.runGames. Defaunt: 20");
+		System.out.println("\t-n=NUMBER\t--number-of-games=NUMBER\tNumber of games to be run by ArcadeMachine.runGames. Default: 20");
+		System.out.println("\t-c=GAMMA\t--gamma=GAMMA\t Gamma for Options");
+		System.out.println("\t-a=ALPHA\t--alpha=ALPHA\t Alpha for Option ranking");
 	}
 }
 

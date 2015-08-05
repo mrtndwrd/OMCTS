@@ -22,7 +22,7 @@ public class SingleTreeNode
 	private static final double AGENT_OPTION_EXTRA = 0.1;
 
 	/** mctsSearch continues until there are only so many miliseconds left */
-	public static final int REMAINING_LIMIT = 7;
+	public static final int REMAINING_LIMIT = 6;
 
 	public static double epsilon = 1e-6;
 
@@ -244,44 +244,60 @@ public class SingleTreeNode
 		boolean bestExpandChild = false;
 		double hvVal;
 		int visits;
-		//for (SingleTreeNode child : this.children)
-		for (int i=0; i<this.children.length; i++)
+		int agentOptionIndex = -1;
+		if(agentOption != null)
 		{
-			expandChild = false;
-			// Initialize hvVal with the optionRanking
-			hvVal = Agent.optionRanking.get(this.possibleOptions.get(i).getType());
-			if(children[i] == null)
+			// TODO: Why would this result in -1?
+			agentOptionIndex = possibleOptions.indexOf(agentOption);
+		}
+		// Expand the agentOption first, so that it's always expanded
+		if(agentOptionIndex != -1 && children[possibleOptions.indexOf(agentOption)] == null)
+		{
+			visits = 0;
+			selectedId = possibleOptions.indexOf(agentOption);
+			bestExpandChild = true;
+		}
+		// Expand all the other stuff
+		else
+		{
+			for (int i=0; i<this.children.length; i++)
 			{
-				expandChild = true;
-				// set hvVal to the option's expected value
-				visits = 0;
-				// Keep hvVal as it is now: this encourages exploration towards
-				// good options
-			}
-			else
-			{
-				// Count the optionRanking only ALPHA times
-				hvVal = (1 - Agent.ALPHA) * this.children[i].totValue
-							+ Agent.ALPHA * hvVal;
-				visits = this.children[i].nVisits;
-			}
+				expandChild = false;
+				// Initialize hvVal with the optionRanking
+				hvVal = Agent.optionRanking.get(this.possibleOptions.get(i).getType());
+				if(children[i] == null)
+				{
+					expandChild = true;
+					// set hvVal to the option's expected value
+					visits = 0;
+					// Keep hvVal as it is now: this encourages exploration towards
+					// good options
+				}
+				else
+				{
+					// Count the optionRanking only ALPHA times
+					hvVal = (1 - Agent.ALPHA) * this.children[i].totValue
+								+ Agent.ALPHA * hvVal;
+					visits = this.children[i].nVisits;
+				}
 
-			double childValue =  hvVal / (visits + this.epsilon);
+				double childValue =  hvVal / (visits + this.epsilon);
 
-			childValue = Utils.normalise(childValue, bounds[0], bounds[1]);
+				childValue = Utils.normalise(childValue, bounds[0], bounds[1]);
 
-			double uctValue = childValue +
-					Agent.K * Math.sqrt(Math.log(this.nVisits + 1) / (visits + this.epsilon));
+				double uctValue = childValue +
+						Agent.K * Math.sqrt(Math.log(this.nVisits + 1) / (visits + this.epsilon));
 
-			// small sampleRandom numbers: break ties in unexpanded nodes
-			uctValue = Utils.noise(uctValue, this.epsilon, this.random.nextDouble());	 //break ties randomly
+				// small sampleRandom numbers: break ties in unexpanded nodes
+				uctValue = Utils.noise(uctValue, this.epsilon, this.random.nextDouble());	 //break ties randomly
 
-			// small sampleRandom numbers: break ties in unexpanded nodes
-			if (uctValue > bestValue) 
-			{
-				selectedId = i;
-				bestValue = uctValue;
-				bestExpandChild = expandChild;
+				// small sampleRandom numbers: break ties in unexpanded nodes
+				if (uctValue > bestValue) 
+				{
+					selectedId = i;
+					bestValue = uctValue;
+					bestExpandChild = expandChild;
+				}
 			}
 		}
 

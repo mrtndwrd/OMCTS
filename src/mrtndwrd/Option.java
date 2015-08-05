@@ -77,7 +77,7 @@ public abstract class Option implements Serializable
 	 * (sub)types of options are feasible with some kind of uct */
 	public String getType()
 	{
-		return this.getClass().getName() + this.getSubtype();
+		return this.getClass().getName() + "." + this.getSubtype();
 	}
 	
 	/** Resets the option values, enabling it to be called again next time

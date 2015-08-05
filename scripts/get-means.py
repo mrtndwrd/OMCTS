@@ -22,7 +22,6 @@ def get_mean(directory):
 					values[controller][game_name] = {}
 				values[controller][game_name][game_level] = \
 					np.genfromtxt(os.path.join(subdir, fi)).tolist()
-	
 	print calculate_game_stats(values)
 
 def calculate_game_stats(values):
@@ -32,7 +31,12 @@ def calculate_game_stats(values):
 		for game in dic:
 			stats[controller][game] = []
 			for level, scores in values[controller][game].iteritems():
-				stats[controller][game].extend(scores)
+				if scores == []:
+					continue
+				if isinstance(scores[0], list):
+					stats[controller][game].extend(scores)
+				else:
+					stats[controller][game].append(scores)
 
 	for controller, dic in stats.iteritems():
 		print "controller:", controller

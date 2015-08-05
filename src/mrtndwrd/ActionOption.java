@@ -68,6 +68,11 @@ public class ActionOption extends Option implements Serializable
 		aOutputStream.defaultWriteObject();
 		aOutputStream.writeObject(action);
 	}
+	@Override
+	protected String getSubtype()
+	{
+		return this.action.toString();
+	}
 
 	@Override
 	public Option copy()

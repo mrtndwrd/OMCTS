@@ -35,10 +35,10 @@ public class Agent extends AbstractPlayer {
 	public static Types.ACTIONS[] actions;
 
 	/** The gamma of this algorithm */
-	public static final double GAMMA = .5;
+	public static double GAMMA = .9;
 
 	/** AMAF alpha for determining how many times we count the optionRanking */
-	public static final double ALPHA = .3;
+	public static double ALPHA = .5;
 
 	/** The set of all options that are currently available */
 	public ArrayList<Option> possibleOptions = new ArrayList<Option>();
@@ -130,7 +130,7 @@ public class Agent extends AbstractPlayer {
 		//System.out.println("Astar:\n" + aStar);
 		//System.out.println("Option ranking:\n" + optionRanking);
 		//System.out.println("Using option " + currentOption);
-		System.out.println("Possible options: " + this.possibleOptions);
+		//System.out.println("Possible options: " + this.possibleOptions);
 		return action;
 	}
 }

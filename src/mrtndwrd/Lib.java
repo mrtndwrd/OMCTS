@@ -17,11 +17,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 
 public class Lib
 {
 	public static final double HUGE_NEGATIVE = -1000000000.0;
 	public static final double HUGE_POSITIVE =  1000000000.0;
+	/** Only the closest MAX_OBSERVATIONS observations are turned into options */
+	public static final int MAX_OBSERVATIONS =  5;
 
 	// This will be used by agents that make files. This postfix can be adjusted
 	// by for example the Test class (that's why it's not final...), in order to
@@ -194,25 +197,26 @@ public class Lib
 				act.contains(Types.ACTIONS.ACTION_LEFT) &&
 				act.contains(Types.ACTIONS.ACTION_RIGHT))
 		{
+			Vector2d avatarPosition = so.getAvatarPosition();
 			// Set options for all types of sprites that exist in this game. If they
 			// don't exist, the getter will return null and no options will be
 			// created.
 			if(so.getNPCPositions() != null)
 			{
-				createOptions(so.getNPCPositions(), Lib.GETTER_TYPE.NPC, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
+				createOptions(so.getNPCPositions(avatarPosition), Lib.GETTER_TYPE.NPC, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
 				// We can use a weapon! Try to make kill-options
 				// if(so.getAvailableActions().contains(Types.ACTIONS.ACTION_USE))
 				// 	createOptions(so.getNPCPositions(), Lib.GETTER_TYPE.NPC_KILL, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
 
 			}
 			if(so.getMovablePositions() != null)
-				createOptions(so.getMovablePositions(), Lib.GETTER_TYPE.MOVABLE, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
+				createOptions(so.getMovablePositions(avatarPosition), Lib.GETTER_TYPE.MOVABLE, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
 			//if(so.getImmovablePositions() != null)
 			//	createOptions(so.getImmovablePositions(), Lib.GETTER_TYPE.IMMOVABLE, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
 			if(so.getResourcesPositions() != null)
-				createOptions(so.getResourcesPositions(), Lib.GETTER_TYPE.RESOURCE, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
+				createOptions(so.getResourcesPositions(avatarPosition), Lib.GETTER_TYPE.RESOURCE, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
 			if(so.getPortalsPositions() != null)
-				createOptions(so.getPortalsPositions(), Lib.GETTER_TYPE.PORTAL, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
+				createOptions(so.getPortalsPositions(avatarPosition), Lib.GETTER_TYPE.PORTAL, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
 
 			// Remove all "old" obsIDs from this.optionObsIDs. optionObsIDs will
 			// then only contain obsolete obsIDs
@@ -252,8 +256,11 @@ public class Lib
 			HashSet<Integer> optionObsIDs)
 	{
 		// Loop through all types of NPCs
-		for(ArrayList<Observation> observationType : observations)
+		for(List<Observation> observationType : observations)
 		{
+			// Prune to only the nearest observations
+			if(observationType.size() > MAX_OBSERVATIONS)
+				observationType = observationType.subList(0, MAX_OBSERVATIONS);
 			// Loop through all the NPC's of this type
 			for(Observation observation : observationType)
 			{
