@@ -22,7 +22,7 @@ public abstract class Option implements Serializable
 	 * This includes when the destination is reached, when the goal is gone, or
 	 * when there is no path to a goal. All actions returned after being
 	 * "finished" are ACTION_NIL */
-	protected boolean finished;
+	public boolean finished;
 
 	/** Specifies the obsID of the movable/npc that is tracked by this option */
 	protected int obsID = -1;

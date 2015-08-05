@@ -16,6 +16,11 @@ public class SingleTreeNode
 
 	private static final double HUGE_POSITIVE =  10000000.0;
 
+	/** This gets counted upon the score of the option currently being followed.
+	 * It's less than the HUGE_NEGATIVE and HUGE_POSITIVE so that we'll switch
+	 * options to avoid dying or to increase win-chance */
+	private static final double AGENT_OPTION_EXTRA = 0.1;
+
 	/** mctsSearch continues until there are only so many miliseconds left */
 	public static final int REMAINING_LIMIT = 7;
 
@@ -45,6 +50,9 @@ public class SingleTreeNode
 	 * is finished, thereby representing a specific subtree in the whole */
 	private Option chosenOption;
 
+	/** The option that the agent is already following. This gets an extra score */
+	private Option agentOption;
+
 	public static Random random;
 	/** The depth in the rollout of this node (initialized as parent.node+1) */
 	public int nodeDepth;
@@ -54,9 +62,10 @@ public class SingleTreeNode
 	protected static double[] bounds = new double[]{Double.MAX_VALUE, -Double.MAX_VALUE};
 
 	/** Root node constructor */
-	public SingleTreeNode(ArrayList<Option> possibleOptions, HashSet<Integer> optionObsIDs, Random rnd) 
+	public SingleTreeNode(ArrayList<Option> possibleOptions, HashSet<Integer> optionObsIDs, Random rnd, Option currentOption) 
 	{
 		this(null, null, null, possibleOptions, optionObsIDs, rnd);
+		this.agentOption = currentOption;
 	}
 
 	/** normal constructor */
@@ -197,8 +206,8 @@ public class SingleTreeNode
 		nextState.advance(action);
 
 		// Step 2: Update the option's values:
-		nextOption.addReward(Lib.simpleValue(state) - Lib.simpleValue(nextState));
-		//nextOption.addReward(state.getGameScore() - nextState.getGameScore());
+		//nextOption.addReward(Lib.simpleValue(nextState) - //Lib.simpleValue(state));
+		nextOption.addReward(nextState.getGameScore() - state.getGameScore());
 
 		// Step 3: get the new option set
 		ArrayList<Option> newOptions = (ArrayList<Option>) this.possibleOptions.clone();
@@ -339,7 +348,7 @@ public class SingleTreeNode
 			//	rollerState.advance(action);
 			//	// Update the option's reward
 			//	//rollerOption.addReward(Lib.simpleValue(rollerState) - lastScore);
-			//	rollerOption.addReward(lastScore - rollerState.getGameScore());
+			//	rollerOption.addReward(rollerState.getGameScore() - lastScore);
 			//}
 			//else
 			//{
@@ -441,6 +450,20 @@ public class SingleTreeNode
 			{
 				double childValue = children[i].totValue / (children[i].nVisits + this.epsilon);
 				childValue = Utils.noise(childValue, this.epsilon, this.random.nextDouble());	 //break ties randomly
+				if(agentOption != null && agentOption.equals(children[i].chosenOption) && !agentOption.finished)
+				{
+					//System.out.println("Adding for option " + agentOption);
+					childValue = Utils.normalise(childValue, bounds[0], bounds[1]);
+					childValue += AGENT_OPTION_EXTRA;
+					//System.out.println(childValue);
+				}
+				else
+				{
+					//System.out.println("Not adding for child " + children[i].chosenOption + 
+					//		" and option " + agentOption);
+					childValue = Utils.normalise(childValue, bounds[0], bounds[1]);
+					//System.out.println(childValue);
+				}
 				if (childValue > bestValue)
 				{
 					bestValue = childValue;

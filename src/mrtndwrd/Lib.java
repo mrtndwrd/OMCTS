@@ -268,9 +268,9 @@ public class Lib
 					{
 						possibleOptions.add(new GoToMovableOption(Agent.GAMMA, 
 							type, observation.itype, observation.obsID, so));
-						if(type == Lib.GETTER_TYPE.NPC)
-							possibleOptions.add(new GoNearMovableOption(Agent.GAMMA, 
-								type, observation.itype, observation.obsID, so));
+						//if(type == Lib.GETTER_TYPE.NPC)
+						//	possibleOptions.add(new GoNearMovableOption(Agent.GAMMA, 
+						//		type, observation.itype, observation.obsID, so));
 					}
 					// else if (type == Lib.GETTER_TYPE.NPC_KILL)
 					// 	possibleOptions.add(new UseSwordOnMovableOption(Agent.GAMMA, 

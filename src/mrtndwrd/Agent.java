@@ -84,7 +84,7 @@ public class Agent extends AbstractPlayer {
 		mctsPlayer = new SingleMCTSPlayer(new Random());
 
 		// Set the state observation object as the root of the tree.
-		mctsPlayer.init(so, this.possibleOptions, this.optionObsIDs);
+		mctsPlayer.init(so, this.possibleOptions, this.optionObsIDs, this.currentOption);
 
 		// Startup the optionRanking
 		mctsPlayer.run(elapsedTimer);
@@ -110,7 +110,10 @@ public class Agent extends AbstractPlayer {
 		// Always choose a new option here, that's safer
 
 		// Set the state observation object as the new root of the tree.
-		mctsPlayer.init(stateObs, this.possibleOptions, this.optionObsIDs);
+		if(this.currentOption != null)
+			mctsPlayer.init(stateObs, this.possibleOptions, this.optionObsIDs, this.currentOption);
+		else
+			mctsPlayer.init(stateObs, this.possibleOptions, this.optionObsIDs, null);
 
 		// Determine the action using MCTS...
 		int option = mctsPlayer.run(elapsedTimer);
@@ -127,6 +130,7 @@ public class Agent extends AbstractPlayer {
 		//System.out.println("Astar:\n" + aStar);
 		//System.out.println("Option ranking:\n" + optionRanking);
 		//System.out.println("Using option " + currentOption);
+		System.out.println("Possible options: " + this.possibleOptions);
 		return action;
 	}
 }
