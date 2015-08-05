@@ -39,8 +39,11 @@ public class Test
         //String games[] = new String[]{"bait", "boloadventures", "brainman", "chipschallenge",  "modality",
         //                              "painter", "realportals", "realsokoban", "thecitadel", "zenpuzzle"};
 
-        //EXTRA GAMES:
-        //String games[] = new String[]{ "solarfox", "bombuzal" };
+
+        //CIG 2014 TEST SET / GECCO 2015 VALIDATION SET
+        String games[] = new String[]{"roguelike", "surround", "catapults", "plants", "plaqueattack",
+                "jaws", "labyrinth", "boulderchase", "escape", "lemmings"};
+
 
         //Other settings
         boolean visuals = true;
