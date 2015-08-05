@@ -15,6 +15,8 @@ import java.io.FileNotFoundException;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
+import java.util.HashSet;
+import java.util.Iterator;
 
 public class Lib
 {
@@ -152,5 +154,138 @@ public class Lib
 	public static enum GETTER_TYPE
 	{
 		NPC, MOVABLE, IMMOVABLE, RESOURCE, PORTAL, NPC_KILL
+	}
+
+
+	/** Adds options for all actions in the arraylist actions
+	 * @param actions all actions possible in this game
+	 * @param possibleOptions A list that may allready contain options. New
+	 * options are added to this list
+	 */
+	public static void setOptionsForActions(ArrayList<Types.ACTIONS> actions, ArrayList<Option> possibleOptions)
+	{
+		for(Types.ACTIONS action : actions)
+		{
+			possibleOptions.add(new ActionOption(Agent.GAMMA, action));
+		}
+	}
+
+	/** Adds options to the list possibleOptions
+	 * @param so the stateobservation is used to find stuff that a path can lead
+	 * to
+	 * @param possibleOptions A list that may allready contain options. New
+	 * options are added to this list
+	 * @param optionObsIds the ids of all observations that options lead to.
+	 * This is useful for removing options that lead to non-existing sprites
+	 */
+	public static void setOptions(StateObservation so, ArrayList<Option> possibleOptions, HashSet<Integer> optionObsIDs)
+	{
+		// Holds the ObsIDs that were already present in this.optionObsIDs
+		HashSet<Integer> keepObsIDs = new HashSet<Integer>();
+		// Holds the new obsIDs
+		HashSet<Integer> newObsIDs = new HashSet<Integer>();
+		
+
+		ArrayList<Types.ACTIONS> act = so.getAvailableActions();
+		// Only create path planning options if up, down, left and right are
+		// available
+		if(act.contains(Types.ACTIONS.ACTION_UP) &&
+				act.contains(Types.ACTIONS.ACTION_DOWN) &&
+				act.contains(Types.ACTIONS.ACTION_LEFT) &&
+				act.contains(Types.ACTIONS.ACTION_RIGHT))
+		{
+			// Set options for all types of sprites that exist in this game. If they
+			// don't exist, the getter will return null and no options will be
+			// created.
+			if(so.getNPCPositions() != null)
+			{
+				createOptions(so.getNPCPositions(), Lib.GETTER_TYPE.NPC, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
+				// We can use a weapon! Try to make kill-options
+				// if(so.getAvailableActions().contains(Types.ACTIONS.ACTION_USE))
+				// 	createOptions(so.getNPCPositions(), Lib.GETTER_TYPE.NPC_KILL, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
+
+			}
+			if(so.getMovablePositions() != null)
+				createOptions(so.getMovablePositions(), Lib.GETTER_TYPE.MOVABLE, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
+			//if(so.getImmovablePositions() != null)
+			//	createOptions(so.getImmovablePositions(), Lib.GETTER_TYPE.IMMOVABLE, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
+			if(so.getResourcesPositions() != null)
+				createOptions(so.getResourcesPositions(), Lib.GETTER_TYPE.RESOURCE, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
+			if(so.getPortalsPositions() != null)
+				createOptions(so.getPortalsPositions(), Lib.GETTER_TYPE.PORTAL, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
+
+			// Remove all "old" obsIDs from this.optionObsIDs. optionObsIDs will
+			// then only contain obsolete obsIDs
+			optionObsIDs.removeAll(keepObsIDs);
+
+			// Now remove all options that have the obsIDs in optionObsIDs.
+			// We use the iterator, in order to ensure removing while iterating is
+			// possible
+			for (Iterator<Option> it = possibleOptions.iterator(); it.hasNext();)
+			{
+				Option option = it.next();
+				// Remove the options that are still in optionObsIDs.
+				if(optionObsIDs.contains(option.getObsID()))
+				{
+					it.remove();
+				}
+			}
+
+			// Now all options are up-to-date. this.optionObsIDs should be updated
+			// to represent the current options list:
+			optionObsIDs.clear();
+			optionObsIDs.addAll(newObsIDs);
+		}
+	}
+
+	/** Adds new obsIDs to newObsIDs and ID's that should be kept to
+	 * keepObsIDs, based on the ID's in the ArrayList observations
+	 * Also creates options for all new obsIDs in possibleOptions and
+	 * optionObsIDs
+	 */
+	public static void createOptions(ArrayList<Observation>[] observations,
+			Lib.GETTER_TYPE type,
+			StateObservation so,
+			HashSet<Integer> keepObsIDs,
+			HashSet<Integer> newObsIDs,
+			ArrayList<Option> possibleOptions,
+			HashSet<Integer> optionObsIDs)
+	{
+		// Loop through all types of NPCs
+		for(ArrayList<Observation> observationType : observations)
+		{
+			// Loop through all the NPC's of this type
+			for(Observation observation : observationType)
+			{
+				// This is considered to be a wall
+				if(observation.itype == 0)
+					continue;
+				// Check if this is a new obsID
+				if(! optionObsIDs.contains(observation.obsID))
+				{
+					// Create option for this obsID
+					if(type == Lib.GETTER_TYPE.NPC || type == Lib.GETTER_TYPE.MOVABLE)
+					{
+						possibleOptions.add(new GoToMovableOption(Agent.GAMMA, 
+							type, observation.itype, observation.obsID, so));
+						if(type == Lib.GETTER_TYPE.NPC)
+							possibleOptions.add(new GoNearMovableOption(Agent.GAMMA, 
+								type, observation.itype, observation.obsID, so));
+					}
+					// else if (type == Lib.GETTER_TYPE.NPC_KILL)
+					// 	possibleOptions.add(new UseSwordOnMovableOption(Agent.GAMMA, 
+					// 		type, observation.itype, observation.obsID, so));
+					else
+						possibleOptions.add(new GoToPositionOption(Agent.GAMMA, 
+							type, observation.itype, observation.obsID, so));
+				}
+				else
+				{
+					// Add to the list of options that should be kept
+					keepObsIDs.add(observation.obsID);
+				}
+				newObsIDs.add(observation.obsID);
+			}
+		}
 	}
 }

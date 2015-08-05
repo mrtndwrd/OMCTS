@@ -17,7 +17,7 @@ public class SingleTreeNode
 	private static final double HUGE_POSITIVE =  10000000.0;
 
 	/** mctsSearch continues until there are only so many miliseconds left */
-	public static final int REMAINING_LIMIT = 15;
+	public static final int REMAINING_LIMIT = 7;
 
 	public static double epsilon = 1e-6;
 
@@ -203,7 +203,7 @@ public class SingleTreeNode
 		// Step 3: get the new option set
 		ArrayList<Option> newOptions = (ArrayList<Option>) this.possibleOptions.clone();
 		HashSet<Integer> newOptionObsIDs = (HashSet<Integer>) this.optionObsIDs.clone();
-		Agent.setOptions(nextState, newOptions, newOptionObsIDs);
+		Lib.setOptions(nextState, newOptions, newOptionObsIDs);
 
 		// Step 4: create a child node
 		SingleTreeNode tn = new SingleTreeNode(nextState, this, nextOption, newOptions, newOptionObsIDs, this.random);
