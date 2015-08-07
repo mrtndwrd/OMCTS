@@ -7,8 +7,8 @@ cd $dir/..
 controllers="mrtndwrd.Agent"
 
 # CIG 2014 Training Set Games
-#games="aliens boulderdash butterflies chase frogs missilecommand portals sokoban survivezombies zelda"
-games="butterflies zelda boulderdash chase"
+games="aliens boulderdash butterflies chase frogs missilecommand portals sokoban survivezombies zelda"
+#games="butterflies zelda boulderdash chase"
 # CIG 2014 Validation Set Games
 #games="camelRace digdug firestorms infection firecaster overload pacman seaquest whackamole eggomania"
 #CIG 2015 New Training Set Games
@@ -17,18 +17,18 @@ games="butterflies zelda boulderdash chase"
 #games="roguelike surround catapults plants plaqueattack jaws labyrinth boulderchase escape lemmings"
 
 levels="0 1 2 3 4"
-numberOfGames="3"
+numberOfGames="10"
 
-#alpha="0 0.2 0.3 0.4 0.5"
-alpha="0.5"
-#gamma="0 0.5 0.9"
-gamma="0.5"
+alpha="0 0.2 0.3 0.4 0.5"
+#alpha="0.5"
+gamma="0 0.5 0.9"
+#gamma="0.5"
 
 ant
 rm -r output/*
 
 # Run 3 parallel jobs of java until $max jobs are done
-parallel -j3 --eta "mkdir -p output/{1}a{5}g{6}; and java -cp classes MyTest \
+parallel -j2 --eta "mkdir -p output/{1}a{5}g{6}; and java -cp classes MyTest \
 		--controller={1} \
 		--game={2} \
 		--levels={3} \
