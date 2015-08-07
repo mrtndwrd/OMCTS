@@ -37,9 +37,5 @@ parallel -j2 --eta "mkdir -p output/{1}a{5}g{6}; and java -cp classes MyTest \
 		--gamma={6} \
 		> output/{1}a{5}g{6}/o_{2}-{3}" ::: $controllers ::: $games ::: $levels ::: $numberOfGames ::: $alpha ::: $gamma
 
-for i in $(find output/* -name 'o_*')
-do
-	cat $i | scripts/get-score.sh > ${i}_score
-done
 
-
+scripts/get-score-files.sh

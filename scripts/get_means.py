@@ -22,7 +22,7 @@ def get_mean(directory):
 					values[controller][game_name] = {}
 				values[controller][game_name][game_level] = \
 					np.genfromtxt(os.path.join(subdir, fi)).tolist()
-	print calculate_game_stats(values)
+	return values
 
 def calculate_game_stats(values):
 	stats = {}
@@ -37,7 +37,14 @@ def calculate_game_stats(values):
 					stats[controller][game].extend(scores)
 				else:
 					stats[controller][game].append(scores)
+	return stats
 
+def print_stats(stats):
+	""" Prints stats. Stats is built like this:
+		stats[controller][game] = [scores]
+	This function prints:
+		mean, std, total
+	"""
 	for controller, dic in stats.iteritems():
 		print "controller:", controller
 		for level, v in dic.iteritems():
@@ -47,6 +54,9 @@ def calculate_game_stats(values):
 			print '\ttotal: ', np.sum(v, 0)
 
 
+
 if __name__ == "__main__":
-	get_mean('output')
+	values = get_mean('output')
+	stats = calculate_game_stats(values)
+	print_stats(stats)
 

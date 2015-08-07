@@ -12,4 +12,5 @@ actions.txt
 *.log
 *.aux
 *.out
+*.pyc
 src/mrtndwrd.zip
