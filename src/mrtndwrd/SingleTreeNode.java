@@ -22,7 +22,10 @@ public class SingleTreeNode
 	private static final double AGENT_OPTION_EXTRA = 0.1;
 
 	/** mctsSearch continues until there are only so many miliseconds left */
-	public static final int REMAINING_LIMIT = 6;
+	public static final int REMAINING_LIMIT = 8;
+
+	/** Decides weather rollouts are done at random, or following options */
+	public static boolean RANDOM_ROLLOUT = true;
 
 	public static double epsilon = 1e-6;
 
@@ -331,10 +334,13 @@ public class SingleTreeNode
 		StateObservation rollerState = state.copy();
 		int thisDepth = this.nodeDepth;
 		Option rollerOption = null;
-		if(chosenOption != null)
+		// Save copy-time when RANDOM_ROLLOUT is true
+		if(chosenOption != null && !RANDOM_ROLLOUT)
 			rollerOption = chosenOption.copy();
 		// Instantiate "rollerOptionFinished" to whether it's null:
-		boolean rollerOptionFinished = rollerOption == null;
+		// If RANDOM_ROLLOUT is turned on, we say that the "roller option is
+		// finished"
+		boolean rollerOptionFinished = rollerOption == null || RANDOM_ROLLOUT;
 		double lastScore = Lib.simpleValue(rollerState);
 		//double lastScore = rollerState.getGameScore();
 		while (!finishRollout(rollerState,thisDepth)) 
@@ -344,33 +350,33 @@ public class SingleTreeNode
 			// 	System.out.println(this.parent);
 
 			Types.ACTIONS action;
-			//if(!rollerOptionFinished)
-			//{
-			//	// Set the lastScore for the next iteration 
-			//	//lastScore = Lib.simpleValue(rollerState);
-			//	lastScore = rollerState.getGameScore();
+			if(!rollerOptionFinished)
+			{
+				// Set the lastScore for the next iteration 
+				//lastScore = Lib.simpleValue(rollerState);
+				lastScore = rollerState.getGameScore();
 
-			//	// If the option is finished, update the Agent's option ranking
-			//	if(rollerOption.isFinished(rollerState))
-			//	{
-			//		rollerOption.updateOptionRanking();
-			//		rollerOptionFinished = true;
-			//	}
-			//}
-			//// If possible follow this node's option, then follow a random policy
-			//if(!rollerOptionFinished)
-			//{
-			//	action = rollerOption.act(rollerState);
-			//	rollerState.advance(action);
-			//	// Update the option's reward
-			//	//rollerOption.addReward(Lib.simpleValue(rollerState) - lastScore);
-			//	rollerOption.addReward(rollerState.getGameScore() - lastScore);
-			//}
-			//else
-			//{
+				// If the option is finished, update the Agent's option ranking
+				if(rollerOption.isFinished(rollerState))
+				{
+					rollerOption.updateOptionRanking();
+					rollerOptionFinished = true;
+				}
+			}
+			// If possible follow this node's option, then follow a random policy
+			if(!rollerOptionFinished)
+			{
+				action = rollerOption.act(rollerState);
+				rollerState.advance(action);
+				// Update the option's reward
+				//rollerOption.addReward(Lib.simpleValue(rollerState) - lastScore);
+				rollerOption.addReward(rollerState.getGameScore() - lastScore);
+			}
+			else
+			{
 				action = Agent.actions[random.nextInt(Agent.actions.length)];
 				rollerState.advance(action);
-			//}
+			}
 			thisDepth++;
 		}
 

@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import mrtndwrd.Lib;
 import mrtndwrd.Agent;
+import mrtndwrd.SingleTreeNode;
 
 /**
  * Created with IntelliJ IDEA.
@@ -92,6 +93,12 @@ public class MyTest
 					.replace("--gamma=", ""));
 				System.out.printf("GAMMA set to %f\n", Agent.GAMMA);
 			}
+			else if(arg.startsWith("-r=") || arg.startsWith("--random-rollout="))
+			{
+				SingleTreeNode.RANDOM_ROLLOUT = Boolean.parseBoolean(arg.replace("-r=", "")
+					.replace("--random-rollout=", ""));
+				System.out.printf("RANDOM_ROLLOUT set to %B\n", SingleTreeNode.RANDOM_ROLLOUT);
+			}
 			else if(arg.startsWith("-a=") || arg.startsWith("--alpha="))
 			{
 				Agent.ALPHA= Double.parseDouble(arg.replace("-a=", "")
@@ -159,14 +166,15 @@ public class MyTest
 	{
 		System.out.println("Testing program for GVG-AI");
 		System.out.println("Usage: java -cp classes MyTest [<args>]");
-		System.out.println("\t-h\t--help\t\tPrints this message");
+		System.out.println("\t-h\t\t--help\t\tPrints this message");
 		System.out.println("\t-c=CONTROLLER\t--controller=CONTROLLER\tSet controller to CONTROLLER. This must be an available package and class extending AbstractPlayer. Default: 'controllers.sampleMCTS.Agent'");
-		System.out.println("\t-g=GAME\t--game=GAME\tSet game to GAME. Possible games: " + Arrays.toString(allGames) + " or 'all' for all games. Default: 'prey'");
+		System.out.println("\t-c=GAMMA\t--gamma=GAMMA\t Gamma for Options");
+		System.out.println("\t-a=ALPHA\t--alpha=ALPHA\t Alpha for Option ranking");
 		System.out.println("\t-l=LEVELS\t--levels=LEVELS\tSet list of levels to LEVEL. This must be an index ranging from 0 to 4, can be comma separated for more values. Default: '0'");
 		System.out.println("\t-p=POSTFIX\t--file-postfix=POSTFIX\tAlgorithms made by Maarten de Waard can save or write files. They will have this postfix. Defaults to an empty string");
 		System.out.println("\t-n=NUMBER\t--number-of-games=NUMBER\tNumber of games to be run by ArcadeMachine.runGames. Default: 20");
-		System.out.println("\t-c=GAMMA\t--gamma=GAMMA\t Gamma for Options");
-		System.out.println("\t-a=ALPHA\t--alpha=ALPHA\t Alpha for Option ranking");
+		System.out.println("\t-r=BOOLEAN\t--random-rollout=BOOLEAN\t when this is set to 'true' (-r=true, 1 is seen as false) random rollouts are done in stead of rollouts using the current option");
+		System.out.println("\t-g=GAME\t\t--game=GAME\tSet game to GAME. Possible games: " + Arrays.toString(allGames) + " or 'all' for all games. Default: 'prey'");
 	}
 }
 

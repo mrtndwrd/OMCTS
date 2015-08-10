@@ -20,7 +20,7 @@ import java.util.Random;
  */
 public class Agent extends AbstractPlayer {
 
-	public static int ROLLOUT_DEPTH = 10;
+	public static int ROLLOUT_DEPTH = 7;
 
 	/** Constant C (also known as K) for exploration vs. exploitation */
 	public static double K = Math.sqrt(2);
@@ -38,7 +38,7 @@ public class Agent extends AbstractPlayer {
 	public static double GAMMA = .9;
 
 	/** AMAF alpha for determining how many times we count the optionRanking */
-	public static double ALPHA = .5;
+	public static double ALPHA = .3;
 
 	/** The set of all options that are currently available */
 	public ArrayList<Option> possibleOptions = new ArrayList<Option>();
@@ -104,12 +104,12 @@ public class Agent extends AbstractPlayer {
 				&& stateObs.getAvatarPosition().y == -1)
 			// You dead, man!
 			return Types.ACTIONS.ACTION_NIL;
+
 		// Update options:
 		Lib.setOptions(stateObs, this.possibleOptions, this.optionObsIDs);
 
 		// Always choose a new option here, that's safer
 
-		// Set the state observation object as the new root of the tree.
 		if(this.currentOption != null)
 			mctsPlayer.init(stateObs, this.possibleOptions, this.optionObsIDs, this.currentOption);
 		else
@@ -129,6 +129,7 @@ public class Agent extends AbstractPlayer {
 		//System.out.println("Action: " + action);
 		//System.out.println("Astar:\n" + aStar);
 		//System.out.println("Option ranking:\n" + optionRanking);
+		//System.out.print("Wall iType scores: "); aStar.printWallITypeScore();
 		//System.out.println("Using option " + currentOption);
 		//System.out.println("Possible options: " + this.possibleOptions);
 		return action;

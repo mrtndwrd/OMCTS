@@ -1,6 +1,7 @@
-from collections import defaultdict
+import sys, os, argparse
 import get_means
 import numpy as np
+from collections import defaultdict
 from matplotlib import pyplot as plt
 
 WIDTH=0.8
@@ -48,5 +49,10 @@ def barplot_stats(stats):
 	plt.show()
 
 if __name__ == "__main__":
-	plot_means('output', 'bar')
+	parser = argparse.ArgumentParser(description='Barplot total wins')
+	parser.add_argument('output', metavar='output',
+						help='output directory')
+	args = parser.parse_args()
+	plot_means(args.output, 'bar')
+
 

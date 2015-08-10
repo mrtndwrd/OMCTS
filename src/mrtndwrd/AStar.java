@@ -345,7 +345,9 @@ public class AStar
 					&& !action.equals(Types.ACTIONS.ACTION_NIL)
 					&& !action.equals(Types.ACTIONS.ACTION_USE)))
 		{
-			// Killsprites are worse than walls
+			int increase = 1;
+			if(killSprite)
+				increase = 100;
 			// Get the sprite itypes on the endLocation:
 			if(expectedEndLocation.x < maxX && expectedEndLocation.y < maxY && 
 					expectedEndLocation.x >= 0 && expectedEndLocation.y >= 0)
@@ -356,10 +358,36 @@ public class AStar
 				{
 					// Increase the wall-score of this iType
 					wallITypeScore.put(obs.itype, 
-							wallITypeScore.get(obs.itype) + 1);
+							wallITypeScore.get(obs.itype) + increase);
 				}
 			}
 		}
+		/* if(killSprite)
+		{
+			ArrayList<Observation> oldObservations = state.getObservationGrid()
+				[startLocation.x][startLocation.y];
+
+			observations = nextState.getObservationGrid()
+				[expectedEndLocation.x][expectedEndLocation.y];
+			System.out.println("Start: " + startLocation + " End: " + endLocation);
+
+			for(Observation obs : oldObservations)
+			{
+				// If the old observation has an iType, that the new one doesn't
+				// have, reduce the wall/death score of that iType.
+				if(observations.contains(obs))
+				{
+					System.out.println("Doesn't contain itype" + obs.itype);
+					wallITypeScore.put(obs.itype, //Math.max(0,
+							wallITypeScore.get(obs.itype) - 200);
+				}
+			}
+		}*/
+	}
+
+	public void printWallITypeScore()
+	{
+		System.out.println(this.wallITypeScore);
 	}
 
 	/** Print all the walls! */

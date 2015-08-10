@@ -1,4 +1,9 @@
 #!/bin/bash
+
+# Testing script for mrtndwrd.Agent using parallel to run it with the variables
+# set below. To find a description of all variables, run 
+# `java -cp classes MyTest -h`
+
 dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 cd $dir/..
 
@@ -17,25 +22,27 @@ games="aliens boulderdash butterflies chase frogs missilecommand portals sokoban
 #games="roguelike surround catapults plants plaqueattack jaws labyrinth boulderchase escape lemmings"
 
 levels="0 1 2 3 4"
-numberOfGames="10"
+numberOfGames="6"
 
-alpha="0 0.2 0.3 0.4 0.5"
+alpha="0.0 0.1 0.5 0.9 1.0"
 #alpha="0.5"
-gamma="0 0.5 0.9"
-#gamma="0.5"
+gamma="0.7 0.9"
+#gamma="0.9"
+random_rollout="true false"
 
 ant
 rm -r output/*
 
 # Run 3 parallel jobs of java until $max jobs are done
-parallel -j2 --eta "mkdir -p output/{1}a{5}g{6}; and java -cp classes MyTest \
+parallel -j3 --eta "mkdir -p output/{1}a{5}g{6}r{7}; and java -cp classes MyTest \
 		--controller={1} \
 		--game={2} \
 		--levels={3} \
 		--number-of-games={4} \
 		--alpha={5} \
 		--gamma={6} \
-		> output/{1}a{5}g{6}/o_{2}-{3}" ::: $controllers ::: $games ::: $levels ::: $numberOfGames ::: $alpha ::: $gamma
+		--random-rollout={7} \
+		> output/{1}a{5}g{6}r{7}/o_{2}-{3}" ::: $controllers ::: $games ::: $levels ::: $numberOfGames ::: $alpha ::: $gamma ::: $random_rollout
 
 
 scripts/get-score-files.sh
