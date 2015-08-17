@@ -6,6 +6,24 @@ TODO
 
 ## Program:
 - option for pushing boxes around (sokoban, other puzzle games) (too difficult?)
+- wait-and-shoot option voor bepaalde bounding box
+- een actie overslaan voor meer rekentijd
+
+## Schrijven
+- Inleiding
+	- voorlaatste paragraaf: onderzoeksvragen
+	- (laatste: overzicht thesis)
+- Related Work
+- Part 1: competition version
+	- Method
+	- Experiments
+	- Results
+- Part 2: multilevel-memory version
+	- Method
+	- Experiments
+	- Results
+- Conclusion
+- Future Work
 
 ## Lezen: 
 Hoofdstuk 4, 5, 9, 17 uit *Reinforcement Learning, State of the Art* (PDF van
