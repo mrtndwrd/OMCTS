@@ -4,6 +4,7 @@ import core.game.Observation;
 import core.game.StateObservation;
 import ontology.Types;
 import tools.Vector2d;
+import tools.ElapsedCpuTimer;
 
 import java.util.ArrayList;
 import java.io.ObjectOutputStream;
@@ -292,6 +293,37 @@ public class Lib
 					keepObsIDs.add(observation.obsID);
 				}
 				newObsIDs.add(observation.obsID);
+			}
+		}
+	}
+
+	/** Learns the a* walls by using option o repeatedly and updating the walls
+	 * */
+	public static void findWalls(StateObservation obs, Option o, ElapsedCpuTimer elapsedTimer)
+	{
+		StateObservation oldState, nextState;
+		Option oCopy;
+		while(elapsedTimer.remainingTimeMillis() > 10)
+		{
+			oCopy = o.copy();
+			if(oCopy.isFinished(obs))
+				System.out.println("Option " + oCopy + " is already finished");
+			oldState = obs.copy();
+			if(oldState.isGameOver())
+				oldState = obs.copy();
+			while(!oCopy.isFinished(oldState) && 
+				!oldState.isGameOver() &&
+				elapsedTimer.remainingTimeMillis() > 10)
+			{
+				nextState = oldState.copy();
+				Types.ACTIONS action = oCopy.act(oldState);
+				nextState.advance(action);
+				// Add the reward (isn't much use in case of using the random
+				// agent, but some options might use it and it doesn't take a
+				// lot of time
+				oCopy.addReward(nextState.getGameScore() - oldState.getGameScore());
+				Agent.aStar.setLastObservationGrid(nextState.getObservationGrid());
+				Agent.aStar.checkForWalls(oldState, action, nextState);
 			}
 		}
 	}

@@ -56,7 +56,7 @@ public class Agent extends AbstractPlayer {
 	public static DefaultHashMap<String, Double> optionRanking;
 
 	/** which act to call. 1 = MCTS, 2 = random */
-	public static final int METHOD = 2;
+	public static int METHOD = 2;
 
 	/** Currently followed option */
 	private Option currentOption;
@@ -175,7 +175,8 @@ public class Agent extends AbstractPlayer {
 		if(currentOption.isFinished(stateObs))
 			currentOption = this.possibleOptions.get(
 				random.nextInt(this.possibleOptions.size())).copy();
-		// TODO: Learn A* walls
+		// Learn A* walls
+		Lib.findWalls(stateObs, currentOption, elapsedTimer);
 		Types.ACTIONS action = currentOption.act(stateObs);
 		//System.out.println("Orientation: " + stateObs.getAvatarOrientation());
 		//System.out.println("Location: " + stateObs.getAvatarPosition());
@@ -183,7 +184,7 @@ public class Agent extends AbstractPlayer {
 		//System.out.println("Astar:\n" + aStar);
 		//System.out.println("Option ranking:\n" + optionRanking);
 		//System.out.print("Wall iType scores: "); aStar.printWallITypeScore();
-		System.out.println("Using option " + currentOption);
+		//System.out.println("Using option " + currentOption);
 		//System.out.println("Possible options: " + this.possibleOptions);
 		return action;
 	}

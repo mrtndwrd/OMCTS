@@ -156,11 +156,13 @@ public class GoToPositionOption extends Option implements Serializable
 	public boolean isFinished(StateObservation so)
 	{
 		if(this.finished)
+		{
 			return true;
+		}
 
 		// There might be some other cases in which this.finished has not been
 		// set yet:
-		if (!this.goalExists(so) || currentPath.size() == 0)
+		if (!this.goalExists(so))
 		{
 			setFinished();
 			return true;
