@@ -24,10 +24,11 @@ games="aliens boulderdash butterflies chase frogs missilecommand portals sokoban
 levels="0 1 2 3 4"
 numberOfGames="6"
 
-alpha="0.0 0.1 0.5 0.9 1.0"
-#alpha="0.5"
-gamma="0.7 0.9"
-#gamma="0.9"
+# Best: 0.5
+alpha="0.5 0.9"
+# Best: 0.9
+gamma="0.9"
+# Best: false
 random_rollout="true false"
 
 ant
