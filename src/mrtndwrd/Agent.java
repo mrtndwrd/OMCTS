@@ -28,7 +28,9 @@ public class Agent extends AbstractPlayer {
 	/** AStar for searching for stuff */
 	public static AStar aStar;
 
-	/** Random generator for the agent. */
+	private Random random;
+
+	/** mcts player for the agent. */
 	private SingleMCTSPlayer mctsPlayer;
 		
 	/** list of actions for random action selection in rollout */
@@ -53,6 +55,9 @@ public class Agent extends AbstractPlayer {
 	/** Ranking of an option */
 	public static DefaultHashMap<String, Double> optionRanking;
 
+	/** which act to call. 1 = MCTS, 2 = random */
+	public static final int METHOD = 2;
+
 	/** Currently followed option */
 	private Option currentOption;
 
@@ -76,18 +81,35 @@ public class Agent extends AbstractPlayer {
 		{
 			actions[i] = act.get(i);
 		}
+
+		this.random = new Random();
+
+		if(METHOD == 1)
+			initMcts(so, elapsedTimer);
+		else
+			initRandom(so, elapsedTimer);
+	}
+
+	public void initMcts(StateObservation so, ElapsedCpuTimer elapsedTimer)
+	{
 		optionRankingN = new DefaultHashMap<String, Double>(0.);
 		optionRankingD = new DefaultHashMap<String, Double>(0.);
 		optionRanking = new DefaultHashMap<String, Double>(0.);
 
 		//Create the player.
-		mctsPlayer = new SingleMCTSPlayer(new Random());
+		mctsPlayer = new SingleMCTSPlayer(random);
 
 		// Set the state observation object as the root of the tree.
 		mctsPlayer.init(so, this.possibleOptions, this.optionObsIDs, this.currentOption);
 
 		// Startup the optionRanking
 		mctsPlayer.run(elapsedTimer);
+	}
+
+	public void initRandom(StateObservation so, ElapsedCpuTimer elapsedTimer)
+	{
+		currentOption = this.possibleOptions.get(
+			random.nextInt(this.possibleOptions.size())).copy();
 	}
 
 	/**
@@ -97,7 +119,7 @@ public class Agent extends AbstractPlayer {
 	 * @param elapsedTimer Timer when the action returned is due.
 	 * @return An action for the current state
 	 */
-	public Types.ACTIONS act(StateObservation stateObs, ElapsedCpuTimer elapsedTimer) 
+	public Types.ACTIONS act(StateObservation stateObs, ElapsedCpuTimer elapsedTimer)
 	{
 		aStar.setLastObservationGrid(stateObs.getObservationGrid());
 		if(stateObs.getAvatarPosition().x == -1
@@ -108,7 +130,20 @@ public class Agent extends AbstractPlayer {
 		// Update options:
 		Lib.setOptions(stateObs, this.possibleOptions, this.optionObsIDs);
 
-		// Always choose a new option here, that's safer
+		if(METHOD == 1)
+			return actMcts(stateObs, elapsedTimer);
+		else
+			return actRandom(stateObs, elapsedTimer);
+	}
+
+	/**
+	 * Picks an action using MCTS
+	 * @param stateObs Observation of the current state.
+	 * @param elapsedTimer Timer when the action returned is due.
+	 * @return An action for the current state
+	 */
+	public Types.ACTIONS actMcts(StateObservation stateObs, ElapsedCpuTimer elapsedTimer) 
+	{
 
 		if(this.currentOption != null)
 			mctsPlayer.init(stateObs, this.possibleOptions, this.optionObsIDs, this.currentOption);
@@ -118,8 +153,8 @@ public class Agent extends AbstractPlayer {
 		// Determine the action using MCTS...
 		int option = mctsPlayer.run(elapsedTimer);
 
-		//... and return a copy (don't adjust the options in the
-		//possibleOption set. This can give trouble later).
+		// return a copy (don't adjust the options in the
+		// possibleOption set. This can give trouble later).
 		currentOption = this.possibleOptions.get(option).copy();
 
 		Types.ACTIONS action = currentOption.act(stateObs);
@@ -131,6 +166,24 @@ public class Agent extends AbstractPlayer {
 		//System.out.println("Option ranking:\n" + optionRanking);
 		//System.out.print("Wall iType scores: "); aStar.printWallITypeScore();
 		//System.out.println("Using option " + currentOption);
+		//System.out.println("Possible options: " + this.possibleOptions);
+		return action;
+	}
+
+	public Types.ACTIONS actRandom(StateObservation stateObs, ElapsedCpuTimer elapsedTimer)
+	{
+		if(currentOption.isFinished(stateObs))
+			currentOption = this.possibleOptions.get(
+				random.nextInt(this.possibleOptions.size())).copy();
+		// TODO: Learn A* walls
+		Types.ACTIONS action = currentOption.act(stateObs);
+		//System.out.println("Orientation: " + stateObs.getAvatarOrientation());
+		//System.out.println("Location: " + stateObs.getAvatarPosition());
+		//System.out.println("Action: " + action);
+		//System.out.println("Astar:\n" + aStar);
+		//System.out.println("Option ranking:\n" + optionRanking);
+		//System.out.print("Wall iType scores: "); aStar.printWallITypeScore();
+		System.out.println("Using option " + currentOption);
 		//System.out.println("Possible options: " + this.possibleOptions);
 		return action;
 	}
