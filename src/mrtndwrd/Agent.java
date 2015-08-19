@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Random;
+import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -36,6 +37,9 @@ public class Agent extends AbstractPlayer {
 
 	/** The gamma of this algorithm */
 	public static double GAMMA = .9;
+
+	/** (start of) Filename for optionRanking tables when they are saved */
+	private String filename = "tables/optionRanking";
 
 	/** AMAF alpha for determining how many times we count the optionRanking */
 	public static double ALPHA = .3;
@@ -86,9 +90,55 @@ public class Agent extends AbstractPlayer {
 		// Set the state observation object as the root of the tree.
 		mctsPlayer.init(so, this.possibleOptions, this.optionObsIDs, this.currentOption);
 
+		// Load old optionRanking (if possible)
+		readOptionRanking();
+		System.out.println("Loaded option ranking: ");
+		System.out.println(this.optionRanking);
+
 		// Startup the optionRanking
 		mctsPlayer.run(elapsedTimer);
 	}
+
+	/** Loads filename + N and filename + D into this.optionRankingN and
+	 * this.optionRankingD respectively, afterwards computing optionRanking by
+	 * dividing every value in optionRankingN with the corresponting value in
+	 * optionRankingD
+	 */
+	private void readOptionRanking()
+	{
+		this.filename = "tables/optionRanking" + Lib.filePostfix;
+		// Load objects 
+		try
+		{
+			Object o = Lib.loadObjectFromFile(filename + 'N');
+			if(o == null)
+				return;
+			this.optionRankingN = (DefaultHashMap<String, Double>) o;
+			o = Lib.loadObjectFromFile(filename + 'D');
+			if(o == null)
+				return;
+			this.optionRankingD = (DefaultHashMap<String, Double>) o;
+			String key;
+			for(Map.Entry<String, Double> ranking : optionRankingN.entrySet())
+			{
+				key = ranking.getKey();
+				this.optionRanking.put(key, ranking.getValue() / optionRankingD.get(key));
+			}
+		}
+		catch(Exception e)
+		{
+			System.out.println("Couldn't load optionRanking from file");
+			e.printStackTrace();
+		}
+	}
+
+ 	/** write q to file */
+ 	public void writeOptionRanking()
+ 	{
+ 		Lib.writeHashMapToFile(this.optionRankingD, filename + "D");
+ 		Lib.writeHashMapToFile(this.optionRankingN, filename + "N");
+ 	}
+
 
 	/**
 	 * Picks an action. This function is called every game step to request an
@@ -128,10 +178,18 @@ public class Agent extends AbstractPlayer {
 		//System.out.println("Location: " + stateObs.getAvatarPosition());
 		//System.out.println("Action: " + action);
 		//System.out.println("Astar:\n" + aStar);
-		//System.out.println("Option ranking:\n" + optionRanking);
+		System.out.println("Option ranking:\n" + optionRanking);
 		//System.out.print("Wall iType scores: "); aStar.printWallITypeScore();
 		//System.out.println("Using option " + currentOption);
 		//System.out.println("Possible options: " + this.possibleOptions);
 		return action;
+	}
+
+	/** write optionRanking to file when agent is done*/
+	@Override
+	public final void teardown()
+	{
+		writeOptionRanking();
+		super.teardown();
 	}
 }
