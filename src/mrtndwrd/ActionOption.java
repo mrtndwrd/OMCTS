@@ -82,7 +82,7 @@ public class ActionOption extends Option implements Serializable
 
 	public String toString()
 	{
-		return "ActionOption(" + this.action + ")";
+		return "ActionOption(" + this.action + ")" + " Step " + this.step;
 	}
 
 	public int hashCode()

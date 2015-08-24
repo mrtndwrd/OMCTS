@@ -7,10 +7,10 @@ then
 	exit 1
 fi
 
-# Set max to amount dividable by 3
+# Set number of tests
 let max=$1
 # Set the number of games to the second argument
-games=$2
+let games=$2
 
 dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 cd $dir/..
@@ -18,12 +18,12 @@ cd $dir/..
 # Variables (command line time?)
 controller="mrtndwrd.Agent"
 # controller="controllers.sampleMCTS.Agent"
-game="butterflies"
-levels="2"
+game="chase"
+levels="4"
 
 ant
-rm output/*
-rm tables/*
+rm -r output/*
+rm -r tables/*
 
 # Run 3 parallel jobs of java until $max jobs are done
 seq $max | parallel -j3 --eta "java -cp classes MyTest \

@@ -25,7 +25,7 @@ public class SingleTreeNode
 	public static final int REMAINING_LIMIT = 8;
 
 	/** Decides weather rollouts are done at random, or following options */
-	public static boolean RANDOM_ROLLOUT = true;
+	public static boolean RANDOM_ROLLOUT = false;
 
 	public static double epsilon = 1e-6;
 
@@ -87,7 +87,9 @@ public class SingleTreeNode
 			this.chosenOptionFinished = true;
 			// Update the option ranking if needed
 			if(chosenOption != null && chosenOption.isFinished(state))
+			{
 				chosenOption.updateOptionRanking();
+			}
 
 			children = new SingleTreeNode[possibleOptions.size()];
 		}
@@ -279,6 +281,8 @@ public class SingleTreeNode
 				else
 				{
 					// Count the optionRanking only ALPHA times
+					// TODO: Move this to the calculation for totValue (somehow)
+					// because then it'll be used for aaaall selection
 					hvVal = (1 - Agent.ALPHA) * this.children[i].totValue
 								+ Agent.ALPHA * hvVal;
 					visits = this.children[i].nVisits;

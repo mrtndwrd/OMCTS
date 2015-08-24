@@ -42,7 +42,7 @@ public class Agent extends AbstractPlayer {
 	private String filename = "tables/optionRanking";
 
 	/** AMAF alpha for determining how many times we count the optionRanking */
-	public static double ALPHA = .3;
+	public static double ALPHA = .5;
 
 	/** The set of all options that are currently available */
 	public ArrayList<Option> possibleOptions = new ArrayList<Option>();
@@ -94,6 +94,10 @@ public class Agent extends AbstractPlayer {
 		readOptionRanking();
 		System.out.println("Loaded option ranking: ");
 		System.out.println(this.optionRanking);
+		System.out.println("Loaded option ranking N: ");
+		System.out.println(this.optionRankingN);
+		System.out.println("Loaded option ranking D: ");
+		System.out.println(this.optionRankingD);
 
 		// Startup the optionRanking
 		mctsPlayer.run(elapsedTimer);
@@ -132,12 +136,16 @@ public class Agent extends AbstractPlayer {
 		}
 	}
 
- 	/** write q to file */
- 	public void writeOptionRanking()
- 	{
- 		Lib.writeHashMapToFile(this.optionRankingD, filename + "D");
- 		Lib.writeHashMapToFile(this.optionRankingN, filename + "N");
- 	}
+	/** write q to file */
+	public void writeOptionRanking()
+	{
+		// System.out.println("Writing hasmap optionRankingD");
+		// System.out.println(optionRankingD);
+		// System.out.println("Writing hasmap optionRankingN");
+		// System.out.println(optionRankingN);
+		Lib.writeHashMapToFile(this.optionRankingD, filename + "D");
+		Lib.writeHashMapToFile(this.optionRankingN, filename + "N");
+	}
 
 
 	/**
@@ -159,9 +167,12 @@ public class Agent extends AbstractPlayer {
 		Lib.setOptions(stateObs, this.possibleOptions, this.optionObsIDs);
 
 		// Always choose a new option here, that's safer
+		//
 
 		if(this.currentOption != null)
+		{
 			mctsPlayer.init(stateObs, this.possibleOptions, this.optionObsIDs, this.currentOption);
+		}
 		else
 			mctsPlayer.init(stateObs, this.possibleOptions, this.optionObsIDs, null);
 
@@ -173,14 +184,14 @@ public class Agent extends AbstractPlayer {
 		currentOption = this.possibleOptions.get(option).copy();
 
 		Types.ACTIONS action = currentOption.act(stateObs);
-		//System.out.println("Tree:\n" + mctsPlayer.printRootNode());
+		System.out.println("Tree:\n" + mctsPlayer.printRootNode());
 		//System.out.println("Orientation: " + stateObs.getAvatarOrientation());
 		//System.out.println("Location: " + stateObs.getAvatarPosition());
 		//System.out.println("Action: " + action);
 		//System.out.println("Astar:\n" + aStar);
-		System.out.println("Option ranking:\n" + optionRanking);
+		//System.out.println("Option ranking:\n" + optionRankingD);
 		//System.out.print("Wall iType scores: "); aStar.printWallITypeScore();
-		//System.out.println("Using option " + currentOption);
+		System.out.println("Using option " + currentOption);
 		//System.out.println("Possible options: " + this.possibleOptions);
 		return action;
 	}

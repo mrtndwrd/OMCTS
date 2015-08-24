@@ -8,8 +8,8 @@ dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 cd $dir/..
 
 # There has to be this directory, and it should be empty on start
-mkdir -p tables/
-rm tables/*
+# mkdir -p tables/
+# rm tables/*
 
 # Variables (command line time?)
 #controllers="mrtndwrd.Agent controllers.sampleMCTS.Agent"
@@ -26,7 +26,7 @@ games="chase"
 #games="roguelike surround catapults plants plaqueattack jaws labyrinth boulderchase escape lemmings"
 
 levels="4"
-numberOfGames="25"
+numberOfGames="10"
 
 # Best: 0.5
 alpha="0.5"
