@@ -42,7 +42,7 @@ public class Agent extends AbstractPlayer {
 	private String filename = "tables/optionRanking";
 
 	/** AMAF alpha for determining how many times we count the optionRanking */
-	public static double ALPHA = .5;
+	public static double ALPHA = .3;
 
 	/** The set of all options that are currently available */
 	public ArrayList<Option> possibleOptions = new ArrayList<Option>();
@@ -171,6 +171,8 @@ public class Agent extends AbstractPlayer {
 
 		if(this.currentOption != null)
 		{
+			if(currentOption.isFinished(stateObs))
+				currentOption.updateOptionRanking();
 			mctsPlayer.init(stateObs, this.possibleOptions, this.optionObsIDs, this.currentOption);
 		}
 		else
@@ -184,7 +186,7 @@ public class Agent extends AbstractPlayer {
 		currentOption = this.possibleOptions.get(option).copy();
 
 		Types.ACTIONS action = currentOption.act(stateObs);
-		System.out.println("Tree:\n" + mctsPlayer.printRootNode());
+		//System.out.println("Tree:\n" + mctsPlayer.printRootNode());
 		//System.out.println("Orientation: " + stateObs.getAvatarOrientation());
 		//System.out.println("Location: " + stateObs.getAvatarPosition());
 		//System.out.println("Action: " + action);

@@ -213,6 +213,8 @@ public class SingleTreeNode
 		// Step 2: Update the option's values:
 		//nextOption.addReward(Lib.simpleValue(nextState) - //Lib.simpleValue(state));
 		nextOption.addReward(nextState.getGameScore() - state.getGameScore());
+		if(nextOption.isFinished(nextState))
+			nextOption.updateOptionRanking();
 
 		// Step 3: get the new option set
 		ArrayList<Option> newOptions = (ArrayList<Option>) this.possibleOptions.clone();
@@ -247,7 +249,7 @@ public class SingleTreeNode
 		// "null" value
 		boolean expandChild;
 		boolean bestExpandChild = false;
-		double hvVal;
+		double hvVal, optionRanking, childValue;
 		int visits;
 		int agentOptionIndex = -1;
 		if(agentOption != null)
@@ -269,26 +271,33 @@ public class SingleTreeNode
 			{
 				expandChild = false;
 				// Initialize hvVal with the optionRanking
-				hvVal = Agent.optionRanking.get(this.possibleOptions.get(i).getType());
+				optionRanking = Agent.optionRanking.get(this.possibleOptions.get(i).getType());
 				if(children[i] == null)
 				{
 					expandChild = true;
-					// set hvVal to the option's expected value
+					// Set the number of visits to 0
 					visits = 0;
-					// Keep hvVal as it is now: this encourages exploration towards
-					// good options
+					// Set hvVal to 0 (we won't use it, but it will keep javac
+					// happy)
+					hvVal = 0;
 				}
 				else
 				{
 					// Count the optionRanking only ALPHA times
-					// TODO: Move this to the calculation for totValue (somehow)
-					// because then it'll be used for aaaall selection
-					hvVal = (1 - Agent.ALPHA) * this.children[i].totValue
-								+ Agent.ALPHA * hvVal;
+					hvVal = this.children[i].totValue;
 					visits = this.children[i].nVisits;
 				}
 
-				double childValue =  hvVal / (visits + this.epsilon);
+				if(expandChild)
+				{
+					childValue = optionRanking;
+				}
+				else
+				{
+					childValue =  ((1 - Agent.ALPHA) * 
+							(hvVal / (visits + this.epsilon))) + 
+						Agent.ALPHA * optionRanking;
+				}
 
 				childValue = Utils.normalise(childValue, bounds[0], bounds[1]);
 
@@ -474,13 +483,17 @@ public class SingleTreeNode
 		{
 			if(children[i] != null) 
 			{
-				double childValue = children[i].totValue / (children[i].nVisits + this.epsilon);
+				//double childValue = children[i].totValue / (children[i].nVisits + this.epsilon);
+				double optionRanking = Agent.optionRanking.get(this.possibleOptions.get(i).getType());
+				double childValue =  ((1 - Agent.ALPHA) * 
+							(children[i].totValue / (children[i].nVisits + this.epsilon))) + 
+						Agent.ALPHA * optionRanking;
 				childValue = Utils.noise(childValue, this.epsilon, this.random.nextDouble());	 //break ties randomly
 				if(agentOption != null && agentOption.equals(children[i].chosenOption) && !agentOption.finished)
 				{
 					//System.out.println("Adding for option " + agentOption);
 					childValue = Utils.normalise(childValue, bounds[0], bounds[1]);
-					childValue += AGENT_OPTION_EXTRA;
+					//childValue += AGENT_OPTION_EXTRA;
 					//System.out.println(childValue);
 				}
 				else
