@@ -173,6 +173,19 @@ public class Lib
 		}
 	}
 
+	public static void setWaitAndShootOptions(StateObservation so, ArrayList<Option> possibleOptions, int range)
+	{
+		for(ArrayList<Observation> ao : so.getNPCPositions())
+		{
+			WaitAndShootOption o = new WaitAndShootOption(Agent.GAMMA, 
+					ao.get(0).itype, range);
+			if(!possibleOptions.contains(o))
+			{
+				possibleOptions.add(o);
+			}
+		}
+	}
+
 	/** Adds options to the list possibleOptions
 	 * @param so the stateobservation is used to find stuff that a path can lead
 	 * to
@@ -294,5 +307,30 @@ public class Lib
 				newObsIDs.add(observation.obsID);
 			}
 		}
+	}
+
+	/** Calculates the orientation based on sprites coming from the avatar. This
+	 * is needed because the orientation doesn't always work in the original
+	 * games */
+	public static Vector2d spriteFromAvatarOrientation(StateObservation so)
+	{
+		// Get a copy of the state
+		StateObservation soCopy = so.copy();
+		double blockSize = soCopy.getBlockSize();
+		// ACTION_USE to make a new sprite from avatar
+		soCopy.advance(Types.ACTIONS.ACTION_USE);
+		soCopy.advance(Types.ACTIONS.ACTION_NIL);
+		Vector2d avatarPosition = soCopy.getAvatarPosition();
+		ArrayList<Observation>[] sprites = 
+			soCopy.getFromAvatarSpritesPositions(avatarPosition);
+		if(sprites == null || sprites.length == 0 || sprites[0].size() == 0)
+		{
+			return new Vector2d(0., 0.);
+		}
+		// assume only 1 sprite is made and get the nearest sprite (.get(0))
+		Observation sprite = sprites[0].get(0);
+		double x = (avatarPosition.x - sprite.position.x) / blockSize;
+		double y = (avatarPosition.y - sprite.position.y) / blockSize;
+		return new Vector2d(x, y);
 	}
 }
