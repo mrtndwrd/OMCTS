@@ -76,7 +76,15 @@ public class Agent extends AbstractPlayer {
 		
 		// Add the actions to the option set
 		Lib.setOptionsForActions(act, this.possibleOptions);
-		Lib.setOptions(so, this.possibleOptions, this.optionObsIDs);
+		//Lib.setOptions(so, this.possibleOptions, this.optionObsIDs);
+		if(so.getNPCPositions() != null)
+		{
+			Lib.setWaitAndShootOptions(so, this.possibleOptions, 1);
+			Lib.setWaitAndShootOptions(so, this.possibleOptions, 2);
+			Lib.setWaitAndShootOptions(so, this.possibleOptions, 3);
+			Lib.setWaitAndShootOptions(so, this.possibleOptions, 4);
+			Lib.setWaitAndShootOptions(so, this.possibleOptions, 5);
+		}
 		
 		// Create actions for rollout
 		actions = new Types.ACTIONS[act.size()];
@@ -159,6 +167,7 @@ public class Agent extends AbstractPlayer {
 		// System.out.println(optionRankingD);
 		// System.out.println("Writing hasmap optionRankingN");
 		// System.out.println(optionRankingN);
+		System.out.println("Final option ranking: " + optionRanking);
 		Lib.writeHashMapToFile(this.optionRankingD, filename + "D");
 		Lib.writeHashMapToFile(this.optionRankingN, filename + "N");
 	}
@@ -181,9 +190,19 @@ public class Agent extends AbstractPlayer {
 			return Types.ACTIONS.ACTION_NIL;
 
 		// Update options:
-		Lib.setOptions(so, this.possibleOptions, this.optionObsIDs);
+		//Lib.setOptions(so, this.possibleOptions, this.optionObsIDs);
+		if(so.getNPCPositions() != null)
+		{
+			Lib.setWaitAndShootOptions(so, this.possibleOptions, 1);
+			Lib.setWaitAndShootOptions(so, this.possibleOptions, 2);
+			Lib.setWaitAndShootOptions(so, this.possibleOptions, 3);
+			Lib.setWaitAndShootOptions(so, this.possibleOptions, 4);
+			Lib.setWaitAndShootOptions(so, this.possibleOptions, 5);
+		}
 
 		// Always choose a new option here, that's safer
+		//
+
 		if(this.currentOption != null)
 		{
 			if(currentOption.isFinished(so))
@@ -208,8 +227,8 @@ public class Agent extends AbstractPlayer {
 		//System.out.println("Astar:\n" + aStar);
 		//System.out.println("Option ranking:\n" + optionRankingD);
 		//System.out.print("Wall iType scores: "); aStar.printWallITypeScore();
-		System.out.println("Using option " + currentOption);
-		System.out.println("Possible options: " + this.possibleOptions);
+		//System.out.println("Using option " + currentOption);
+		//System.out.println("Possible options: " + this.possibleOptions);
 		return action;
 	}
 

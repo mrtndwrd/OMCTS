@@ -329,8 +329,8 @@ public class Lib
 		}
 		// assume only 1 sprite is made and get the nearest sprite (.get(0))
 		Observation sprite = sprites[0].get(0);
-		double x = (avatarPosition.x - sprite.position.x) / blockSize;
-		double y = (avatarPosition.y - sprite.position.y) / blockSize;
+		double x = (sprite.position.x - avatarPosition.x) / blockSize;
+		double y = (sprite.position.y - avatarPosition.y) / blockSize;
 		return new Vector2d(x, y);
 	}
 }

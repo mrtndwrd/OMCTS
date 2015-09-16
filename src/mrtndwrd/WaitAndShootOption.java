@@ -75,7 +75,6 @@ public class WaitAndShootOption extends Option implements Serializable
 				if((diffX * avatarOrientation.x > 0 && (int) Math.round(diffY) == range) ||
 						(diffY * avatarOrientation.y > 0 && (int) Math.round(diffX) == range))
 				{
-					System.out.println("YESSSS!!!!");
 					return true;
 				}
 			}
