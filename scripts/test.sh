@@ -18,8 +18,16 @@ cd $dir/..
 # Variables (command line time?)
 controller="mrtndwrd.Agent"
 # controller="controllers.sampleMCTS.Agent"
-game="chase"
-levels="4"
+# CIG 2014 Training Set Games
+# "aliens boulderdash butterflies chase frogs missilecommand portals sokoban survivezombies zelda"
+game="missilecommand"
+# CIG 2014 Validation Set Games
+#game="camelRace digdug firestorms infection firecaster overload pacman seaquest whackamole eggomania"
+#CIG 2015 New Training Set Games
+#game="bait boloadventures brainman chipschallenge modality painter realportals realsokoban thecitadel zenpuzzle"
+# CIG 2014 TEST SET / GECCO 2015 VALIDATION SET
+#game="roguelike surround catapults plants plaqueattack jaws labyrinth boulderchase escape lemmings"
+levels="3"
 
 ant
 rm -r output/*

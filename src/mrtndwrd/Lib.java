@@ -175,13 +175,19 @@ public class Lib
 
 	public static void setWaitAndShootOptions(StateObservation so, ArrayList<Option> possibleOptions, int range)
 	{
-		for(ArrayList<Observation> ao : so.getNPCPositions())
+		if(so.getNPCPositions() != null)
 		{
-			WaitAndShootOption o = new WaitAndShootOption(Agent.GAMMA, 
-					ao.get(0).itype, range);
-			if(!possibleOptions.contains(o))
+			for(ArrayList<Observation> ao : so.getNPCPositions())
 			{
-				possibleOptions.add(o);
+				if(ao.size() > 0)
+				{
+					WaitAndShootOption o = new WaitAndShootOption(Agent.GAMMA, 
+							ao.get(0).itype, range);
+					if(!possibleOptions.contains(o))
+					{
+						possibleOptions.add(o);
+					}
+				}
 			}
 		}
 	}
@@ -200,7 +206,9 @@ public class Lib
 		HashSet<Integer> keepObsIDs = new HashSet<Integer>();
 		// Holds the new obsIDs
 		HashSet<Integer> newObsIDs = new HashSet<Integer>();
-		
+
+		// Add avoidance-option
+		possibleOptions.add(new AvoidNearestNpcOption(Agent.GAMMA));
 
 		ArrayList<Types.ACTIONS> act = so.getAvailableActions();
 		// Only create path planning options if up, down, left and right are

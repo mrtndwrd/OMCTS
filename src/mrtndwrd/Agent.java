@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Map;
+import java.util.Arrays;
 
 /**
  * Created with IntelliJ IDEA.
@@ -46,7 +47,7 @@ public class Agent extends AbstractPlayer {
 	private String filename = "tables/optionRanking";
 
 	/** AMAF alpha for determining how many times we count the optionRanking */
-	public static double ALPHA = .3;
+	public static double ALPHA = .5;
 
 	/** The set of all options that are currently available */
 	public ArrayList<Option> possibleOptions = new ArrayList<Option>();
@@ -64,6 +65,8 @@ public class Agent extends AbstractPlayer {
 	/** Currently followed option */
 	private Option currentOption;
 
+	public static Random random;
+
 	/**
 	 * Public constructor with state observation and time due.
 	 * @param so state observation of the current game.
@@ -71,13 +74,14 @@ public class Agent extends AbstractPlayer {
 	 */
 	public Agent(StateObservation so, ElapsedCpuTimer elapsedTimer)
 	{
+		Agent.random = new Random();
 		Agent.aStar = new AStar(so);
 		ArrayList<Types.ACTIONS> act = so.getAvailableActions();
 		
 		// Add the actions to the option set
 		Lib.setOptionsForActions(act, this.possibleOptions);
-		//Lib.setOptions(so, this.possibleOptions, this.optionObsIDs);
-		if(so.getNPCPositions() != null)
+		Lib.setOptions(so, this.possibleOptions, this.optionObsIDs);
+		if(act.contains(Types.ACTIONS.ACTION_USE))
 		{
 			Lib.setWaitAndShootOptions(so, this.possibleOptions, 1);
 			Lib.setWaitAndShootOptions(so, this.possibleOptions, 2);
@@ -97,7 +101,7 @@ public class Agent extends AbstractPlayer {
 		optionRanking = new DefaultHashMap<String, Double>(0.);
 
 		//Create the player.
-		mctsPlayer = new SingleMCTSPlayer(new Random());
+		mctsPlayer = new SingleMCTSPlayer(random);
 
 		// Set the state observation object as the root of the tree.
 		mctsPlayer.init(so, this.possibleOptions, this.optionObsIDs, this.currentOption);
@@ -190,8 +194,8 @@ public class Agent extends AbstractPlayer {
 			return Types.ACTIONS.ACTION_NIL;
 
 		// Update options:
-		//Lib.setOptions(so, this.possibleOptions, this.optionObsIDs);
-		if(so.getNPCPositions() != null)
+		Lib.setOptions(so, this.possibleOptions, this.optionObsIDs);
+		if(Arrays.asList(this.actions).contains(Types.ACTIONS.ACTION_USE))
 		{
 			Lib.setWaitAndShootOptions(so, this.possibleOptions, 1);
 			Lib.setWaitAndShootOptions(so, this.possibleOptions, 2);

@@ -17,7 +17,7 @@ controllers="mrtndwrd.Agent"
 
 # CIG 2014 Training Set Games
 #games="aliens boulderdash butterflies chase frogs missilecommand portals sokoban survivezombies zelda"
-games="chase"
+games="aliens"
 # CIG 2014 Validation Set Games
 #games="camelRace digdug firestorms infection firecaster overload pacman seaquest whackamole eggomania"
 #CIG 2015 New Training Set Games

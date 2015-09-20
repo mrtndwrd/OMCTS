@@ -3,6 +3,7 @@ package mrtndwrd;
 import core.game.StateObservation;
 import core.game.Observation;
 import tools.Vector2d;
+import tools.Utils;
 import ontology.Types;
 
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import java.util.HashMap;
 import java.util.Collection;
 import java.util.PriorityQueue;
 import java.util.Comparator;
+import java.util.Random;
 
 @SuppressWarnings("unchecked")
 public class AStar
@@ -46,7 +48,7 @@ public class AStar
 
 	private ArrayList<Observation>[][] lastObservationGrid;
 
-	/** Initialize the grid. Assumes 0's in the observationGrid are walls */
+	/** Initialize the grid. */
 	public AStar(StateObservation so)
 	{
 		blockSize = so.getBlockSize();
@@ -117,7 +119,7 @@ public class AStar
 				// path's gScore (we'll try to go through anything with a high
 				// wall score if that's the only way)
 				double tentativeGScore = currentGScore
-					+ distance(current, neighbour) + wallScore(neighbour);
+					+ distance(current, neighbour) + wallScore(neighbour, true);
 
 				if(!openSet.contains(neighbour) || tentativeGScore < currentGScore)
 				{
@@ -190,23 +192,37 @@ public class AStar
 	 * node being a wall */
 	private double heuristic(Tuple<Integer, Integer> node)
 	{
-		return distance(node, goal) + wallScore(node);
+		return distance(node, goal) + wallScore(node, true);
 	}
 
-	private int wallScore(Tuple<Integer, Integer> node)
+	private int wallScore(Tuple<Integer, Integer> node, boolean neighbours)
 	{
-		return wallScore(node.x, node.y);
+		return wallScore(node.x, node.y, neighbours);
 	}
 
-	private int wallScore(int x, int y)
+	/** Calculates the "score" for the node at x, y being a wall. Higher score
+	 * is evaded more likely by the heuristics. Very high scores probably kill
+	 * the avatar. For this reason, if neighbours is true, the score also
+	 * includes the four neighbouring nodes in order to find safer paths
+	 */
+	private int wallScore(int x, int y, boolean neighbours)
 	{
 		// IMPOSSIBLE!
 		if(x < 0 || y < 0 || x > maxX || y > maxY)
-			return 999999999;
+			return 0;
 		int score = 0;
 		for(Observation obs : lastObservationGrid[x][y])
 		{
 			score += wallITypeScore.get(obs.itype);
+		}
+		// Also use the scores of the adjacent nodes, in order to avoid more
+		// monsters (i hope)
+		if(neighbours)
+		{
+			score += wallScore(x-1, y, false);
+			score += wallScore(x+1, y, false);
+			score += wallScore(x, y-1, false);
+			score += wallScore(x, y+1, false);
 		}
 		return score;
 	}
@@ -298,27 +314,54 @@ public class AStar
 
 	/** Returns the action that moves away from the goal. Opposite of
 	 * "neededAction" */
-	public static Types.ACTIONS moveAway(SerializableTuple<Integer, Integer> location,
+	public Types.ACTIONS moveAway(SerializableTuple<Integer, Integer> location,
 			SerializableTuple<Integer, Integer> goal)
 	{
+		ArrayList<Types.ACTIONS> possibleActions = 
+			new ArrayList<Types.ACTIONS>(2);
 		if(location.x < goal.x)
 		{
-			return Types.ACTIONS.ACTION_LEFT;
+			possibleActions.add(Types.ACTIONS.ACTION_LEFT);
 		}
 		else if(location.x > goal.x)
 		{
-			return Types.ACTIONS.ACTION_RIGHT;
+			possibleActions.add(Types.ACTIONS.ACTION_RIGHT);
 		}
 		else if(location.y < goal.y)
 		{
-			return Types.ACTIONS.ACTION_UP;
+			possibleActions.add(Types.ACTIONS.ACTION_UP);
 		}
 		else if(location.y > goal.y)
 		{
-			return Types.ACTIONS.ACTION_DOWN;
+			possibleActions.add(Types.ACTIONS.ACTION_DOWN);
 		}
-		// System.out.println("Probably same location, returning action left");
-		return Types.ACTIONS.ACTION_LEFT;
+
+		double lowestWallScore = Double.MAX_VALUE;
+		// Default to random action (for when no action is possible)
+		Types.ACTIONS bestAction = randomAction();
+
+		// Choose the possible action with the lowest wall score (to avoid
+		// trying to walk through walls)
+		for(Types.ACTIONS a : possibleActions)
+		{
+			double wallScore = wallScore(applyAction(location, a), false);
+			if(lowestWallScore > wallScore)
+			{
+				bestAction = a;
+				lowestWallScore = wallScore;
+			}
+		}
+		return bestAction;
+	}
+
+	/** Returns a random action from {up, down, left, right} */
+	public static Types.ACTIONS randomAction()
+	{
+		Types.ACTIONS[] actions = {Types.ACTIONS.ACTION_UP,
+			Types.ACTIONS.ACTION_RIGHT,
+			Types.ACTIONS.ACTION_DOWN,
+			Types.ACTIONS.ACTION_LEFT};
+		return (Types.ACTIONS) Utils.choice(actions, Agent.random);
 	}
 
 	public void checkForWalls(StateObservation state, Types.ACTIONS action, StateObservation nextState)
@@ -400,7 +443,7 @@ public class AStar
 			// Now loop through x (horizontal)
 			for (int x=0; x<=maxX; x++)
 			{
-				s += String.format("%5d ", wallScore(x, y));
+				s += String.format("%5d ", wallScore(x, y, false));
 			}
 			s += "\n";
 		}

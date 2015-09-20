@@ -72,7 +72,7 @@ public class UseSwordOnMovableOption extends GoToMovableOption implements Serial
 			else
 			{
 				this.step++;
-				return AStar.moveAway(avatarPosition, this.goal);
+				return Agent.aStar.moveAway(avatarPosition, this.goal);
 			}
 		}
 		// Too far away, just go to the enemy

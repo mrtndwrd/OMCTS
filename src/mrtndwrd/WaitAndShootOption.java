@@ -56,7 +56,10 @@ public class WaitAndShootOption extends Option implements Serializable
 		Vector2d avatarOrientation = Agent.avatarOrientation;
 		Vector2d avatarPosition = so.getAvatarPosition();
 		ArrayList<Observation>[] npcPositions = so.getNPCPositions();
-
+		if(npcPositions == null)
+		{
+			return false;
+		}
 		outerloop:
 		for(ArrayList<Observation> ao : npcPositions)
 		{
@@ -92,9 +95,11 @@ public class WaitAndShootOption extends Option implements Serializable
 		return this.range;
 	}
 
+	// Subtype only checks itype because range effectivity could vary
+	// throughout the game
 	public String getSubtype()
 	{
-		return String.format("%s,%d,%d", super.getSubtype(), this.itype, this.range);
+		return String.format("%s,%d", super.getSubtype(), this.itype);
 	}
 
 	public Option copy()

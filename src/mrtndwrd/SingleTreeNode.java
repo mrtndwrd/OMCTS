@@ -19,7 +19,7 @@ public class SingleTreeNode
 	/** This gets counted upon the score of the option currently being followed.
 	 * It's less than the HUGE_NEGATIVE and HUGE_POSITIVE so that we'll switch
 	 * options to avoid dying or to increase win-chance */
-	private static final double AGENT_OPTION_EXTRA = 0.1;
+	private static final double AGENT_OPTION_EXTRA = 0.0;
 
 	/** mctsSearch continues until there are only so many miliseconds left */
 	public static final int REMAINING_LIMIT = 8;
