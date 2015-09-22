@@ -24,9 +24,6 @@ public class GoToPositionOption extends Option implements Serializable
 	/** Specifies if this follows an NPC or a movable non-npc sprite */
 	protected Lib.GETTER_TYPE type;
 
-	/** Specifies the itype (sprite type id) in the getter of this type, e.g. getNPCPositions */
-	protected int itype; 
-
 	/** If this is true, the goal is a sprite that can be removed from the game.
 	 * That means that this option is not possible anymore. If this is false,
 	 * the goal is just an x/y location which is always possible to go to */
@@ -195,24 +192,54 @@ public class GoToPositionOption extends Option implements Serializable
 		return null;
 	}
 
+	protected ArrayList<Observation> getObservations(StateObservation so, int itype)
+	{
+		return getObservations(so, itype, null);
+	}
+
 	/** Returns the observations from the right getter, according to this.type
 	 * @param itype the itype inside the getter, of the observation type that is
 	 * requested
 	 */
-	protected ArrayList<Observation> getObservations(StateObservation so, int itype)
+	protected ArrayList<Observation> getObservations(StateObservation so, int itype, Vector2d position)
 	{
 		ArrayList<Observation>[] observations = null;
 
 		if(this.type == Lib.GETTER_TYPE.NPC || this.type == Lib.GETTER_TYPE.NPC_KILL)
-			observations = so.getNPCPositions();
-		if(this.type == Lib.GETTER_TYPE.MOVABLE)
-			observations = so.getMovablePositions();
-		if(this.type == Lib.GETTER_TYPE.IMMOVABLE)
-			observations = so.getImmovablePositions();
-		if(this.type == Lib.GETTER_TYPE.RESOURCE)
-			observations = so.getResourcesPositions();
-		if(this.type == Lib.GETTER_TYPE.PORTAL)
-			observations = so.getPortalsPositions();
+		{
+			if(position == null)
+				observations = so.getNPCPositions();
+			else
+				observations = so.getNPCPositions(position);
+		}
+		else if(this.type == Lib.GETTER_TYPE.MOVABLE)
+		{
+			if(position == null)
+				observations = so.getMovablePositions();
+			else
+				observations = so.getMovablePositions(position);
+		}
+		else if(this.type == Lib.GETTER_TYPE.IMMOVABLE)
+		{
+			if(position == null)
+				observations = so.getImmovablePositions();
+			else
+				observations = so.getImmovablePositions(position);
+		}
+		else if(this.type == Lib.GETTER_TYPE.RESOURCE)
+		{
+			if(position == null)
+				observations = so.getResourcesPositions();
+			else
+				observations = so.getResourcesPositions(position);
+		}
+		else if(this.type == Lib.GETTER_TYPE.PORTAL)
+		{
+			if(position == null)
+				observations = so.getPortalsPositions();
+			else
+				observations = so.getPortalsPositions(position);
+		}
 		if(observations == null)
 		{
 			System.out.printf("WARNING: Type %s NOT known in %s!\n", this.type, this);

@@ -24,8 +24,13 @@ public abstract class Option implements Serializable
 	 * "finished" are ACTION_NIL */
 	public boolean finished;
 
-	/** Specifies the obsID of the movable/npc that is tracked by this option */
+	/** Specifies the obsID of the movable/npc that is tracked by this option.
+	 * -1 if its  not available */
 	protected int obsID = -1;
+
+	/** specifies the itype of the sprite that is tracked by this option. -1 if
+	 * it's not available */
+	protected int itype = -1;
 
 	/** Default constructor, creates option, instantiates variables */
 	public Option(double gamma)
@@ -60,11 +65,19 @@ public abstract class Option implements Serializable
 	}
 
 	/** If this option has an obsID of an observation it tracks, that can be
-	 * returned by this function. If there's no obsID (default) 'null' will be
+	 * returned by this function. If there's no obsID (default) '-1' will be
 	 * returned */
 	public int getObsID()
 	{
 		return this.obsID;
+	}
+
+	/** If this option has an obsID of an observation it tracks, that can be
+	 * returned by this function. If there's no obsID (default) '-1' will be
+	 * returned */
+	public int getItype()
+	{
+		return this.itype;
 	}
 
 	/** It's possible to specify a specific subtype with this function */

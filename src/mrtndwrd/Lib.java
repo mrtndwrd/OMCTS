@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Arrays;
 
 public class Lib
 {
@@ -192,23 +193,112 @@ public class Lib
 		}
 	}
 
+	/** Adds an option per itype currently available in all getters 
+	 * @param so the current stateObservation for getting all observations
+	 * @param possibleOptions all currently available options
+	 * @param optionItypes a hashset of all itypes for which options have been 
+	 * created
+	 */
+	public static void setGoToNearestOptions(StateObservation so, 
+			ArrayList<Option> possibleOptions, HashSet<Integer> optionItypes)
+	{
+		int itype;
+		Option option;
+		ArrayList<Observation>[] oaa;
+		HashSet<Integer> newItypes  = new HashSet<Integer>();
+		for(GETTER_TYPE type : GETTER_TYPE.values())
+		{
+			// Get all observations for this type
+			oaa = getObservationList(so, type);
+			if(oaa == null || oaa.length == 0)
+			{
+				continue;
+			}
+			// Loop through all observation arrays of different itypes
+			for (ArrayList<Observation> oa : oaa)
+			{
+				if(oa == null || oa.size() == 0)
+				{
+					continue;
+				}
+				// Get the itype of this observation array
+				itype = oa.get(0).itype;
+				// If it already exists: continue
+				if(!optionItypes.contains(itype))
+				{
+					// Else add options and add this itype to currently used itypes
+					possibleOptions.add(new GoToNearestSpriteOfItypeOption(
+								Agent.GAMMA, type, itype, so));
+					optionItypes.add(itype);
+				}
+				newItypes.add(itype);
+			}
+		}
+
+		// Remove all itypes that were already in use, optionItypes now only
+		// contains itypes that are obsolete
+		optionItypes.removeAll(newItypes);
+
+		// Remove all obsolete itypes from possibleOptions iterator
+		for(Iterator<Option> it = possibleOptions.iterator(); it.hasNext();)
+		{
+			option = it.next();
+			if(optionItypes.contains(option.getItype()))
+			{
+				it.remove();
+			}
+		}
+		optionItypes.clear();
+		optionItypes.addAll(newItypes);
+	}
+
+	public static ArrayList<Observation>[] getObservationList(StateObservation so, GETTER_TYPE type)
+	{
+		if(type == GETTER_TYPE.NPC || type == GETTER_TYPE.NPC_KILL)
+			return so.getNPCPositions();
+		else if(type == GETTER_TYPE.MOVABLE)
+			return so.getMovablePositions();
+		else if(type == GETTER_TYPE.IMMOVABLE)
+			return so.getImmovablePositions();
+		else if(type == GETTER_TYPE.RESOURCE)
+			return so.getResourcesPositions();
+		else if(type == GETTER_TYPE.PORTAL)
+			return so.getPortalsPositions();
+		return null;
+	}
+
+	public static void updateOptions(StateObservation so, ArrayList<Option> possibleOptions, HashSet<Integer> optionObsIDs, HashSet<Integer> optionItypes)
+	{
+		Lib.setOptions(so, possibleOptions, optionObsIDs);
+		if(Arrays.asList(Agent.actions).contains(Types.ACTIONS.ACTION_USE))
+		{
+			Lib.setWaitAndShootOptions(so, possibleOptions, 0);
+			Lib.setWaitAndShootOptions(so, possibleOptions, 2);
+			Lib.setWaitAndShootOptions(so, possibleOptions, 4);
+		}
+		Lib.setGoToNearestOptions(so, possibleOptions, optionItypes);
+
+		// anno should be added if there are NPCs and removed if there are none
+		AvoidNearestNpcOption anno = new AvoidNearestNpcOption(Agent.GAMMA);
+		if(so.getNPCPositions() == null)
+			possibleOptions.remove(anno);
+		else
+			possibleOptions.add(anno);
+
+	}
+
 	/** Adds options to the list possibleOptions
 	 * @param so the stateobservation is used to find stuff that a path can lead
 	 * to
 	 * @param possibleOptions A list that may allready contain options. New
 	 * options are added to this list
-	 * @param optionObsIds the ids of all observations that options lead to.
+	 * @param optionObsIDs the ids of all observations that options lead to.
 	 * This is useful for removing options that lead to non-existing sprites
 	 */
 	public static void setOptions(StateObservation so, ArrayList<Option> possibleOptions, HashSet<Integer> optionObsIDs)
 	{
-		// Holds the ObsIDs that were already present in this.optionObsIDs
-		HashSet<Integer> keepObsIDs = new HashSet<Integer>();
 		// Holds the new obsIDs
 		HashSet<Integer> newObsIDs = new HashSet<Integer>();
-
-		// Add avoidance-option
-		possibleOptions.add(new AvoidNearestNpcOption(Agent.GAMMA));
 
 		ArrayList<Types.ACTIONS> act = so.getAvailableActions();
 		// Only create path planning options if up, down, left and right are
@@ -224,24 +314,18 @@ public class Lib
 			// created.
 			if(so.getNPCPositions() != null)
 			{
-				createOptions(so.getNPCPositions(avatarPosition), Lib.GETTER_TYPE.NPC, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
-				// We can use a weapon! Try to make kill-options
-				// if(so.getAvailableActions().contains(Types.ACTIONS.ACTION_USE))
-				// 	createOptions(so.getNPCPositions(), Lib.GETTER_TYPE.NPC_KILL, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
-
+				createOptions(so.getNPCPositions(avatarPosition), GETTER_TYPE.NPC, so, newObsIDs, possibleOptions, optionObsIDs);
 			}
 			if(so.getMovablePositions() != null)
-				createOptions(so.getMovablePositions(avatarPosition), Lib.GETTER_TYPE.MOVABLE, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
-			//if(so.getImmovablePositions() != null)
-			//	createOptions(so.getImmovablePositions(), Lib.GETTER_TYPE.IMMOVABLE, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
+				createOptions(so.getMovablePositions(avatarPosition), GETTER_TYPE.MOVABLE, so, newObsIDs, possibleOptions, optionObsIDs);
 			if(so.getResourcesPositions() != null)
-				createOptions(so.getResourcesPositions(avatarPosition), Lib.GETTER_TYPE.RESOURCE, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
+				createOptions(so.getResourcesPositions(avatarPosition), GETTER_TYPE.RESOURCE, so, newObsIDs, possibleOptions, optionObsIDs);
 			if(so.getPortalsPositions() != null)
-				createOptions(so.getPortalsPositions(avatarPosition), Lib.GETTER_TYPE.PORTAL, so, keepObsIDs, newObsIDs, possibleOptions, optionObsIDs);
+				createOptions(so.getPortalsPositions(avatarPosition), GETTER_TYPE.PORTAL, so, newObsIDs, possibleOptions, optionObsIDs);
 
 			// Remove all "old" obsIDs from this.optionObsIDs. optionObsIDs will
 			// then only contain obsolete obsIDs
-			optionObsIDs.removeAll(keepObsIDs);
+			optionObsIDs.removeAll(newObsIDs);
 
 			// Now remove all options that have the obsIDs in optionObsIDs.
 			// We use the iterator, in order to ensure removing while iterating is
@@ -263,15 +347,13 @@ public class Lib
 		}
 	}
 
-	/** Adds new obsIDs to newObsIDs and ID's that should be kept to
-	 * keepObsIDs, based on the ID's in the ArrayList observations
-	 * Also creates options for all new obsIDs in possibleOptions and
-	 * optionObsIDs
+	/** Adds new obsIDs and obsIDs that should be kept to newObsIDs based on the
+	 * ID's in the ArrayList observations Also creates options for all new
+	 * obsIDs in possibleOptions and optionObsIDs
 	 */
 	public static void createOptions(ArrayList<Observation>[] observations,
-			Lib.GETTER_TYPE type,
+			GETTER_TYPE type,
 			StateObservation so,
-			HashSet<Integer> keepObsIDs,
 			HashSet<Integer> newObsIDs,
 			ArrayList<Option> possibleOptions,
 			HashSet<Integer> optionObsIDs)
@@ -291,26 +373,22 @@ public class Lib
 				// Check if this is a new obsID
 				if(! optionObsIDs.contains(observation.obsID))
 				{
-					// Create option for this obsID
-					if(type == Lib.GETTER_TYPE.NPC || type == Lib.GETTER_TYPE.MOVABLE)
+					// Create option for this obsID, either goToMovable or
+					// goToPosition
+					if(type == GETTER_TYPE.NPC || type == GETTER_TYPE.MOVABLE)
 					{
 						possibleOptions.add(new GoToMovableOption(Agent.GAMMA, 
 							type, observation.itype, observation.obsID, so));
-						//if(type == Lib.GETTER_TYPE.NPC)
-						//	possibleOptions.add(new GoNearMovableOption(Agent.GAMMA, 
-						//		type, observation.itype, observation.obsID, so));
+						possibleOptions.add(new GoNearMovableOption(Agent.GAMMA,
+							type, observation.itype, observation.obsID, so));
 					}
-					// else if (type == Lib.GETTER_TYPE.NPC_KILL)
-					// 	possibleOptions.add(new UseSwordOnMovableOption(Agent.GAMMA, 
-					// 		type, observation.itype, observation.obsID, so));
 					else
+					{
 						possibleOptions.add(new GoToPositionOption(Agent.GAMMA, 
 							type, observation.itype, observation.obsID, so));
-				}
-				else
-				{
-					// Add to the list of options that should be kept
-					keepObsIDs.add(observation.obsID);
+						possibleOptions.add(new GoNearMovableOption(Agent.GAMMA,
+							type, observation.itype, observation.obsID, so));
+					}
 				}
 				newObsIDs.add(observation.obsID);
 			}

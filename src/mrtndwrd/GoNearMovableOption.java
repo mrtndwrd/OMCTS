@@ -13,8 +13,7 @@ import java.lang.ClassNotFoundException;
 import java.util.ArrayList;
 
 /** Option that represents planning a route using aStar.
- * The route is planned between walls, enemies and objects are not taken into
- * account. The static aStar variable in AbstractAgent is used. 
+ * The static aStar variable in AbstractAgent is used. 
  */
 public class GoNearMovableOption extends GoToMovableOption implements Serializable
 {

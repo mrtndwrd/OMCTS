@@ -104,7 +104,7 @@ public class GoToMovableOption extends GoToPositionOption implements Serializabl
 		{
 			GoToMovableOption oa = (GoToMovableOption) o;
 			return this.type.equals(oa.type) && 
-				this.itype == oa.itype && this.obsID == obsID;
+				this.itype == oa.itype && this.obsID == oa.obsID;
 		}
 		return false;
 	}

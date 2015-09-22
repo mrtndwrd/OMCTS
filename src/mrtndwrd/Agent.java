@@ -23,7 +23,7 @@ import java.util.Arrays;
  */
 public class Agent extends AbstractPlayer {
 
-	public static int ROLLOUT_DEPTH = 7;
+	public static int ROLLOUT_DEPTH = 10;
 
 	/** Constant C (also known as K) for exploration vs. exploitation */
 	public static double K = Math.sqrt(2);
@@ -54,6 +54,9 @@ public class Agent extends AbstractPlayer {
 
 	/** A set containing which obsId's already have options in this agent */
 	public HashSet<Integer> optionObsIDs = new HashSet<Integer>();
+
+	/** A set containing which itypes alreade have options in this agent */
+	public HashSet<Integer> optionItypes = new HashSet<Integer>();
 
 	/** Numerator of the ranking (top part of fraction) */
 	public static DefaultHashMap<String, Double> optionRankingN;
@@ -89,6 +92,10 @@ public class Agent extends AbstractPlayer {
 			Lib.setWaitAndShootOptions(so, this.possibleOptions, 4);
 			Lib.setWaitAndShootOptions(so, this.possibleOptions, 5);
 		}
+		Lib.setGoToNearestOptions(so, possibleOptions, optionItypes);
+
+		// Add avoidance-option
+		possibleOptions.add(new AvoidNearestNpcOption(Agent.GAMMA));
 		
 		// Create actions for rollout
 		actions = new Types.ACTIONS[act.size()];
@@ -194,19 +201,8 @@ public class Agent extends AbstractPlayer {
 			return Types.ACTIONS.ACTION_NIL;
 
 		// Update options:
-		Lib.setOptions(so, this.possibleOptions, this.optionObsIDs);
-		if(Arrays.asList(this.actions).contains(Types.ACTIONS.ACTION_USE))
-		{
-			Lib.setWaitAndShootOptions(so, this.possibleOptions, 1);
-			Lib.setWaitAndShootOptions(so, this.possibleOptions, 2);
-			Lib.setWaitAndShootOptions(so, this.possibleOptions, 3);
-			Lib.setWaitAndShootOptions(so, this.possibleOptions, 4);
-			Lib.setWaitAndShootOptions(so, this.possibleOptions, 5);
-		}
-
-		// Always choose a new option here, that's safer
-		//
-
+		Lib.updateOptions(so, this.possibleOptions, this.optionObsIDs, 
+				this.optionItypes);
 		if(this.currentOption != null)
 		{
 			if(currentOption.isFinished(so))
@@ -231,6 +227,7 @@ public class Agent extends AbstractPlayer {
 		//System.out.println("Astar:\n" + aStar);
 		//System.out.println("Option ranking:\n" + optionRankingD);
 		//System.out.print("Wall iType scores: "); aStar.printWallITypeScore();
+		//System.out.println("Option itypes: " + optionItypes);
 		//System.out.println("Using option " + currentOption);
 		//System.out.println("Possible options: " + this.possibleOptions);
 		return action;
