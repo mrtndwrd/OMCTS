@@ -1,6 +1,11 @@
 TODO 
 ====
 
+- Lees BALO.pdf
+- Waarde van een node moet discounted worden, optionRanking gemiddelde
+  discounted node waarde van die option
+- Softmax opzoeken
+
 ## Test
 - check if using random rollout is better than option-rollout
 
