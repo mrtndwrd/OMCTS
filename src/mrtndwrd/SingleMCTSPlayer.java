@@ -54,7 +54,8 @@ public class SingleMCTSPlayer
 	{
 		//Do the search within the available time.
 		rootNode.mctsSearch(elapsedTimer);
-		rootNode.setCumulativeRewardsForChildren();
+		if(!SingleTreeNode.USE_MEAN_REWARD)
+			rootNode.setCumulativeRewardsForChildren();
 		//Determine the best action to take and return it.
 		int action = rootNode.bestAction();
 		return action;
