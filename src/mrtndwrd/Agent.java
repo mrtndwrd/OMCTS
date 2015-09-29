@@ -23,7 +23,7 @@ import java.util.Arrays;
  */
 public class Agent extends AbstractPlayer {
 
-	public static int ROLLOUT_DEPTH = 10;
+	public static int ROLLOUT_DEPTH = 8;
 
 	/** Constant C (also known as K) for exploration vs. exploitation */
 	public static double K = Math.sqrt(2);
@@ -47,7 +47,7 @@ public class Agent extends AbstractPlayer {
 	private String filename = "tables/optionRanking";
 
 	/** AMAF alpha for determining how many times we count the optionRanking */
-	public static double ALPHA = .5;
+	public static double ALPHA = .3;
 
 	/** The set of all options that are currently available */
 	public ArrayList<Option> possibleOptions = new ArrayList<Option>();
@@ -205,8 +205,8 @@ public class Agent extends AbstractPlayer {
 				this.optionItypes);
 		if(this.currentOption != null)
 		{
-			if(currentOption.isFinished(so))
-				currentOption.updateOptionRanking();
+			//if(currentOption.isFinished(so))
+			//	currentOption.updateOptionRanking();
 			mctsPlayer.init(so, this.possibleOptions, this.optionObsIDs, this.currentOption);
 		}
 		else
@@ -220,7 +220,7 @@ public class Agent extends AbstractPlayer {
 		currentOption = this.possibleOptions.get(option).copy();
 
 		Types.ACTIONS action = currentOption.act(so);
-		System.out.println("Tree:\n" + mctsPlayer.printRootNode());
+		//System.out.println("Tree:\n" + mctsPlayer.printRootNode());
 		//System.out.println("Orientation: " + so.getAvatarOrientation());
 		//System.out.println("Location: " + so.getAvatarPosition());
 		//System.out.println("Action: " + action);

@@ -22,7 +22,11 @@ public class SingleTreeNode
 	private static final double AGENT_OPTION_EXTRA = 0.0;
 
 	/** mctsSearch continues until there are only so many miliseconds left */
-	public static final int REMAINING_LIMIT = 8;
+	public static final int REMAINING_LIMIT = 10;
+
+	/** Decides whether to use the mean reward, or the mean value of a root node
+	 * for the optionRanking */
+	public static boolean USE_MEAN_REWARD;
 
 	/** Decides weather rollouts are done at random, or following options */
 	public static boolean RANDOM_ROLLOUT = false;
@@ -86,10 +90,10 @@ public class SingleTreeNode
 		{
 			this.chosenOptionFinished = true;
 			// Update the option ranking if needed
-			if(chosenOption != null && chosenOption.isFinished(state))
-			{
-				chosenOption.updateOptionRanking();
-			}
+			//if(chosenOption != null && chosenOption.isFinished(state))
+			//{
+			//	chosenOption.updateOptionRanking();
+			//}
 
 			children = new SingleTreeNode[possibleOptions.size()];
 		}
@@ -142,6 +146,22 @@ public class SingleTreeNode
 		}
 	}
 
+	/** For each child, set its chosen options cumulative reward to the totValue
+	 * of that child node */
+	public void setCumulativeRewardsForChildren()
+	{
+		Option o;
+		for(SingleTreeNode c : this.children)
+		{
+			if(c != null)
+			{
+				o = c.getChosenOption();
+				o.setCumulativeReward(c.totValue);
+				o.updateOptionRanking();
+			}
+		}
+	}
+
 	/** Expand the current treenode, if it's not fully expanded. Else, return
 	 * the best node using uct
 	 */
@@ -162,7 +182,6 @@ public class SingleTreeNode
 			// Else: continue with this node
 			cur = next;
 		}
-
 		return cur;
 	}
 
@@ -193,7 +212,6 @@ public class SingleTreeNode
 		else
 		{
 			bestOption = 0;
-			// FIXME: Should this be .copy()?
 			nextOption = chosenOption;
 		}
 
@@ -212,9 +230,12 @@ public class SingleTreeNode
 
 		// Step 2: Update the option's values:
 		//nextOption.addReward(Lib.simpleValue(nextState) - //Lib.simpleValue(state));
-		nextOption.addReward(nextState.getGameScore() - state.getGameScore());
-		if(nextOption.isFinished(nextState))
-			nextOption.updateOptionRanking();
+		if(USE_MEAN_REWARD)
+		{
+			nextOption.addReward(nextState.getGameScore() - state.getGameScore());
+			if(nextOption.isFinished(nextState))
+				nextOption.updateOptionRanking();
+		}
 
 		// Step 3: get the new option set
 		ArrayList<Option> newOptions = (ArrayList<Option>) this.possibleOptions.clone();
@@ -238,7 +259,6 @@ public class SingleTreeNode
 		if(!chosenOptionFinished)
 		{
 			if(this.children[0] == null)
-				// FIXME: This might need .copy() (but I don't think so);
 				expandChild(0, chosenOption);
 			return this.children[0];
 		}
@@ -354,8 +374,8 @@ public class SingleTreeNode
 		// If RANDOM_ROLLOUT is turned on, we say that the "roller option is
 		// finished"
 		boolean rollerOptionFinished = rollerOption == null || RANDOM_ROLLOUT;
-		double lastScore = Lib.simpleValue(rollerState);
-		//double lastScore = rollerState.getGameScore();
+		//double lastScore = Lib.simpleValue(rollerState);
+		double lastScore = rollerState.getGameScore();
 		while (!finishRollout(rollerState,thisDepth)) 
 		{
 			// System.out.println("Roller depth " + thisDepth);
@@ -372,7 +392,8 @@ public class SingleTreeNode
 				// If the option is finished, update the Agent's option ranking
 				if(rollerOption.isFinished(rollerState))
 				{
-					rollerOption.updateOptionRanking();
+					if(USE_MEAN_REWARD)
+						rollerOption.updateOptionRanking();
 					rollerOptionFinished = true;
 				}
 			}
@@ -383,7 +404,8 @@ public class SingleTreeNode
 				rollerState.advance(action);
 				// Update the option's reward
 				//rollerOption.addReward(Lib.simpleValue(rollerState) - lastScore);
-				rollerOption.addReward(rollerState.getGameScore() - lastScore);
+				if(USE_MEAN_REWARD)
+					rollerOption.addReward(rollerState.getGameScore() - lastScore);
 			}
 			else
 			{
@@ -401,7 +423,8 @@ public class SingleTreeNode
 		// 	rollerOption.updateOptionRanking();
 		// }
 		
-		double delta = Lib.simpleValue(rollerState);
+		//double delta = Lib.simpleValue(rollerState);
+		double delta = rollerState.getGameScore() - lastScore;
 
 		//if(delta < bounds[0])
 		//	bounds[0] = delta;
@@ -552,6 +575,11 @@ public class SingleTreeNode
 			}
 		}
 		return s;
+	}
+
+	public Option getChosenOption()
+	{
+		return this.chosenOption;
 	}
 
 	public String toString()

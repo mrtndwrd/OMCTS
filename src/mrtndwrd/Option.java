@@ -113,9 +113,17 @@ public abstract class Option implements Serializable
 		this.cumulativeReward += Math.pow(gamma, step-1) * reward;
 	}
 
-	/** Updates Agent.optionRanking with the current discounted 'reward' of the
-	 * option. This should always be done when an option is finished, so
-	 * setFinished() is called in the end. */
+	/** If your algorithm thinks it knows better how to set the cumulative
+	 * reward, use this. */
+	public void setCumulativeReward(double cumulativeReward)
+	{
+		this.cumulativeReward = cumulativeReward;
+	}
+
+	/** Updates Agent.optionRanking with the current (discounted) cumulative
+	 * reward of the option. This should always be done when an option is
+	 * finished, so setFinished() is called in the end. 
+	 */
 	public void updateOptionRanking()
 	{
 		// Ignore 0-rewards. only positive or negative rewards interest me
@@ -132,14 +140,20 @@ public abstract class Option implements Serializable
 		// For example: GAMMA = .9 would result in all option values
 		// being maximally 10 times the state values. To fix this, we
 		// multiply by .1
-		Agent.optionRankingN.put(type, Agent.optionRankingN.get(type) + 
-			((1-Agent.GAMMA) * getReward()));
-		Agent.optionRankingD.put(type, Agent.optionRankingD.get(type) + 1);
+		//
+		// This is not needed anymore, since discounting is added to
+		// SingleTreeNode.java
+		//Agent.optionRankingN.put(type, Agent.optionRankingN.get(type) + 
+		//	((1-Agent.GAMMA) * getReward()));
 
+		// Add new reward to the numerator
+		Agent.optionRankingN.put(type, 
+				Agent.optionRankingN.get(type) + getReward());
+		// Increase denominator
+		Agent.optionRankingD.put(type, Agent.optionRankingD.get(type) + 1);
 		// Set actual values to D/N
 		Agent.optionRanking.put(type, Agent.optionRankingN.get(type) / 
 				Agent.optionRankingD.get(type));
-
 		setFinished();
 	}
 
