@@ -8,6 +8,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.IOException;
 import java.lang.ClassNotFoundException;
+import java.util.Comparator;
 
 /** An option is a sequence of actions. This class enables taking a sequence of
  * actions and saving its result in the q table, enabling a more high-level
@@ -31,6 +32,8 @@ public abstract class Option implements Serializable
 	/** specifies the itype of the sprite that is tracked by this option. -1 if
 	 * it's not available */
 	protected int itype = -1;
+
+	public static OptionComparator optionComparator = new OptionComparator();
 
 	/** Default constructor, creates option, instantiates variables */
 	public Option(double gamma)
@@ -146,14 +149,18 @@ public abstract class Option implements Serializable
 		//Agent.optionRankingN.put(type, Agent.optionRankingN.get(type) + 
 		//	((1-Agent.GAMMA) * getReward()));
 
-		// Add new reward to the numerator
-		Agent.optionRankingN.put(type, 
-				Agent.optionRankingN.get(type) + getReward());
-		// Increase denominator
-		Agent.optionRankingD.put(type, Agent.optionRankingD.get(type) + 1);
-		// Set actual values to D/N
-		Agent.optionRanking.put(type, Agent.optionRankingN.get(type) / 
-				Agent.optionRankingD.get(type));
+		// From https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Online_algorithm
+		double x = getReward();
+		double n = Agent.optionRankingD.get(type) + 1;
+		double mean = Agent.optionRanking.get(type);
+		double delta = x - mean;
+		mean += delta / n;
+		double M2 = Agent.optionRankingVariance.get(type) + delta * (x - mean);
+
+		// Save the values
+		Agent.optionRankingD.put(type, n);
+		Agent.optionRanking.put(type, mean);
+		Agent.optionRankingVariance.put(type, M2/n);
 		setFinished();
 	}
 
@@ -176,7 +183,6 @@ public abstract class Option implements Serializable
 		this.finished = true;
 	}
 
-
 	protected void readObject(ObjectInputStream aInputStream) 
 		throws ClassNotFoundException, IOException 
 	{
@@ -195,4 +201,19 @@ public abstract class Option implements Serializable
 	public abstract int hashCode();
 
 	public abstract boolean equals(Object o);
+
+	protected static class OptionComparator implements Comparator<Option>
+	{
+		public int compare(Option o1, Option o2)
+		{
+			double v1 = Agent.optionRanking.get(o1.getType());
+			double v2 = Agent.optionRanking.get(o2.getType());
+			if(v1 > v2)
+				return -1;
+			else if(v2 > v1)
+				return 1;
+			else
+				return 0;
+		}
+	}
 }

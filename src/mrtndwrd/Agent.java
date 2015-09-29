@@ -8,11 +8,12 @@ import tools.ElapsedCpuTimer;
 import tools.Vector2d;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Random;
 import java.util.Map;
-import java.util.Arrays;
+import java.util.Random;
 
 /**
  * Created with IntelliJ IDEA.
@@ -58,12 +59,12 @@ public class Agent extends AbstractPlayer {
 	/** A set containing which itypes alreade have options in this agent */
 	public HashSet<Integer> optionItypes = new HashSet<Integer>();
 
-	/** Numerator of the ranking (top part of fraction) */
-	public static DefaultHashMap<String, Double> optionRankingN;
 	/** Denominator of the ranking (lower part of fraction) */
 	public static DefaultHashMap<String, Double> optionRankingD;
 	/** Ranking of an option */
 	public static DefaultHashMap<String, Double> optionRanking;
+	/** Variance of the ranking of an option */
+	public static DefaultHashMap<String, Double> optionRankingVariance;
 
 	/** Currently followed option */
 	private Option currentOption;
@@ -103,24 +104,29 @@ public class Agent extends AbstractPlayer {
 		{
 			actions[i] = act.get(i);
 		}
-		optionRankingN = new DefaultHashMap<String, Double>(0.);
-		optionRankingD = new DefaultHashMap<String, Double>(0.);
-		optionRanking = new DefaultHashMap<String, Double>(0.);
+
+		// Load old optionRanking (if possible)
+		if(readOptionRanking())
+		{
+			System.out.println("Loaded option ranking D:");
+			System.out.println(this.optionRankingD);
+			System.out.println("Loaded option ranking:");
+			System.out.println(this.optionRanking);
+			System.out.println("Loaded option ranking Variance:");
+			System.out.println(this.optionRankingVariance);
+		}
+		else
+		{
+			optionRankingVariance = new DefaultHashMap<String, Double>(10.);
+			optionRankingD = new DefaultHashMap<String, Double>(0.);
+			optionRanking = new DefaultHashMap<String, Double>(0.);
+		}
 
 		//Create the player.
 		mctsPlayer = new SingleMCTSPlayer(random);
 
 		// Set the state observation object as the root of the tree.
 		mctsPlayer.init(so, this.possibleOptions, this.optionObsIDs, this.currentOption);
-
-		// Load old optionRanking (if possible)
-		readOptionRanking();
-		System.out.println("Loaded option ranking: ");
-		System.out.println(this.optionRanking);
-		System.out.println("Loaded option ranking N: ");
-		System.out.println(this.optionRankingN);
-		System.out.println("Loaded option ranking D: ");
-		System.out.println(this.optionRankingD);
 
 		// set orientation:
 		setAvatarOrientation(so);
@@ -138,36 +144,36 @@ public class Agent extends AbstractPlayer {
 			Agent.avatarOrientation = so.getAvatarOrientation();
 	}
 
-	/** Loads filename + N and filename + D into this.optionRankingN and
-	 * this.optionRankingD respectively, afterwards computing optionRanking by
-	 * dividing every value in optionRankingN with the corresponting value in
+	/** Loads filename, filename + Variance and filename + D into
+	 * this.optionRankingVariance and this.optionRankingD respectively, afterwards computing optionRanking by
+	 * dividing every value in optionRankingVariance with the corresponting value in
 	 * optionRankingD
 	 */
-	private void readOptionRanking()
+	private boolean readOptionRanking()
 	{
 		this.filename = "tables/optionRanking" + Lib.filePostfix;
 		// Load objects 
 		try
 		{
-			Object o = Lib.loadObjectFromFile(filename + 'N');
+			Object o = Lib.loadObjectFromFile(filename + 'D');
 			if(o == null)
-				return;
-			this.optionRankingN = (DefaultHashMap<String, Double>) o;
-			o = Lib.loadObjectFromFile(filename + 'D');
-			if(o == null)
-				return;
+				return false;
 			this.optionRankingD = (DefaultHashMap<String, Double>) o;
-			String key;
-			for(Map.Entry<String, Double> ranking : optionRankingN.entrySet())
-			{
-				key = ranking.getKey();
-				this.optionRanking.put(key, ranking.getValue() / optionRankingD.get(key));
-			}
+			o = Lib.loadObjectFromFile(filename + "Variance");
+			if(o == null)
+				return false;
+			this.optionRankingVariance = (DefaultHashMap<String, Double>) o;
+			o = Lib.loadObjectFromFile(filename);
+			if(o == null)
+				return false;
+			this.optionRanking = (DefaultHashMap<String, Double>) o;
+			return true;
 		}
 		catch(Exception e)
 		{
 			System.out.println("Couldn't load optionRanking from file");
 			e.printStackTrace();
+			return false;
 		}
 	}
 
@@ -176,11 +182,12 @@ public class Agent extends AbstractPlayer {
 	{
 		// System.out.println("Writing hasmap optionRankingD");
 		// System.out.println(optionRankingD);
-		// System.out.println("Writing hasmap optionRankingN");
-		// System.out.println(optionRankingN);
+		// System.out.println("Writing hasmap optionRankingVariance");
+		// System.out.println(optionRankingVariance);
 		System.out.println("Final option ranking: " + optionRanking);
 		Lib.writeHashMapToFile(this.optionRankingD, filename + "D");
-		Lib.writeHashMapToFile(this.optionRankingN, filename + "N");
+		Lib.writeHashMapToFile(this.optionRankingVariance, filename + "Variance");
+		Lib.writeHashMapToFile(this.optionRanking, filename);
 	}
 
 
@@ -220,7 +227,7 @@ public class Agent extends AbstractPlayer {
 		currentOption = this.possibleOptions.get(option).copy();
 
 		Types.ACTIONS action = currentOption.act(so);
-		//System.out.println("Tree:\n" + mctsPlayer.printRootNode());
+		System.out.println("Tree:\n" + mctsPlayer.printRootNode());
 		//System.out.println("Orientation: " + so.getAvatarOrientation());
 		//System.out.println("Location: " + so.getAvatarPosition());
 		//System.out.println("Action: " + action);
@@ -228,7 +235,7 @@ public class Agent extends AbstractPlayer {
 		//System.out.println("Option ranking:\n" + optionRankingD);
 		//System.out.print("Wall iType scores: "); aStar.printWallITypeScore();
 		//System.out.println("Option itypes: " + optionItypes);
-		//System.out.println("Using option " + currentOption);
+		System.out.println("Using option " + currentOption);
 		//System.out.println("Possible options: " + this.possibleOptions);
 		return action;
 	}

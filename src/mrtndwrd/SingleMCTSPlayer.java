@@ -3,9 +3,9 @@ package mrtndwrd;
 import core.game.StateObservation;
 import tools.ElapsedCpuTimer;
 
-import java.util.Random;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Random;
 
 /**
  * Created with IntelliJ IDEA.

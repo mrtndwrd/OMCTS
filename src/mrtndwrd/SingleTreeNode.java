@@ -5,9 +5,11 @@ import ontology.Types;
 import tools.ElapsedCpuTimer;
 import tools.Utils;
 
-import java.util.Random;
-import java.util.HashSet;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Random;
+import java.lang.Math;
 
 @SuppressWarnings("unchecked")
 public class SingleTreeNode
@@ -26,7 +28,7 @@ public class SingleTreeNode
 
 	/** Decides whether to use the mean reward, or the mean value of a root node
 	 * for the optionRanking */
-	public static boolean USE_MEAN_REWARD;
+	public static boolean USE_MEAN_REWARD = false;
 
 	/** Decides weather rollouts are done at random, or following options */
 	public static boolean RANDOM_ROLLOUT = false;
@@ -66,6 +68,11 @@ public class SingleTreeNode
 
 	private boolean chosenOptionFinished;
 
+	/** The value of the best possible option in the optionRanking */
+	private double mu0;
+	/** The value of the best possible option in the optionRankingVariance */
+	private double sigma0;
+
 	//protected static double[] bounds = new double[]{Double.MAX_VALUE, -Double.MAX_VALUE};
 
 	/** Root node constructor */
@@ -85,6 +92,15 @@ public class SingleTreeNode
 		this.optionObsIDs = optionObsIDs;
 		this.chosenOption = chosenOption;
 		this.expanded = false;
+
+		// Sort possible options by optionRanking:
+		Collections.sort(this.possibleOptions, Option.optionComparator);
+		// Set mu0 to the value of the best option in the optionRanking
+		this.mu0 = Agent.optionRanking.get(
+				this.possibleOptions.get(0).getType());
+		this.sigma0 = Agent.optionRankingVariance.get(
+				this.possibleOptions.get(0).getType());
+
 		// Create the possibility of chosing new options
 		if(chosenOption == null || chosenOption.isFinished(state))
 		{
@@ -171,7 +187,7 @@ public class SingleTreeNode
 		SingleTreeNode next;
 		while (!cur.state.isGameOver() && cur.nodeDepth < Agent.ROLLOUT_DEPTH)
 		{
-			next = cur.uct();
+			next = cur.crazyStone();
 			// If we have expanded, return the new node for rollouts
 			if(this.expanded)
 			{
@@ -252,6 +268,83 @@ public class SingleTreeNode
 		return tn;
 	}
 
+	/** Choses a child node using the crazy stone algorithm, following
+	 * "Efficient Selectivity and Backup Operators in Monte-Carlo Tree Search",
+	 * Coulom 2006. The mu and sigma are not calculated as in the paper, because
+	 * this is not a game of go. */
+	public SingleTreeNode crazyStone()
+	{
+		// For speeding up the situation where an option is being followed, and
+		// just 1 child exists
+		if(!chosenOptionFinished)
+		{
+			if(this.children[0] == null)
+				expandChild(0, chosenOption);
+			return this.children[0];
+		}
+
+		double N = this.possibleOptions.size();
+		int selectedId = 0;
+		for(int i=0; i < N; i++)
+		{
+			Option o = this.possibleOptions.get(i);
+			// The second equation in sect. 3.2:
+			// It is possible to add an alpha value here, increasing the
+			// probability of it being chosen. The formula would become this:
+			// (0.1 + Math.pow(2, (-i)) + alpha) / N
+			// alpha being 1 if something good's going on, and 0 otherwise.
+			// TODO Perhaps use alpha = 1 here for the currently chosen option to
+			// continue
+			double epsilon = (0.1 + Math.pow(2, (-i))) / N;
+
+			// Prepare values for the next equation
+			double mu = Agent.optionRanking.get(o.getType());
+			double sigma = Agent.optionRankingVariance.get(o.getType());
+
+			double prob = 0;
+			if(sigma0 != 0 && sigma != 0)
+			{
+				//FIXME: Something's still wrong. I guess sigma^2 was never
+				//really meant to only reflect variance, but also reflect
+				//uncertainty
+				//System.out.println("Option: " + o);
+				//System.out.println("Mu0: " + mu0);
+				//System.out.println("Mu: " + mu);
+				//System.out.println("Sigma0: " + sigma0);
+				//System.out.println("Sigma: " + sigma);
+				// The first equation in sect. 3.2:
+				prob = Math.exp(-2.4 * (
+							(mu0 - mu) /
+							(Math.sqrt(2 * (sigma0 + sigma))))) + epsilon;
+				//System.out.println("Prob: " + prob + "\n");
+			}
+			// Case for starting (sigma0 and sigma are initialized with 0)
+			else
+				prob = epsilon;
+			if(random.nextDouble() > prob)
+			{
+				selectedId = i;
+				break;
+			}
+		}
+		// The return-variable
+		SingleTreeNode selected;
+
+		// Check if the selected option is already expanded, if not, expand
+		// first, then return the child
+		if(children[selectedId] == null)
+		{
+			Option nextOption = this.possibleOptions.get(selectedId).copy();
+			selected = expandChild(selectedId, nextOption);
+		}
+		else
+		{
+			selected = children[selectedId];
+		}
+		return selected;
+	}
+	
+	/** Choses a child node using (a modified version of) the UCT algorithm */
 	public SingleTreeNode uct() 
 	{
 		// For speeding up the situation where an option is being followed, and
