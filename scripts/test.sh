@@ -27,7 +27,7 @@ game="missilecommand"
 #game="bait boloadventures brainman chipschallenge modality painter realportals realsokoban thecitadel zenpuzzle"
 # CIG 2014 TEST SET / GECCO 2015 VALIDATION SET
 #game="roguelike surround catapults plants plaqueattack jaws labyrinth boulderchase escape lemmings"
-levels="3"
+levels="0"
 
 ant
 rm -r output/*

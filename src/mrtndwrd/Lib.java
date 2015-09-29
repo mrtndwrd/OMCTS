@@ -282,7 +282,7 @@ public class Lib
 		AvoidNearestNpcOption anno = new AvoidNearestNpcOption(Agent.GAMMA);
 		if(so.getNPCPositions() == null)
 			possibleOptions.remove(anno);
-		else
+		else if(!possibleOptions.contains(anno))
 			possibleOptions.add(anno);
 
 	}

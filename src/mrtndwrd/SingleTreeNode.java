@@ -62,7 +62,7 @@ public class SingleTreeNode
 
 	private boolean chosenOptionFinished;
 
-	protected static double[] bounds = new double[]{Double.MAX_VALUE, -Double.MAX_VALUE};
+	//protected static double[] bounds = new double[]{Double.MAX_VALUE, -Double.MAX_VALUE};
 
 	/** Root node constructor */
 	public SingleTreeNode(ArrayList<Option> possibleOptions, HashSet<Integer> optionObsIDs, Random rnd, Option currentOption) 
@@ -131,7 +131,7 @@ public class SingleTreeNode
 
 			// Set values for parents of current node, using new rollout value
 			//System.out.printf("Remaining before rollOut: %d\n", elapsedTimer.remainingTimeMillis());
-			backUp(selected, delta);
+			backUp(selected, delta, selected.nodeDepth);
 			//System.out.printf("Remaining after backUp: %d\n", elapsedTimer.remainingTimeMillis());
 
 			numIters++;
@@ -299,7 +299,7 @@ public class SingleTreeNode
 						Agent.ALPHA * optionRanking;
 				}
 
-				childValue = Utils.normalise(childValue, bounds[0], bounds[1]);
+				//childValue = Utils.normalise(childValue, bounds[0], bounds[1]);
 
 				double uctValue = childValue +
 						Agent.K * Math.sqrt(Math.log(this.nVisits + 1) / (visits + this.epsilon));
@@ -403,11 +403,11 @@ public class SingleTreeNode
 		
 		double delta = Lib.simpleValue(rollerState);
 
-		if(delta < bounds[0])
-			bounds[0] = delta;
+		//if(delta < bounds[0])
+		//	bounds[0] = delta;
 
-		if(delta > bounds[1])
-			bounds[1] = delta;
+		//if(delta > bounds[1])
+		//	bounds[1] = delta;
 
 		return delta;
 	}
@@ -423,13 +423,13 @@ public class SingleTreeNode
 		return false;
 	}
 
-	public void backUp(SingleTreeNode node, double result)
+	public void backUp(SingleTreeNode node, double result, int furthestDepth)
 	{
 		SingleTreeNode n = node;
 		while(n != null)
 		{
 			n.nVisits++;
-			n.totValue += result;
+			n.totValue += Math.pow(Agent.GAMMA, furthestDepth - n.nodeDepth) * result;
 			n = n.parent;
 		}
 	}
@@ -492,17 +492,17 @@ public class SingleTreeNode
 				if(agentOption != null && agentOption.equals(children[i].chosenOption) && !agentOption.finished)
 				{
 					//System.out.println("Adding for option " + agentOption);
-					childValue = Utils.normalise(childValue, bounds[0], bounds[1]);
-					//childValue += AGENT_OPTION_EXTRA;
+					//childValue = Utils.normalise(childValue, bounds[0], bounds[1]);
+					childValue += AGENT_OPTION_EXTRA;
 					//System.out.println(childValue);
 				}
-				else
-				{
+				//else
+				//{
 					//System.out.println("Not adding for child " + children[i].chosenOption + 
 					//		" and option " + agentOption);
-					childValue = Utils.normalise(childValue, bounds[0], bounds[1]);
+					//childValue = Utils.normalise(childValue, bounds[0], bounds[1]);
 					//System.out.println(childValue);
-				}
+				//}
 				if (childValue > bestValue)
 				{
 					bestValue = childValue;
