@@ -285,7 +285,9 @@ public class SingleTreeNode
 
 		double N = this.possibleOptions.size();
 		int selectedId = 0;
-		for(int i=0; i < N; i++)
+		double[] probs = new double[(int) N];
+		double probsSum = 0;
+		for(int i = 0; i < N; i++)
 		{
 			Option o = this.possibleOptions.get(i);
 			// The second equation in sect. 3.2:
@@ -295,38 +297,28 @@ public class SingleTreeNode
 			// alpha being 1 if something good's going on, and 0 otherwise.
 			// TODO Perhaps use alpha = 1 here for the currently chosen option to
 			// continue
-			double epsilon = (0.1 + Math.pow(2, (-i))) / N;
+			double epsilon = (0.1 + Math.pow(2, (N-i))) / N;
 
 			// Prepare values for the next equation
 			double mu = Agent.optionRanking.get(o.getType());
 			double sigma = Agent.optionRankingVariance.get(o.getType());
 
-			double prob = 0;
-			if(sigma0 != 0 && sigma != 0)
-			{
-				//FIXME: Something's still wrong. I guess sigma^2 was never
-				//really meant to only reflect variance, but also reflect
-				//uncertainty
-				//System.out.println("Option: " + o);
-				//System.out.println("Mu0: " + mu0);
-				//System.out.println("Mu: " + mu);
-				//System.out.println("Sigma0: " + sigma0);
-				//System.out.println("Sigma: " + sigma);
-				// The first equation in sect. 3.2:
-				prob = Math.exp(-2.4 * (
-							(mu0 - mu) /
-							(Math.sqrt(2 * (sigma0 + sigma))))) + epsilon;
-				//System.out.println("Prob: " + prob + "\n");
-			}
-			// Case for starting (sigma0 and sigma are initialized with 0)
-			else
-				prob = epsilon;
-			if(random.nextDouble() > prob)
-			{
-				selectedId = i;
-				break;
-			}
+			//System.out.println("Option: " + o);
+			//System.out.println("Mu0: " + mu0);
+			//System.out.println("Mu: " + mu);
+			//System.out.println("Sigma0: " + sigma0);
+			//System.out.println("Sigma: " + sigma);
+			//System.out.println("epsilon: " + epsilon);
+			// The first equation in sect. 3.2:
+			probs[i] = Math.exp(-2.4 * (
+						(mu0 - mu) /
+						(Math.sqrt(2 * (sigma0 + sigma + epsilon)))));
+			probsSum += probs[i];
+			//System.out.println("Prob: " + prob + "\n");
 		}
+		// Get the randomly selected best id to expand/select
+		selectedId = Lib.weightedRandomIndex(random, probs, probsSum);
+
 		// The return-variable
 		SingleTreeNode selected;
 

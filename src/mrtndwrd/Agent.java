@@ -3,6 +3,7 @@ package mrtndwrd;
 import core.game.Observation;
 import core.game.StateObservation;
 import core.player.AbstractPlayer;
+import core.competition.CompetitionParameters;
 import ontology.Types;
 import tools.ElapsedCpuTimer;
 import tools.Vector2d;
@@ -24,7 +25,7 @@ import java.util.Random;
  */
 public class Agent extends AbstractPlayer {
 
-	public static int ROLLOUT_DEPTH = 8;
+	public static int ROLLOUT_DEPTH = 12;
 
 	/** Constant C (also known as K) for exploration vs. exploitation */
 	public static double K = Math.sqrt(2);
@@ -117,7 +118,7 @@ public class Agent extends AbstractPlayer {
 		}
 		else
 		{
-			optionRankingVariance = new DefaultHashMap<String, Double>(10.);
+			optionRankingVariance = new DefaultHashMap<String, Double>(1000.);
 			optionRankingD = new DefaultHashMap<String, Double>(0.);
 			optionRanking = new DefaultHashMap<String, Double>(0.);
 		}
@@ -125,14 +126,19 @@ public class Agent extends AbstractPlayer {
 		//Create the player.
 		mctsPlayer = new SingleMCTSPlayer(random);
 
-		// Set the state observation object as the root of the tree.
-		mctsPlayer.init(so, this.possibleOptions, this.optionObsIDs, this.currentOption);
 
 		// set orientation:
 		setAvatarOrientation(so);
 
-		// Startup the optionRanking
-		mctsPlayer.run(elapsedTimer);
+		while(elapsedTimer.remainingTimeMillis() > CompetitionParameters.ACTION_TIME)
+		{
+			ElapsedCpuTimer elapsedTimerTemp = new ElapsedCpuTimer();
+			elapsedTimerTemp.setMaxTimeMillis(CompetitionParameters.ACTION_TIME);
+			// Startup the optionRanking
+			// Set the state observation object as the root of the tree.
+			mctsPlayer.init(so, this.possibleOptions, this.optionObsIDs, this.currentOption);
+			mctsPlayer.run(elapsedTimerTemp);
+		}
 	}
 
 	private void setAvatarOrientation(StateObservation so)
@@ -184,8 +190,9 @@ public class Agent extends AbstractPlayer {
 		// System.out.println(optionRankingD);
 		// System.out.println("Writing hasmap optionRankingVariance");
 		// System.out.println(optionRankingVariance);
-		System.out.println("Final option ranking: " + optionRanking);
+		System.out.println("Final option ranking: \n" + optionRanking);
 		Lib.writeHashMapToFile(this.optionRankingD, filename + "D");
+		System.out.println("Final option variance: \n" + optionRankingVariance);
 		Lib.writeHashMapToFile(this.optionRankingVariance, filename + "Variance");
 		Lib.writeHashMapToFile(this.optionRanking, filename);
 	}
@@ -227,7 +234,7 @@ public class Agent extends AbstractPlayer {
 		currentOption = this.possibleOptions.get(option).copy();
 
 		Types.ACTIONS action = currentOption.act(so);
-		System.out.println("Tree:\n" + mctsPlayer.printRootNode());
+		//System.out.println("Tree:\n" + mctsPlayer.printRootNode());
 		//System.out.println("Orientation: " + so.getAvatarOrientation());
 		//System.out.println("Location: " + so.getAvatarPosition());
 		//System.out.println("Action: " + action);

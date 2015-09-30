@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Arrays;
+import java.util.Random;
 
 public class Lib
 {
@@ -418,5 +419,31 @@ public class Lib
 		double x = (sprite.position.x - avatarPosition.x) / blockSize;
 		double y = (sprite.position.y - avatarPosition.y) / blockSize;
 		return new Vector2d(x, y);
+	}
+
+	/** First normalizes array, then returns a weighted random index depending
+	 * on the contrents of array */
+	public static int weightedRandomIndex(Random random, double[] array, double arraySum)
+	{
+		// Normalize probs:
+		for (int i=0; i < array.length; i++)
+		{
+			array[i] /= arraySum;
+		}
+
+		// Select weighted random prob:
+		double rand = random.nextDouble();
+		//System.out.println("length: " + array.length + " rand: " + rand);
+		double counter = 0;
+		for (int i=0; i < array.length; i++)
+		{
+			counter += array[i];
+			if(rand < counter)
+			{
+				return i;
+			}
+		}
+		System.out.println("WARNING! Nothing returned in weightedRandomIndex, returning 0");
+		return 0;
 	}
 }
