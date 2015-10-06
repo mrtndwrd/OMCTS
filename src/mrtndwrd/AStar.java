@@ -207,9 +207,9 @@ public class AStar
 	 */
 	private int wallScore(int x, int y, boolean neighbours)
 	{
-		// IMPOSSIBLE!
+		// IMPOSSIBLE! return a super high score for off-board positions
 		if(x < 0 || y < 0 || x > maxX || y > maxY)
-			return 0;
+			return 99999999;
 		int score = 0;
 		for(Observation obs : lastObservationGrid[x][y])
 		{
@@ -219,10 +219,10 @@ public class AStar
 		// monsters (i hope)
 		if(neighbours)
 		{
-			score += wallScore(x-1, y, false);
-			score += wallScore(x+1, y, false);
-			score += wallScore(x, y-1, false);
-			score += wallScore(x, y+1, false);
+			score += .5 * wallScore(x-1, y, false);
+			score += .5 * wallScore(x+1, y, false);
+			score += .5 * wallScore(x, y-1, false);
+			score += .5 * wallScore(x, y+1, false);
 		}
 		return score;
 	}
@@ -233,23 +233,6 @@ public class AStar
 		// sqrt(x^2 + y^2)
 		return Math.sqrt(Math.pow(node.x - goal.x, 2) + 
 			Math.pow(node.y - goal.y, 2));
-	}
-
-	/** Compare tuples by fScore */
-	public class TupleComparator implements 
-		Comparator<Tuple<Integer, Integer>>
-	{
-		public int compare (Tuple<Integer, Integer> n1,
-			Tuple<Integer, Integer> n2)
-		{
-			double f1 = fScore(n1);
-			double f2 = fScore(n2);
-			if(f1 > f2)
-				return 1;
-			else if(f2 > f1)
-				return -1;
-			return 0;
-		}
 	}
 
 	/** Returns the action that leads from start to end. */
@@ -272,7 +255,6 @@ public class AStar
 		{
 			return Types.ACTIONS.ACTION_DOWN;
 		}
-		// System.out.println("Probably same location, returning action nil");
 		return Types.ACTIONS.ACTION_NIL;
 	}
 
@@ -340,11 +322,12 @@ public class AStar
 		// Default to random action (for when no action is possible)
 		Types.ACTIONS bestAction = randomAction();
 
+		double wallScore;
 		// Choose the possible action with the lowest wall score (to avoid
 		// trying to walk through walls)
 		for(Types.ACTIONS a : possibleActions)
 		{
-			double wallScore = wallScore(applyAction(location, a), false);
+			wallScore = wallScore(applyAction(location, a), false);
 			if(lowestWallScore > wallScore)
 			{
 				bestAction = a;
@@ -366,16 +349,25 @@ public class AStar
 
 	public void checkForWalls(StateObservation state, Types.ACTIONS action, StateObservation nextState)
 	{
-		SerializableTuple<Integer, Integer> startLocation = vectorToBlock(state.getAvatarPosition());
+		SerializableTuple<Integer, Integer> startLocation = 
+			vectorToBlock(state.getAvatarPosition());
 		Vector2d startOrientation = state.getAvatarOrientation();
-		SerializableTuple<Integer, Integer> endLocation = vectorToBlock(nextState.getAvatarPosition());
+
+		SerializableTuple<Integer, Integer> endLocation = 
+			vectorToBlock(nextState.getAvatarPosition());
 		Vector2d endOrientation = nextState.getAvatarOrientation();
-		ArrayList<Observation> observations;
+
 		SerializableTuple<Integer, Integer> expectedEndLocation = applyAction(startLocation, action);
+
+		// Loop variables
+		ArrayList<Observation> observations;
 		boolean killSprite = false;
+		int increase = 1;
+
 		if(nextState.isGameOver() && nextState.getGameWinner() 
 						== Types.WINNER.PLAYER_LOSES)
 		{
+			increase = 100;
 			killSprite = true;
 		}
 
@@ -388,9 +380,6 @@ public class AStar
 					&& !action.equals(Types.ACTIONS.ACTION_NIL)
 					&& !action.equals(Types.ACTIONS.ACTION_USE)))
 		{
-			int increase = 1;
-			if(killSprite)
-				increase = 100;
 			// Get the sprite itypes on the endLocation:
 			if(expectedEndLocation.x < maxX && expectedEndLocation.y < maxY && 
 					expectedEndLocation.x >= 0 && expectedEndLocation.y >= 0)
@@ -405,27 +394,6 @@ public class AStar
 				}
 			}
 		}
-		/* if(killSprite)
-		{
-			ArrayList<Observation> oldObservations = state.getObservationGrid()
-				[startLocation.x][startLocation.y];
-
-			observations = nextState.getObservationGrid()
-				[expectedEndLocation.x][expectedEndLocation.y];
-			System.out.println("Start: " + startLocation + " End: " + endLocation);
-
-			for(Observation obs : oldObservations)
-			{
-				// If the old observation has an iType, that the new one doesn't
-				// have, reduce the wall/death score of that iType.
-				if(observations.contains(obs))
-				{
-					System.out.println("Doesn't contain itype" + obs.itype);
-					wallITypeScore.put(obs.itype, //Math.max(0,
-							wallITypeScore.get(obs.itype) - 200);
-				}
-			}
-		}*/
 	}
 
 	public void printWallITypeScore()
@@ -448,5 +416,22 @@ public class AStar
 			s += "\n";
 		}
 		return s;
+	}
+
+	/** Compare tuples by fScore */
+	public class TupleComparator implements 
+		Comparator<Tuple<Integer, Integer>>
+	{
+		public int compare(Tuple<Integer, Integer> n1,
+			Tuple<Integer, Integer> n2)
+		{
+			double f1 = fScore(n1);
+			double f2 = fScore(n2);
+			if(f1 > f2)
+				return 1;
+			else if(f2 > f1)
+				return -1;
+			return 0;
+		}
 	}
 }
