@@ -18,24 +18,17 @@ public class SingleTreeNode
 
 	private static final double HUGE_POSITIVE =  10000000.0;
 
-	/** This gets counted upon the score of the option currently being followed.
-	 * It's less than the HUGE_NEGATIVE and HUGE_POSITIVE so that we'll switch
-	 * options to avoid dying or to increase win-chance */
-	private static final double AGENT_OPTION_EXTRA = 0.0;
-
 	/** mctsSearch continues until there are only so many miliseconds left */
 	public static final int REMAINING_LIMIT = 10;
 
 	/** Decides whether to use the mean reward, or the mean value of a root node
 	 * for the optionRanking */
-	public static boolean USE_MEAN_REWARD = false;
+	public static boolean USE_MEAN_REWARD = true;
 
 	/** Decides weather rollouts are done at random, or following options */
-	public static boolean RANDOM_ROLLOUT = false;
+	public static boolean RANDOM_ROLLOUT = true;
 
 	public static double epsilon = 1e-6;
-
-	public static double egreedyEpsilon = 0.05;
 
 	public StateObservation state;
 
@@ -59,7 +52,8 @@ public class SingleTreeNode
 	 * is finished, thereby representing a specific subtree in the whole */
 	private Option chosenOption;
 
-	/** The option that the agent is already following. This gets an extra score */
+	/** The option that the agent is already following. This gets an extra
+	 * score. Only the root node has this as not null */
 	private Option agentOption;
 
 	public static Random random;
@@ -73,17 +67,24 @@ public class SingleTreeNode
 	/** The value of the best possible option in the optionRankingVariance */
 	private double sigma0;
 
-	//protected static double[] bounds = new double[]{Double.MAX_VALUE, -Double.MAX_VALUE};
+	//protected static double[] bounds = 
+	//	new double[]{Double.MAX_VALUE, -Double.MAX_VALUE};
 
 	/** Root node constructor */
-	public SingleTreeNode(ArrayList<Option> possibleOptions, HashSet<Integer> optionObsIDs, Random rnd, Option currentOption) 
+	public SingleTreeNode(ArrayList<Option> possibleOptions, 
+			HashSet<Integer> optionObsIDs, Random rnd, Option currentOption)
 	{
 		this(null, null, null, possibleOptions, optionObsIDs, rnd);
 		this.agentOption = currentOption;
 	}
 
 	/** normal constructor */
-	public SingleTreeNode(StateObservation state, SingleTreeNode parent, Option chosenOption, ArrayList<Option> possibleOptions, HashSet<Integer> optionObsIDs, Random rnd)
+	public SingleTreeNode(StateObservation state, 
+			SingleTreeNode parent, 
+			Option chosenOption, 
+			ArrayList<Option> possibleOptions, 
+			HashSet<Integer> optionObsIDs, 
+			Random rnd)
 	{
 		this.state = state;
 		this.parent = parent;
@@ -95,6 +96,7 @@ public class SingleTreeNode
 
 		// Sort possible options by optionRanking:
 		Collections.sort(this.possibleOptions, Option.optionComparator);
+
 		// Set mu0 to the value of the best option in the optionRanking
 		this.mu0 = Agent.optionRanking.get(
 				this.possibleOptions.get(0).getType());
@@ -105,12 +107,12 @@ public class SingleTreeNode
 		if(chosenOption == null || chosenOption.isFinished(state))
 		{
 			this.chosenOptionFinished = true;
+			// FIXME: Should this be removed or not!??!?!!
 			// Update the option ranking if needed
 			//if(chosenOption != null && chosenOption.isFinished(state))
 			//{
 			//	chosenOption.updateOptionRanking();
 			//}
-
 			children = new SingleTreeNode[possibleOptions.size()];
 		}
 		// The only child is the continuation of this option.
@@ -139,11 +141,9 @@ public class SingleTreeNode
 			ElapsedCpuTimer elapsedTimerIteration = new ElapsedCpuTimer();
 
 			// Select the node to explore (either expanding unexpanded node, or
-			// selecting the best one with UCT)
+			// selecting the best one with UCT or crazyStone)
 			//System.out.printf("Remaining before treePolicy: %d\n", elapsedTimer.remainingTimeMillis());
 			SingleTreeNode selected = treePolicy();
-
-			// System.out.println("Selected: " + selected);
 
 			// Get node value using a max-depth rollout
 			//System.out.printf("Remaining before rollOut: %d\n", elapsedTimer.remainingTimeMillis());
@@ -159,13 +159,21 @@ public class SingleTreeNode
 
 			avgTimeTaken = acumTimeTaken/numIters;
 			remaining = elapsedTimer.remainingTimeMillis();
+
 		}
+		// This is the rootnode, because where else would this function be
+		// called!?!! So here we call setCumulativeRewardsForChildren, if needed
+		setCumulativeRewardsForChildren();
 	}
 
 	/** For each child, set its chosen options cumulative reward to the totValue
-	 * of that child node */
+	 * of that child node. */
 	public void setCumulativeRewardsForChildren()
 	{
+		// This isn't needed if USE_MEAN_REWARD is true, the reward is then set
+		// all over this file
+		if(SingleTreeNode.USE_MEAN_REWARD)
+			return;
 		Option o;
 		for(SingleTreeNode c : this.children)
 		{
@@ -187,6 +195,7 @@ public class SingleTreeNode
 		SingleTreeNode next;
 		while (!cur.state.isGameOver() && cur.nodeDepth < Agent.ROLLOUT_DEPTH)
 		{
+			// TODO crazyStone or uct should both be configurable options
 			next = cur.crazyStone();
 			// If we have expanded, return the new node for rollouts
 			if(this.expanded)
@@ -201,40 +210,6 @@ public class SingleTreeNode
 		return cur;
 	}
 
-
-	public SingleTreeNode expand() 
-	{
-		Option nextOption;
-		int bestOption = 0;
-
-		// If there's no chosenOption, we'll have to choose a new one
-		if(chosenOptionFinished)
-		{
-			double bestValue = -1;
-			// Select random option with index that isn't taken yet.
-			for (int i = 0; i < children.length; i++) 
-			{
-				double x = random.nextDouble();
-				if (x > bestValue && children[i] == null) 
-				{
-					bestOption = i;
-					bestValue = x;
-				}
-			}
-			nextOption = this.possibleOptions.get(bestOption).copy();
-		}
-		// Else, this node will just expand the chosenOption into child 0 (its
-		// only child) until it's done! 
-		else
-		{
-			bestOption = 0;
-			nextOption = chosenOption;
-		}
-
-		SingleTreeNode tn = expandChild(bestOption, nextOption);
-		return tn;
-	}
-
 	public SingleTreeNode expandChild(int id, Option nextOption)
 	{
 		this.expanded = true;
@@ -245,7 +220,6 @@ public class SingleTreeNode
 		nextState.advance(action);
 
 		// Step 2: Update the option's values:
-		//nextOption.addReward(Lib.simpleValue(nextState) - //Lib.simpleValue(state));
 		if(USE_MEAN_REWARD)
 		{
 			nextOption.addReward(nextState.getGameScore() - state.getGameScore());
@@ -287,6 +261,12 @@ public class SingleTreeNode
 		int selectedId = 0;
 		double[] probs = new double[(int) N];
 		double probsSum = 0;
+		int agentOptionIndex = -1;
+		double alpha;
+		if(agentOption != null)
+		{
+			agentOptionIndex = possibleOptions.indexOf(agentOption);
+		}
 		for(int i = 0; i < N; i++)
 		{
 			Option o = this.possibleOptions.get(i);
@@ -295,26 +275,24 @@ public class SingleTreeNode
 			// probability of it being chosen. The formula would become this:
 			// (0.1 + Math.pow(2, (-i)) + alpha) / N
 			// alpha being 1 if something good's going on, and 0 otherwise.
-			// TODO Perhaps use alpha = 1 here for the currently chosen option to
-			// continue
-			double epsilon = (0.1 + Math.pow(2, (N-i))) / N;
+			// Alpha is now 1 when the agent is already following this option.
+			// This encourages the tree search to explore the agent's current
+			// option
+			if(i == agentOptionIndex)
+				alpha = 1;
+			else
+				alpha = 0;
+			double epsilon = (0.1 + Math.pow(2, (N-i)) + alpha) / N;
 
 			// Prepare values for the next equation
 			double mu = Agent.optionRanking.get(o.getType());
 			double sigma = Agent.optionRankingVariance.get(o.getType());
 
-			//System.out.println("Option: " + o);
-			//System.out.println("Mu0: " + mu0);
-			//System.out.println("Mu: " + mu);
-			//System.out.println("Sigma0: " + sigma0);
-			//System.out.println("Sigma: " + sigma);
-			//System.out.println("epsilon: " + epsilon);
 			// The first equation in sect. 3.2:
-			probs[i] = Math.exp(-2.4 * (
+			probs[i] = Math.exp(2.4 * (
 						(mu0 - mu) /
 						(Math.sqrt(2 * (sigma0 + sigma + epsilon)))));
 			probsSum += probs[i];
-			//System.out.println("Prob: " + prob + "\n");
 		}
 		// Get the randomly selected best id to expand/select
 		selectedId = Lib.weightedRandomIndex(random, probs, probsSum);
@@ -350,16 +328,16 @@ public class SingleTreeNode
 
 		int selectedId = -1;
 		double bestValue = -Double.MAX_VALUE;
-		// Defines if a child already exists in the array, or still has the
-		// "null" value
+		// Temporary loop-variable that defines if a child already has an
+		// existing SingleTreeNode, or still has the "null" value
 		boolean expandChild;
+		// Defines if the best child has to be expanded
 		boolean bestExpandChild = false;
 		double hvVal, optionRanking, childValue;
 		int visits;
 		int agentOptionIndex = -1;
 		if(agentOption != null)
 		{
-			// TODO: Why would this result in -1?
 			agentOptionIndex = possibleOptions.indexOf(agentOption);
 		}
 		// Expand the agentOption first, so that it's always expanded
@@ -404,8 +382,6 @@ public class SingleTreeNode
 						Agent.ALPHA * optionRanking;
 				}
 
-				//childValue = Utils.normalise(childValue, bounds[0], bounds[1]);
-
 				double uctValue = childValue +
 						Agent.K * Math.sqrt(Math.log(this.nVisits + 1) / (visits + this.epsilon));
 
@@ -445,7 +421,8 @@ public class SingleTreeNode
 	 * finished random actions, on the current node of maximally
 	 * Agent.ROLLOUT_DEPTH. 
 	 * @return Delta is the "simpleValue" of the last state the rollOut
-	 * arrives in. 
+	 * arrives in if USE_MEAN_REWARD is true, else it's the difference in reward
+	 * of this state
 	 */
 	public double rollOut()
 	{
@@ -481,10 +458,7 @@ public class SingleTreeNode
 						rollerOption.updateOptionRanking();
 					rollerOptionFinished = true;
 				}
-			}
-			// If possible follow this node's option, then follow a random policy
-			if(!rollerOptionFinished)
-			{
+				// If possible follow this node's optio
 				action = rollerOption.act(rollerState);
 				rollerState.advance(action);
 				// Update the option's reward
@@ -500,24 +474,12 @@ public class SingleTreeNode
 			thisDepth++;
 		}
 
-		// Update the ranking with how far this option has come if it hasn't
-		// finished
-		// if(!rollerOptionFinished)
-		// {
-		// 	// Update the ranking for the finished option
-		// 	rollerOption.updateOptionRanking();
-		// }
-		
-		//double delta = Lib.simpleValue(rollerState);
-		double delta = rollerState.getGameScore() - lastScore;
-
-		//if(delta < bounds[0])
-		//	bounds[0] = delta;
-
-		//if(delta > bounds[1])
-		//	bounds[1] = delta;
-
-		return delta;
+		// We can only use the simpleValue when USE_MEAN_REWARD is true, else
+		// the node reward is going to have waaayyy to high variance
+		if(USE_MEAN_REWARD)
+			return Lib.simpleValue(rollerState);
+		else
+			return rollerState.getGameScore() - lastScore;
 	}
 
 	public boolean finishRollout(StateObservation rollerState, int depth)
@@ -597,20 +559,6 @@ public class SingleTreeNode
 							(children[i].totValue / (children[i].nVisits + this.epsilon))) + 
 						Agent.ALPHA * optionRanking;
 				childValue = Utils.noise(childValue, this.epsilon, this.random.nextDouble());	 //break ties randomly
-				if(agentOption != null && agentOption.equals(children[i].chosenOption) && !agentOption.finished)
-				{
-					//System.out.println("Adding for option " + agentOption);
-					//childValue = Utils.normalise(childValue, bounds[0], bounds[1]);
-					childValue += AGENT_OPTION_EXTRA;
-					//System.out.println(childValue);
-				}
-				//else
-				//{
-					//System.out.println("Not adding for child " + children[i].chosenOption + 
-					//		" and option " + agentOption);
-					//childValue = Utils.normalise(childValue, bounds[0], bounds[1]);
-					//System.out.println(childValue);
-				//}
 				if (childValue > bestValue)
 				{
 					bestValue = childValue;
