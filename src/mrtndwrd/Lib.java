@@ -26,7 +26,8 @@ public class Lib
 	public static final double HUGE_NEGATIVE = -1000000000.0;
 	public static final double HUGE_POSITIVE =  1000000000.0;
 	/** Only the closest MAX_OBSERVATIONS observations are turned into options */
-	public static final int MAX_OBSERVATIONS =  5;
+	// TODO: This may be too much, but who knows?
+	public static final int MAX_OBSERVATIONS = 99;
 
 	// This will be used by agents that make files. This postfix can be adjusted
 	// by for example the Test class (that's why it's not final...), in order to
@@ -49,7 +50,7 @@ public class Lib
 	{
 		for (int x = 0; x < observationGrid.length; x++)
 		{
-			for (int y = 0; y<observationGrid[x].length; y++)
+			for (int y = 0; y < observationGrid[x].length; y++)
 			{
 				for (Observation obs : observationGrid[x][y])
 				{
@@ -62,11 +63,11 @@ public class Lib
 	}
 
 	/** Very simple state evaluation, taken from the MCTS code */
-	public static double simpleValue(StateObservation a_gameState) 
+	public static double simpleValue(StateObservation so) 
 	{
-		boolean gameOver = a_gameState.isGameOver();
-		Types.WINNER win = a_gameState.getGameWinner();
-		double rawScore = a_gameState.getGameScore();
+		boolean gameOver = so.isGameOver();
+		Types.WINNER win = so.getGameWinner();
+		double rawScore = so.getGameScore();
 
 		if(gameOver && win == Types.WINNER.PLAYER_LOSES)
 			rawScore += HUGE_NEGATIVE;
@@ -74,7 +75,7 @@ public class Lib
 		if(gameOver && win == Types.WINNER.PLAYER_WINS)
 			rawScore += HUGE_POSITIVE;
 
-		// Make quicker better
+		// TODO: Try subtracting the time here, to see if that improves anything
 		return rawScore;
 	}
 
@@ -273,7 +274,6 @@ public class Lib
 		Lib.setOptions(so, possibleOptions, optionObsIDs);
 		if(Arrays.asList(Agent.actions).contains(Types.ACTIONS.ACTION_USE))
 		{
-			Lib.setWaitAndShootOptions(so, possibleOptions, 0);
 			Lib.setWaitAndShootOptions(so, possibleOptions, 2);
 			Lib.setWaitAndShootOptions(so, possibleOptions, 4);
 		}
@@ -296,7 +296,8 @@ public class Lib
 	 * @param optionObsIDs the ids of all observations that options lead to.
 	 * This is useful for removing options that lead to non-existing sprites
 	 */
-	public static void setOptions(StateObservation so, ArrayList<Option> possibleOptions, HashSet<Integer> optionObsIDs)
+	public static void setOptions(StateObservation so, 
+			ArrayList<Option> possibleOptions, HashSet<Integer> optionObsIDs)
 	{
 		// Holds the new obsIDs
 		HashSet<Integer> newObsIDs = new HashSet<Integer>();
@@ -310,28 +311,32 @@ public class Lib
 				act.contains(Types.ACTIONS.ACTION_RIGHT))
 		{
 			Vector2d avatarPosition = so.getAvatarPosition();
-			// Set options for all types of sprites that exist in this game. If they
-			// don't exist, the getter will return null and no options will be
-			// created.
+			// Set options for all types of sprites that exist in this game. If
+			// they don't exist, the getter will return null and no options will
+			// be created.
 			if(so.getNPCPositions() != null)
 			{
-				createOptions(so.getNPCPositions(avatarPosition), GETTER_TYPE.NPC, so, newObsIDs, possibleOptions, optionObsIDs);
+				createOptions(so.getNPCPositions(avatarPosition), GETTER_TYPE.NPC, 
+						so, newObsIDs, possibleOptions, optionObsIDs);
 			}
 			if(so.getMovablePositions() != null)
-				createOptions(so.getMovablePositions(avatarPosition), GETTER_TYPE.MOVABLE, so, newObsIDs, possibleOptions, optionObsIDs);
+				createOptions(so.getMovablePositions(avatarPosition), GETTER_TYPE.MOVABLE, 
+						so, newObsIDs, possibleOptions, optionObsIDs);
 			if(so.getResourcesPositions() != null)
-				createOptions(so.getResourcesPositions(avatarPosition), GETTER_TYPE.RESOURCE, so, newObsIDs, possibleOptions, optionObsIDs);
+				createOptions(so.getResourcesPositions(avatarPosition), GETTER_TYPE.RESOURCE, 
+						so, newObsIDs, possibleOptions, optionObsIDs);
 			if(so.getPortalsPositions() != null)
-				createOptions(so.getPortalsPositions(avatarPosition), GETTER_TYPE.PORTAL, so, newObsIDs, possibleOptions, optionObsIDs);
+				createOptions(so.getPortalsPositions(avatarPosition), GETTER_TYPE.PORTAL, 
+						so, newObsIDs, possibleOptions, optionObsIDs);
 
 			// Remove all "old" obsIDs from this.optionObsIDs. optionObsIDs will
 			// then only contain obsolete obsIDs
 			optionObsIDs.removeAll(newObsIDs);
 
-			// Now remove all options that have the obsIDs in optionObsIDs.
-			// We use the iterator, in order to ensure removing while iterating is
+			// Now remove all options that have the obsIDs in optionObsIDs.  We
+			// use the iterator, in order to ensure removing while iterating is
 			// possible
-			for (Iterator<Option> it = possibleOptions.iterator(); it.hasNext();)
+			for(Iterator<Option> it = possibleOptions.iterator(); it.hasNext();)
 			{
 				Option option = it.next();
 				// Remove the options that are still in optionObsIDs.
@@ -341,8 +346,8 @@ public class Lib
 				}
 			}
 
-			// Now all options are up-to-date. this.optionObsIDs should be updated
-			// to represent the current options list:
+			// Now all options are up-to-date. this.optionObsIDs should be
+			// updated to represent the current options list:
 			optionObsIDs.clear();
 			optionObsIDs.addAll(newObsIDs);
 		}
@@ -404,12 +409,14 @@ public class Lib
 		// Get a copy of the state
 		StateObservation soCopy = so.copy();
 		double blockSize = soCopy.getBlockSize();
+
 		// ACTION_USE to make a new sprite from avatar
 		soCopy.advance(Types.ACTIONS.ACTION_USE);
 		soCopy.advance(Types.ACTIONS.ACTION_NIL);
 		Vector2d avatarPosition = soCopy.getAvatarPosition();
 		ArrayList<Observation>[] sprites = 
 			soCopy.getFromAvatarSpritesPositions(avatarPosition);
+
 		if(sprites == null || sprites.length == 0 || sprites[0].size() == 0)
 		{
 			return new Vector2d(0., 0.);
