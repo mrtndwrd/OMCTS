@@ -32,10 +32,12 @@ public class GoToPositionOption extends Option implements Serializable
 	
 	/** The last planned path, as long as this is followed, no replanning has to
 	 * be done */
-	ArrayList<SerializableTuple<Integer, Integer>> currentPath = new ArrayList<SerializableTuple<Integer, Integer>>();
+	ArrayList<SerializableTuple<Integer, Integer>> currentPath = 
+		new ArrayList<SerializableTuple<Integer, Integer>>();
 
 	/** Initialize with a position to go to */
-	public GoToPositionOption(double gamma, SerializableTuple<Integer, Integer> goal)
+	public GoToPositionOption(double gamma, 
+			SerializableTuple<Integer, Integer> goal)
 	{
 		super(gamma);
 		this.goal = goal;
@@ -105,8 +107,7 @@ public class GoToPositionOption extends Option implements Serializable
 		this.currentPath = new ArrayList<SerializableTuple<Integer, Integer>>();
 	}
 
-	/** Returns the next action to get to this.goal. This function only plans
-	 * around walls, not around other objects or NPC's. Only plans a new path if
+	/** Returns the next action to get to this.goal. Only plans a new path if
 	 * the current location is not anymore in the currentPath. 
 	 */
 	public Types.ACTIONS act(StateObservation so)
@@ -124,6 +125,8 @@ public class GoToPositionOption extends Option implements Serializable
 			return Types.ACTIONS.ACTION_NIL;
 		}
 
+		// TODO: Check if removing currentPath from this class (and always
+		// replanning) improves accuracy
 		int index = currentPath.indexOf(avatarPosition);
 
 		// Sometimes: recalculate in case the world has changed.
@@ -176,13 +179,11 @@ public class GoToPositionOption extends Option implements Serializable
 		return false;
 	}
 
-	/** Returns the location of the thing that is tracked, based on type, itype
+	/** Returns the location of the sprite that is tracked, based on type, itype
 	 * and obsID */
 	protected SerializableTuple<Integer, Integer> getGoalLocationFromSo(StateObservation so)
 	{
-		ArrayList<Observation> observations;
-		observations = getObservations(so, itype);
-		for (Observation o : observations)
+		for (Observation o : getObservations(so, itype))
 		{
 			if(o.obsID == this.obsID)
 				return Agent.aStar.vectorToBlock(o.position);
@@ -192,7 +193,8 @@ public class GoToPositionOption extends Option implements Serializable
 		return null;
 	}
 
-	protected ArrayList<Observation> getObservations(StateObservation so, int itype)
+	protected ArrayList<Observation> getObservations(StateObservation so, 
+			int itype)
 	{
 		return getObservations(so, itype, null);
 	}
@@ -201,11 +203,13 @@ public class GoToPositionOption extends Option implements Serializable
 	 * @param itype the itype inside the getter, of the observation type that is
 	 * requested
 	 */
-	protected ArrayList<Observation> getObservations(StateObservation so, int itype, Vector2d position)
+	protected ArrayList<Observation> getObservations(StateObservation so, 
+			int itype, Vector2d position)
 	{
 		ArrayList<Observation>[] observations = null;
 
-		if(this.type == Lib.GETTER_TYPE.NPC || this.type == Lib.GETTER_TYPE.NPC_KILL)
+		if(this.type == Lib.GETTER_TYPE.NPC || 
+				this.type == Lib.GETTER_TYPE.NPC_KILL)
 		{
 			if(position == null)
 				observations = so.getNPCPositions();

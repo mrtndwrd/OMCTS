@@ -65,18 +65,21 @@ public class WaitAndShootOption extends Option implements Serializable
 		{
 			for(Observation o : ao)
 			{
-				// Only the itype this option is for (TODO: Maybe we don't need
-				// this, just shoot any npc?)
 				if(o.itype != itype)
 					continue outerloop;
 				// Calculate the difference in location, to find the direction
 				// match:
-				double diffX = (o.position.x - avatarPosition.x) / (double) so.getBlockSize();
-				double diffY = (o.position.y - avatarPosition.y) / (double) so.getBlockSize();
-				// In this case, the avatar is facing the opponent in one axis, so
-				// difference in the othre axis should be the same as this.range
-				if((diffX * avatarOrientation.x > 0 && (int) Math.round(diffY) == range) ||
-						(diffY * avatarOrientation.y > 0 && (int) Math.round(diffX) == range))
+				double diffX = (o.position.x - avatarPosition.x) / 
+					(double) so.getBlockSize();
+				double diffY = (o.position.y - avatarPosition.y) / 
+					(double) so.getBlockSize();
+				// In this case, the avatar is facing the opponent in one axis,
+				// so difference in the othre axis should be the same as
+				// this.range
+				if((diffX * avatarOrientation.x > 0 && 
+							(int) Math.round(diffY) == range) ||
+						(diffY * avatarOrientation.y > 0 && 
+							(int) Math.round(diffX) == range))
 				{
 					return true;
 				}

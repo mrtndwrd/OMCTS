@@ -65,7 +65,7 @@ public class ActionOption extends Option implements Serializable
 	{
 		// perform the default serialization for all non-transient, non-static
 		// fields
-		aOutputStream.defaultWriteObject();
+		super.writeObject(aOutputStream);
 		aOutputStream.writeObject(action);
 	}
 	@Override

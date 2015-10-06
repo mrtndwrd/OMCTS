@@ -35,7 +35,8 @@ public class GoToNearestSpriteOfItypeOption extends GoToMovableOption implements
 
 	/** Returns the location of the thing that is tracked, based on type, itype
 	 * and obsID */
-	protected SerializableTuple<Integer, Integer> getGoalLocationFromSo(StateObservation so)
+	protected SerializableTuple<Integer, Integer>
+		getGoalLocationFromSo(StateObservation so)
 	{
 		ArrayList<Observation> observations;
 		observations = getObservations(so, itype, so.getAvatarPosition());
@@ -50,14 +51,15 @@ public class GoToNearestSpriteOfItypeOption extends GoToMovableOption implements
 	@Override
 	public Option copy()
 	{
-		return new GoToNearestSpriteOfItypeOption(gamma, step, cumulativeReward, type, 
-				itype, goal);
+		return new GoToNearestSpriteOfItypeOption(gamma, step, cumulativeReward,
+				type, itype, goal);
 	}
 
 	@Override
 	public String toString()
 	{
-		return String.format("GoToNearestSpriteOfItypeOption(%s,%d)", type, itype);
+		return String.format("GoToNearestSpriteOfItypeOption(%s,%d)", 
+				type, itype);
 	}
 
 	public boolean equals(Object o)

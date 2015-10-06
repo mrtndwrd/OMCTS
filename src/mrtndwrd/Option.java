@@ -129,26 +129,7 @@ public abstract class Option implements Serializable
 	 */
 	public void updateOptionRanking()
 	{
-		// Ignore 0-rewards. only positive or negative rewards interest me
-		//if(getReward() == 0)
-		//{
-		//	setFinished();
-		//	return;
-		//}
 		String type = this.getType();
-		// Set the D and N values for this type
-		// optionRanking = (1/ LIMIT(GAMMA^n)) * optionRanking 
-		//               = (1/ (1/(1-GAMMA)) ) * optionRanking
-		//               = (1-GAMMA)           * optionRanking
-		// For example: GAMMA = .9 would result in all option values
-		// being maximally 10 times the state values. To fix this, we
-		// multiply by .1
-		//
-		// This is not needed anymore, since discounting is added to
-		// SingleTreeNode.java
-		//Agent.optionRankingN.put(type, Agent.optionRankingN.get(type) + 
-		//	((1-Agent.GAMMA) * getReward()));
-
 		// From https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Online_algorithm
 		double x = getReward();
 		double n = Agent.optionRankingD.get(type) + 1;

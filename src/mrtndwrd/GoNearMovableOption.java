@@ -18,7 +18,7 @@ import java.util.ArrayList;
 public class GoNearMovableOption extends GoToMovableOption implements Serializable
 {
 	/** How near is "near" (in path size) */
-	public final int THRESHOLD = 4;
+	public final int THRESHOLD = 3;
 
 	public GoNearMovableOption(double gamma, Lib.GETTER_TYPE type, int itype, int obsID, StateObservation so)
 	{
