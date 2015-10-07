@@ -109,10 +109,10 @@ public class SingleTreeNode
 			this.chosenOptionFinished = true;
 			// FIXME: Should this be removed or not!??!?!!
 			// Update the option ranking if needed
-			if(chosenOption != null && chosenOption.isFinished(state))
-			{
-				chosenOption.updateOptionRanking();
-			}
+			//if(chosenOption != null && chosenOption.isFinished(state))
+			//{
+			//	chosenOption.updateOptionRanking();
+			//}
 			children = new SingleTreeNode[possibleOptions.size()];
 		}
 		// The only child is the continuation of this option.
@@ -548,32 +548,21 @@ public class SingleTreeNode
 	{
 		int selected = -1;
 		double bestValue = -Double.MAX_VALUE;
-		double bestOptionValue = -Double.MAX_VALUE;
 
 		for (int i=0; i<children.length; i++) 
 		{
 			if(children[i] != null) 
 			{
-				double childValue = children[i].totValue;
-				double optionValue = Agent.optionRanking.get(
-						this.possibleOptions.get(i).getType());
-				//break ties randomly
-				optionValue = Utils.noise(
-						optionValue, this.epsilon, this.random.nextDouble());
-				// Go for the best child value
+				//double childValue = children[i].totValue / (children[i].nVisits + this.epsilon);
+				double optionRanking = Agent.optionRanking.get(this.possibleOptions.get(i).getType());
+				double childValue =  ((1 - Agent.ALPHA) * 
+							(children[i].totValue / (children[i].nVisits + this.epsilon))) + 
+						Agent.ALPHA * optionRanking;
+				childValue = Utils.noise(childValue, this.epsilon, this.random.nextDouble());	 //break ties randomly
 				if (childValue > bestValue)
 				{
 					bestValue = childValue;
 					selected = i;
-				}
-				// But break ties using optionValue.
-				else if(childValue == bestValue)
-				{
-					if(optionValue > bestOptionValue)
-					{
-						selected = i;
-						bestOptionValue = optionValue;
-					}
 				}
 			}
 		}
@@ -584,6 +573,48 @@ public class SingleTreeNode
 		}
 		return selected;
 	}
+
+	//public int bestAction()
+	//{
+	//	int selected = -1;
+	//	double bestValue = -Double.MAX_VALUE;
+	//	double bestOptionValue = -Double.MAX_VALUE;
+
+	//	for (int i=0; i<children.length; i++) 
+	//	{
+	//		if(children[i] != null) 
+	//		{
+	//			double childValue = children[i].totValue;
+	//			double optionValue = Agent.optionRanking.get(
+	//					this.possibleOptions.get(i).getType());
+	//			//break ties randomly
+	//			optionValue = Utils.noise(
+	//					optionValue, this.epsilon, this.random.nextDouble());
+	//			// Go for the best child value
+	//			if (childValue > bestValue)
+	//			{
+	//				bestValue = childValue;
+	//				bestOptionValue = optionValue;
+	//				selected = i;
+	//			}
+	//			// But break ties using optionValue.
+	//			else if(childValue == bestValue)
+	//			{
+	//				if(optionValue > bestOptionValue)
+	//				{
+	//					selected = i;
+	//					bestOptionValue = optionValue;
+	//				}
+	//			}
+	//		}
+	//	}
+	//	if (selected == -1)
+	//	{
+	//		System.out.println("Unexpected selection!");
+	//		selected = 0;
+	//	}
+	//	return selected;
+	//}
 
 	public boolean notFullyExpanded() 
 	{

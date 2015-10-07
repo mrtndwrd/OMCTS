@@ -36,7 +36,7 @@ mkdir -p output
 mkdir -p tables
 
 # Run 3 parallel jobs of java until $max jobs are done
-seq $max | parallel -j3 --eta "java -Xmx1024m -Xms1024m -Xincgc -cp classes MyTest \
+seq $max | parallel -j3 --eta "java -cp classes MyTest \
 		--controller=$controller \
 		--game=$game \
 		--levels=$levels \
