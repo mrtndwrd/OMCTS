@@ -30,7 +30,7 @@ def get_option_rankings(directory):
 					# start parsing
 					parsing = True
 					i += 1
-				if parsing:
+				elif parsing:
 					l = line.split(' -> ')
 					if(len(l) != 2):
 						parsing = False
@@ -67,7 +67,11 @@ def make_plot(values, contains, legend_location):
 	# Per option, add a line for mean and std. to the plot:
 	fig = plt.figure(figsize=(5, 5))
 	ax = fig.add_subplot(111)
+	if len(new_values.keys()) == 0:
+		print "No values found"
+		return
 	for option, values in new_values.iteritems():
+		print "adding option", option
 		averages = np.average(values, axis=0)
 		stds = np.std(values, axis=0)
 		xs = range(0, len(averages))

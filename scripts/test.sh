@@ -20,7 +20,7 @@ controller="mrtndwrd.Agent"
 # controller="controllers.sampleMCTS.Agent"
 # CIG 2014 Training Set Games
 # "aliens boulderdash butterflies chase frogs missilecommand portals sokoban survivezombies zelda"
-game="missilecommand"
+game="camelRace"
 # CIG 2014 Validation Set Games
 #game="camelRace digdug firestorms infection firecaster overload pacman seaquest whackamole eggomania"
 #CIG 2015 New Training Set Games
@@ -30,11 +30,13 @@ game="missilecommand"
 levels="0"
 
 ant
-rm -r output/*
-rm -r tables/*
+rm -r output
+rm -r tables
+mkdir -p output
+mkdir -p tables
 
 # Run 3 parallel jobs of java until $max jobs are done
-seq $max | parallel -j3 --eta "java -cp classes MyTest \
+seq $max | parallel -j3 --eta "java -Xmx1024m -Xms1024m -Xincgc -cp classes MyTest \
 		--controller=$controller \
 		--game=$game \
 		--levels=$levels \
@@ -47,5 +49,6 @@ do
 	cat output/complete_output_$i | scripts/get-score.sh > output/o$i
 done
 # Make the plots
-python scripts/plot.py output/o* -ws -o winScore.pdf
+python scripts/plot.py output/o* -s -o score.pdf 
+python scripts/plot.py output/o* -w -o wins.pdf
 python scripts/plot.py output/o* -t -o time.pdf
