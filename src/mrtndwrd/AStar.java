@@ -209,7 +209,7 @@ public class AStar
 	{
 		// IMPOSSIBLE! return a super high score for off-board positions
 		if(x < 0 || y < 0 || x > maxX || y > maxY)
-			return 99999999;
+			return (int) Lib.HUGE_POSITIVE;
 		int score = 0;
 		for(Observation obs : lastObservationGrid[x][y])
 		{

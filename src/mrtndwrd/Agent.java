@@ -25,7 +25,7 @@ import java.util.Random;
  */
 public class Agent extends AbstractPlayer {
 
-	public static int ROLLOUT_DEPTH = 12;
+	public static int ROLLOUT_DEPTH = 8;
 
 	/** Constant C (also known as K) for exploration vs. exploitation */
 	public static double K = Math.sqrt(2);

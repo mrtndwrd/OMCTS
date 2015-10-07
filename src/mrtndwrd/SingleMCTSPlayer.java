@@ -55,6 +55,7 @@ public class SingleMCTSPlayer
 		//Do the search within the available time.
 		rootNode.mctsSearch(elapsedTimer);
 		//Determine the best action to take and return it.
+		// TODO: Compare with mostVisitedAction
 		int action = rootNode.bestAction();
 		return action;
 	}
