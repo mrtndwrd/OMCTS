@@ -219,10 +219,10 @@ public class AStar
 		// monsters (i hope)
 		if(neighbours)
 		{
-			score += .5 * wallScore(x-1, y, false);
-			score += .5 * wallScore(x+1, y, false);
-			score += .5 * wallScore(x, y-1, false);
-			score += .5 * wallScore(x, y+1, false);
+			score += wallScore(x-1, y, false);
+			score += wallScore(x+1, y, false);
+			score += wallScore(x, y-1, false);
+			score += wallScore(x, y+1, false);
 		}
 		return score;
 	}

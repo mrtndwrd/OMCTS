@@ -26,7 +26,7 @@ public class SingleTreeNode
 	public static boolean USE_MEAN_REWARD = true;
 
 	/** Decides weather rollouts are done at random, or following options */
-	public static boolean RANDOM_ROLLOUT = true;
+	public static boolean RANDOM_ROLLOUT = false;
 
 	public static double epsilon = 1e-6;
 
