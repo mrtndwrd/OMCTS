@@ -29,7 +29,7 @@ public class AStar
 	public int maxY;
 
 	/** Dynamic set of observation iTypes that are identified as inpenetrable */
-	private DefaultHashMap<Integer, Integer> wallITypeScore;
+	private DefaultHashMap<Integer, Double> wallITypeScore;
 
 	private Tuple<Integer, Integer> goal;
 
@@ -57,7 +57,7 @@ public class AStar
 		openSet = new PriorityQueue<Tuple<Integer, Integer>>(10, new TupleComparator());
 		closedSet = new HashSet<Tuple<Integer, Integer>>();
 		cameFrom = new HashMap<Tuple<Integer, Integer>, Tuple<Integer, Integer>>();
-		this.wallITypeScore = new DefaultHashMap<Integer, Integer>(0);
+		this.wallITypeScore = new DefaultHashMap<Integer, Double>(0.);
 
 		// X, vertical coordinates, is the inner array
 		maxX = so.getObservationGrid().length-1;
@@ -195,7 +195,7 @@ public class AStar
 		return distance(node, goal) + wallScore(node, true);
 	}
 
-	private int wallScore(Tuple<Integer, Integer> node, boolean neighbours)
+	private double wallScore(Tuple<Integer, Integer> node, boolean neighbours)
 	{
 		return wallScore(node.x, node.y, neighbours);
 	}
@@ -205,12 +205,12 @@ public class AStar
 	 * the avatar. For this reason, if neighbours is true, the score also
 	 * includes the four neighbouring nodes in order to find safer paths
 	 */
-	private int wallScore(int x, int y, boolean neighbours)
+	private double wallScore(int x, int y, boolean neighbours)
 	{
 		// IMPOSSIBLE! return a super high score for off-board positions
 		if(x < 0 || y < 0 || x > maxX || y > maxY)
-			return (int) Lib.HUGE_POSITIVE;
-		int score = 0;
+			return 0.;
+		double score = 0.;
 		for(Observation obs : lastObservationGrid[x][y])
 		{
 			score += wallITypeScore.get(obs.itype);
@@ -219,10 +219,10 @@ public class AStar
 		// monsters (i hope)
 		if(neighbours)
 		{
-			score += wallScore(x-1, y, false);
-			score += wallScore(x+1, y, false);
-			score += wallScore(x, y-1, false);
-			score += wallScore(x, y+1, false);
+			score += .2 * wallScore(x-1, y, false);
+			score += .2 * wallScore(x+1, y, false);
+			score += .2 * wallScore(x, y-1, false);
+			score += .2 * wallScore(x, y+1, false);
 		}
 		return score;
 	}
@@ -362,7 +362,7 @@ public class AStar
 		// Loop variables
 		ArrayList<Observation> observations;
 		boolean killSprite = false;
-		int increase = 1;
+		double increase = 1;
 
 		if(nextState.isGameOver() && nextState.getGameWinner() 
 						== Types.WINNER.PLAYER_LOSES)
@@ -411,7 +411,7 @@ public class AStar
 			// Now loop through x (horizontal)
 			for (int x=0; x<=maxX; x++)
 			{
-				s += String.format("%5d ", wallScore(x, y, false));
+				s += String.format("%5f ", wallScore(x, y, true));
 			}
 			s += "\n";
 		}
