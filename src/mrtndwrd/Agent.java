@@ -82,29 +82,19 @@ public class Agent extends AbstractPlayer {
 		Agent.random = new Random();
 		Agent.aStar = new AStar(so);
 		ArrayList<Types.ACTIONS> act = so.getAvailableActions();
-		
-		// Add the actions to the option set
-		Lib.setOptionsForActions(act, this.possibleOptions);
-		Lib.setOptions(so, this.possibleOptions, this.optionObsIDs);
-		if(act.contains(Types.ACTIONS.ACTION_USE))
-		{
-			Lib.setWaitAndShootOptions(so, this.possibleOptions, 1);
-			Lib.setWaitAndShootOptions(so, this.possibleOptions, 2);
-			Lib.setWaitAndShootOptions(so, this.possibleOptions, 3);
-			Lib.setWaitAndShootOptions(so, this.possibleOptions, 4);
-			Lib.setWaitAndShootOptions(so, this.possibleOptions, 5);
-		}
-		Lib.setGoToNearestOptions(so, possibleOptions, optionItypes);
 
-		// Add avoidance-option
-		possibleOptions.add(new AvoidNearestNpcOption(Agent.GAMMA));
-		
 		// Create actions for rollout
 		actions = new Types.ACTIONS[act.size()];
 		for(int i = 0; i < actions.length; ++i)
 		{
 			actions[i] = act.get(i);
 		}
+
+		
+		// Add the actions to the option set
+		Lib.setOptionsForActions(act, this.possibleOptions);
+		Lib.updateOptions(so, this.possibleOptions, this.optionObsIDs, 
+				this.optionItypes);
 
 		// Load old optionRanking (if possible)
 		if(readOptionRanking())

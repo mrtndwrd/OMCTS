@@ -434,8 +434,10 @@ public class SingleTreeNode
 			rollerOption = chosenOption.copy();
 		// Instantiate "rollerOptionFinished" to whether it's null:
 		// If RANDOM_ROLLOUT is turned on, we say that the "roller option is
-		// finished"
-		boolean rollerOptionFinished = rollerOption == null || RANDOM_ROLLOUT;
+		// finished" If there is no rollerOption it is also finished. And of
+		// course, it's finished if it is finished
+		boolean rollerOptionFinished = rollerOption == null || RANDOM_ROLLOUT 
+			|| rollerOption.isFinished(rollerState);
 		//double lastScore = Lib.simpleValue(rollerState);
 		double lastScore = rollerState.getGameScore();
 		while (!finishRollout(rollerState,thisDepth)) 
