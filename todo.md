@@ -1,6 +1,8 @@
 TODO 
 ====
 
+- improve USE_MEAN_REWARD = false setting (it works with USE_MEAN_REWARD = true
+  and game camelRace)
 - Remove currentPath from GoToPositionOption, probably improves in stochastic
   games
 - Lees BALO.pdf

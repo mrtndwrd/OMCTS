@@ -22,8 +22,10 @@ public class SingleTreeNode
 	public static final int REMAINING_LIMIT = 10;
 
 	/** Decides whether to use the mean reward, or the mean value of a root node
-	 * for the optionRanking */
-	public static boolean USE_MEAN_REWARD = true;
+	 * for the optionRanking. Mean reward works well in games where 1 option is
+	 * the best option. In games where a combination of options has to be used,
+	 * this option should be false */
+	public static boolean USE_MEAN_REWARD = false;
 
 	/** Decides weather rollouts are done at random, or following options */
 	public static boolean RANDOM_ROLLOUT = false;
@@ -39,6 +41,10 @@ public class SingleTreeNode
 	public double totValue;
 
 	public int nVisits;
+
+	/** If this is true, the "currentOption" has finished somewhere in the tree
+	 * under this node. That means we'll update its values */
+	public boolean optionFinished = false;
 
 	private ArrayList<Option> possibleOptions;
 
@@ -111,7 +117,10 @@ public class SingleTreeNode
 			// Update the option ranking if needed
 			if(chosenOption != null && chosenOption.isFinished(state))
 			{
-				chosenOption.updateOptionRanking();
+				if(this.USE_MEAN_REWARD)
+					chosenOption.updateOptionRanking();
+				else if(parent != null)
+					parent.setOptionFinished(chosenOption);
 			}
 			children = new SingleTreeNode[possibleOptions.size()];
 		}
@@ -179,9 +188,12 @@ public class SingleTreeNode
 		{
 			if(c != null)
 			{
-				o = c.getChosenOption();
-				o.setCumulativeReward(c.totValue);
-				o.updateOptionRanking();
+				if(c.optionFinished)
+				{
+					o = c.getChosenOption();
+					o.setCumulativeReward(c.totValue);
+					o.updateOptionRanking();
+				}
 			}
 		}
 	}
@@ -225,6 +237,10 @@ public class SingleTreeNode
 			nextOption.addReward(nextState.getGameScore() - state.getGameScore());
 			if(nextOption.isFinished(nextState))
 				nextOption.updateOptionRanking();
+		}
+		else if(nextOption.isFinished(nextState) && this.parent != null)
+		{
+			this.parent.setOptionFinished(nextOption);
 		}
 
 		// Step 3: get the new option set
@@ -283,19 +299,22 @@ public class SingleTreeNode
 				alpha = 1;
 			else
 				alpha = 0;
-			double epsilon = (0.1 + Math.pow(2, (-i)) + alpha) / N;
-
+			double paperEpsilon = (0.1 + Math.pow(2, (-i)) + alpha) / N;
 			// Prepare values for the next equation
 			double mu = Agent.optionRanking.get(o.getType());
 			double sigma = Agent.optionRankingVariance.get(o.getType());
 
 			// The first equation in sect. 3.2:
-			probs[i] = Math.exp(2.4 * (
+			probs[i] = Math.exp(-2.4 * (
 						(mu0 - mu) /
-						(Math.sqrt(2 * (sigma0 + sigma + epsilon)))));
+						(Math.sqrt(2 * (sigma0 + sigma)) + this.epsilon)) 
+					+ paperEpsilon);
 			probsSum += probs[i];
+			//System.out.printf("\nMu0: %f\nMu: %f\nSigma0: %f\nSigma: %f\nespilon: %f\n\n",
+			//		mu0, mu, sigma0, sigma, epsilon);
 			//System.out.println("Prob for option '" + o + "' is '" + probs[i] + "'");
 		}
+		//System.out.println("\n\n");
 		// Get the randomly selected best id to expand/select
 		selectedId = Lib.weightedRandomIndex(random, probs, probsSum);
 
@@ -460,6 +479,8 @@ public class SingleTreeNode
 				{
 					if(USE_MEAN_REWARD)
 						rollerOption.updateOptionRanking();
+					else if(this.parent != null)
+						parent.setOptionFinished(rollerOption);
 					rollerOptionFinished = true;
 				}
 				// If possible follow this node's optio
@@ -631,6 +652,23 @@ public class SingleTreeNode
 		}
 
 		return false;
+	}
+
+	public void setOptionFinished(Option o)
+	{
+		if(o.equals(this.chosenOption))
+		{
+			//System.out.println("Setting option '" + o + "' to finished");
+			this.optionFinished = true;
+			if(parent != null)
+			{
+				parent.setOptionFinished(o);
+			}
+		}
+		else
+		{
+			//System.out.println("Not settinp option " + o + " to finished in " + this);
+		}
 	}
 	
 	public String print(int depth)

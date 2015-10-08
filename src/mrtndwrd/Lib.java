@@ -273,7 +273,7 @@ public class Lib
 
 	public static void updateOptions(StateObservation so, ArrayList<Option> possibleOptions, HashSet<Integer> optionObsIDs, HashSet<Integer> optionItypes)
 	{
-		//Lib.setOptions(so, possibleOptions, optionObsIDs);
+		Lib.setOptions(so, possibleOptions, optionObsIDs);
 		if(Arrays.asList(Agent.actions).contains(Types.ACTIONS.ACTION_USE))
 		{
 			Lib.setWaitAndShootOptions(so, possibleOptions, 2);
