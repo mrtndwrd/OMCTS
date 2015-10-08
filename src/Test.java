@@ -28,12 +28,12 @@ public class Test
         String gamesPath = "examples/gridphysics/";
 
         //CIG 2014 Training Set Games
-        //String games[] = new String[]{"aliens", "boulderdash", "butterflies", "chase", "frogs",
-        //        "missilecommand", "portals", "sokoban", "survivezombies", "zelda", "prey"};
+        String games[] = new String[]{"aliens", "boulderdash", "butterflies", "chase", "frogs",
+                "missilecommand", "portals", "sokoban", "survivezombies", "zelda", "prey"};
 
         //CIG 2014 Validation Set Games
-        String games[] = new String[]{"camelRace", "digdug", "firestorms", "infection", "firecaster",
-              "overload", "pacman", "seaquest", "whackamole", "eggomania"};
+        //String games[] = new String[]{"camelRace", "digdug", "firestorms", "infection", "firecaster",
+        //      "overload", "pacman", "seaquest", "whackamole", "eggomania"};
 
         //CIG 2015 New Training Set Games
         //String games[] = new String[]{"bait", "boloadventures", "brainman", "chipschallenge",  "modality",
@@ -50,8 +50,8 @@ public class Test
         int seed = new Random().nextInt();
 
         //Game and level to play
-        int gameIdx = 0;
-        int levelIdx = 0; //level names from 0 to 4 (game_lvlN.txt).
+        int gameIdx = 10;
+        int levelIdx = 3; //level names from 0 to 4 (game_lvlN.txt).
         String game = gamesPath + games[gameIdx] + ".txt";
         String level1 = gamesPath + games[gameIdx] + "_lvl" + levelIdx +".txt";
 

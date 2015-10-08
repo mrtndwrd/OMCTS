@@ -225,8 +225,10 @@ public class Lib
 				}
 				// Get the itype of this observation array
 				itype = oa.get(0).itype;
-				// If it already exists: continue
-				if(!optionItypes.contains(itype))
+				// If it already exists: continue. Also never add 0, because
+				// that's always a wall and we never want to walk to a wall
+				// (it's just too much time man...)
+				if(!optionItypes.contains(itype) && itype != 0)
 				{
 					// Else add options and add this itype to currently used itypes
 					possibleOptions.add(new GoToNearestSpriteOfItypeOption(
@@ -271,7 +273,7 @@ public class Lib
 
 	public static void updateOptions(StateObservation so, ArrayList<Option> possibleOptions, HashSet<Integer> optionObsIDs, HashSet<Integer> optionItypes)
 	{
-		Lib.setOptions(so, possibleOptions, optionObsIDs);
+		//Lib.setOptions(so, possibleOptions, optionObsIDs);
 		if(Arrays.asList(Agent.actions).contains(Types.ACTIONS.ACTION_USE))
 		{
 			Lib.setWaitAndShootOptions(so, possibleOptions, 2);

@@ -1,8 +1,6 @@
 TODO 
 ====
 
-- Check files for useless code or bugs. 
-	- SinlgeTreeNode.java is done up to line 213
 - Remove currentPath from GoToPositionOption, probably improves in stochastic
   games
 - Lees BALO.pdf

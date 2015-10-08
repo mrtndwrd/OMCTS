@@ -109,10 +109,10 @@ public class SingleTreeNode
 			this.chosenOptionFinished = true;
 			// FIXME: Should this be removed or not!??!?!!
 			// Update the option ranking if needed
-			//if(chosenOption != null && chosenOption.isFinished(state))
-			//{
-			//	chosenOption.updateOptionRanking();
-			//}
+			if(chosenOption != null && chosenOption.isFinished(state))
+			{
+				chosenOption.updateOptionRanking();
+			}
 			children = new SingleTreeNode[possibleOptions.size()];
 		}
 		// The only child is the continuation of this option.
@@ -267,6 +267,7 @@ public class SingleTreeNode
 		{
 			agentOptionIndex = possibleOptions.indexOf(agentOption);
 		}
+		//System.out.println("Possible options (in order): " + possibleOptions);
 		for(int i = 0; i < N; i++)
 		{
 			Option o = this.possibleOptions.get(i);
@@ -282,7 +283,7 @@ public class SingleTreeNode
 				alpha = 1;
 			else
 				alpha = 0;
-			double epsilon = (0.1 + Math.pow(2, (N-i)) + alpha) / N;
+			double epsilon = (0.1 + Math.pow(2, (-i)) + alpha) / N;
 
 			// Prepare values for the next equation
 			double mu = Agent.optionRanking.get(o.getType());
@@ -293,6 +294,7 @@ public class SingleTreeNode
 						(mu0 - mu) /
 						(Math.sqrt(2 * (sigma0 + sigma + epsilon)))));
 			probsSum += probs[i];
+			//System.out.println("Prob for option '" + o + "' is '" + probs[i] + "'");
 		}
 		// Get the randomly selected best id to expand/select
 		selectedId = Lib.weightedRandomIndex(random, probs, probsSum);
