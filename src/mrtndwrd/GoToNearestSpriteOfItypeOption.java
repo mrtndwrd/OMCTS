@@ -42,7 +42,6 @@ public class GoToNearestSpriteOfItypeOption extends GoToMovableOption implements
 		observations = getObservations(so, itype, so.getAvatarPosition());
 		if(observations == null || observations.size() == 0)
 		{
-			System.out.println("No goal found in " + this);
 			return null;
 		}
 		return Agent.aStar.vectorToBlock(observations.get(0).position);

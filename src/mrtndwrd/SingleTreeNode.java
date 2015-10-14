@@ -32,7 +32,9 @@ public class SingleTreeNode
 
 	/** Decides after how many node visits exploration using Crazy Stone's
 	 * algorithm is stopped and exploitation using UCT starts */
-	public static int UCT_START_VISITS = 10;
+	public static int UCT_START_VISITS = 30;
+
+	public static double STEEPNESS = 0.9;
 
 	public static double epsilon = 1e-6;
 
@@ -54,8 +56,7 @@ public class SingleTreeNode
 
 	private HashSet<Integer> optionObsIDs;
 
-	/** When this is true, something just expanded this node. This will be reset
-	 * by the treePolicy */
+	/** When this is true, this node is new and should be backed up */
 	private boolean expanded; 
 
 	/** The option that is chosen in this node. This option is followed until it
@@ -102,7 +103,7 @@ public class SingleTreeNode
 		this.possibleOptions = possibleOptions;
 		this.optionObsIDs = optionObsIDs;
 		this.chosenOption = chosenOption;
-		this.expanded = false;
+		this.expanded = true;
 
 		// Sort possible options by optionRanking:
 		Collections.sort(this.possibleOptions, Option.optionComparator);
@@ -195,8 +196,9 @@ public class SingleTreeNode
 				if(c.optionFinished)
 				{
 					o = c.getChosenOption();
-					o.setCumulativeReward(c.totValue);
+					o.setCumulativeReward(c.totValue/(c.nVisits + this.epsilon));
 					o.updateOptionRanking();
+					System.out.println("Setting value for option " + o + " to " + c.totValue / (c.nVisits + this.epsilon));
 				}
 			}
 		}
@@ -211,23 +213,22 @@ public class SingleTreeNode
 		SingleTreeNode next;
 		while (!cur.state.isGameOver() && cur.nodeDepth < Agent.ROLLOUT_DEPTH)
 		{
-			// TODO crazyStone or uct should both be configurable options
 			if(cur.nVisits < UCT_START_VISITS)
 			{
 				next = cur.crazyStone();
+				// If we have expanded, return the new node for rollouts
+				if(next.expanded)
+				{
+					// Also reset expanded to false
+					next.expanded = false;
+					return next;
+				}
 			}
+			// Else: continue with this node
 			else
 			{
 				next = cur.uct();
 			}
-			// If we have expanded, return the new node for rollouts
-			if(this.expanded)
-			{
-				// Also reset expanded to false
-				this.expanded = false;
-				return next;
-			}
-			// Else: continue with this node
 			cur = next;
 		}
 		return cur;
@@ -235,13 +236,15 @@ public class SingleTreeNode
 
 	public SingleTreeNode expandChild(int id, Option nextOption)
 	{
-		this.expanded = true;
 		StateObservation nextState = this.state.copy();
 		Types.ACTIONS action = nextOption.act(nextState);
 
 		// Step 1: Follow the option:
 		nextState.advance(action);
-
+		if(nextState.getGameScore() - state.getGameScore() > 0)
+		{
+			System.out.println("ExpandChild got a score in " + this + " with " + nextOption);
+		}
 		// Step 2: Update the option's values:
 		if(USE_MEAN_REWARD)
 		{
@@ -261,7 +264,7 @@ public class SingleTreeNode
 
 		// Step 4: create a child node
 		SingleTreeNode tn = new SingleTreeNode(nextState, this, nextOption, newOptions, newOptionObsIDs, this.random);
-		children[id] = tn;
+		this.children[id] = tn;
 
 		// Step 5: Set the observation grid to the new grid:
 		Agent.aStar.setLastObservationGrid(nextState.getObservationGrid());
@@ -280,7 +283,9 @@ public class SingleTreeNode
 		if(!chosenOptionFinished)
 		{
 			if(this.children[0] == null)
-				expandChild(0, chosenOption);
+			{
+				this.expandChild(0, chosenOption);
+			}
 			return this.children[0];
 		}
 
@@ -316,13 +321,13 @@ public class SingleTreeNode
 			double sigma = Agent.optionRankingVariance.get(o.getType());
 
 			// The first equation in sect. 3.2:
-			probs[i] = Math.exp(-2.4 * (
+			probs[i] = Math.exp(-STEEPNESS * (
 						(mu0 - mu) /
 						(Math.sqrt(2 * (sigma0 + sigma)) + this.epsilon)) 
 					+ paperEpsilon);
 			probsSum += probs[i];
 			//System.out.printf("\nMu0: %f\nMu: %f\nSigma0: %f\nSigma: %f\nespilon: %f\n\n",
-			//		mu0, mu, sigma0, sigma, epsilon);
+			//		mu0, mu, sigma0, sigma, paperEpsilon);
 			//System.out.println("Prob for option '" + o + "' is '" + probs[i] + "'");
 		}
 		//System.out.println("\n\n");
@@ -337,7 +342,7 @@ public class SingleTreeNode
 		if(children[selectedId] == null)
 		{
 			Option nextOption = this.possibleOptions.get(selectedId).copy();
-			selected = expandChild(selectedId, nextOption);
+			selected = this.expandChild(selectedId, nextOption);
 		}
 		else
 		{
@@ -350,12 +355,6 @@ public class SingleTreeNode
 	{
 		// For speeding up the situation where an option is being followed, and
 		// just 1 child exists
-		if(!chosenOptionFinished)
-		{
-			if(this.children[0] == null)
-				expandChild(0, chosenOption);
-			return this.children[0];
-		}
 		SingleTreeNode selected = null;
 		double bestValue = -Double.MAX_VALUE;
 		SingleTreeNode child = null;
@@ -377,119 +376,15 @@ public class SingleTreeNode
 			double uctValue = childValue +
 					Agent.K * Math.sqrt(Math.log(this.nVisits + 1) / (child.nVisits + this.epsilon));
 
-			// small sampleRandom numbers: break ties in unexpanded nodes
-			uctValue = Utils.noise(uctValue, this.epsilon, this.random.nextDouble());	 //break ties randomly
+			// small sampleRandom numbers: break ties randomly
+			uctValue = Utils.noise(uctValue, this.epsilon, this.random.nextDouble());
 
-			// small sampleRandom numbers: break ties in unexpanded nodes
-			if (uctValue > bestValue) {
+			if (uctValue > bestValue) 
+			{
 				selected = child;
 				bestValue = uctValue;
 			}
 		}
-		return selected;
-	}
-
-	/** Choses a child node while weighing unexplored nodes using option
-	 * rankings in a modified version of the UCT algorithm */
-	public SingleTreeNode uctWithExpansion() 
-	{
-		// For speeding up the situation where an option is being followed, and
-		// just 1 child exists
-		if(!chosenOptionFinished)
-		{
-			if(this.children[0] == null)
-				expandChild(0, chosenOption);
-			return this.children[0];
-		}
-
-		int selectedId = -1;
-		double bestValue = -Double.MAX_VALUE;
-		// Temporary loop-variable that defines if a child already has an
-		// existing SingleTreeNode, or still has the "null" value
-		boolean expandChild;
-		// Defines if the best child has to be expanded
-		boolean bestExpandChild = false;
-		double hvVal, optionRanking, childValue;
-		int visits;
-		int agentOptionIndex = -1;
-		if(agentOption != null)
-		{
-			agentOptionIndex = possibleOptions.indexOf(agentOption);
-		}
-		// Expand the agentOption first, so that it's always expanded
-		if(agentOptionIndex != -1 && children[possibleOptions.indexOf(agentOption)] == null)
-		{
-			visits = 0;
-			selectedId = possibleOptions.indexOf(agentOption);
-			bestExpandChild = true;
-		}
-		// Expand all the other stuff
-		else
-		{
-			for (int i=0; i<this.children.length; i++)
-			{
-				expandChild = false;
-				// Initialize hvVal with the optionRanking
-				optionRanking = Agent.optionRanking.get(this.possibleOptions.get(i).getType());
-				if(children[i] == null)
-				{
-					expandChild = true;
-					// Set the number of visits to 0
-					visits = 0;
-					// Set hvVal to 0 (we won't use it, but it will keep javac
-					// happy)
-					hvVal = 0;
-				}
-				else
-				{
-					// Count the optionRanking only ALPHA times
-					hvVal = this.children[i].totValue;
-					visits = this.children[i].nVisits;
-				}
-
-				if(expandChild)
-				{
-					childValue = optionRanking;
-				}
-				else
-				{
-					childValue =  ((1 - Agent.ALPHA) * 
-							(hvVal / (visits + this.epsilon))) + 
-						Agent.ALPHA * optionRanking;
-				}
-
-				double uctValue = childValue +
-						Agent.K * Math.sqrt(Math.log(this.nVisits + 1) / (visits + this.epsilon));
-
-				// small sampleRandom numbers: break ties in unexpanded nodes
-				uctValue = Utils.noise(uctValue, this.epsilon, this.random.nextDouble());	 //break ties randomly
-
-				// small sampleRandom numbers: break ties in unexpanded nodes
-				if (uctValue > bestValue) 
-				{
-					selectedId = i;
-					bestValue = uctValue;
-					bestExpandChild = expandChild;
-				}
-			}
-		}
-
-		if (selectedId == -1)
-		{
-			throw new RuntimeException("Warning! returning null: " + bestValue + " : " + this.children.length);
-		}
-
-		SingleTreeNode selected;
-		if(bestExpandChild)
-		{
-			Option nextOption = this.possibleOptions.get(selectedId).copy();
-			selected = expandChild(selectedId, nextOption);
-		}
-		else
-		{
-			selected = children[selectedId];
-		}
-
 		return selected;
 	}
 
@@ -515,7 +410,9 @@ public class SingleTreeNode
 		boolean rollerOptionFinished = rollerOption == null || RANDOM_ROLLOUT 
 			|| rollerOption.isFinished(rollerState);
 		//double lastScore = Lib.simpleValue(rollerState);
-		double lastScore = rollerState.getGameScore();
+		// Initialize lastScore with the parent's state's score, because the
+		// expansion to this node could also result in score change
+		double lastScore = this.parent.state.getGameScore();
 		while (!finishRollout(rollerState,thisDepth)) 
 		{
 			// System.out.println("Roller depth " + thisDepth);
@@ -575,6 +472,7 @@ public class SingleTreeNode
 
 	public void backUp(SingleTreeNode node, double result, int furthestDepth)
 	{
+		System.out.printf("Backing up node %s with result %f at furthestDepth %d with depth %d\n", node, result, furthestDepth, node.nodeDepth);
 		SingleTreeNode n = node;
 		while(n != null)
 		{
@@ -730,9 +628,9 @@ public class SingleTreeNode
 	{
 		String s = "";
 		if(this.parent == null)
-			s += "root";
+			s += String.format("root (%d visits)", nVisits);
 		else
-			s += String.format("%s (%f)", chosenOption, totValue / (nVisits + this.epsilon));
+			s += String.format("%s (%f, %d visits)", chosenOption, totValue / (nVisits + this.epsilon), nVisits);
 		for(SingleTreeNode node : children)
 		{
 			if(node != null)

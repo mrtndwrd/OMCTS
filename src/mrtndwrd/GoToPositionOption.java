@@ -246,8 +246,6 @@ public class GoToPositionOption extends Option implements Serializable
 		}
 		if(observations == null)
 		{
-			System.out.printf("WARNING: Type %s NOT known in %s, or getter empty!\n", 
-					this.type, this);
 			return new ArrayList<Observation>();
 		}
 
