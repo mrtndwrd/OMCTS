@@ -19,6 +19,44 @@ TODO
 - een actie overslaan voor meer rekentijd
 
 ## Schrijven
+
+- sectie introduction: 
+	- Wat is AI in games?
+	- Er bestaat game-specifieke AI, die werkt goed
+	- Volgende stap: General AI
+		- Als mensen games spelen, maken ze gebruik van hun algemene kennis over
+		games.
+		- Bijv. GVGAI competitie
+	- Meest effectieve algoritmes op dit moment zijn gebasseerd op MCTS, maar doen
+	nog weinig met algemene kennis, daarom onze bijdrage.
+		- Introductie van options (abstracter denkniveau)
+		- Introductie van leren over options
+		- Options zijn nog nooit gebruikt in MCTS, die combinatie is een nieuwe
+		toevoeging.
+- sectie background: 
+	- Legt uit wat je moet snappen om mijn onderzoek te snappen (options, MCTS)
+- sectie planning 
+- sectie learning
+- sectie experiments
+	- subsectie planning
+		- Ook zeggen dat TD (Q-learing) met options niet werkte in deze setting
+	- subsectie learning
+- sectie related work:
+	- Waarom moeten we niet deep q-learning gebruiken? 
+	- Wat is het verschil? Wat is het verschil met TD met options?
+- sectie conclusion
+
+Note voor intro: Er is nu een driedeling in ai:
+
+- Specifieke AI (hier zijn we heel goed in)
+- Daarna: General AI
+	- google deep mind 
+	- generalized game competitie
+- Uiteindelijk: Strong AI
+	- hoeven we het niet over te hebben
+
+Oude notes:
+
 - Inleiding
 	- voorlaatste paragraaf: onderzoeksvragen
 	- (laatste: overzicht thesis)
