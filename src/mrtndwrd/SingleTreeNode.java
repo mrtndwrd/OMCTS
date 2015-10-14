@@ -30,6 +30,10 @@ public class SingleTreeNode
 	/** Decides weather rollouts are done at random, or following options */
 	public static boolean RANDOM_ROLLOUT = false;
 
+	/** Decides after how many node visits exploration using Crazy Stone's
+	 * algorithm is stopped and exploitation using UCT starts */
+	public static int UCT_START_VISITS = 10;
+
 	public static double epsilon = 1e-6;
 
 	public StateObservation state;
@@ -208,7 +212,14 @@ public class SingleTreeNode
 		while (!cur.state.isGameOver() && cur.nodeDepth < Agent.ROLLOUT_DEPTH)
 		{
 			// TODO crazyStone or uct should both be configurable options
-			next = cur.crazyStone();
+			if(cur.nVisits < UCT_START_VISITS)
+			{
+				next = cur.crazyStone();
+			}
+			else
+			{
+				next = cur.uct();
+			}
 			// If we have expanded, return the new node for rollouts
 			if(this.expanded)
 			{
@@ -334,9 +345,53 @@ public class SingleTreeNode
 		}
 		return selected;
 	}
-	
-	/** Choses a child node using (a modified version of) the UCT algorithm */
-	public SingleTreeNode uct() 
+
+	public SingleTreeNode uct()
+	{
+		// For speeding up the situation where an option is being followed, and
+		// just 1 child exists
+		if(!chosenOptionFinished)
+		{
+			if(this.children[0] == null)
+				expandChild(0, chosenOption);
+			return this.children[0];
+		}
+		SingleTreeNode selected = null;
+		double bestValue = -Double.MAX_VALUE;
+		SingleTreeNode child = null;
+
+		// Loop through existing children:
+		for (int i=0; i<this.children.length; i++)
+		{
+			child = children[i];
+			// Some children might not be initialized by the exploration
+			// strategy
+			if(child == null)
+				continue;
+
+			// Get discounted child value
+			double hvVal = child.totValue;
+
+			double childValue =  hvVal / (child.nVisits + this.epsilon);
+
+			double uctValue = childValue +
+					Agent.K * Math.sqrt(Math.log(this.nVisits + 1) / (child.nVisits + this.epsilon));
+
+			// small sampleRandom numbers: break ties in unexpanded nodes
+			uctValue = Utils.noise(uctValue, this.epsilon, this.random.nextDouble());	 //break ties randomly
+
+			// small sampleRandom numbers: break ties in unexpanded nodes
+			if (uctValue > bestValue) {
+				selected = child;
+				bestValue = uctValue;
+			}
+		}
+		return selected;
+	}
+
+	/** Choses a child node while weighing unexplored nodes using option
+	 * rankings in a modified version of the UCT algorithm */
+	public SingleTreeNode uctWithExpansion() 
 	{
 		// For speeding up the situation where an option is being followed, and
 		// just 1 child exists
@@ -609,7 +664,7 @@ public class SingleTreeNode
 		{
 			if(children[i] != null) 
 			{
-				double childValue = children[i].totValue;
+				double childValue = children[i].totValue / (children[i].nVisits + this.epsilon);
 				double optionValue = Agent.optionRanking.get(
 						this.possibleOptions.get(i).getType());
 				//break ties randomly
@@ -677,7 +732,7 @@ public class SingleTreeNode
 		if(this.parent == null)
 			s += "root";
 		else
-			s += String.format("%s (%f)", chosenOption, totValue);
+			s += String.format("%s (%f)", chosenOption, totValue / (nVisits + this.epsilon));
 		for(SingleTreeNode node : children)
 		{
 			if(node != null)
