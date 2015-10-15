@@ -117,18 +117,19 @@ public class Agent extends AbstractPlayer {
 		mctsPlayer = new SingleMCTSPlayer(random);
 
 
-		// set orientation:
-		setAvatarOrientation(so);
+		//// set orientation:
+		//setAvatarOrientation(so);
 
-		while(elapsedTimer.remainingTimeMillis() > CompetitionParameters.ACTION_TIME)
-		{
-			ElapsedCpuTimer elapsedTimerTemp = new ElapsedCpuTimer();
-			elapsedTimerTemp.setMaxTimeMillis(CompetitionParameters.ACTION_TIME);
-			// Startup the optionRanking
-			// Set the state observation object as the root of the tree.
-			mctsPlayer.init(so, this.possibleOptions, this.optionObsIDs, this.currentOption);
-			mctsPlayer.run(elapsedTimerTemp);
-		}
+		//// Initialize with some extra time
+		//while(elapsedTimer.remainingTimeMillis() > 4 * CompetitionParameters.ACTION_TIME)
+		//{
+		//	ElapsedCpuTimer elapsedTimerTemp = new ElapsedCpuTimer();
+		//	elapsedTimerTemp.setMaxTimeMillis(4 * CompetitionParameters.ACTION_TIME);
+		//	// Startup the optionRanking
+		//	// Set the state observation object as the root of the tree.
+		//	mctsPlayer.init(so, this.possibleOptions, this.optionObsIDs, this.currentOption);
+		//	mctsPlayer.run(elapsedTimerTemp);
+		//}
 	}
 
 	private void setAvatarOrientation(StateObservation so)
@@ -224,11 +225,13 @@ public class Agent extends AbstractPlayer {
 		currentOption = this.possibleOptions.get(option).copy();
 
 		Types.ACTIONS action = currentOption.act(so);
-		System.out.println("Tree:\n" + mctsPlayer.printRootNode());
+		//System.out.println("Tree:\n" + mctsPlayer.printRootNode());
 		//System.out.println("Orientation: " + so.getAvatarOrientation());
 		//System.out.println("Location: " + so.getAvatarPosition());
 		//System.out.println("Action: " + action);
 		//System.out.println("Astar:\n" + aStar);
+		//System.out.println("Option ranking:\n" + optionRanking);
+		//System.out.println("Option ranking:\n" + optionRankingVariance);
 		//System.out.println("Option ranking:\n" + optionRankingD);
 		//System.out.print("Wall iType scores: "); aStar.printWallITypeScore();
 		//System.out.println("Option itypes: " + optionItypes);

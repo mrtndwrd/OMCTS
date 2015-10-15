@@ -32,7 +32,7 @@ public class SingleTreeNode
 
 	/** Decides after how many node visits exploration using Crazy Stone's
 	 * algorithm is stopped and exploitation using UCT starts */
-	public static int UCT_START_VISITS = 30;
+	public static int UCT_START_VISITS = 20;
 
 	public static double STEEPNESS = 0.9;
 
@@ -71,10 +71,14 @@ public class SingleTreeNode
 	/** The depth in the rollout of this node (initialized as parent.node+1) */
 	public int nodeDepth;
 
+	/** Depth reached by final rollout */
+	public int rollOutDepth;
+
 	private boolean chosenOptionFinished;
 
 	/** The value of the best possible option in the optionRanking */
 	private double mu0;
+	private double muLast;
 	/** The value of the best possible option in the optionRankingVariance */
 	private double sigma0;
 
@@ -111,6 +115,7 @@ public class SingleTreeNode
 		// Set mu0 to the value of the best option in the optionRanking
 		this.mu0 = Agent.optionRanking.get(
 				this.possibleOptions.get(0).getType());
+		this.muLast = Agent.optionRanking.get(this.possibleOptions.get(this.possibleOptions.size()-1).getType());
 		this.sigma0 = Agent.optionRankingVariance.get(
 				this.possibleOptions.get(0).getType());
 
@@ -163,9 +168,9 @@ public class SingleTreeNode
 			//System.out.printf("Remaining before rollOut: %d\n", elapsedTimer.remainingTimeMillis());
 			double delta = selected.rollOut();
 
-			// Set values for parents of current node, using new rollout value
 			//System.out.printf("Remaining before rollOut: %d\n", elapsedTimer.remainingTimeMillis());
-			backUp(selected, delta, selected.nodeDepth);
+			// Set values for parents of current node, using new rollout value
+			backUp(selected, delta, selected.rollOutDepth);
 			//System.out.printf("Remaining after backUp: %d\n", elapsedTimer.remainingTimeMillis());
 
 			numIters++;
@@ -317,12 +322,12 @@ public class SingleTreeNode
 				alpha = 0;
 			double paperEpsilon = (0.1 + Math.pow(2, (-i)) + alpha) / N;
 			// Prepare values for the next equation
-			double mu = Agent.optionRanking.get(o.getType());
+			double mu = Utils.normalise(Agent.optionRanking.get(o.getType()), muLast, mu0);
 			double sigma = Agent.optionRankingVariance.get(o.getType());
 
 			// The first equation in sect. 3.2:
 			probs[i] = Math.exp(-STEEPNESS * (
-						(mu0 - mu) /
+						(1 - mu) /
 						(Math.sqrt(2 * (sigma0 + sigma)) + this.epsilon)) 
 					+ paperEpsilon);
 			probsSum += probs[i];
@@ -398,7 +403,7 @@ public class SingleTreeNode
 	public double rollOut()
 	{
 		StateObservation rollerState = state.copy();
-		int thisDepth = this.nodeDepth;
+		rollOutDepth = this.nodeDepth;
 		Option rollerOption = null;
 		// Save copy-time when RANDOM_ROLLOUT is true
 		if(chosenOption != null && !RANDOM_ROLLOUT)
@@ -413,9 +418,9 @@ public class SingleTreeNode
 		// Initialize lastScore with the parent's state's score, because the
 		// expansion to this node could also result in score change
 		double lastScore = this.parent.state.getGameScore();
-		while (!finishRollout(rollerState,thisDepth)) 
+		while (!finishRollout(rollerState)) 
 		{
-			// System.out.println("Roller depth " + thisDepth);
+			// System.out.println("Roller depth " + rollOutDepth);
 			// if(this.parent != null)
 			// 	System.out.println(this.parent);
 
@@ -448,7 +453,7 @@ public class SingleTreeNode
 				action = Agent.actions[random.nextInt(Agent.actions.length)];
 				rollerState.advance(action);
 			}
-			thisDepth++;
+			rollOutDepth++;
 		}
 
 		// We can only use the simpleValue when USE_MEAN_REWARD is true, else
@@ -459,9 +464,9 @@ public class SingleTreeNode
 			return rollerState.getGameScore() - lastScore;
 	}
 
-	public boolean finishRollout(StateObservation rollerState, int depth)
+	public boolean finishRollout(StateObservation rollerState)
 	{
-		if(depth >= Agent.ROLLOUT_DEPTH)	  //rollout end condition.
+		if(rollOutDepth >= Agent.ROLLOUT_DEPTH)	  //rollout end condition.
 			return true;
 
 		if(rollerState.isGameOver())			   //end of game
@@ -472,7 +477,6 @@ public class SingleTreeNode
 
 	public void backUp(SingleTreeNode node, double result, int furthestDepth)
 	{
-		System.out.printf("Backing up node %s with result %f at furthestDepth %d with depth %d\n", node, result, furthestDepth, node.nodeDepth);
 		SingleTreeNode n = node;
 		while(n != null)
 		{

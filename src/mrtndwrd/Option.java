@@ -136,7 +136,7 @@ public abstract class Option implements Serializable
 		double mean = Agent.optionRanking.get(type);
 		double delta = x - mean;
 		mean += delta / n;
-		double M2 = Agent.optionRankingVariance.get(type) + delta * (x - mean);
+		double M2 = (Agent.optionRankingVariance.get(type) * (n-1)) + delta * (x - mean);
 
 		// Save the values
 		Agent.optionRankingD.put(type, n);
