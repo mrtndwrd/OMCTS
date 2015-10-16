@@ -1,9 +1,9 @@
 TODO 
 ====
 
-- fix bug met zelda
 - Tweak Lib.MAX_OBSERVATIONS
 - Remove all options that have isFinished = true from possibleOptions
+	- Done, but has a bug, now those options are never added again
 
 - Softmax opzoeken
 - Remove currentPath from GoToPositionOption, probably improves in stochastic
