@@ -20,7 +20,7 @@ controller="mrtndwrd.Agent"
 # controller="controllers.sampleMCTS.Agent"
 # CIG 2014 Training Set Games
 # "aliens boulderdash butterflies chase frogs missilecommand portals sokoban survivezombies zelda"
-game="camelRace"
+game="zelda"
 # CIG 2014 Validation Set Games
 #game="camelRace digdug firestorms infection firecaster overload pacman seaquest whackamole eggomania"
 #CIG 2015 New Training Set Games

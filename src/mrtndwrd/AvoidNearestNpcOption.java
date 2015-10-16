@@ -31,6 +31,8 @@ public class AvoidNearestNpcOption extends Option implements Serializable
 		Vector2d avatarPosition = so.getAvatarPosition();
 		ArrayList<Observation>[] npcPositions = 
 			so.getNPCPositions(avatarPosition);
+		if(npcPositions == null)
+			return Types.ACTIONS.ACTION_NIL;
 		Observation nearest = null;
 		double nearestDistance = Double.MAX_VALUE;
 		for(ArrayList<Observation> oa : npcPositions)
@@ -45,6 +47,12 @@ public class AvoidNearestNpcOption extends Option implements Serializable
 				}
 			}
 		}
+		if(nearest == null)
+		{
+			System.out.println("Nearest = null!?!?!");
+			for(ArrayList<Observation> oa : npcPositions)
+			{
+				System.out.println(oa);
 		return Agent.aStar.moveAway(AStar.vectorToBlock(avatarPosition), 
 				AStar.vectorToBlock(nearest.position));
 	}

@@ -1,14 +1,13 @@
 TODO 
 ====
 
-- improve USE_MEAN_REWARD = false setting (it works with USE_MEAN_REWARD = true
-  and game camelRace)
+- fix bug met zelda
+- Tweak Lib.MAX_OBSERVATIONS
+- Remove all options that have isFinished = true from possibleOptions
+
+- Softmax opzoeken
 - Remove currentPath from GoToPositionOption, probably improves in stochastic
   games
-- Lees BALO.pdf
-- Waarde van een node moet discounted worden, optionRanking gemiddelde
-  discounted node waarde van die option
-- Softmax opzoeken
 
 ## Test
 - check if using random rollout is better than option-rollout

@@ -27,7 +27,7 @@ public class Lib
 	public static final double HUGE_POSITIVE =  1000000000.0;
 	/** Only the closest MAX_OBSERVATIONS observations are turned into options */
 	// TODO: This may be too much, but who knows?
-	public static final int MAX_OBSERVATIONS = 3;
+	public static final int MAX_OBSERVATIONS = 5;
 
 	// This will be used by agents that make files. This postfix can be adjusted
 	// by for example the Test class (that's why it's not final...), in order to
