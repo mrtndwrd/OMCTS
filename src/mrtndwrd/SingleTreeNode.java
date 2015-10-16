@@ -203,7 +203,7 @@ public class SingleTreeNode
 					o = c.getChosenOption();
 					o.setCumulativeReward(c.totValue/(c.nVisits + this.epsilon));
 					o.updateOptionRanking();
-					System.out.println("Setting value for option " + o + " to " + c.totValue / (c.nVisits + this.epsilon));
+					//System.out.println("Setting value for option " + o + " to " + c.totValue / (c.nVisits + this.epsilon));
 				}
 			}
 		}
@@ -246,10 +246,6 @@ public class SingleTreeNode
 
 		// Step 1: Follow the option:
 		nextState.advance(action);
-		if(nextState.getGameScore() - state.getGameScore() > 0)
-		{
-			System.out.println("ExpandChild got a score in " + this + " with " + nextOption);
-		}
 		// Step 2: Update the option's values:
 		if(USE_MEAN_REWARD)
 		{
@@ -322,12 +318,14 @@ public class SingleTreeNode
 				alpha = 0;
 			double paperEpsilon = (0.1 + Math.pow(2, (-i)) + alpha) / N;
 			// Prepare values for the next equation
-			double mu = Utils.normalise(Agent.optionRanking.get(o.getType()), muLast, mu0);
+			//double mu = Utils.normalise(Agent.optionRanking.get(o.getType()), muLast, mu0);
+			double mu = Agent.optionRanking.get(o.getType());
 			double sigma = Agent.optionRankingVariance.get(o.getType());
 
 			// The first equation in sect. 3.2:
 			probs[i] = Math.exp(-STEEPNESS * (
-						(1 - mu) /
+						//(1 - mu) /
+						(mu0 - mu) /
 						(Math.sqrt(2 * (sigma0 + sigma)) + this.epsilon)) 
 					+ paperEpsilon);
 			probsSum += probs[i];

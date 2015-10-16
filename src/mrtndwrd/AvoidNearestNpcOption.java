@@ -47,12 +47,9 @@ public class AvoidNearestNpcOption extends Option implements Serializable
 				}
 			}
 		}
+		// Sometimes npcPositions is not null, but everything is empty anyways
 		if(nearest == null)
-		{
-			System.out.println("Nearest = null!?!?!");
-			for(ArrayList<Observation> oa : npcPositions)
-			{
-				System.out.println(oa);
+			return Types.ACTIONS.ACTION_NIL;
 		return Agent.aStar.moveAway(AStar.vectorToBlock(avatarPosition), 
 				AStar.vectorToBlock(nearest.position));
 	}

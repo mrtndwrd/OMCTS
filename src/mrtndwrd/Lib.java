@@ -305,7 +305,7 @@ public class Lib
 			ArrayList<Option> possibleOptions, HashSet<Integer> optionObsIDs)
 	{
 		// Holds the new obsIDs
-		HashSet<Integer> newObsIDs = new HashSet<Integer>();
+		HashSet<Integer> currentObsIDs = new HashSet<Integer>();
 
 		ArrayList<Types.ACTIONS> act = so.getAvailableActions();
 		// Only create path planning options if up, down, left and right are
@@ -322,21 +322,21 @@ public class Lib
 			if(so.getNPCPositions() != null)
 			{
 				createOptions(so.getNPCPositions(avatarPosition), GETTER_TYPE.NPC, 
-						so, newObsIDs, possibleOptions, optionObsIDs);
+						so, currentObsIDs, possibleOptions, optionObsIDs);
 			}
 			if(so.getMovablePositions() != null)
 				createOptions(so.getMovablePositions(avatarPosition), GETTER_TYPE.MOVABLE, 
-						so, newObsIDs, possibleOptions, optionObsIDs);
+						so, currentObsIDs, possibleOptions, optionObsIDs);
 			if(so.getResourcesPositions() != null)
 				createOptions(so.getResourcesPositions(avatarPosition), GETTER_TYPE.RESOURCE, 
-						so, newObsIDs, possibleOptions, optionObsIDs);
+						so, currentObsIDs, possibleOptions, optionObsIDs);
 			if(so.getPortalsPositions() != null)
 				createOptions(so.getPortalsPositions(avatarPosition), GETTER_TYPE.PORTAL, 
-						so, newObsIDs, possibleOptions, optionObsIDs);
+						so, currentObsIDs, possibleOptions, optionObsIDs);
 
-			// Remove all "old" obsIDs from this.optionObsIDs. optionObsIDs will
+			// Remove all current obsIDs from this.optionObsIDs. optionObsIDs will
 			// then only contain obsolete obsIDs
-			optionObsIDs.removeAll(newObsIDs);
+			optionObsIDs.removeAll(currentObsIDs);
 
 			// Now remove all options that have the obsIDs in optionObsIDs.  We
 			// use the iterator, in order to ensure removing while iterating is
@@ -354,18 +354,18 @@ public class Lib
 			// Now all options are up-to-date. this.optionObsIDs should be
 			// updated to represent the current options list:
 			optionObsIDs.clear();
-			optionObsIDs.addAll(newObsIDs);
+			optionObsIDs.addAll(currentObsIDs);
 		}
 	}
 
-	/** Adds new obsIDs and obsIDs that should be kept to newObsIDs based on the
+	/** Adds new obsIDs and obsIDs that should be kept to currentObsIDs based on the
 	 * ID's in the ArrayList observations Also creates options for all new
 	 * obsIDs in possibleOptions and optionObsIDs
 	 */
 	public static void createOptions(ArrayList<Observation>[] observations,
 			GETTER_TYPE type,
 			StateObservation so,
-			HashSet<Integer> newObsIDs,
+			HashSet<Integer> currentObsIDs,
 			ArrayList<Option> possibleOptions,
 			HashSet<Integer> optionObsIDs)
 	{
@@ -388,20 +388,28 @@ public class Lib
 					// goToPosition
 					if(type == GETTER_TYPE.NPC || type == GETTER_TYPE.MOVABLE)
 					{
-						possibleOptions.add(new GoToMovableOption(Agent.GAMMA, 
-							type, observation.itype, observation.obsID, so));
-						possibleOptions.add(new GoNearMovableOption(Agent.GAMMA,
-							type, observation.itype, observation.obsID, so));
+						Option o1 = new GoToMovableOption(Agent.GAMMA, 
+							type, observation.itype, observation.obsID, so);
+						if(!o1.isFinished(so))
+							possibleOptions.add(o1);
+						Option o2 = new GoNearMovableOption(Agent.GAMMA,
+							type, observation.itype, observation.obsID, so);
+						if(!o2.isFinished(so))
+							possibleOptions.add(o2);
 					}
 					else
 					{
-						possibleOptions.add(new GoToPositionOption(Agent.GAMMA, 
-							type, observation.itype, observation.obsID, so));
-						possibleOptions.add(new GoNearMovableOption(Agent.GAMMA,
-							type, observation.itype, observation.obsID, so));
+						Option o1 = new GoToPositionOption(Agent.GAMMA, 
+							type, observation.itype, observation.obsID, so);
+						if(!o1.isFinished(so))
+							possibleOptions.add(o1);
+						Option o2 = new GoNearMovableOption(Agent.GAMMA,
+							type, observation.itype, observation.obsID, so);
+						if(!o2.isFinished(so))
+							possibleOptions.add(o2);
 					}
 				}
-				newObsIDs.add(observation.obsID);
+				currentObsIDs.add(observation.obsID);
 			}
 		}
 	}

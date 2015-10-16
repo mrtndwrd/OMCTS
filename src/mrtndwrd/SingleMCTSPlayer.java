@@ -57,6 +57,7 @@ public class SingleMCTSPlayer
 		//Determine the best action to take and return it.
 		// TODO: Compare with mostVisitedAction
 		int action = rootNode.bestAction();
+		//int action = rootNode.mostVisitedAction();
 		return action;
 	}
 

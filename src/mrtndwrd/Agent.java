@@ -236,7 +236,8 @@ public class Agent extends AbstractPlayer {
 		//System.out.print("Wall iType scores: "); aStar.printWallITypeScore();
 		//System.out.println("Option itypes: " + optionItypes);
 		System.out.println("Using option " + currentOption);
-		//System.out.println("Possible options: " + this.possibleOptions);
+		//Collections.sort(this.possibleOptions, Option.optionComparator);
+		//System.out.println("Possible options sorted: " + this.possibleOptions);
 		return action;
 	}
 
