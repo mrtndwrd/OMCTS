@@ -1,0 +1,48 @@
+\section{Introduction}
+\label{sec:introduction}
+%\todo{Wat is AI in games?}
+%\todo{Er bestaat game-specifieke AI, die werkt goed}
+In the history of AI algorithms, solving games has been one of the objectives
+for a long time. These AI algorithms typically maximize their score or win
+probability. One of the first AI algorithms was focused on solving tic tac
+toe. Later, focus was shifted to chess and even later to Go. Nowadays, many
+algorithms are designed for solving computer games. For example a lot of
+strategy games offer computer controlled contestants for the player to
+challenge. AI in computer games is mostly designed with a specific game in mind.
+\todo{examples of good working algorithms?} 
+
+%	\todo{Volgende stap: General AI}
+%		\todo{Bijv. GVGAI competitie}
+These game-specific AIs mostly work very well, but it is a very time consuming
+task to create an AI for every possible game. Therefore recent research focusses
+on algorithms capable of solving several games with different types of
+objectives. Algorithms for general game solving can be compared to each other in
+the \emph{General Video Game AI} competition\cite{perez2014}. 
+
+%\todo{Als mensen games spelen, maken ze gebruik van hun algemene kennis over
+%games.}
+\todo{This is kinda lonely here. Move it to a logical location}
+Humans playing a game for the first time use knowledge and skills they
+obtained from other games in order to improve their performance. A good
+general video game algorithm should also have this feat. 
+
+%\todo{Meest effectieve algoritmes op dit moment zijn gebasseerd op MCTS, maar doen
+%nog weinig met algemene kennis, daarom onze bijdrage.}
+Most of the current competitors in the GVGAI competition use a tree-based search
+in order to select the best action to take in a state. This tree search is 
+repeated in every state until the game ends. Most of the algorithms lack
+common video game knowledge and don't use any of the knowledge gained over the
+past games (in fact, the GVGAI framework by default prohibits algorithms to
+transfer any information to the next game).
+
+%\todo{Introductie van options (abstracter denkniveau)}
+%	\todo{Introductie van leren over options}
+%	\todo{Options zijn nog nooit gebruikt in MCTS, die combinatie is een nieuwe
+%	toevoeging.}
+In this paper a new algorithm is introduced that uses \emph{options}, which can be seen
+as a form of prior knowledge. Options are sequences of actions with a specific
+goal, for example going somewhere or avoiding a certain sprite of the game.
+Over the course of several games information about which options are helpful and
+which are not can be learned, improving the overall performance of the
+algorithm. This information can also be transfered in order to increase
+performance on a next, possibly harder, level.
