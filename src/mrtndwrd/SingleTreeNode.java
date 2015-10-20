@@ -7,7 +7,6 @@ import tools.Utils;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Random;
 import java.lang.Math;
 
@@ -54,8 +53,6 @@ public class SingleTreeNode
 
 	private ArrayList<Option> possibleOptions;
 
-	private HashSet<Integer> optionObsIDs;
-
 	/** When this is true, this node is new and should be backed up */
 	private boolean expanded; 
 
@@ -86,10 +83,9 @@ public class SingleTreeNode
 	//	new double[]{Double.MAX_VALUE, -Double.MAX_VALUE};
 
 	/** Root node constructor */
-	public SingleTreeNode(ArrayList<Option> possibleOptions, 
-			HashSet<Integer> optionObsIDs, Random rnd, Option currentOption)
+	public SingleTreeNode(ArrayList<Option> possibleOptions, Random rnd, Option currentOption)
 	{
-		this(null, null, null, possibleOptions, optionObsIDs, rnd);
+		this(null, null, null, possibleOptions, rnd);
 		this.agentOption = currentOption;
 	}
 
@@ -98,14 +94,12 @@ public class SingleTreeNode
 			SingleTreeNode parent, 
 			Option chosenOption, 
 			ArrayList<Option> possibleOptions, 
-			HashSet<Integer> optionObsIDs, 
 			Random rnd)
 	{
 		this.state = state;
 		this.parent = parent;
 		this.random = rnd;
 		this.possibleOptions = possibleOptions;
-		this.optionObsIDs = optionObsIDs;
 		this.chosenOption = chosenOption;
 		this.expanded = true;
 
@@ -260,11 +254,10 @@ public class SingleTreeNode
 
 		// Step 3: get the new option set
 		ArrayList<Option> newOptions = (ArrayList<Option>) this.possibleOptions.clone();
-		HashSet<Integer> newOptionObsIDs = (HashSet<Integer>) this.optionObsIDs.clone();
-		Lib.setOptions(nextState, newOptions, newOptionObsIDs);
+		Lib.updateOptions(nextState, newOptions);
 
 		// Step 4: create a child node
-		SingleTreeNode tn = new SingleTreeNode(nextState, this, nextOption, newOptions, newOptionObsIDs, this.random);
+		SingleTreeNode tn = new SingleTreeNode(nextState, this, nextOption, newOptions, this.random);
 		this.children[id] = tn;
 
 		// Step 5: Set the observation grid to the new grid:

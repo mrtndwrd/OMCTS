@@ -48,15 +48,22 @@ public class GoNearMovableOption extends GoToMovableOption implements Serializab
 	{
 		if(this.finished)
 			return true;
-
+		if(super.isFinished(so))
+			return true;
 		// There might be some other cases in which this.finished has not been
 		// set yet:
-		if (!this.goalExists(so) || currentPath.size() < THRESHOLD)
+		if(currentPath.size() == 0)
+		{
+			SerializableTuple<Integer, Integer> avatarPosition = Agent.aStar.vectorToBlock(so.getAvatarPosition());
+			this.currentPath = Agent.aStar.aStar(avatarPosition, this.goal);
+		}
+		if(currentPath.size() < THRESHOLD)
 		{
 			setFinished();
 			return true;
 		}
-		return super.isFinished(so);
+		// If all the above fails, this isn't finished yet
+		return false;
 	}
 }
 

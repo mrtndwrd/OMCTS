@@ -38,10 +38,10 @@ public class SingleMCTSPlayer
 	 * Inits the tree with the new observation state in the root.
 	 * @param gameState current state of the game.
 	 */
-	public void init(StateObservation gameState, ArrayList<Option> possibleOptions, HashSet<Integer> optionObsIDs, Option currentOption)
+	public void init(StateObservation gameState, ArrayList<Option> possibleOptions, Option currentOption)
 	{
 		//Set the game observation to a new root node.
-		rootNode = new SingleTreeNode(possibleOptions, optionObsIDs, random, currentOption);
+		rootNode = new SingleTreeNode(possibleOptions, random, currentOption);
 		rootNode.state = gameState;
 	}
 

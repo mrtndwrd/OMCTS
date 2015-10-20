@@ -133,7 +133,7 @@ public class GoToPositionOption extends Option implements Serializable
 		if(so.getGameTick() % 15 == 0 || index < 0)
 		{
 			// Plan a new path
-			this.currentPath = Agent.aStar.aStar(avatarPosition, goal);
+			this.currentPath = Agent.aStar.aStar(avatarPosition, this.goal);
 			// current location is at the end of the path
 			index = currentPath.size()-1;
 		}
@@ -160,7 +160,7 @@ public class GoToPositionOption extends Option implements Serializable
 
 		// There might be some other cases in which this.finished has not been
 		// set yet:
-		if (!this.goalExists(so) || currentPath.size() == 0)
+		if (!this.goalExists(so))
 		{
 			setFinished();
 			return true;
@@ -169,7 +169,7 @@ public class GoToPositionOption extends Option implements Serializable
 		Vector2d avatarPosition = so.getAvatarPosition();
 		// Option is also finished when the game is over or the goal is reached
 		if(avatarPosition.x == -1 && avatarPosition.y == -1 ||
-				this.goal == Agent.aStar.vectorToBlock(avatarPosition))
+				this.goal.equals(Agent.aStar.vectorToBlock(avatarPosition)))
 		{
 			setFinished();
 			return true;

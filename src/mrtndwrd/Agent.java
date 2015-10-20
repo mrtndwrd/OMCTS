@@ -11,7 +11,6 @@ import tools.Vector2d;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
@@ -54,12 +53,6 @@ public class Agent extends AbstractPlayer {
 	/** The set of all options that are currently available */
 	public ArrayList<Option> possibleOptions = new ArrayList<Option>();
 
-	/** A set containing which obsId's already have options in this agent */
-	public HashSet<Integer> optionObsIDs = new HashSet<Integer>();
-
-	/** A set containing which itypes alreade have options in this agent */
-	public HashSet<Integer> optionItypes = new HashSet<Integer>();
-
 	/** Denominator of the ranking (lower part of fraction) */
 	public static DefaultHashMap<String, Double> optionRankingD;
 	/** Ranking of an option */
@@ -93,8 +86,7 @@ public class Agent extends AbstractPlayer {
 		
 		// Add the actions to the option set
 		Lib.setOptionsForActions(act, this.possibleOptions);
-		Lib.updateOptions(so, this.possibleOptions, this.optionObsIDs, 
-				this.optionItypes);
+		Lib.updateOptions(so, this.possibleOptions);
 
 		// Load old optionRanking (if possible)
 		if(readOptionRanking())
@@ -127,7 +119,7 @@ public class Agent extends AbstractPlayer {
 		//	elapsedTimerTemp.setMaxTimeMillis(4 * CompetitionParameters.ACTION_TIME);
 		//	// Startup the optionRanking
 		//	// Set the state observation object as the root of the tree.
-		//	mctsPlayer.init(so, this.possibleOptions, this.optionObsIDs, this.currentOption);
+		//	mctsPlayer.init(so, this.possibleOptions, this.currentOption);
 		//	mctsPlayer.run(elapsedTimerTemp);
 		//}
 	}
@@ -206,16 +198,15 @@ public class Agent extends AbstractPlayer {
 			return Types.ACTIONS.ACTION_NIL;
 
 		// Update options:
-		Lib.updateOptions(so, this.possibleOptions, this.optionObsIDs, 
-				this.optionItypes);
+		Lib.updateOptions(so, this.possibleOptions);
 		if(this.currentOption != null)
 		{
 			//if(currentOption.isFinished(so))
 			//	currentOption.updateOptionRanking();
-			mctsPlayer.init(so, this.possibleOptions, this.optionObsIDs, this.currentOption);
+			mctsPlayer.init(so, this.possibleOptions, this.currentOption);
 		}
 		else
-			mctsPlayer.init(so, this.possibleOptions, this.optionObsIDs, null);
+			mctsPlayer.init(so, this.possibleOptions, null);
 
 		// Determine the action using MCTS...
 		int option = mctsPlayer.run(elapsedTimer);
@@ -237,7 +228,7 @@ public class Agent extends AbstractPlayer {
 		//System.out.println("Option itypes: " + optionItypes);
 		System.out.println("Using option " + currentOption);
 		//Collections.sort(this.possibleOptions, Option.optionComparator);
-		//System.out.println("Possible options sorted: " + this.possibleOptions);
+		System.out.println("Possible options sorted: " + this.possibleOptions);
 		return action;
 	}
 
