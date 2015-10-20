@@ -4,6 +4,9 @@ TODO
 - Tweak Lib.MAX_OBSERVATIONS
 - Remove all options that have isFinished = true from possibleOptions
 	- Done, but has a bug, now those options are never added again
+	- Check all isFinished() functions (especially goNear) 
+	- Check all option constructors for unnecessary calculations
+	- Check all equals() functions
 
 - Softmax opzoeken
 - Remove currentPath from GoToPositionOption, probably improves in stochastic
