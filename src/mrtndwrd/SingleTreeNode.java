@@ -396,6 +396,11 @@ public class SingleTreeNode
 		StateObservation rollerState = state.copy();
 		rollOutDepth = this.nodeDepth;
 		Option rollerOption = null;
+		// Decides how many points should be awarded or subtracted for a win or
+		// loss respectively
+		double scoreExtra = 10.;
+		if(USE_MEAN_REWARD)
+			scoreExtra = HUGE_POSITIVE;
 		// Save copy-time when RANDOM_ROLLOUT is true
 		if(chosenOption != null && !RANDOM_ROLLOUT)
 			rollerOption = chosenOption.copy();
@@ -408,7 +413,7 @@ public class SingleTreeNode
 		//double lastScore = Lib.simpleValue(rollerState);
 		// Initialize lastScore with the parent's state's score, because the
 		// expansion to this node could also result in score change
-		double lastScore = this.parent.state.getGameScore();
+		double lastScore = Lib.simpleValue(this.parent.state, scoreExtra);
 		while (!finishRollout(rollerState)) 
 		{
 			// System.out.println("Roller depth " + rollOutDepth);
@@ -418,9 +423,7 @@ public class SingleTreeNode
 			Types.ACTIONS action;
 			if(!rollerOptionFinished)
 			{
-				// Set the lastScore for the next iteration 
-				//lastScore = Lib.simpleValue(rollerState);
-				lastScore = rollerState.getGameScore();
+				double score = rollerState.getGameScore();
 
 				// If the option is finished, update the Agent's option ranking
 				if(rollerOption.isFinished(rollerState))
@@ -437,7 +440,7 @@ public class SingleTreeNode
 				// Update the option's reward
 				//rollerOption.addReward(Lib.simpleValue(rollerState) - lastScore);
 				if(USE_MEAN_REWARD)
-					rollerOption.addReward(rollerState.getGameScore() - lastScore);
+					rollerOption.addReward(rollerState.getGameScore() - score);
 			}
 			else
 			{
@@ -446,13 +449,7 @@ public class SingleTreeNode
 			}
 			rollOutDepth++;
 		}
-
-		// We can only use the simpleValue when USE_MEAN_REWARD is true, else
-		// the node reward is going to have waaayyy to high variance
-		if(USE_MEAN_REWARD)
-			return Lib.simpleValue(rollerState);
-		else
-			return rollerState.getGameScore() - lastScore;
+		return Lib.simpleValue(rollerState, scoreExtra) - lastScore;
 	}
 
 	public boolean finishRollout(StateObservation rollerState)

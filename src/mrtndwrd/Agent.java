@@ -216,7 +216,7 @@ public class Agent extends AbstractPlayer {
 		currentOption = this.possibleOptions.get(option).copy();
 
 		Types.ACTIONS action = currentOption.act(so);
-		//System.out.println("Tree:\n" + mctsPlayer.printRootNode());
+		System.out.println("Tree:\n" + mctsPlayer.printRootNode());
 		//System.out.println("Orientation: " + so.getAvatarOrientation());
 		//System.out.println("Location: " + so.getAvatarPosition());
 		//System.out.println("Action: " + action);
@@ -228,7 +228,7 @@ public class Agent extends AbstractPlayer {
 		//System.out.println("Option itypes: " + optionItypes);
 		System.out.println("Using option " + currentOption);
 		//Collections.sort(this.possibleOptions, Option.optionComparator);
-		System.out.println("Possible options sorted: " + this.possibleOptions);
+		//System.out.println("Possible options sorted: " + this.possibleOptions);
 		return action;
 	}
 

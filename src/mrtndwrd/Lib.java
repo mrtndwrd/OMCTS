@@ -63,17 +63,17 @@ public class Lib
 	}
 
 	/** Very simple state evaluation, taken from the MCTS code */
-	public static double simpleValue(StateObservation so) 
+	public static double simpleValue(StateObservation so, double difference) 
 	{
 		boolean gameOver = so.isGameOver();
 		Types.WINNER win = so.getGameWinner();
 		double rawScore = so.getGameScore();
 
 		if(gameOver && win == Types.WINNER.PLAYER_LOSES)
-			rawScore += HUGE_NEGATIVE;
+			rawScore -= difference;
 
 		if(gameOver && win == Types.WINNER.PLAYER_WINS)
-			rawScore += HUGE_POSITIVE;
+			rawScore += difference;
 
 		// TODO: Try subtracting the time here, to see if that improves anything
 		return rawScore;
