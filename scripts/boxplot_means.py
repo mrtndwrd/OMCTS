@@ -33,7 +33,7 @@ def barplot_stats(stats):
 		print "controller:", controller
 		for level, v in dic.iteritems():
 			for win, score, time in v:
-				totals[controller].append(win)
+				totals[controller].append(score)
 		plt.bar(i, np.sum(totals[controller]), label=controller, align='center', 
 				width=WIDTH)
 	ax=plt.gca()

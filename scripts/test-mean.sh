@@ -17,7 +17,7 @@ controllers="mrtndwrd.Agent"
 
 # CIG 2014 Training Set Games
 #games="aliens boulderdash butterflies chase frogs missilecommand portals sokoban survivezombies zelda"
-games="aliens"
+games="zelda"
 # CIG 2014 Validation Set Games
 #games="camelRace digdug firestorms infection firecaster overload pacman seaquest whackamole eggomania"
 #CIG 2015 New Training Set Games
@@ -25,8 +25,8 @@ games="aliens"
 # CIG 2014 TEST SET / GECCO 2015 VALIDATION SET
 #games="roguelike surround catapults plants plaqueattack jaws labyrinth boulderchase escape lemmings"
 
-levels="4"
-numberOfGames="10"
+levels="0"
+numberOfGames="20"
 
 # Best: 0.5
 alpha="0.5"

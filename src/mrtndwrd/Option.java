@@ -129,7 +129,6 @@ public abstract class Option implements Serializable
 	 */
 	public void updateOptionRanking()
 	{
-		System.out.println("UPDATEING RANKING");
 		String type = this.getType();
 		// From https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Online_algorithm
 		double x = getReward();

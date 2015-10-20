@@ -75,7 +75,6 @@ public class Lib
 		if(gameOver && win == Types.WINNER.PLAYER_WINS)
 			rawScore += difference;
 
-		// TODO: Try subtracting the time here, to see if that improves anything
 		return rawScore;
 	}
 
