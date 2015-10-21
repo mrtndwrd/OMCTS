@@ -13,4 +13,6 @@ actions.txt
 *.aux
 *.out
 *.pyc
+*.bbl
+*.blg
 src/mrtndwrd.zip
