@@ -127,9 +127,9 @@ public class GoToPositionOption extends Option implements Serializable
 
 		// old todo: Check if removing currentPath from this class (and always
 		// replanning) improves accuracy
-		//int index = currentPath.indexOf(avatarPosition);
+		int index = currentPath.indexOf(avatarPosition);
 		// This MIGHT improve but doesn't really seem to matter much
-		int index = -1;
+		//int index = -1;
 
 		// Sometimes: recalculate in case the world has changed.
 		if(so.getGameTick() % 15 == 0 || index < 0)

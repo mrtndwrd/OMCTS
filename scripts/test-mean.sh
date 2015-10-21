@@ -12,12 +12,12 @@ cd $dir/..
 # rm tables/*
 
 # Variables (command line time?)
-#controllers="mrtndwrd.Agent controllers.sampleMCTS.Agent"
-controllers="mrtndwrd.Agent"
+controllers="mrtndwrd.Agent controllers.sampleMCTS.Agent"
+#controllers="mrtndwrd.Agent"
 
 # CIG 2014 Training Set Games
 #games="aliens boulderdash butterflies chase frogs missilecommand portals sokoban survivezombies zelda"
-games="zelda"
+#games="zelda"
 # CIG 2014 Validation Set Games
 #games="camelRace digdug firestorms infection firecaster overload pacman seaquest whackamole eggomania"
 #CIG 2015 New Training Set Games
@@ -25,29 +25,39 @@ games="zelda"
 # CIG 2014 TEST SET / GECCO 2015 VALIDATION SET
 #games="roguelike surround catapults plants plaqueattack jaws labyrinth boulderchase escape lemmings"
 
-levels="0"
-numberOfGames="20"
+# All games!
+games="aliens boulderdash butterflies chase frogs missilecommand portals sokoban survivezombies zelda camelRace digdug firestorms infection firecaster overload pacman seaquest whackamole eggomania bait boloadventures brainman chipschallenge modality painter realportals realsokoban thecitadel zenpuzzle roguelike surround catapults plants plaqueattack jaws labyrinth boulderchase escape lemmings"
 
-# Best: 0.5
-alpha="0.5"
+
+levels="0"
+numberOfGames="5"
+
 # Best: 0.9
 gamma="0.9"
 # Best: false
 random_rollout="false"
 
+rollout_depth="8"
+
+uct_start_visits="15"
+
+learning="false"
+
 ant
 rm -r output/*
 
 # Run 3 parallel jobs of java until $max jobs are done
-parallel -j3 --eta "mkdir -p output/{1}a{5}g{6}r{7}; and java -cp classes MyTest \
+parallel -j3 --eta "mkdir -p output/{1}g{5}r{6}d{7}s{8}a{9}; and java -cp classes MyTest \
 		--controller={1} \
 		--game={2} \
 		--levels={3} \
 		--number-of-games={4} \
-		--alpha={5} \
-		--gamma={6} \
-		--random-rollout={7} \
-		> output/{1}a{5}g{6}r{7}/o_{2}-{3}" ::: $controllers ::: $games ::: $levels ::: $numberOfGames ::: $alpha ::: $gamma ::: $random_rollout
-
+		--gamma={5} \
+		--random-rollout={6} \
+		--rollout-depth={7} \
+		--uct-start-visits={8} \
+		--learning={9} \
+		--file-postfix={1}g{5}r{6}d{7}s{8}a{9}game{2}level{3} \
+		> output/{1}g{5}r{6}d{7}s{8}a{9}/o_{2}-{3}" ::: $controllers ::: $games ::: $levels ::: $numberOfGames ::: $gamma ::: $random_rollout ::: $rollout_depth ::: $uct_start_visits ::: $learning
 
 scripts/get-score-files.sh

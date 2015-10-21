@@ -16,11 +16,11 @@ dir=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 cd $dir/..
 
 # Variables (command line time?)
-controller="mrtndwrd.Agent"
-# controller="controllers.sampleMCTS.Agent"
+#controller="mrtndwrd.Agent"
+controller="controllers.sampleMCTS.Agent"
 # CIG 2014 Training Set Games
 # "aliens boulderdash butterflies chase frogs missilecommand portals sokoban survivezombies zelda"
-game="zelda"
+game="camelRace"
 # CIG 2014 Validation Set Games
 #game="camelRace digdug firestorms infection firecaster overload pacman seaquest whackamole eggomania"
 #CIG 2015 New Training Set Games

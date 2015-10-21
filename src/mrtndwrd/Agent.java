@@ -22,6 +22,7 @@ import java.util.Random;
  * Time: 21:45
  * This is a Java port from Tom Schaul's VGDL - https://github.com/schaul/py-vgdl
  */
+@SuppressWarnings("unchecked")
 public class Agent extends AbstractPlayer {
 
 	public static int ROLLOUT_DEPTH = 8;
@@ -47,11 +48,10 @@ public class Agent extends AbstractPlayer {
 	/** (start of) Filename for optionRanking tables when they are saved */
 	private String filename = "tables/optionRanking";
 
-	/** AMAF alpha for determining how many times we count the optionRanking */
-	public static double ALPHA = .3;
-
 	/** The set of all options that are currently available */
 	public ArrayList<Option> possibleOptions = new ArrayList<Option>();
+
+	public static boolean LEARNING = true;
 
 	/** Denominator of the ranking (lower part of fraction) */
 	public static DefaultHashMap<String, Double> optionRankingD;
@@ -88,8 +88,8 @@ public class Agent extends AbstractPlayer {
 		Lib.setOptionsForActions(act, this.possibleOptions);
 		Lib.updateOptions(so, this.possibleOptions);
 
-		// Load old optionRanking (if possible)
-		if(readOptionRanking())
+		// Load old optionRanking (if possible and if we want to learn)
+		if(LEARNING && readOptionRanking())
 		{
 			System.out.println("Loaded option ranking D:");
 			System.out.println(this.optionRankingD);
@@ -100,6 +100,7 @@ public class Agent extends AbstractPlayer {
 		}
 		else
 		{
+			System.out.println("No option ranking loaded");
 			optionRankingVariance = new DefaultHashMap<String, Double>(1000.);
 			optionRankingD = new DefaultHashMap<String, Double>(0.);
 			optionRanking = new DefaultHashMap<String, Double>(0.);
@@ -216,7 +217,7 @@ public class Agent extends AbstractPlayer {
 		currentOption = this.possibleOptions.get(option).copy();
 
 		Types.ACTIONS action = currentOption.act(so);
-		System.out.println("Tree:\n" + mctsPlayer.printRootNode());
+		//System.out.println("Tree:\n" + mctsPlayer.printRootNode());
 		//System.out.println("Orientation: " + so.getAvatarOrientation());
 		//System.out.println("Location: " + so.getAvatarPosition());
 		//System.out.println("Action: " + action);
@@ -226,7 +227,7 @@ public class Agent extends AbstractPlayer {
 		//System.out.println("Option ranking:\n" + optionRankingD);
 		//System.out.print("Wall iType scores: "); aStar.printWallITypeScore();
 		//System.out.println("Option itypes: " + optionItypes);
-		System.out.println("Using option " + currentOption);
+		//System.out.println("Using option " + currentOption);
 		//Collections.sort(this.possibleOptions, Option.optionComparator);
 		//System.out.println("Possible options sorted: " + this.possibleOptions);
 		return action;

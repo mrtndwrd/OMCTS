@@ -93,17 +93,29 @@ public class MyTest
 					.replace("--gamma=", ""));
 				System.out.printf("GAMMA set to %f\n", Agent.GAMMA);
 			}
+			else if(arg.startsWith("-d=") || arg.startsWith("--rollout-depth="))
+			{
+				Agent.ROLLOUT_DEPTH = Integer.parseInt(arg.replace("-d=", "")
+					.replace("--rollout-depth=", ""));
+				System.out.printf("RANDOM_ROLLOUT set to %d\n", Agent.ROLLOUT_DEPTH);
+			}
 			else if(arg.startsWith("-r=") || arg.startsWith("--random-rollout="))
 			{
 				SingleTreeNode.RANDOM_ROLLOUT = Boolean.parseBoolean(arg.replace("-r=", "")
 					.replace("--random-rollout=", ""));
 				System.out.printf("RANDOM_ROLLOUT set to %B\n", SingleTreeNode.RANDOM_ROLLOUT);
 			}
-			else if(arg.startsWith("-a=") || arg.startsWith("--alpha="))
+			else if(arg.startsWith("-a=") || arg.startsWith("--learning="))
 			{
-				Agent.ALPHA= Double.parseDouble(arg.replace("-a=", "")
-					.replace("--alpha=", ""));
-				System.out.printf("ALPHA set to %f\n", Agent.ALPHA);
+				Agent.LEARNING = Boolean.parseBoolean(arg.replace("-a=", "")
+					.replace("--learning=", ""));
+				System.out.printf("LEARNING set to %B\n", Agent.LEARNING);
+			}
+			else if(arg.startsWith("-s=") || arg.startsWith("--uct-start-visits="))
+			{
+				SingleTreeNode.UCT_START_VISITS = Integer.parseInt(arg.replace("-s=", "")
+					.replace("--uct-start-visits=", ""));
+				System.out.printf("UCT_START_VISITS set to %d\n", SingleTreeNode.UCT_START_VISITS);
 			}
 			else
 			{
@@ -168,13 +180,15 @@ public class MyTest
 		System.out.println("Usage: java -cp classes MyTest [<args>]");
 		System.out.println("\t-h\t\t--help\t\tPrints this message");
 		System.out.println("\t-c=CONTROLLER\t--controller=CONTROLLER\tSet controller to CONTROLLER. This must be an available package and class extending AbstractPlayer. Default: 'controllers.sampleMCTS.Agent'");
-		System.out.println("\t-c=GAMMA\t--gamma=GAMMA\t Gamma for Options");
-		System.out.println("\t-a=ALPHA\t--alpha=ALPHA\t Alpha for Option ranking");
+		System.out.println("\t-y=GAMMA\t--gamma=GAMMA\t Gamma for Options");
 		System.out.println("\t-l=LEVELS\t--levels=LEVELS\tSet list of levels to LEVEL. This must be an index ranging from 0 to 4, can be comma separated for more values. Default: '0'");
 		System.out.println("\t-p=POSTFIX\t--file-postfix=POSTFIX\tAlgorithms made by Maarten de Waard can save or write files. They will have this postfix. Defaults to an empty string");
 		System.out.println("\t-n=NUMBER\t--number-of-games=NUMBER\tNumber of games to be run by ArcadeMachine.runGames. Default: 20");
 		System.out.println("\t-r=BOOLEAN\t--random-rollout=BOOLEAN\t when this is set to 'true' (-r=true, 1 is seen as false) random rollouts are done in stead of rollouts using the current option");
 		System.out.println("\t-g=GAME\t\t--game=GAME\tSet game to GAME. Possible games: " + Arrays.toString(allGames) + " or 'all' for all games. Default: 'prey'");
+		System.out.println("\t-d=ROLLOUT_DEPTH\t\t--rollout-depth=ROLLOUT_DEPTH\tSet the maximum depth for MCTS rollout this number.");
+		System.out.println("\t-s=UCT_START_VISITS\t\t--uct-start-visits=UCT_START_VISITS\tAfter a node is visited this many time, UCT is used in stead of the crazyStone algorithm");
+		System.out.println("\t-a=LEARNING\t\t--learning=LEARNING\tIf this is true, the agent will keep optionRankings for several games. If it's false, option rankings are reset every game");
 	}
 }
 
