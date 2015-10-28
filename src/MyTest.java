@@ -1,4 +1,5 @@
 import core.ArcadeMachine;
+import core.competition.CompetitionParameters;
 
 import java.util.Random;
 import java.util.Arrays;

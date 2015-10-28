@@ -2,6 +2,12 @@ TODO
 ====
 
 - run test-mean.sh with learning=true
+	- should probably improve on (because MCTS is better): whackamole, modality, zenpuzzle, thecitadel,
+	  shipschallenge, survivezombies, jaws
+	- should improve on (because always loses): lemmings, digdug, portals,
+	  brainman, realportals, chase, roguelike, overload, cameRace,
+	  oloadventures, boulderdash, plaqueattack, plants, pacman, firecaster,
+	  sokoban
 - Tweak Lib.MAX_OBSERVATIONS
 - Softmax opzoeken
 - Remove currentPath from GoToPositionOption, probably improves in stochastic
