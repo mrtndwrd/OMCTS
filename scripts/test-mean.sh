@@ -12,8 +12,8 @@ mkdir -p tables/
 rm tables/*
 
 # Variables (command line time?)
-controllers="mrtndwrd.Agent controllers.sampleMCTS.Agent"
-#controllers="mrtndwrd.Agent"
+#controllers="mrtndwrd.Agent controllers.sampleMCTS.Agent"
+controllers="mrtndwrd.Agent"
 
 # CIG 2014 Training Set Games
 #games="aliens boulderdash butterflies chase frogs missilecommand portals sokoban survivezombies zelda"
