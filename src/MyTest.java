@@ -117,6 +117,14 @@ public class MyTest
 					.replace("--uct-start-visits=", ""));
 				System.out.printf("UCT_START_VISITS set to %d\n", SingleTreeNode.UCT_START_VISITS);
 			}
+			else if(arg.startsWith("-m=") || arg.startsWith("--max-action-time="))
+			{
+				CompetitionParameters.ACTION_TIME = Integer.parseInt(arg.replace("-m=", "")
+					.replace("--max-action-time=", ""));
+				CompetitionParameters.ACTION_TIME_DISQ = CompetitionParameters.ACTION_TIME + 100;
+				System.out.printf("ACTION TIME set to %d\n", CompetitionParameters.ACTION_TIME);
+				System.out.printf("ACTION TIME DISQ set to %d\n", CompetitionParameters.ACTION_TIME_DISQ);
+			}
 			else
 			{
 				System.out.printf("Unrecognized argument: %s\n", arg);
@@ -189,6 +197,7 @@ public class MyTest
 		System.out.println("\t-d=ROLLOUT_DEPTH\t\t--rollout-depth=ROLLOUT_DEPTH\tSet the maximum depth for MCTS rollout this number.");
 		System.out.println("\t-s=UCT_START_VISITS\t\t--uct-start-visits=UCT_START_VISITS\tAfter a node is visited this many time, UCT is used in stead of the crazyStone algorithm");
 		System.out.println("\t-a=LEARNING\t\t--learning=LEARNING\tIf this is true, the agent will keep optionRankings for several games. If it's false, option rankings are reset every game");
+		System.out.println("\t-m=ACTION_TIME\t\t--max-action-time=ACTION_TIME\tSet the ACTION_TIME time to this number. ACTION_TIME_DISQ will be set to this + 100ms");
 	}
 }
 

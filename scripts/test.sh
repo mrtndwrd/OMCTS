@@ -20,7 +20,7 @@ cd $dir/..
 controller="controllers.sampleMCTS.Agent"
 # CIG 2014 Training Set Games
 # "aliens boulderdash butterflies chase frogs missilecommand portals sokoban survivezombies zelda"
-game="camelRace"
+game="survivezombies"
 # CIG 2014 Validation Set Games
 #game="camelRace digdug firestorms infection firecaster overload pacman seaquest whackamole eggomania"
 #CIG 2015 New Training Set Games
@@ -28,6 +28,15 @@ game="camelRace"
 # CIG 2014 TEST SET / GECCO 2015 VALIDATION SET
 #game="roguelike surround catapults plants plaqueattack jaws labyrinth boulderchase escape lemmings"
 levels="0"
+
+random_rollout="false"
+
+rollout_depth="8"
+
+uct_start_visits="15"
+
+learning="true"
+
 
 ant
 rm -r output
@@ -42,6 +51,10 @@ seq $max | parallel -j3 --eta "java -cp classes MyTest \
 		--levels=$levels \
 		--number-of-games=$games \
 		--file-postfix={#} \
+		--learning=$learning \
+		--random-rollout=$random_rollout \
+		--uct-start-visits=$uct_start_visits \
+		--rollout-depth=$rollout_depth \
 		> output/complete_output_{#}"
 # Extract the score from the outputs
 for i in $(eval echo {1..$max})
