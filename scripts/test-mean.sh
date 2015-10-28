@@ -61,6 +61,7 @@ parallel -j3 --eta "mkdir -p output/{1}g{5}r{6}d{7}s{8}a{9}m{10}; and java -cp c
 		--learning={9} \
 		--max-action-time={10} \
 		--file-postfix={1}g{5}r{6}d{7}s{8}a{9}m{10}game{2}level{3} \
-		> output/{1}g{5}r{6}d{7}s{8}a{9}m{10}/o_{2}-{3}" ::: $controllers ::: > $games ::: $levels ::: $numberOfGames ::: $gamma ::: $random_rollout ::: > $rollout_depth ::: $uct_start_visits ::: $learning ::: $max_action_time
+		> \
+		output/{1}g{5}r{6}d{7}s{8}a{9}m{10}/o_{2}-{3}" ::: $controllers ::: $games ::: $levels ::: $numberOfGames ::: $gamma ::: $random_rollout ::: $rollout_depth ::: $uct_start_visits ::: $learning ::: $max_action_time
 
 scripts/get-score-files.sh
