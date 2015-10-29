@@ -1,3 +1,58 @@
 \section{Planning}
 \label{sec:planning}
-This section is about the planning part of the algorithm
+This section will explain how MCTS has to be adjusted in order to be able to
+plan over options in stead of actions. 
+
+As in normal MCTS the tree building starts at a root node, which represents the
+current game state $s \in S$. An option set $O_s$ is constructed from all the
+options that have state $s$ in their initiation set $I$. The expansion
+strategy then choses an option. The option selects an action $a$ according to its
+policy $\pi(s)$ for this state, after which a new child node is created for the
+new state $s'$. Then, a rollout is done, first completing the option and
+afterwards applying random actions. The results of the rollout are backed up to
+the visited node and the algorithm starts over at the root node.
+
+%\begin{wrapfigure}{r}{0.45\textwidth}
+%	\begin{minipage}{0.45\textwidth}
+%		\vspace{-22pt}
+		\begin{algorithm}[H]
+			\caption{$\mathsf{O-MCTS}(s, t, mt)$}
+			\label{alg:omcts}
+			\begin{algorithmic}[1]
+			%\Require Initial queue $Q$, integer $k$
+			%\State $P \gets \emptyset$ \textit{$\blacktriangleleft$ the Pareto archive} \label{alg:qpls:init}
+
+			\While {$t < mt$} \label{alg:qpls:mainloop}
+				\State $n \gets \relax $ %TODO: Empty?
+				\While {$\neg \mathsf{stop}(s)$} % TODO: WHile n = empty (then remove the break )
+					\If{$s$ not fully expanded}
+						\State $n \gets s.\mathsf{expand}()$
+						\State $\mathsf{Break}$
+					\Else
+						\State $s \gets s.\mathbf{uct}()$
+					\EndIf
+				\EndWhile
+				\State $r \gets n.\mathsf{rollOut}()$
+				\State $\mathsf{backUp}(s, r)$
+
+
+
+				%\State $\pi \gets Q.\mathsf{pop()}$
+				%	\State \Comment{recursive local improvements}
+				%\State $\pi \gets \mathsf{PI}(\pi,~\mathbf{f})$ \label{alg:qpls:pi}
+				%\State \Comment{$\pi$ undominated by P}
+				%\If{$\forall p \in P: \mathbf{f}(\pi) \nprec \mathbf{f}(p) \wedge \mathbf{f}(\pi) \not= \mathbf{f}(p)$}\label{alg:qpls:p}
+				%	\State $P \gets \mathsf{merge}(P,~\{\pi\})$\label{alg:qpls:merge}
+				%	\State \Comment{new candidates}
+				%	\State $N\!\gets\!\{\pi'\!\in\!\mathcal{N}(\pi) :
+				% \mathbf{f}(\pi)\%!\not\succ\!  \mathbf{f}(\pi')\!\}$ \label{alg:qpls:N}
+				%	\State $Q.\mathsf{addK}(N,~k)$ \label{alg:qpls:qnk}
+				%\EndIf
+			\EndWhile \label{alg:qpls:mainloopend}
+			\State \Return $P$
+			\end{algorithmic}
+		\end{algorithm}
+%	\end{minipage}
+%	\vspace{-10pt}
+%\end{wrapfigure}
+

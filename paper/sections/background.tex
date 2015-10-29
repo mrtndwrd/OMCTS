@@ -74,8 +74,8 @@ of all rewards backed up to that node.
 %\todo{Options}
 An option, in relation to an MDP, is a triple $\langle I, \pi, \beta\rangle$ in
 which $I \subseteq S$ is an initiation set, $\pi: S \times A \rightarrow [0, 1]$
-is a policy and $\beta: S^+ \rightarrow[0,1]$ is a termination condition.\cn
-(sutton and barto?)
+is a policy and $\beta: S^+ \rightarrow[0,1]$ is a termination
+condition.\cite{sutton1999between}
 
 A policy $\pi$ defines the action that should be taken in a state. The
 initiation set is a set of states in which the option can be started. When the
@@ -84,8 +84,10 @@ satisfies a termination condition in $\beta$. Using options in an MDP removes
 the Markov property for that process: the state information alone is no longer
 enough to predict an agents actions, since the actions are now not only
 state-dependant, also dependant on what option the agent has chosen in the past.
-The process is now called a \emph{semi-Markov decision process (SMDP)}.
+The process is now called a \emph{semi-Markov decision process (SMDP)}. For
+convenience, we will call the original action set of the MDP $A$, and the set of
+options $O$.
 
-Normal actions can also be denoted as options. An option for action $a$ has a
+Normal actions can be treated as options as well. An option for action $a$ has a
 initiation set $I = S$, the policy $\pi$ is taking action $a$ in all the states.
 The termination condition is that action $a$ has been performed once.
