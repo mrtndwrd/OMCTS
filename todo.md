@@ -16,12 +16,8 @@ TODO
 ## Test
 - check if using random rollout is better than option-rollout
 
-## Program:
-- option for pushing boxes around (sokoban, other puzzle games) (too difficult?)
-- wait-and-shoot option voor bepaalde bounding box
-- een actie overslaan voor meer rekentijd
-
 ## Schrijven
+- review pseudocode for Algorithm 1
 
 - sectie introduction: 
 	- Wat is AI in games?

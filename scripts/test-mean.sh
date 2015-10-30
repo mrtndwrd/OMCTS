@@ -29,7 +29,7 @@ games="camelRace digdug firestorms infection firecaster overload pacman seaquest
 # games="aliens boulderdash butterflies chase frogs missilecommand portals sokoban survivezombies zelda camelRace digdug firestorms infection firecaster overload pacman seaquest whackamole eggomania bait boloadventures brainman chipschallenge modality painter realportals realsokoban thecitadel zenpuzzle roguelike surround catapults plants plaqueattack jaws labyrinth boulderchase escape lemmings"
 
 
-levels="5"
+levels="4"
 numberOfGames="20"
 
 # Best: 0.9
