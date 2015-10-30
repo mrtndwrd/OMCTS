@@ -29,21 +29,26 @@ games="camelRace digdug firestorms infection firecaster overload pacman seaquest
 # games="aliens boulderdash butterflies chase frogs missilecommand portals sokoban survivezombies zelda camelRace digdug firestorms infection firecaster overload pacman seaquest whackamole eggomania bait boloadventures brainman chipschallenge modality painter realportals realsokoban thecitadel zenpuzzle roguelike surround catapults plants plaqueattack jaws labyrinth boulderchase escape lemmings"
 
 
-levels="0"
-numberOfGames="5"
+levels="5"
+numberOfGames="20"
 
 # Best: 0.9
 gamma="0.9"
 # Best: false
 random_rollout="false"
 
-rollout_depth="5 15 30"
+#Current best: m=80: d=40, s=30
 
-uct_start_visits="5 15 30"
+#rollout_depth="5 15 30"
+rollout_depth="30 40"
+#TODO: Test-scenario where rollout_depth = 30, uct_start_visits = 40
 
-learning="true"
+#uct_start_visits="5 15 30"
+uct_start_visits="30 40"
 
-max_action_time="40 80 120"
+learning="true false"
+
+max_action_time="40"
 
 ant
 rm -r output/*

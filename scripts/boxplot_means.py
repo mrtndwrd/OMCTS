@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 WIDTH=0.8
 COLORS = ['blue', 'green', 'magenta', 'cyan']
 
-def plot_means(directory='output', style='bar'):
+def plot_means(directory='output', style='bar', show_score=False):
 	""" Create boxplot for the runs in directory
 
 	Keyword arguments: 
@@ -20,23 +20,26 @@ def plot_means(directory='output', style='bar'):
 	stats = get_means.calculate_game_stats(means)
 
 	if style == 'bar':
-		barplot_stats(stats)
+		barplot_stats(stats, show_score)
 	elif style == 'game':
-		barplot_games(stats)
+		barplot_games(stats, show_score)
 
-def barplot_stats(stats):
+def barplot_stats(stats, show_score):
 	""" Barplots the totals of stats """
 
 	# variables 
 	totals = defaultdict(list)
 	controllers = stats.keys()
-
+	name = 'score' if show_score else 'wins'
 	# Loop through stats
 	for i, (controller, dic) in enumerate(stats.iteritems()):
 		print "controller:", controller
 		for level, v in dic.iteritems():
 			for win, score, time in v:
-				totals[controller].append(win)
+				if show_score:
+					totals[controller].append(score)
+				else:
+					totals[controller].append(win)
 		plt.bar(i, np.sum(totals[controller]), label=controller, align='center', 
 				width=WIDTH)
 	ax=plt.gca()
@@ -46,12 +49,12 @@ def barplot_stats(stats):
 	ax.set_xticklabels(controllers)
 	for label in ax.get_xticklabels():
 		label.set_rotation('vertical')
-	plt.title('Total scores of all runs, all levels')
-	plt.ylabel('Score')
+	plt.title('Total %s of all runs, all levels' % name)
+	plt.ylabel(name)
 	plt.subplots_adjust(bottom=.4)
 	plt.show()
 
-def barplot_games(stats):
+def barplot_games(stats, show_score):
 	# Create figure and get some axis
 	fig = plt.figure()
 	ax = fig.add_subplot(111)
@@ -60,7 +63,8 @@ def barplot_games(stats):
 	# Names of the controllers, for the legend:
 	legend = []
 	# Bar width
-	width=.35 
+	width=.15
+	name = 'score' if show_score else 'wins'
 	for i, (controller, game_dic) in enumerate(stats.iteritems()):
 		legend.append(controller)
 		# Get the indices of all bars (hope N is always the same here...)
@@ -77,15 +81,16 @@ def barplot_games(stats):
 			number_of_games = len(v)
 			avg = np.mean(v, 0)
 			std = np.std(v, 0)
-			totals.append(avg[0])
-			stds.append(std[0])
+			index = 2 if show_score else 0
+			totals.append(avg[index])
+			stds.append(std[index])
 		rects.append(ax.bar(ind + (i * width), totals, width, color=COLORS[i],
 			yerr=stds, error_kw=dict(elinewith=2, ecolor='black')))
 
 	ax.set_xlim(-width,len(ind)+width)
 	#ax.set_ylim(0,45)
-	ax.set_ylabel('Mean score totals over %d games' % number_of_games)
-	ax.set_title('Total game scores by controller name')
+	ax.set_ylabel('Mean %s totals over %d games' % (name, number_of_games))
+	ax.set_title('Total game %s by controller name' % name)
 	xTickMarks = games 
 	ax.set_xticks(ind+width)
 	xtickNames = ax.set_xticklabels(xTickMarks)
@@ -103,7 +108,9 @@ if __name__ == "__main__":
 	parser.add_argument('-t', '--type', 
 		help="""type of plot that should be made. "bar" for all games at once, "game" for plot per game""", 
 		default='bar')
+	parser.add_argument('--score', '-s', action='store_true',
+		help="If this argument is given, scores are plotted")
 	args = parser.parse_args()
-	plot_means(args.output, args.type)
+	plot_means(args.output, args.type, show_score=args.score)
 
 
