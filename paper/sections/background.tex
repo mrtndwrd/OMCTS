@@ -2,12 +2,14 @@
 \label{sec:background}
 
 %\todo{What should one understand in order to grasp this paper?}
-This section discusses the two major components of the algorithm, Monte Carlo
-Tree Search and Options. 
+This section starts with a small introduction into \emph{Markov
+Decision processes (MDPs)}. Then it discusses the two major components of the
+algorithm, MCTS and options. It ends with a description of the \emph{video game
+description language (VGDL)} framework
 
 \subsection{Markov Decision Process}
 %\todo{MDPs}
-We will describe games as a \emph{Markov decision process (MDP)}, which is a
+In this paper, a game will be treated as an MDP, which is a
 tuple $\langle S, A, T, R \rangle$ where $S$ is a finite set of states, $A$ a
 finite set of actions, $T$ a transition function defined as $T : S \times A
 \times S \rightarrow \left[0,1\right]$ and $R$ a reward function defined as $R:
@@ -24,14 +26,14 @@ The basis of the process is as follows. A tree is built incrementally from the
 states and actions that are visited in a game.  Each node in the tree represents
 a state, each connection in the tree represents an action taken in that state
 leading to the state represented by the next node.  From the root node, the tree
-is traversed using a selection strategy, which selects the next action according
-to the expected values of the child nodes. An expansion strategy chooses a new
-action when the algorithm arrives at a leaf node, subsequently creating a new
-node for the next state. The simplest expansion strategy uses every action once
-from a not fully expanded node. After expanding a node, a \emph{rollout} is
-done, by applying random actions until a certain stop criterion is met, or the
-game ends. Then the results are \emph{backed up} to all visited nodes and a new
-search starts from the root node.
+is traversed using a \emph{selection strategy}, which selects the next action according
+to the expected values of the child nodes. An \emph{expansion strategy} chooses
+a new action when the algorithm arrives at a leaf or not fully-expanded node,
+subsequently creating a new node for the next state. The simplest expansion
+strategy uses every action once from a not fully expanded node. After expanding
+a node, a \emph{rollout} is done, by applying random actions until a certain
+stop criterion is met, or the game ends. Then the results are \emph{backed up}
+to all visited nodes and a new search starts from the root node.
 
 	%\todo{Selection strategy}
 	%(Term from pMCTS.pdf)
@@ -43,8 +45,8 @@ actions that have been explored but have a higher value. A child node $j$ is
 selected to maximise
 $$UCT = \bar{X}_j + 2C_p \sqrt{\frac{2 \ln n}{n_j}}$$
 Where $n$ is the number of times the current node has been visited, $n_j$ is the
-number of times child $j$ has been visited and $C_p > 0$ is a constant that
-shifts priority from exploration to exploitation, which is often set to $\sqrt{2}$.
+number of times child $j$ has been visited and $C_p > 0$ is a constant , often
+set to $\sqrt{2}$, that shifts priority from exploration to exploitation.
 	
 	%\todo{Expansion strategy}
 In standard MCTS, each action is explored at least once in each node. After all
@@ -91,3 +93,5 @@ options $O$.
 Normal actions can be treated as options as well. An option for action $a$ has a
 initiation set $I = S$, the policy $\pi$ is taking action $a$ in all the states.
 The termination condition is that action $a$ has been performed once.
+
+\todo{Video Game Description Language}
