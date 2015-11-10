@@ -1,6 +1,7 @@
 TODO 
 ====
 
+- Rollout until lose/win (might improve learning results)
 - run test-mean.sh with learning=true
 	- should probably improve on (because MCTS is better): whackamole, modality, zenpuzzle, thecitadel,
 	  shipschallenge, survivezombies, jaws

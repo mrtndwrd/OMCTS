@@ -5,7 +5,7 @@ from collections import defaultdict
 from matplotlib import pyplot as plt
 
 WIDTH=0.8
-COLORS = ['blue', 'green', 'magenta', 'cyan']
+COLORS = ['blue', 'green', 'magenta', 'cyan', 'red', 'yellow', 'black']
 
 def plot_means(directory='output', style='bar', show_score=False):
 	""" Create boxplot for the runs in directory

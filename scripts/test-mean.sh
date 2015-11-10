@@ -30,7 +30,7 @@ games="camelRace digdug firestorms infection firecaster overload pacman seaquest
 
 
 levels="4"
-numberOfGames="20"
+numberOfGames="30"
 
 # Best: 0.9
 gamma="0.9"
@@ -40,13 +40,12 @@ random_rollout="false"
 #Current best: m=80: d=40, s=30
 
 #rollout_depth="5 15 30"
-rollout_depth="30 40"
-#TODO: Test-scenario where rollout_depth = 30, uct_start_visits = 40
+rollout_depth="70 80"
 
 #uct_start_visits="5 15 30"
-uct_start_visits="30 40"
+uct_start_visits="80"
 
-learning="true false"
+learning="true"
 
 max_action_time="40"
 

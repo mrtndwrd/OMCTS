@@ -31,7 +31,7 @@ public class SingleTreeNode
 
 	/** Decides after how many node visits exploration using Crazy Stone's
 	 * algorithm is stopped and exploitation using UCT starts */
-	public static int UCT_START_VISITS = 20;
+	public static int UCT_START_VISITS = 40;
 
 	public static double STEEPNESS = 0.9;
 
