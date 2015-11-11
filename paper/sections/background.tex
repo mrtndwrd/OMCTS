@@ -7,7 +7,8 @@ Decision processes (MDPs)}. Then it discusses the two major components of the
 algorithm, MCTS and options. It ends with a description of the \emph{video game
 description language (VGDL)} framework
 
-\subsection{Markov Decision Process}
+\subsection{Markov Decision Processes}
+\label{subsec:mdps}
 %\todo{MDPs}
 In this paper, a game will be treated as an MDP, which is a
 tuple $\langle S, A, T, R \rangle$ where $S$ is a finite set of states, $A$ a
@@ -19,6 +20,7 @@ states depends only upon the present state. No information on previous states
 is needed.
 
 \subsection{Monte Carlo Tree Search}
+\label{subsec:mcts}
 %\todo{MCTS}
 Many of the algorithms submitted to the GVGAI competition are based on the MCTS
 algorithm\cn, which approximates the value of actions taken in a specific state.
@@ -40,10 +42,10 @@ to all visited nodes and a new search starts from the root node.
 The selection strategy selects optimal actions in internal tree nodes, depending
 on the values of the child nodes. An effective and very popular selection
 strategy is the \emph{upper confidence tree (UCT)}\cite{kocsis2006bandit}, which balances the choice 
-between poorly explored actions with a high uncertainty about their value, and
+between poorly explored actions with a high uncertainty about their value and
 actions that have been explored but have a higher value. A child node $j$ is
 selected to maximise
-$$UCT = \bar{X}_j + 2C_p \sqrt{\frac{2 \ln n}{n_j}}$$
+$$UCT = 2C_p \sqrt{\frac{2 \ln n}{n_j}}$$
 Where $n$ is the number of times the current node has been visited, $n_j$ is the
 number of times child $j$ has been visited and $C_p > 0$ is a constant , often
 set to $\sqrt{2}$, that shifts priority from exploration to exploitation.
@@ -63,7 +65,7 @@ the probability of selecting a move goes to zero. Its value is proportional to
 the ordering of the expected values of the possible actions.
 $$\epsilon_i = \frac{0.1 + 2^{-i} + a_i}{N}$$
 Where $a_i$ is 1 when an action is \emph{an atari move}, which is a go-specific
-move that can easily be underestimated by MCTS.
+move that can otherwise easily be underestimated by MCTS.
 
 	%\todo{Backup algorithm}
 % TODO: Check if result and reward are used wrongly
@@ -73,6 +75,7 @@ reward of this simulation. Usually the estimated value of a node is the average
 of all rewards backed up to that node.
 
 \subsection{Options}
+\label{subsec:options}
 %\todo{Options}
 An option, in relation to an MDP, is a triple $\langle I, \pi, \beta\rangle$ in
 which $I \subseteq S$ is an initiation set, $\pi: S \times A \rightarrow [0, 1]$
@@ -94,4 +97,19 @@ Normal actions can be treated as options as well. An option for action $a$ has a
 initiation set $I = S$, the policy $\pi$ is taking action $a$ in all the states.
 The termination condition is that action $a$ has been performed once.
 
-\todo{Video Game Description Language}
+\subsection{Video Game Description Language}
+\label{subsec:vgdl}
+%\todo{Video Game Description Language}
+This paper will use a framework called the video game description
+language\cite{schaul2013video}, in which games can very easily be defined.
+
+To define a game in VGDL, two files are needed. The first describes a level of
+the game. Each character in the file maps to an object in the game, on that grid
+location. The second file is the game description, which defines for each
+type of object what its letter in the level description is, how it looks in the
+game, how it interacts with other objects and when it disappears from the game.
+Using only these two files a wide spectrum of games can be created.
+
+The GVGAI competition uses a Java implementation of this framework and comes
+with many games. The algorithm proposed in this paper will be benchmarked on
+these games.

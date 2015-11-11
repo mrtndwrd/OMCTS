@@ -3,38 +3,12 @@
 This section will explain how MCTS has to be adjusted in order to be able to
 plan over options in stead of actions.
 
-% TODO: Node en state worden nu door elkaar gebruikt...
-The new algorithm, \emph{Option MCTS}, is described in algorithm
-\ref{alg:omcts}. O-MCTS should be invoked with a root node $r$ and a maximum
-number of milliseconds to run. The main loop starts at line
-\ref{alg:omcts:mainloop}, which keeps running the algorithm as long as is
-allowed. The inner loop runs until a node $s$ is reached that meets a stop
-criterion defined by a function \textsf{stop}, or a node is expanded into a new
-node. In lines \ref{alg:omcts:sp} until \ref{alg:omcts:ep} variable $P_s$ is set
-to the set of options that can be chosen in node $s$. When an option hasn't
-finished, $P_s$ only contains the currently followed option. Else, $P_s$ will
-contain all options that are available in $s$, i.e. all the options $o$ that
-have state $s$ in their initiation set $I_o$. When the set $P_s$ is the same as
-the set of options in the children of $s$, $c_s$, a new node $s'$ is selected by
-\textsf{uct}. Else, in lines \ref{alg:omcts:sexpand} to \ref{alg:omcts:eexpand}
-a node $s$ is expanded with a random, currently unexplored option.
-
-%As in normal MCTS the tree building starts at a root node, which represents the
-%current game state $s \in S$. An option set $O_s$ is constructed from all the
-%options that have state $s$ in their initiation set $I$. The expansion
-%strategy then choses an option. The option selects an action $a$ according to its
-%policy $\pi(s)$ for this state, after which a new child node is created for the
-%new state $s'$. Then, a rollout is done, first completing the option and
-%afterwards applying random actions. The results of the rollout are backed up to
-%the visited node and the algorithm starts over at the root node.
-
-\begin{algorithm}[H]
+\begin{algorithm}
 	\caption{$\mathsf{O-MCTS}(r, max\_time)$}
 	\label{alg:omcts}
 	\begin{algorithmic}[1]
-		%\State $c_s \gets \emptyset (\forall s \in S)$
 		\While {$time\_taken < max\_time$} \label{alg:omcts:mainloop}
-			\State $s \gets r$ %\Comment{Set s to the root node}
+			\State $s \gets r$
 			\While {$\neg \mathsf{stop}(s)$} \label{alg:omcts:innerloop}
 				\If{$s \in \beta_o$} \label{alg:omcts:sp}
 					\State $P_s \gets \cup_o ( s \in I_o)$
@@ -58,3 +32,39 @@ a node $s$ is expanded with a random, currently unexplored option.
 	\end{algorithmic}
 \end{algorithm}
 
+% TODO: Node en state worden nu door elkaar gebruikt...
+The new algorithm, \emph{Option MCTS}, is described in algorithm
+\ref{alg:omcts}. O-MCTS should be invoked with a root node $r$ and a maximum
+number of milliseconds to run. The main loop starts at line
+\ref{alg:omcts:mainloop}, which keeps the algorithm running as long as is
+allowed. The inner loop runs until a node $s$ is reached that meets a stop
+criterion defined by a function \textsf{stop}, or a node is expanded into a new
+node. In lines \ref{alg:omcts:sp} until \ref{alg:omcts:ep} variable $P_s$ is set
+to the set of options that can be chosen in node $s$. When an option hasn't
+finished, $P_s$ only contains the currently followed option. Else, $P_s$ will
+contain all options that are available in $s$, i.e. all the options $o$ that
+have state $s$ in their initiation set $I_o$. When the set $P_s$ is the same as
+the set of options in the children of $s$, $c_s$, a new node $s'$ is selected by
+\textsf{uct}. Else, in lines \ref{alg:omcts:sexpand} to \ref{alg:omcts:eexpand}
+a node $s$ is expanded with a random, currently unexplored option. In line
+\ref{alg:omcts:ss} $s$ is instantiated with the new node $s'$, continuing the
+while loop using the new node. When a state with a stop criterion is reached, a
+rollout is done, resulting in score difference $\delta$. This score difference
+is backed up to $s$'s parent nodes using a backup function, after which the
+algorithm restarts at the root node $r$.
+
+%\todo{Is this needed?}
+A couple of functions are used by algorithm \ref{alg:omcts}. The condition defined by
+$\mathsf{stop}$ returns true when the game ends in state $s$. Usually
+a maximum depth is defined as well in order to save calculation time. The
+function $\mathsf{expand}$ creates a new child node for node $s$, using option
+$o$. The $\mathsf{rollout}$ function chooses random actions until the stop
+criterion defined by $\mathsf{stop}$ is reached, after which the difference in
+score achieved by the rollout is returned. The $\mathsf{back\_up}$ function
+traverses the tree through all parents of $s$, updating their expected value,
+often just the mean of all these values,  with the $\delta$. 
+
+This algorithm will explore all options and focus on those that seem promising.
+Each option will be tried at least once in each state where no option is already
+chosen. Although this can be viewed as a thorough exploration strategy, when the
+number of options increases, this strategy might become infeasible.

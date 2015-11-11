@@ -1,3 +1,10 @@
 \section{Learning}
 \label{sec:learning}
-This section is about the learning part of the algorithm
+The O-MCTS algorithm can be extended by learning about which option works well
+in a game and which does not. This is done by estimating option values. A value
+$V$ for using an option $o$ from timestep $t$ to $t+n$ is calculated by adding
+discounted rewards $r_t$ of all of the states visited by that option.
+$$V(o) = r_{t} + \gamma r_{t+1} + \gamma^2 r_{t+2} + \cdots + \gamma^n r_{t+n}$$
+where $\gamma \in \[0, 1\]$ is the discount rate parameter, which influences how
+much rewards that lay far in the future count.
+
