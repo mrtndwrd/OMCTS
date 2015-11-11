@@ -1,4 +1,5 @@
 import sys, os, argparse
+from collections import defaultdict
 import numpy as np
 
 def get_mean(directory):
@@ -37,7 +38,27 @@ def calculate_game_stats(values):
 					stats[controller][game].extend(scores)
 				else:
 					stats[controller][game].append(scores)
+			# Here, normalize scores:
+	normalize_score(stats)
 	return stats
+
+def normalize_score(stats):
+	games = defaultdict(list)
+	controllers = []
+	for controller, game_dic in stats.iteritems():
+		controllers.append(controller)
+		for game, v in game_dic.iteritems():
+			games[game].extend(v)
+	for game, values in games.iteritems():
+		scores = sorted([x[1] for x in values])
+		max = scores[-1]
+		min = scores[0]
+		for controller in controllers:
+			stats[controller][game] = np.subtract(stats[controller][game], 
+				np.array([0., float(min), 0.]))
+			if max != 0:
+				stats[controller][game] = np.divide(stats[controller][game], 
+					np.array([1., float(max), 1.]))
 
 def print_stats(stats):
 	""" Prints stats. Stats is built like this:

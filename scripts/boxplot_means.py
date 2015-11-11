@@ -26,7 +26,6 @@ def plot_means(directory='output', style='bar', show_score=False):
 
 def barplot_stats(stats, show_score):
 	""" Barplots the totals of stats """
-
 	# variables 
 	totals = defaultdict(list)
 	controllers = stats.keys()
@@ -34,7 +33,7 @@ def barplot_stats(stats, show_score):
 	# Loop through stats
 	for i, (controller, dic) in enumerate(stats.iteritems()):
 		print "controller:", controller
-		for level, v in dic.iteritems():
+		for game, v in dic.iteritems():
 			for win, score, time in v:
 				if show_score:
 					totals[controller].append(score)
@@ -49,10 +48,11 @@ def barplot_stats(stats, show_score):
 	ax.set_xticklabels(controllers)
 	for label in ax.get_xticklabels():
 		label.set_rotation('vertical')
-	plt.title('Total %s of all runs, all levels' % name)
+	plt.title('Total %s of all runs, all games' % name)
 	plt.ylabel(name)
 	plt.subplots_adjust(bottom=.4)
 	plt.show()
+
 
 def barplot_games(stats, show_score):
 	# Create figure and get some axis
@@ -81,7 +81,7 @@ def barplot_games(stats, show_score):
 			number_of_games = len(v)
 			avg = np.mean(v, 0)
 			std = np.std(v, 0)
-			index = 2 if show_score else 0
+			index = 1 if show_score else 0
 			totals.append(avg[index])
 			stds.append(std[index])
 		rects.append(ax.bar(ind + (i * width), totals, width, color=COLORS[i],

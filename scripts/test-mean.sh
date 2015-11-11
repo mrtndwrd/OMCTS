@@ -40,10 +40,10 @@ random_rollout="false"
 #Current best: m=80: d=40, s=30
 
 #rollout_depth="5 15 30"
-rollout_depth="70 80"
+rollout_depth="60 70 80 90"
 
-#uct_start_visits="5 15 30"
-uct_start_visits="80"
+uct_start_visits="40"
+#uct_start_visits="80"
 
 learning="true"
 
