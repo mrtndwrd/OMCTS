@@ -53,6 +53,8 @@ public class Agent extends AbstractPlayer {
 
 	public static boolean LEARNING = true;
 
+	public static boolean NAIVE_PLANNING = false;
+
 	/** Denominator of the ranking (lower part of fraction) */
 	public static DefaultHashMap<String, Double> optionRankingD;
 	/** Ranking of an option */
@@ -217,7 +219,7 @@ public class Agent extends AbstractPlayer {
 		currentOption = this.possibleOptions.get(option).copy();
 
 		Types.ACTIONS action = currentOption.act(so);
-		//System.out.println("Tree:\n" + mctsPlayer.printRootNode());
+		System.out.println("Tree:\n" + mctsPlayer.printRootNode());
 		//System.out.println("Orientation: " + so.getAvatarOrientation());
 		//System.out.println("Location: " + so.getAvatarPosition());
 		//System.out.println("Action: " + action);

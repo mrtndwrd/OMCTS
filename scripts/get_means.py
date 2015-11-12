@@ -53,12 +53,17 @@ def normalize_score(stats):
 		scores = sorted([x[1] for x in values])
 		max = scores[-1]
 		min = scores[0]
+		# assume that the minimum score is 0 when max and min are the same (then
+		# if the scores are all ones, normalization result will also be 1)
+		if min == max:
+			min = 0;
+		print "max: ", max, "min: ", min
 		for controller in controllers:
 			stats[controller][game] = np.subtract(stats[controller][game], 
 				np.array([0., float(min), 0.]))
-			if max != 0:
+			if max-min != 0:
 				stats[controller][game] = np.divide(stats[controller][game], 
-					np.array([1., float(max), 1.]))
+					np.array([1., float(max - min), 1.]))
 
 def print_stats(stats):
 	""" Prints stats. Stats is built like this:

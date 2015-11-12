@@ -1,7 +1,6 @@
 TODO 
 ====
-
-- Rollout until lose/win (might improve learning results)
+- run test-mean.sh again
 - run test-mean.sh with learning=true
 	- should probably improve on (because MCTS is better): whackamole, modality, zenpuzzle, thecitadel,
 	  shipschallenge, survivezombies, jaws
@@ -9,6 +8,7 @@ TODO
 	  brainman, realportals, chase, roguelike, overload, cameRace,
 	  oloadventures, boulderdash, plaqueattack, plants, pacman, firecaster,
 	  sokoban
+
 - Tweak Lib.MAX_OBSERVATIONS
 - Softmax opzoeken
 - Remove currentPath from GoToPositionOption, probably improves in stochastic

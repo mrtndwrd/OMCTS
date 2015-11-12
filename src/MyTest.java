@@ -112,6 +112,12 @@ public class MyTest
 					.replace("--learning=", ""));
 				System.out.printf("LEARNING set to %B\n", Agent.LEARNING);
 			}
+			else if(arg.startsWith("-i=") || arg.startsWith("--naive="))
+			{
+				Agent.LEARNING = Boolean.parseBoolean(arg.replace("-i=", "")
+					.replace("--naive=", ""));
+				System.out.printf("LEARNING set to %B\n", Agent.LEARNING);
+			}
 			else if(arg.startsWith("-s=") || arg.startsWith("--uct-start-visits="))
 			{
 				SingleTreeNode.UCT_START_VISITS = Integer.parseInt(arg.replace("-s=", "")
@@ -198,6 +204,7 @@ public class MyTest
 		System.out.println("\t-d=ROLLOUT_DEPTH\t\t--rollout-depth=ROLLOUT_DEPTH\tSet the maximum depth for MCTS rollout this number.");
 		System.out.println("\t-s=UCT_START_VISITS\t\t--uct-start-visits=UCT_START_VISITS\tAfter a node is visited this many time, UCT is used in stead of the crazyStone algorithm");
 		System.out.println("\t-a=LEARNING\t\t--learning=LEARNING\tIf this is true, the agent will keep optionRankings for several games. If it's false, option rankings are reset every game");
+		System.out.println("\t-i=NAIVE\t\t--naive=NAIVE\tTurn on or off naive planning");
 		System.out.println("\t-m=ACTION_TIME\t\t--max-action-time=ACTION_TIME\tSet the ACTION_TIME time to this number. ACTION_TIME_DISQ will be set to this + 100ms");
 	}
 }

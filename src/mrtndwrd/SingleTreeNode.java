@@ -156,7 +156,11 @@ public class SingleTreeNode
 			// Select the node to explore (either expanding unexpanded node, or
 			// selecting the best one with UCT or crazyStone)
 			//System.out.printf("Remaining before treePolicy: %d\n", elapsedTimer.remainingTimeMillis());
-			SingleTreeNode selected = treePolicy();
+			SingleTreeNode selected; 
+			if(Agent.NAIVE_PLANNING)
+				selected = treePolicyNaive();
+			else
+				selected = treePolicyCrazyStone();
 
 			// Get node value using a max-depth rollout
 			//System.out.printf("Remaining before rollOut: %d\n", elapsedTimer.remainingTimeMillis());
@@ -206,8 +210,9 @@ public class SingleTreeNode
 	/** Expand the current treenode, if it's not fully expanded. Else, return
 	 * the best node using uct
 	 */
-	public SingleTreeNode treePolicy() 
+	public SingleTreeNode treePolicyCrazyStone() 
 	{
+		System.out.println("Using crazystone");
 		SingleTreeNode cur = this;
 		SingleTreeNode next;
 		while (!cur.state.isGameOver() && cur.nodeDepth < Agent.ROLLOUT_DEPTH)
@@ -231,6 +236,49 @@ public class SingleTreeNode
 			cur = next;
 		}
 		return cur;
+	}
+
+	public SingleTreeNode treePolicyNaive()
+	{
+		SingleTreeNode cur = this;
+		SingleTreeNode next;
+		while (!cur.state.isGameOver() && cur.nodeDepth < Agent.ROLLOUT_DEPTH)
+		{
+			if (cur.notFullyExpanded())
+			{
+				return cur.expand();
+			}
+			// Else: continue with this node
+			else
+			{
+				next = cur.uct();
+			}
+			cur = next;
+		}
+		return cur;
+	}
+
+	public SingleTreeNode expand() 
+	{
+		int bestOption = 0;
+		double bestValue = -1;
+		for (int i = 0; i < children.length; i++) 
+		{
+			double x = random.nextDouble();
+			if (x > bestValue && children[i] == null) 
+			{
+				bestOption = i;
+				bestValue = x;
+			}
+		}
+		Option nextOption = this.possibleOptions.get(bestOption).copy();
+		SingleTreeNode tn = expandChild(bestOption, nextOption);
+		//StateObservation nextState = state.copy();
+		//nextState.advance(Agent.actions[bestOption]);
+
+		//SingleTreeNode tn = new SingleTreeNode(nextState, this, this.random);
+		children[bestOption] = tn;
+		return tn;
 	}
 
 	public SingleTreeNode expandChild(int id, Option nextOption)
@@ -398,7 +446,7 @@ public class SingleTreeNode
 		Option rollerOption = null;
 		// Decides how many points should be awarded or subtracted for a win or
 		// loss respectively
-		double scoreExtra = 100.;
+		double scoreExtra = 0.;
 		if(USE_MEAN_REWARD)
 			scoreExtra = HUGE_POSITIVE;
 		// Save copy-time when RANDOM_ROLLOUT is true

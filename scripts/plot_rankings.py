@@ -3,11 +3,11 @@ import numpy as np
 from collections import defaultdict
 from matplotlib import pyplot as plt
 
-""" Plots the option ranking tables that are written to complete_output as
+""" Plots the option ranking tables that are written to file_prefix as
 written by the print in writeOptionRanking in Agent.java """
 
-def get_option_rankings(directory):
-	""" takes all option rankings from files named complete_output_* in the
+def get_option_rankings(directory, file_prefix):
+	""" takes all option rankings from files named file_prefix_* in the
 	output-directory directory. 
 
 
@@ -20,7 +20,7 @@ def get_option_rankings(directory):
 	variances = defaultdict(lambda: defaultdict(list))
 
 	# directory is assumed to have files complete_output_<number> in them 
-	for filepath in glob.iglob(directory + "/complete_output_*"):
+	for filepath in glob.iglob(directory + "/" + file_prefix + "*"):
 		filename = os.path.basename(filepath)
 		with open(filepath) as f:
 			parsing = False
@@ -106,7 +106,7 @@ def make_plot(values, contains, legend_location, variance=None, plot_variance=Fa
 		if plot_variance:
 			ax.fill_between(xs, ymax, ymin, alpha=.3, edgecolor="w",
 							 color=col)
-	plt.ylim([-1, 1])
+	# plt.ylim([-1, 1])
 	plt.legend(loc=legend_location)
 	plt.show()
 
@@ -117,7 +117,7 @@ def make_plot(values, contains, legend_location, variance=None, plot_variance=Fa
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description='Barplot total wins')
 	parser.add_argument('-o', '--output', 
-			help='directory with complete_output_* files', default="output/")
+			help='directory with output files', default="output/")
 	parser.add_argument('-c', '--contains', 
 			help='option name contains', default=[''], nargs="+")
 	parser.add_argument('-l', '--legend-location', 
@@ -128,8 +128,11 @@ if __name__ == "__main__":
 	parser.add_argument('-s', '--plot-variance', 
 			help="""if this is set, variance is plotted into the graph""",
 			dest="plot_variance", action="store_true")
+	parser.add_argument('-f', '--file-prefix', 
+			help="""score file prefix""",
+			dest="file_prefix", default="complet_output_")
 	parser.set_defaults(plot_variance=False)
 	args = parser.parse_args()
-	values, variances = get_option_rankings(args.output)
+	values, variances = get_option_rankings(args.output, args.file_prefix)
 	make_plot(values, args.contains, args.legend_location, plot_variance=args.plot_variance,
 			variance=variances)
