@@ -1,10 +1,19 @@
 \section{Learning}
 \label{sec:learning}
-The O-MCTS algorithm can be extended by learning about which option works well
-in a game and which does not. This is done by estimating option values. A value
-$V$ for using an option $o$ from timestep $t$ to $t+n$ is calculated by adding
-discounted rewards $r_t$ of all of the states visited by that option.
-$$V(o) = r_{t} + \gamma r_{t+1} + \gamma^2 r_{t+2} + \cdots + \gamma^n r_{t+n}$$
-where $\gamma \in \[0, 1\]$ is the discount rate parameter, which influences how
-much rewards that lay far in the future count.
+In order to improve on the O-MCTS planning algorithm, we can estimate
+\emph{option values}, the mean expected return of using an option in a certain
+game. The return $R_o$ for using option $o$ from timestep $t$ to $t+n$ is
+calculated by adding the discounted rewards $r_t$ for all of the
+states visited by that option.  $$R_o = r_{t} + \gamma r_{t+1} + \gamma^2
+r_{t+2} + \cdots + \gamma^n r_{t+n},$$ where $\gamma \in [0, 1]$ is the discount
+rate parameter, which influences the importance of rewards that lay further in
+the future, an option with reward 1 at timestep $t$ will get a greater return
+than an option with the same reward at timestep $t+1$.
+By taking the mean of all the option returns a mean option return, or option
+value, $\mu_o$ can simply be calculated. We can also calculate the variance
+$\sigma_o$ for each option. 
+
+Now we have an option value and variance we can use the crazy stone algorithm
+to reduce calculation time, shifting the focus of the exploration to promising
+options for a game.
 

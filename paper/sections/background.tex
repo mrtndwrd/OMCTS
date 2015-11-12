@@ -103,12 +103,13 @@ The termination condition is that action $a$ has been performed once.
 This paper will use a framework called the video game description
 language\cite{schaul2013video}, in which games can very easily be defined.
 
-To define a game in VGDL, two files are needed. The first describes a level of
-the game. Each character in the file maps to an object in the game, on that grid
-location. The second file is the game description, which defines for each
-type of object what its letter in the level description is, how it looks in the
-game, how it interacts with other objects and when it disappears from the game.
-Using only these two files a wide spectrum of games can be created.
+To define a game in VGDL, two files should be created. Firstly, the game
+description should be made, which defines for each type of object what its
+character in the level description is, what it looks like in the game, how it
+interacts with other objects and the world, and when it disappears from the
+game. Secondly, a level description should be made, in which each character maps
+to an object in the game, on the same grid location as the character has in the
+file. By only defining these two files a wide spectrum of games can be created.
 
 The GVGAI competition uses a Java implementation of this framework and comes
 with many games. The algorithm proposed in this paper will be benchmarked on
