@@ -19,15 +19,17 @@ cd $dir/..
 controller="mrtndwrd.Agent"
 #controller="controllers.sampleMCTS.Agent"
 # CIG 2014 Training Set Games
-# "aliens boulderdash butterflies chase frogs missilecommand portals sokoban survivezombies zelda"
-game="seaquest"
+#"aliens boulderdash butterflies chase frogs missilecommand portals sokoban survivezombies zelda"
+#game="seaquest"
 # CIG 2014 Validation Set Games
 #game="camelRace digdug firestorms infection firecaster overload pacman seaquest whackamole eggomania"
 #CIG 2015 New Training Set Games
 #game="bait boloadventures brainman chipschallenge modality painter realportals realsokoban thecitadel zenpuzzle"
 # CIG 2014 TEST SET / GECCO 2015 VALIDATION SET
 #game="roguelike surround catapults plants plaqueattack jaws labyrinth boulderchase escape lemmings"
-levels="0"
+game="missilecommand"
+
+levels="4"
 
 random_rollout="false"
 
@@ -36,6 +38,8 @@ rollout_depth="80"
 uct_start_visits="80"
 
 learning="true"
+
+steepness="2.5"
 
 
 ant
@@ -55,6 +59,7 @@ seq $max | parallel -j3 --eta "java -cp classes MyTest \
 		--random-rollout=$random_rollout \
 		--uct-start-visits=$uct_start_visits \
 		--rollout-depth=$rollout_depth \
+		--steepness=$steepness \
 		> output/complete_output_{#}"
 # Extract the score from the outputs
 for i in $(eval echo {1..$max})

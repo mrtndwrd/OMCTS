@@ -20,10 +20,15 @@ controllers="mrtndwrd.Agent"
 #games="zelda"
 # CIG 2014 Validation Set Games
 games="camelRace digdug firestorms infection firecaster overload pacman seaquest whackamole eggomania"
+#games="seaquest"
 #CIG 2015 New Training Set Games
 #games="bait boloadventures brainman chipschallenge modality painter realportals realsokoban thecitadel zenpuzzle"
 # CIG 2014 TEST SET / GECCO 2015 VALIDATION SET
 #games="roguelike surround catapults plants plaqueattack jaws labyrinth boulderchase escape lemmings"
+
+
+#probably good games:
+games="whackamole modality zenpuzzle thecitadel chipschallenge survivezombies jaws"
 
 # All games!
 # games="aliens boulderdash butterflies chase frogs missilecommand portals sokoban survivezombies zelda camelRace digdug firestorms infection firecaster overload pacman seaquest whackamole eggomania bait boloadventures brainman chipschallenge modality painter realportals realsokoban thecitadel zenpuzzle roguelike surround catapults plants plaqueattack jaws labyrinth boulderchase escape lemmings"
@@ -45,9 +50,11 @@ rollout_depth="70"
 uct_start_visits="40"
 #uct_start_visits="80"
 
-learning="false"
+learning="true"
 
-naive="true false"
+naive="false"
+
+steepness="0.5 1 1.5"
 
 max_action_time="40"
 
@@ -55,7 +62,7 @@ ant
 rm -r output/*
 
 # Run 3 parallel jobs of java until $max jobs are done
-parallel -j3 --eta "mkdir -p output/{1}g{5}r{6}d{7}s{8}a{9}m{10}i{11}; and java -cp classes MyTest \
+parallel -j3 --eta "mkdir -p output/{1}g{5}r{6}d{7}s{8}a{9}m{10}i{11}S{12}; and java -cp classes MyTest \
 		--controller={1} \
 		--game={2} \
 		--levels={3} \
@@ -67,8 +74,9 @@ parallel -j3 --eta "mkdir -p output/{1}g{5}r{6}d{7}s{8}a{9}m{10}i{11}; and java 
 		--learning={9} \
 		--max-action-time={10} \
 		--naive={11} \
-		--file-postfix={1}g{5}r{6}d{7}s{8}a{9}m{10}i{11}game{2}level{3} \
+		--steepness={12} \
+		--file-postfix={1}g{5}r{6}d{7}s{8}a{9}m{10}i{11}S{12}game{2}level{3} \
 		> \
-		output/{1}g{5}r{6}d{7}s{8}a{9}m{10}i{11}/o_{2}-{3}" ::: $controllers ::: $games ::: $levels ::: $numberOfGames ::: $gamma ::: $random_rollout ::: $rollout_depth ::: $uct_start_visits ::: $learning ::: $max_action_time ::: $naive
+		output/{1}g{5}r{6}d{7}s{8}a{9}m{10}i{11}S{12}/o_{2}-{3}" ::: $controllers ::: $games ::: $levels ::: $numberOfGames ::: $gamma ::: $random_rollout ::: $rollout_depth ::: $uct_start_visits ::: $learning ::: $max_action_time ::: $naive ::: $steepness
 
 scripts/get-score-files.sh
