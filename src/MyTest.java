@@ -94,6 +94,12 @@ public class MyTest
 					.replace("--gamma=", ""));
 				System.out.printf("GAMMA set to %f\n", Agent.GAMMA);
 			}
+			else if(arg.startsWith("-S=") || arg.startsWith("--steepness="))
+			{
+				SingleTreeNode.STEEPNESS = Double.parseDouble(arg.replace("-S=", "")
+					.replace("--steepness=", ""));
+				System.out.printf("STEEPNESS set to %f\n", SingleTreeNode.STEEPNESS);
+			}
 			else if(arg.startsWith("-d=") || arg.startsWith("--rollout-depth="))
 			{
 				Agent.ROLLOUT_DEPTH = Integer.parseInt(arg.replace("-d=", "")
@@ -202,7 +208,8 @@ public class MyTest
 		System.out.println("\t-r=BOOLEAN\t--random-rollout=BOOLEAN\t when this is set to 'true' (-r=true, 1 is seen as false) random rollouts are done in stead of rollouts using the current option");
 		System.out.println("\t-g=GAME\t\t--game=GAME\tSet game to GAME. Possible games: " + Arrays.toString(allGames) + " or 'all' for all games. Default: 'prey'");
 		System.out.println("\t-d=ROLLOUT_DEPTH\t\t--rollout-depth=ROLLOUT_DEPTH\tSet the maximum depth for MCTS rollout this number.");
-		System.out.println("\t-s=UCT_START_VISITS\t\t--uct-start-visits=UCT_START_VISITS\tAfter a node is visited this many time, UCT is used in stead of the crazyStone algorithm");
+		System.out.println("\t-s=UCT_START_VISITS\t\t--uct-start-visits=UCT_START_VISITS\tAfter a node is visited this many times, UCT is used in stead of the crazyStone algorithm");
+		System.out.println("\t-S=STEEPNESS\t\t--steepness=STEEPNESS\tSteepness variable for the crazyStone algorithm. Higher = less exploration");
 		System.out.println("\t-a=LEARNING\t\t--learning=LEARNING\tIf this is true, the agent will keep optionRankings for several games. If it's false, option rankings are reset every game");
 		System.out.println("\t-i=NAIVE\t\t--naive=NAIVE\tTurn on or off naive planning");
 		System.out.println("\t-m=ACTION_TIME\t\t--max-action-time=ACTION_TIME\tSet the ACTION_TIME time to this number. ACTION_TIME_DISQ will be set to this + 100ms");
