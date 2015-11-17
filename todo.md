@@ -10,7 +10,6 @@ TODO
 	  sokoban
 
 - Tweak Lib.MAX_OBSERVATIONS
-- Softmax opzoeken
 - Remove currentPath from GoToPositionOption, probably improves in stochastic
   games
 
