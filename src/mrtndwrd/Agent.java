@@ -77,6 +77,7 @@ public class Agent extends AbstractPlayer {
 		Agent.random = new Random();
 		Agent.aStar = new AStar(so);
 		ArrayList<Types.ACTIONS> act = so.getAvailableActions();
+		this.filename = "tables/optionRanking" + Lib.filePostfix;
 
 		// Create actions for rollout
 		actions = new Types.ACTIONS[act.size()];
@@ -143,7 +144,6 @@ public class Agent extends AbstractPlayer {
 	 */
 	private boolean readOptionRanking()
 	{
-		this.filename = "tables/optionRanking" + Lib.filePostfix;
 		// Load objects 
 		try
 		{
@@ -219,7 +219,7 @@ public class Agent extends AbstractPlayer {
 		currentOption = this.possibleOptions.get(option).copy();
 
 		Types.ACTIONS action = currentOption.act(so);
-		System.out.println("Tree:\n" + mctsPlayer.printRootNode());
+		//System.out.println("Tree:\n" + mctsPlayer.printRootNode());
 		//System.out.println("Orientation: " + so.getAvatarOrientation());
 		//System.out.println("Location: " + so.getAvatarPosition());
 		//System.out.println("Action: " + action);
@@ -239,7 +239,8 @@ public class Agent extends AbstractPlayer {
 	@Override
 	public final void teardown()
 	{
-		writeOptionRanking();
+		if(LEARNING)
+			writeOptionRanking();
 		super.teardown();
 	}
 }

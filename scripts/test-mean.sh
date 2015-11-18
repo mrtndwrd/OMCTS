@@ -19,7 +19,7 @@ controllers="mrtndwrd.Agent"
 #games="aliens boulderdash butterflies chase frogs missilecommand portals sokoban survivezombies zelda"
 #games="zelda"
 # CIG 2014 Validation Set Games
-games="camelRace digdug firestorms infection firecaster overload pacman seaquest whackamole eggomania"
+#games="camelRace digdug firestorms infection firecaster overload pacman seaquest whackamole eggomania"
 #games="seaquest"
 #CIG 2015 New Training Set Games
 #games="bait boloadventures brainman chipschallenge modality painter realportals realsokoban thecitadel zenpuzzle"
@@ -28,38 +28,28 @@ games="camelRace digdug firestorms infection firecaster overload pacman seaquest
 
 
 #probably good games:
-games="whackamole modality zenpuzzle thecitadel chipschallenge survivezombies jaws"
+#games="whackamole modality zenpuzzle thecitadel chipschallenge survivezombies jaws"
 
 # All games!
-# games="aliens boulderdash butterflies chase frogs missilecommand portals sokoban survivezombies zelda camelRace digdug firestorms infection firecaster overload pacman seaquest whackamole eggomania bait boloadventures brainman chipschallenge modality painter realportals realsokoban thecitadel zenpuzzle roguelike surround catapults plants plaqueattack jaws labyrinth boulderchase escape lemmings"
+games="aliens boulderdash butterflies chase frogs missilecommand portals sokoban survivezombies zelda camelRace digdug firestorms infection firecaster overload pacman seaquest whackamole eggomania bait boloadventures brainman chipschallenge modality painter realportals realsokoban thecitadel zenpuzzle roguelike surround catapults plants plaqueattack jaws labyrinth boulderchase escape lemmings"
 
-
+# Config variables:
 levels="0"
-numberOfGames="20"
-
-# Best: 0.9
+number_of_games="5"
+number_of_tests="100"
 gamma="0.9"
-# Best: false
 random_rollout="false"
-
 #Current best: m=80: d=40, s=30
-
-#rollout_depth="5 15 30"
 rollout_depth="70"
-
 uct_start_visits="40"
-#uct_start_visits="80"
-
 learning="true"
-
 naive="false"
-
-steepness="0.5 1 1.5"
-
+steepness="1.5"
 max_action_time="40"
 
 ant
 rm -r output/*
+game_numbers=`seq $number_of_tests`
 
 # Run 3 parallel jobs of java until $max jobs are done
 parallel -j3 --eta "mkdir -p output/{1}g{5}r{6}d{7}s{8}a{9}m{10}i{11}S{12}; and java -cp classes MyTest \
@@ -75,8 +65,8 @@ parallel -j3 --eta "mkdir -p output/{1}g{5}r{6}d{7}s{8}a{9}m{10}i{11}S{12}; and 
 		--max-action-time={10} \
 		--naive={11} \
 		--steepness={12} \
-		--file-postfix={1}g{5}r{6}d{7}s{8}a{9}m{10}i{11}S{12}game{2}level{3} \
+		--file-postfix={1}g{5}r{6}d{7}s{8}a{9}m{10}i{11}S{12}game{2}level{3}_{13} \
 		> \
-		output/{1}g{5}r{6}d{7}s{8}a{9}m{10}i{11}S{12}/o_{2}-{3}" ::: $controllers ::: $games ::: $levels ::: $numberOfGames ::: $gamma ::: $random_rollout ::: $rollout_depth ::: $uct_start_visits ::: $learning ::: $max_action_time ::: $naive ::: $steepness
+		output/{1}g{5}r{6}d{7}s{8}a{9}m{10}i{11}S{12}/o_{2}_{13}" ::: $controllers ::: $games ::: $levels ::: $number_of_games ::: $gamma ::: $random_rollout ::: $rollout_depth ::: $uct_start_visits ::: $learning ::: $max_action_time ::: $naive ::: $steepness ::: $game_numbers
 
 scripts/get-score-files.sh

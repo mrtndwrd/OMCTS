@@ -104,7 +104,7 @@ public class MyTest
 			{
 				Agent.ROLLOUT_DEPTH = Integer.parseInt(arg.replace("-d=", "")
 					.replace("--rollout-depth=", ""));
-				System.out.printf("RANDOM_ROLLOUT set to %d\n", Agent.ROLLOUT_DEPTH);
+				System.out.printf("ROLLOUT_DEPTH set to %d\n", Agent.ROLLOUT_DEPTH);
 			}
 			else if(arg.startsWith("-r=") || arg.startsWith("--random-rollout="))
 			{
@@ -120,9 +120,9 @@ public class MyTest
 			}
 			else if(arg.startsWith("-i=") || arg.startsWith("--naive="))
 			{
-				Agent.LEARNING = Boolean.parseBoolean(arg.replace("-i=", "")
+				Agent.NAIVE_PLANNING = Boolean.parseBoolean(arg.replace("-i=", "")
 					.replace("--naive=", ""));
-				System.out.printf("LEARNING set to %B\n", Agent.LEARNING);
+				System.out.printf("NAIVE_PLANNING set to %B\n", Agent.NAIVE_PLANNING);
 			}
 			else if(arg.startsWith("-s=") || arg.startsWith("--uct-start-visits="))
 			{

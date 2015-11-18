@@ -39,7 +39,7 @@ uct_start_visits="80"
 
 learning="true"
 
-steepness="2.5"
+steepness="0.5"
 
 
 ant

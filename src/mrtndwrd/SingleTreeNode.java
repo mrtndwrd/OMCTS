@@ -212,7 +212,6 @@ public class SingleTreeNode
 	 */
 	public SingleTreeNode treePolicyCrazyStone() 
 	{
-		System.out.println("Using crazystone");
 		SingleTreeNode cur = this;
 		SingleTreeNode next;
 		while (!cur.state.isGameOver() && cur.nodeDepth < Agent.ROLLOUT_DEPTH)
