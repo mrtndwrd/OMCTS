@@ -1,9 +1,12 @@
 THESIS
 
 Dependencies: 
+
 - scripts/test-mean.sh 
 	- parallel
-- scripts/getMeans.py
+- scripts/\*.py
 	- numpy
+	- matplotlib
+	- argparse
 
 

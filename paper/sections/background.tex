@@ -60,8 +60,8 @@ probability proportional to $u_i$
 $$u_i = \exp\left(-2.4\frac{\mu_0 - \mu_i}{\sqrt{2\left(\sigma_0^2 +
 \sigma_i^2\right)}}\right) + \epsilon_i$$
 Each move has an estimated value $\mu_i$ ordered in such a way that $\mu_0 >
-\mu_1 > ... > \mu_N$, and a variance $\sigma_i^2$. $\epsilon_i$ prevents that
-the probability of selecting a move goes to zero. Its value is proportional to
+\mu_1 > ... > \mu_N$, and a variance $\sigma_i^2$. $\epsilon_i$ prevents 
+the probability of selecting a move to reach zero. Its value is proportional to
 the ordering of the expected values of the possible actions.
 $$\epsilon_i = \frac{0.1 + 2^{-i} + a_i}{N}$$
 Where $a_i$ is 1 when an action is \emph{an atari move}, which is a go-specific

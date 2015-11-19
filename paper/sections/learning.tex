@@ -1,19 +1,59 @@
 \section{Learning}
 \label{sec:learning}
 In order to improve on the O-MCTS planning algorithm, we can estimate
-\emph{option values}, the mean expected return of using an option in a certain
-game. The return $R_o$ for using option $o$ from timestep $t$ to $t+n$ is
-calculated by adding the discounted rewards $r_t$ for all of the
-states visited by that option.  $$R_o = r_{t} + \gamma r_{t+1} + \gamma^2
-r_{t+2} + \cdots + \gamma^n r_{t+n},$$ where $\gamma \in [0, 1]$ is the discount
-rate parameter, which influences the importance of rewards that lay further in
-the future, an option with reward 1 at timestep $t$ will get a greater return
-than an option with the same reward at timestep $t+1$.
-By taking the mean of all the option returns a mean option return, or option
-value, $\mu_o$ can simply be calculated. We can also calculate the variance
-$\sigma_o$ for each option. 
+\emph{option values}, the mean and variance of the expected return of an option.
+The return $R_o$ for using option $o$ from timestep $t$ to $t+n$ is calculated
+by adding the discounted rewards $r_t$ for all of the states visited by that
+option.  $$R_o = r_{t} + \gamma r_{t+1} + \gamma^2 r_{t+2} + \cdots + \gamma^n
+r_{t+n},$$ where $\gamma \in [0, 1]$ is the discount rate parameter, which
+influences the importance of rewards that lay further in the future: an option
+with reward 1 at timestep $t$ will get a greater return than an option with the
+same reward at timestep $t+1$.  For each type of option the mean and variance of
+its discounted reward is kept.  Each time an option is finished, these values
+are updated.  By taking the mean of all the option returns a mean option return,
+or option value, $\mu_o$ can simply be calculated. We can also calculate the
+variance $\sigma_o$ for each option.
+
+\begin{algorithm}
+	\caption{$\mathsf{OL-MCTS}(r, max\_time, M)$}
+	\label{alg:olmcts}
+	\begin{algorithmic}[1]
+		\While {$time\_taken < max\_time$} \label{alg:olmcts:mainloop}
+			\State $s \gets r$
+			\While {$\neg \mathsf{stop}(s)$} \label{alg:olmcts:innerloop}
+				\If{$s \in \beta_o$} \label{alg:olmcts:sp}
+				\State $\mathsf{updateValues}(\mu_o, s)$
+					\State $P_s \gets \cup_o ( s \in I_o)$
+				\Else
+					\State $P_s \gets \{o\}$ %\Comment{No new option can be selected}
+				\EndIf \label{alg:olmcts:scs}
+				\If{$n_s < M$}
+					% TODO: \mu is eigenlijk niet netjes omdat ik een
+					% hoofdletter zou willen gebruiken
+					\State $s' \gets \mathsf{crazyStone}(s, \mu)$ \label{alg:olmcts:crazystone}
+				\Else
+					\State $s' \gets \mathsf{uct}(s)$ \label{alg:olmcts:uct}
+				\EndIf \label{alg:olmcts:ecs}
+				\State $s \gets s'$ \label{alg:olmcts:ss}
+			\EndWhile
+			\State $\delta \gets \mathsf{rollout}(s')$ \label{alg:olmcts:rollout}
+			\State $\mathsf{back\_up}(s', \delta)$ \label{alg:olmcts:backup}
+		\EndWhile
+	\end{algorithmic}
+\end{algorithm}
 
 Now we have an option value and variance we can use the crazy stone algorithm
-to reduce calculation time, shifting the focus of the exploration to promising
-options for a game.
+to reduce calculation time by shifting the focus of the exploration to promising
+options. This means that not all children of a node will be expanded, but only
+the ones selected by crazy stone. The algorithm then changes to algorithm
+\ref{alg:olmcts}. Most of it is the same, with the exception that crazy stone
+selects what node to expand in the first $M$ node visits. Because crazy stone
+can select the same option several times, this prevents the algorithm from
+expanding all the children, which saves time. 
+
+Crazy stone uses the mean return $R_o$ of each option as its estimated value
+$\mu$ for selecting which option to select or expand. After a predefined number
+of visits $M$ to a node, the selection strategy $\mathsf{uct}$ is followed to
+tweak the option selection.
+
 
