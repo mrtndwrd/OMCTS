@@ -446,8 +446,9 @@ public class SingleTreeNode
 		// Decides how many points should be awarded or subtracted for a win or
 		// loss respectively
 		double scoreExtra = 0.;
-		if(USE_MEAN_REWARD)
-			scoreExtra = HUGE_POSITIVE;
+		//TODO: Check if this is needed
+		//if(USE_MEAN_REWARD)
+		//	scoreExtra = HUGE_POSITIVE;
 		// Save copy-time when RANDOM_ROLLOUT is true
 		if(chosenOption != null && !RANDOM_ROLLOUT)
 			rollerOption = chosenOption.copy();

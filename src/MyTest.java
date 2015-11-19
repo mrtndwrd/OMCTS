@@ -124,6 +124,12 @@ public class MyTest
 					.replace("--naive=", ""));
 				System.out.printf("NAIVE_PLANNING set to %B\n", Agent.NAIVE_PLANNING);
 			}
+			else if(arg.startsWith("-M=") || arg.startsWith("--use-mean-reward="))
+			{
+				SingleTreeNode.USE_MEAN_REWARD = Boolean.parseBoolean(arg.replace("-M=", "")
+					.replace("--use-mean-reward=", ""));
+				System.out.printf("USE_MEAN_REWARD set to %B\n", SingleTreeNode.USE_MEAN_REWARD);
+			}
 			else if(arg.startsWith("-s=") || arg.startsWith("--uct-start-visits="))
 			{
 				SingleTreeNode.UCT_START_VISITS = Integer.parseInt(arg.replace("-s=", "")
@@ -213,6 +219,8 @@ public class MyTest
 		System.out.println("\t-a=LEARNING\t\t--learning=LEARNING\tIf this is true, the agent will keep optionRankings for several games. If it's false, option rankings are reset every game");
 		System.out.println("\t-i=NAIVE\t\t--naive=NAIVE\tTurn on or off naive planning");
 		System.out.println("\t-m=ACTION_TIME\t\t--max-action-time=ACTION_TIME\tSet the ACTION_TIME time to this number. ACTION_TIME_DISQ will be set to this + 100ms");
+		System.out.println("\t-M=USE_MEAN_REWARD\t\t--use-mean-reward=USE_MEAN_REWARD\tIf this is true, the mean reward of an option is used, if false, the mean return of an option's node is used");
+
 	}
 }
 

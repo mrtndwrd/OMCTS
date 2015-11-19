@@ -18,7 +18,10 @@ def get_mean(directory):
 				# Filename is o_<game>_score. get gamename
 				game = fi.split('_')[1].split('-')
 				game_name = game[0]
-				game_level = game[1]
+				if len(game) > 1:
+					game_level = game[1]
+				else:
+					game_level = ''
 				if not(values[controller].has_key(game_name)):
 					values[controller][game_name] = {}
 				values[controller][game_name][game_level] = \
