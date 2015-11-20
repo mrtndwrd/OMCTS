@@ -34,7 +34,7 @@ def barplot_stats(stats, show_score):
 	for i, (controller, dic) in enumerate(stats.iteritems()):
 		print "controller:", controller
 		for game, v in dic.iteritems():
-			for win, score, time in v:
+			for win, score, time in v[0]:
 				if show_score:
 					totals[controller].append(score)
 				else:
@@ -63,7 +63,8 @@ def barplot_games(stats, show_score):
 	# Names of the controllers, for the legend:
 	legend = []
 	# Bar width
-	width=.15
+	width=.9/float(len(stats.keys()))
+	print len(stats.keys())
 	name = 'score' if show_score else 'wins'
 	for i, (controller, game_dic) in enumerate(stats.iteritems()):
 		legend.append(controller)
@@ -75,6 +76,7 @@ def barplot_games(stats, show_score):
 		totals = []
 		stds = []
 		for game, v in game_dic.iteritems():
+			v = v[0]
 			# Append game name to list of games
 			games.append(game)
 			total = 0

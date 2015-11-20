@@ -8,6 +8,10 @@ def get_mean(directory):
 
 	# Assumes output/<controller>/<score-files> and nothing else. Score files
 	# end with _score
+	games = defaultdict(list)
+	maxes = defaultdict(lambda: defaultdict(lambda: float(-999999999.)))
+	mins = defaultdict(lambda: defaultdict(lambda: float(999999999.)))
+	controllers = []
 	for subdir, dirs, files in os.walk(directory):
 		if files == []:
 			continue
@@ -24,8 +28,18 @@ def get_mean(directory):
 					game_level = ''
 				if not(values[controller].has_key(game_name)):
 					values[controller][game_name] = {}
-				values[controller][game_name][game_level] = \
+				# Read values from file
+				scores = \
 					np.genfromtxt(os.path.join(subdir, fi)).tolist()
+				# save values
+				values[controller][game_name][game_level] = scores
+				# get max and min for normalizing
+				sorted_scores = sorted(x[1] for x in scores);
+				if maxes[game_name][game_level] < sorted_scores[-1]:
+					maxes[game_name][game_level] = sorted_scores[-1]
+				if mins[game_name][game_level] > sorted_scores[0]:
+					mins[game_name][game_level] = sorted_scores[0]
+	normalize_score(values, maxes, mins)
 	return values
 
 def calculate_game_stats(values):
@@ -42,31 +56,21 @@ def calculate_game_stats(values):
 				else:
 					stats[controller][game].append(scores)
 			# Here, normalize scores:
-	normalize_score(stats)
 	return stats
 
-def normalize_score(stats):
-	games = defaultdict(list)
-	controllers = []
-	for controller, game_dic in stats.iteritems():
-		controllers.append(controller)
-		for game, v in game_dic.iteritems():
-			games[game].extend(v)
-	for game, values in games.iteritems():
-		scores = sorted([x[1] for x in values])
-		max = scores[-1]
-		min = scores[0]
-		# assume that the minimum score is 0 when max and min are the same (then
-		# if the scores are all ones, normalization result will also be 1)
-		if min == max:
-			min = 0;
-		print "max: ", max, "min: ", min
-		for controller in controllers:
-			stats[controller][game] = np.subtract(stats[controller][game], 
-				np.array([0., float(min), 0.]))
-			if max-min != 0:
-				stats[controller][game] = np.divide(stats[controller][game], 
-					np.array([1., float(max - min), 1.]))
+def normalize_score(values, maxes, mins):
+	for controller, dic in values.iteritems():
+		for game in dic:
+			for level in values[controller][game]:
+				ma = maxes[game][level]
+				mi = mins[game][level] if ma != mins[game][level] else 0
+				values[controller][game][level] = \
+					np.subtract(values[controller][game][level],
+					np.array([0., float(mi), 0.]))
+				if ma - mi != 0:
+					values[controller][game][level] = \
+						np.divide(values[controller][game][level],
+						np.array([1., float(ma - mi), 1.]))
 
 def print_stats(stats):
 	""" Prints stats. Stats is built like this:
