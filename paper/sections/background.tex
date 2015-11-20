@@ -48,7 +48,7 @@ to all visited nodes and a new search starts from the root node.
 	%(Term from pMCTS.pdf)
 The selection strategy selects optimal actions in internal tree nodes, depending
 on the values of the child nodes. An effective and very popular selection
-strategy is the \emph{upper confidence tree (UCT)}\cite{kocsis2006bandit}, which balances the choice 
+strategy is the \emph{upper confidence tree (UCT)} \cite{kocsis2006bandit}, which balances the choice 
 between poorly explored actions with a high uncertainty about their value and
 actions that have been explored but have a higher value. A child node $j$ is
 selected to maximise
@@ -65,7 +65,7 @@ In standard MCTS, each action is explored at least once in each node. After all
 actions have been expanded, the node switches to the normal selection strategy
 for exploration. Some variants reduce the branching factor of the tree by only
 expanding the nodes selected by a special expansion strategy. An example is the
-\emph{crazy stone} algorithm\cite{coulom2007efficient} in which an action $i$ is selected with a
+\emph{crazy stone} algorithm \cite{coulom2007efficient} in which an action $i$ is selected with a
 probability proportional to $u_i$
 $$u_i = \exp\left(-2.4\frac{\mu_0 - \mu_i}{\sqrt{2\left(\sigma_0^2 +
 \sigma_i^2\right)}}\right) + \epsilon_i$$
@@ -91,7 +91,7 @@ of all rewards backed up to that node.
 An option, in relation to an MDP, is a triple $\langle I, \pi, \beta\rangle$ in
 which $I \subseteq S$ is an initiation set, $\pi: S \times A \rightarrow [0, 1]$
 is a policy and $\beta: S^+ \rightarrow[0,1]$ is a termination
-condition.\cite{sutton1999between}
+condition. \cite{sutton1999between}
 
 A policy $\pi$ defines the action that should be taken in a state. The
 initiation set is a set of states in which the option can be started. When the
@@ -112,7 +112,7 @@ The termination condition is that action $a$ has been performed once.
 \label{subsec:vgdl}
 %\todo{Video Game Description Language}
 This paper will use a framework called the video game description
-language\cite{schaul2013video}, in which games can very easily be defined.
+language \cite{schaul2013video}, in which games can very easily be defined.
 
 To define a game in VGDL, two files should be created. Firstly, the game
 description should be made, which defines for each type of object what its
