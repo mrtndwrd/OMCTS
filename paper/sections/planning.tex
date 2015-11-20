@@ -1,8 +1,32 @@
 \section{Planning}
 \label{sec:planning}
-This section will explain how MCTS has to be adjusted in order to be able to
-plan over options in stead of actions.
 
+\todo{hieronder: Dit is onze contributie, ``a novel algorithm'', ``key
+insight'', ``main objective''}
+
+\todo{Wat gaan we doen: herhalen main objective, teruggrijpen op background en
+intraoductie}
+
+\todo{How to combine options with MCTS - what problems (challenges) occur?}
+
+\todo{Options zijn ``hand defined''}
+
+\todo{Voorbeeld voor de set van options, voor selectie, etc}
+
+\todo{Alles in context van games plaatsen}
+
+This section will explain how MCTS has to be adjusted in order to be able to
+plan over options instead of actions.
+\todo{In deze sectie doen we alleen plannen, in de volgende gaan we ook nog
+leren!}
+\todo{meer ``we''}
+\todo{niet ``should be'', maar ``is''}
+
+\todo{Comments in algoritme}
+\todo{Verwijzen naar de equation van uct in algoritme}
+\todo{stop moet met een depth en max\_depth aangeroepen}
+\todo{\beta als functie}
+\todo{
 \begin{algorithm}
 	\caption{$\mathsf{O-MCTS}(r, max\_time)$}
 	\label{alg:omcts}
@@ -29,6 +53,7 @@ plan over options in stead of actions.
 			\State $\delta \gets \mathsf{rollout}(s')$ \label{alg:omcts:rollout}
 			\State $\mathsf{back\_up}(s', \delta)$ \label{alg:omcts:backup}
 		\EndWhile
+		\State \todo{return}
 	\end{algorithmic}
 \end{algorithm}
 
@@ -43,7 +68,9 @@ node. In lines \ref{alg:omcts:sp} until \ref{alg:omcts:ep} variable $P_s$ is set
 to the set of options that can be chosen in node $s$. When an option hasn't
 finished, $P_s$ only contains the currently followed option. Else, $P_s$ will
 contain all options that are available in $s$, i.e. all the options $o$ that
-have state $s$ in their initiation set $I_o$. When the set $P_s$ is the same as
+have state $s$ in their initiation set $I_o$. 
+\todo{Hier bijv. uitleggen wat dat betekent}
+When the set $P_s$ is the same as
 the set of options in the children of $s$, $c_s$, a new node $s'$ is selected by
 \textsf{uct}. Else, in lines \ref{alg:omcts:sexpand} to \ref{alg:omcts:eexpand}
 a node $s$ is expanded with a random, currently unexplored option. In line
@@ -62,9 +89,11 @@ $o$. The $\mathsf{rollout}$ function chooses random actions until the stop
 criterion defined by $\mathsf{stop}$ is reached, after which the difference in
 score achieved by the rollout is returned. The $\mathsf{back\_up}$ function
 traverses the tree through all parents of $s$, updating their expected value,
-often just the mean of all these values,  with the $\delta$. 
+\todo{dit is raar:} often just the mean of all these values,  with the $\delta$. 
 
 This algorithm will explore all options and focus on those that seem promising.
 Each option will be tried at least once in each state where no option is already
 chosen. Although this can be viewed as a thorough exploration strategy, when the
 number of options increases, this strategy might become infeasible.
+
+\todo{Hoe werkt het de volgende keer dat ik het aanroep?}
