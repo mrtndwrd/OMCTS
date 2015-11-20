@@ -140,7 +140,8 @@ public class MyTest
 			{
 				CompetitionParameters.ACTION_TIME = Integer.parseInt(arg.replace("-m=", "")
 					.replace("--max-action-time=", ""));
-				CompetitionParameters.ACTION_TIME_DISQ = CompetitionParameters.ACTION_TIME + 100;
+				CompetitionParameters.ACTION_TIME_DISQ = 
+					CompetitionParameters.ACTION_TIME + 1000;
 				System.out.printf("ACTION TIME set to %d\n", CompetitionParameters.ACTION_TIME);
 				System.out.printf("ACTION TIME DISQ set to %d\n", CompetitionParameters.ACTION_TIME_DISQ);
 			}
