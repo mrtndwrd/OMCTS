@@ -1,6 +1,6 @@
 TODO 
 ====
-- run test-mean.sh again
+- read [literature/optionsRecentDevelopments.pdf](literature/optionsRecentDevelopments.pdf)
 - run test-mean.sh with learning=true
 	- should probably improve on (because MCTS is better): whackamole, modality, zenpuzzle, thecitadel,
 	  shipschallenge, survivezombies, jaws
@@ -10,8 +10,6 @@ TODO
 	  sokoban
 
 - Tweak Lib.MAX_OBSERVATIONS
-- Remove currentPath from GoToPositionOption, probably improves in stochastic
-  games
 
 ## Test
 - check if using random rollout is better than option-rollout

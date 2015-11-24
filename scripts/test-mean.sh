@@ -28,17 +28,19 @@ games="aliens boulderdash butterflies chase frogs missilecommand portals sokoban
 
 # Config variables:
 controllers="mrtndwrd.Agent"
+#controllers="controllers.sampleMCTS.Agent"
 levels="0"
-number_of_games="15"
+number_of_games="5"
 number_of_tests="1"
 gamma="0.9"
 random_rollout="false"
 #Current best: m=80: d=40, s=30
 rollout_depth="70"
 uct_start_visits="40"
-learning="false"
-naive="true false"
-steepness="2.5"
+learning="true false"
+#naive="true false"
+naive="false"
+steepness="1.5"
 max_action_time="40"
 use_mean_reward="true"
 
@@ -47,7 +49,7 @@ rm -r output/*
 game_numbers=`seq $number_of_tests`
 
 # Run 3 parallel jobs of java until $max jobs are done
-parallel -j3 --eta "mkdir -p output/{1}g{5}r{6}d{7}s{8}a{9}m{10}i{11}S{12}M{14}; and java -cp classes MyTest \
+parallel -j1 --eta "mkdir -p output/{1}g{5}r{6}d{7}s{8}a{9}m{10}i{11}S{12}M{14}; and java -cp classes MyTest \
 		--controller={1} \
 		--game={2} \
 		--levels={3} \

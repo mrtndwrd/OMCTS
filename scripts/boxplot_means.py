@@ -63,9 +63,8 @@ def barplot_games(stats, show_score):
 	# Names of the controllers, for the legend:
 	legend = []
 	# Bar width
-	width=.9/float(len(stats.keys()))
-	print len(stats.keys())
-	name = 'score' if show_score else 'wins'
+	width=.8/float(len(stats.keys()))
+	name = 'Mean score totals' if show_score else 'Win ratio'
 	for i, (controller, game_dic) in enumerate(stats.iteritems()):
 		legend.append(controller)
 		# Get the indices of all bars (hope N is always the same here...)
@@ -86,12 +85,13 @@ def barplot_games(stats, show_score):
 			index = 1 if show_score else 0
 			totals.append(avg[index])
 			stds.append(std[index])
-		rects.append(ax.bar(ind + (i * width), totals, width, color=COLORS[i],
-			yerr=stds, error_kw=dict(elinewith=2, ecolor='black')))
+		rects.append(ax.bar(ind + (i * width), totals, width, color=COLORS[i]))
+			# If we want to plot the std:
+			#yerr=stds, error_kw=dict(elinewith=2, ecolor='black')))
 
 	ax.set_xlim(-width,len(ind)+width)
 	#ax.set_ylim(0,45)
-	ax.set_ylabel('Mean %s totals over %d games' % (name, number_of_games))
+	ax.set_ylabel('%s over %d games' % (name, number_of_games))
 	ax.set_title('Total game %s by controller name' % name)
 	xTickMarks = games 
 	ax.set_xticks(ind+width)
