@@ -2,47 +2,61 @@
 \label{sec:background}
 
 %\todo{What should one understand in order to grasp this paper?}
-% Before we go into ... we must explain ...
-This section starts with a small introduction into \emph{Markov
-Decision processes (MDPs)}. Then it discusses the two major components of the
-algorithm, MCTS and options. It ends with a description of the \emph{video game
-description language (VGDL)} framework
+Before we go into the algorithm, the following items must be explained. We
+start with \emph{Markov decision processes (MDPs)}, then  discuss MCTS and
+options and finally describe the \emph{video game description language (VGDL)}.
 
 \subsection{Markov Decision Processes}
 \label{subsec:mdps}
 %\todo{MDPs}
 In this paper, a game will be treated as an MDP, which is a
-tuple $\langle S, A, T, R \rangle$ where $S$ is a finite set of states, $A$ a
-finite set of actions, $T$ a transition function defined as $T : S \times A
-\times S \rightarrow \left[0,1\right]$ and $R$ a reward function defined as $R:
-S \times A \times S -> \mathbb{R}$. An MDP by definition has the \emph{Markov
-property}, which means that the conditional probability distribution of future
-states depends only upon the present state. No information on previous states
-is needed.
-\todo{terugkoppeling naar games (wat is states, wat is actions, wat is
-score/reward, hoe relateren winnen en scores aan elkaar)}
+tuple $\langle S, A, T, R \rangle$. $S$ denotes the set of states. A state
+contains all the information of the game's current condition: locations of
+monsters, the avatar, etc. $A$ is a finite set of actions, the input an agent
+can deliver to the game. $T$ a transition function defined as $T : S \times A
+\times S \rightarrow \left[0,1\right]$. It defines the probabilities over the 
+next states an agent can arrive in, when taking an action in a state.
+$R$ is a reward function defined as $R: S \times A \times S \rightarrow
+\mathbb{R}$. In this case, when the game score increases, only the increase is
+seen as the reward. Algorithms typically maximize the cumulative reward, which
+is analogous to the score. An MDP by definition has the \emph{Markov property},
+which means that the conditional probability distribution of future states
+depends only upon the present state. No information from previous states is
+needed.
+
+\todo{hoe relateren winnen en scores aan elkaar (maar misschien niet hier?)}
 
 \subsection{Monte Carlo Tree Search}
+\begin{figure}
+	\centering
+	\epsfig{file=includes/mcts.eps, width=\columnwidth}
+	\caption{One Monte Carlo tree search iteration}
+	\label{fig:mcts}
+\end{figure}
+
 \label{subsec:mcts}
 %\todo{MCTS}
-\todo{MCTS is al heel lang een core-algoritme en in GVGAI is het ook zo}
-\todo{relateren aan game states (wat is expansion? Wat is een rollout,
-uitleggen hoe je de game uitspeelt)}
-\todo{spaties tussen citaties en woorden}
-Many of the algorithms submitted to the GVGAI competition are based on the MCTS
-algorithm\cn, which approximates the value of actions taken in a specific state.
-The basis of the process is as follows. A tree is built incrementally from the
-states and actions that are visited in a game.  Each node in the tree represents
-a state, each connection in the tree represents an action taken in that state
-leading to the state represented by the next node.  From the root node, the tree
-is traversed using a \emph{selection strategy}, which selects the next action according
-to the expected values of the child nodes. An \emph{expansion strategy} chooses
-a new action when the algorithm arrives at a leaf or not fully-expanded node,
-subsequently creating a new node for the next state. The simplest expansion
-strategy uses every action once from a not fully expanded node. After expanding
-a node, a \emph{rollout} is done, by applying random actions until a certain
-stop criterion is met, or the game ends. Then the results are \emph{backed up}
-to all visited nodes and a new search starts from the root node.
+The MCTS algorithm has been a core AI algorithm for a long time
+\cite{browne2012survey}. It approximates the value of actions taken in a
+specific state using the following method. A tree is built incrementally from
+the states and actions that are visited in a game. Each node in the tree
+represents a state, each connection in the tree represents an action taken in
+that state leading to a state, which is represented by the next tree node. 
+The process, as explained in figure \ref{fig:mcts} from \cite{browne2012survey},
+consists of four phases that are constantly repeated. It
+is started with the current game state, which is represented by the root node of
+the tree. The first action is chosen by an \emph{expansion strategy} and
+subsequently simulated, resulting in a new game state, for which a new node is
+created. A \emph{rollout} is done from the new node, which means that a simulation is
+run from the new node using a \emph{default policy} until a
+predefined stop criterion is met or the game ends. A typical default policy
+selects random actions. Finally, the score difference resulting from the rollout 
+is backed up, or backpropagated, to the root node, which means that the reward
+is saved to the visited nodes. Then a new iteration starts. When all actions are
+expanded in the root node, we call that node \emph{fully expanded} and use a
+\emph{selection strategy} to select a next node.  When a node is selected that
+is not fully expanded, the expansion strategy is used to create a new
+node, after which a rollout takes place, after which the results are backed up. 
 
 	%\todo{Selection strategy}
 	%(Term from pMCTS.pdf)
@@ -52,29 +66,39 @@ strategy is the \emph{upper confidence tree (UCT)} \cite{kocsis2006bandit}, whic
 between poorly explored actions with a high uncertainty about their value and
 actions that have been explored but have a higher value. A child node $j$ is
 selected to maximise
-$$UCT = 2C_p \sqrt{\frac{2 \ln n}{n_j}}$$
+\begin{equation}
+	\label{eq:uct}
+	UCT = 2C_p \sqrt{\frac{2 \ln n}{n_j}}
+\end{equation}
 Where $n$ is the number of times the current node has been visited, $n_j$ is the
 number of times child $j$ has been visited and $C_p > 0$ is a constant , often
 set to $\sqrt{2}$, that shifts priority from exploration to exploitation.
 	
 	%\todo{Expansion strategy}
-\todo{Uitleggen dat het een specifiek voorbeeld is, maar we gaan het later
-gebruiken}
-\todo{uitleggen dat het speciaal voor go is gemaakt}
 In standard MCTS, each action is explored at least once in each node. After all
 actions have been expanded, the node switches to the normal selection strategy
 for exploration. Some variants reduce the branching factor of the tree by only
-expanding the nodes selected by a special expansion strategy. An example is the
-\emph{crazy stone} algorithm \cite{coulom2007efficient} in which an action $i$ is selected with a
-probability proportional to $u_i$
-$$u_i = \exp\left(-2.4\frac{\mu_0 - \mu_i}{\sqrt{2\left(\sigma_0^2 +
-\sigma_i^2\right)}}\right) + \epsilon_i$$
-Each move has an estimated value $\mu_i$ ordered in such a way that $\mu_0 >
+expanding the nodes selected by a special expansion strategy. A specific example
+is the \emph{crazy stone} algorithm \cite{coulom2007efficient}, which is an
+expansion strategy that was designed especially for Go. We will use this
+strategy in the algorithm proposed in section \ref{sec:learning}.
+When using crazy stone, an action $i$ is selected with a probability
+proportional to $u_i$
+\begin{equation}
+	\label{eq:crazystone}
+	u_i = \exp\left(K \frac{\mu_0 - \mu_i}{\sqrt{2\left(\sigma_0^2 +
+\sigma_i^2\right)}}\right) + \epsilon_i
+\end{equation}
+Each action has an estimated value $\mu_i$ ordered in such a way that $\mu_0 >
 \mu_1 > ... > \mu_N$, and a variance $\sigma_i^2$. $\epsilon_i$ prevents 
-the probability of selecting a move to reach zero. Its value is proportional to
-the ordering of the expected values of the possible actions.
-$$\epsilon_i = \frac{0.1 + 2^{-i} + a_i}{N}$$
-Where $a_i$ is 1 when an action is \emph{an atari move}, which is a go-specific
+the probability of selecting a move to reach zero and its value is proportional to
+the ordering of the expected values of the possible actions. K is a constant
+that influences the exploration/exploitation trade off.
+\begin{equation}
+	\label{eq:epsilon}
+	\epsilon_i = \frac{0.1 + 2^{-i} + a_i}{N}
+\end{equation}
+Where $a_i$ is 1 when an action is \emph{an atari move}, a go-specific
 move that can otherwise easily be underestimated by MCTS.
 
 	%\todo{Backup algorithm}
@@ -87,11 +111,12 @@ of all rewards backed up to that node.
 \subsection{Options}
 \label{subsec:options}
 %\todo{Options}
-\todo{Zeggen dat dit een goede manier is om subgoals en subtasks te modelleren}
-An option, in relation to an MDP, is a triple $\langle I, \pi, \beta\rangle$ in
-which $I \subseteq S$ is an initiation set, $\pi: S \times A \rightarrow [0, 1]$
-is a policy and $\beta: S^+ \rightarrow[0,1]$ is a termination
-condition. \cite{sutton1999between}
+For mimicking human game playing, defining and solving subgoals and subtasks, we
+use options \cite{sutton1999between, barto2003recent}. An option is a predefined method of
+reaching a specific subgoal. Formally, it is a triple $\langle I, \pi,
+\beta\rangle$ in which $I \subseteq S$ is an initiation set, $\pi: S \times A
+\rightarrow [0, 1]$ is a policy and $\beta: S^+ \rightarrow[0,1]$ is a
+termination condition.
 
 A policy $\pi$ defines the action that should be taken in a state. The
 initiation set is a set of states in which the option can be started. When the
@@ -102,11 +127,10 @@ enough to predict an agents actions, since the actions are now not only
 state-dependant, also dependant on what option the agent has chosen in the past.
 The process is now called a \emph{semi-Markov decision process (SMDP)}. For
 convenience, we will call the original action set of the MDP $A$, and the set of
-options $O$.
-
-Normal actions can be treated as options as well. An option for action $a$ has a
-initiation set $I = S$, the policy $\pi$ is taking action $a$ in all the states.
-The termination condition is that action $a$ has been performed once.
+options $O$.  Normal actions can be treated as options as well. An option for
+action $a$ has a initiation set $I = S$, the policy $\pi$ is taking action $a$
+in all the states.  The termination condition is that action $a$ has been
+performed once.
 
 \subsection{Video Game Description Language}
 \label{subsec:vgdl}
@@ -125,6 +149,3 @@ file. By only defining these two files a wide spectrum of games can be created.
 The GVGAI competition uses a Java implementation of this framework and comes
 with many games. The algorithm proposed in this paper will be benchmarked on
 these games.
-
-\todo{Dit gaan we gebruiken, maar in een andere setting}
-

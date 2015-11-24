@@ -1,24 +1,50 @@
 \section{Planning}
 \label{sec:planning}
 
-\todo{hieronder: Dit is onze contributie, ``a novel algorithm'', ``key
-insight'', ``main objective''}
+%\todo{hieronder: Dit is onze contributie, ``a novel algorithm'', ``key
+%insight'', ``main objective''}
+%\todo{Wat gaan we doen: herhalen main objective, teruggrijpen op background en
+%introductie}
 
-\todo{Wat gaan we doen: herhalen main objective, teruggrijpen op background en
-intraoductie}
+Planning over options is traditionally done by applying Q-learning on a set of
+options instead of the set of actions \cite{sutton1999between}. In this section
+we explain our novel algorithm, \emph{option Monte Carlo tree search (O-MCTS)}
+that does planning over options using MCTS, enabling the use of options in more
+complex MDPs. The resulting algorithm is better capable of solving complex games
+that have several sub-goals than traditional MCTS.
 
-\todo{How to combine options with MCTS - what problems (challenges) occur?}
+%\todo{How to combine options with MCTS - what problems (challenges) occur?}
+In normal MCTS, each action is represented by one connection from a state to a
+next state. An option spans over several actions, which is one of the challenges
+that was solved to make the O-MCTS algorithm. Furthermore, when a lot
+of options are defined, the branching factor of the algorithm increases
+significantly. This problem will be addressed in the next section, where we will
+incorporate learning in the algorithm.
 
-\todo{Options zijn ``hand defined''}
+\begin{figure}
+	\centering
+	\epsfig{file=fly.eps}
+	\caption{\todo{Real figure} The search tree constructed by O-MCTS}
+	\label{fig:omcts-tree}
+\end{figure}
 
-\todo{Voorbeeld voor de set van options, voor selectie, etc}
+In normal MCTS when a node is at depth $n$, we know that $n$ actions have been
+chosen to get there and thus the time in that node is $t+n$. 
+If a node in O-MCTS would represent an option and a connection would represent
+selecting a new option, this property would be lost. Therefore, we chose to keep
+the tree representation the same: a node represents a state, a connection
+represents an action. The difference is in the expansion and selection
+strategies, which choose which option will be followed in the next node. When an
+option is chosen, the only possible next node is created with the option's
+action. When an option is done (meaning that the current state satisfies its
+termination condition), a new option can be chosen by the expansion or selection
+strategy. The search tree now looks like figure \ref{fig:omcts-tree}.
+Options are hand defined. We created a set of options that mainly use the A*
+algorithm (\cn?) to navigate the agent to a specific game sprite or location.
 
-\todo{Alles in context van games plaatsen}
+%\todo{Options zijn ``hand defined''}
+%\todo{Voorbeeld voor de set van options, voor selectie, etc}
 
-This section will explain how MCTS has to be adjusted in order to be able to
-plan over options instead of actions.
-\todo{In deze sectie doen we alleen plannen, in de volgende gaan we ook nog
-leren!}
 \todo{meer ``we''}
 \todo{niet ``should be'', maar ``is''}
 
@@ -65,7 +91,7 @@ number of milliseconds to run. The main loop starts at line
 allowed. The inner loop runs until a node $s$ is reached that meets a stop
 criterion defined by a function \textsf{stop}, or a node is expanded into a new
 node. In lines \ref{alg:omcts:sp} until \ref{alg:omcts:ep} variable $P_s$ is set
-to the set of options that can be chosen in node $s$. When an option hasn't
+to the set of options that can be chosen in node $s$. When an option has not
 finished, $P_s$ only contains the currently followed option. Else, $P_s$ will
 contain all options that are available in $s$, i.e. all the options $o$ that
 have state $s$ in their initiation set $I_o$. 

@@ -1,3 +1,21 @@
 \section{Experiments}
 \label{sec:experiments}
 This section shows how awesome the algorithm is
+
+We constructed the following options. More options can be created, probably
+improving the algorithm even more.
+\begin{itemize}
+	\item ActionOption executes a specific action once and then
+		stops.
+	\item AvoidNearestNpcOption makes the agent avoid the nearest NPC
+	\item GoNearMovableOption makes the agent walk towards a
+		movable game sprite and stops when it is within a certain range of the
+		movable
+	\item GoToMovableOption makes the agent walk towards a
+		movable until its location is the same as that of the movable
+	\item GoToNearestSpriteOfType makes the agent walk to the nearest sprite of
+		a specific type
+	\item GoToPositionOption makes the agent walk to a specific position
+	\item WaitAndShootOption waits until an NPC is in a specific location and
+		then uses its weapon.
+\end{itemize}
