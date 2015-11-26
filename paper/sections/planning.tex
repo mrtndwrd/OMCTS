@@ -14,91 +14,95 @@ complex MDPs. The resulting algorithm is better capable of solving complex games
 that have several sub-goals than traditional MCTS.
 
 %\todo{How to combine options with MCTS - what problems (challenges) occur?}
-In normal MCTS, each action is represented by one connection from a state to a
-next state. An option spans over several actions, which is one of the challenges
-that was solved to make the O-MCTS algorithm. Furthermore, when a lot
-of options are defined, the branching factor of the algorithm increases
-significantly. This problem will be addressed in the next section, where we will
-incorporate learning in the algorithm.
+In traditional MCTS, each action is represented by one connection from a state to a
+next state. An option spans over several actions, which complicates the tree
+search. Furthermore, when many options are defined, the branching factor of
+the algorithm increases significantly. This problem will be addressed in the
+next section, where we will incorporate learning in the algorithm.
 
 \begin{figure}
 	\centering
-	\epsfig{file=includes/omcts.eps}
+	\epsfig{file=includes/omcts.eps, width=.5\columnwidth}
 	\caption{The search tree constructed by O-MCTS. In each blue box, one option
 	is followed. The arrows represent actions chosen by the option. An arrow
 leading to a blue box is an action chosen by the option represented by that box.}
 	\label{fig:omcts-tree}
 \end{figure}
 
-In normal MCTS when a node is at depth $n$, we know that $n$ actions have been
-chosen to get there and thus the time in that node is $t+n$. 
-If a node in O-MCTS would represent an option and a connection would represent
-selecting a new option, this property would be lost. Therefore, we chose to keep
+Traditionally, when a node is at depth $n$, we know that $n$ actions have been
+chosen to arrive at that node and the time in that node is $t+n$. 
+If nodes in O-MCTS would represent options and connections would represent
+option selection, this property would be lost. Therefore, we chose to keep
 the tree representation the same: a node represents a state, a connection
 represents an action. The difference is in the expansion and selection
-strategies, which choose which option will be followed in the next node. When an
-option is chosen, the only possible next node is created with the option's
-action. When an option is done (meaning that the current state satisfies its
-termination condition), a new option can be chosen by the expansion or selection
-strategy. The search tree now looks like figure \ref{fig:omcts-tree}.
+strategies, which select options, rather than actions. When a node has an
+unfinished option, the next node will be created using an action selected by
+that option. When a node contains a finished option option (meaning that the
+current state satisfies its termination condition $\beta$), a new option can be
+chosen by the expansion or selection strategy. The search tree now looks like
+figure \ref{fig:omcts-tree}.  
+
 Options are hand defined. We created a set of options that mainly use the A*
-algorithm (\cn?) to navigate the agent to a specific game sprite or location.
+algorithm to navigate the agent to a specific game sprite or location.
 
 %\todo{Options zijn ``hand defined''}
 %\todo{Voorbeeld voor de set van options, voor selectie, etc}
 
-\todo{meer ``we''}
-\todo{niet ``should be'', maar ``is''}
-
-\todo{Comments in algoritme}
-\todo{Verwijzen naar de equation van uct in algoritme}
-\todo{stop moet met een depth en max\_depth aangeroepen}
-\todo{$\beta$ als functie}
-\todo{return}
 \begin{algorithm}
-	\caption{$\mathsf{O-MCTS}(r, max\_time)$}
+	\caption{$\mathsf{O-MCTS}(r, max\_time, max\_depth)$}
 	\label{alg:omcts}
 	\begin{algorithmic}[1]
+		\State $c \gets \emptyset$
 		\While {$time\_taken < max\_time$} \label{alg:omcts:mainloop}
-			\State $s \gets r$
-			\While {$\neg \mathsf{stop}(s)$} \label{alg:omcts:innerloop}
-				\If{$s \in \beta_o$} \label{alg:omcts:sp}
-					\State $P_s \gets \cup_o ( s \in I_o)$
+			\State $s \gets r$ \Comment{Start from root node}
+			\While {$\neg \mathsf{stop}(s, max\_depth)$} \label{alg:omcts:innerloop}
+			\If{$s \in \beta(o)$} \label{alg:omcts:sp} \Comment{If option stops in state $s$}
+				\State $P_s \gets \cup_o (s \in I_o)$ \Comment{Set $P_s$ to available options}
 				\Else
-					\State $P_s \gets \{o\}$ %\Comment{No new option can be selected}
+					\State $P_s \gets \{o\}$ \Comment{No new option can be selected}
 				\EndIf \label{alg:omcts:ep}
 				\If{$P_s = c_s$}
-					\State $s' \gets \mathsf{uct}(s)$ \label{alg:omcts:uct}
+					\State $o \gets \max_{o \in c_s} \mathsf{uct}(o, s)$ \label{alg:omcts:uct} 
+						\Comment{Equation \ref{eq:uct}}
+					\State $a \gets \mathsf{get\_action}(o, s)$ 
+					\State $s' \gets \mathsf{apply\_action}(a, s)$ \label{alg:omcts:apply}
 				\Else \label{alg:omcts:sexpand}
 					\State $o \gets \mathsf{random\_element}(P_s - c_s)$ 
 					\State $c_s \gets c_s \cup \{o\}$
-					\State $s' \gets \mathsf{expand}(s, o)$
-					\State $c_{s'} \gets \emptyset$
+					\State $a \gets \mathsf{get\_action}(o, s)$ 
+					\State $s' \gets \mathsf{expand}(s, a)$ 
+						\Comment{create node $s'$ using $a$}
+					%\State $c_{s'} \gets \emptyset$
 					\State \textbf{break} \label{alg:omcts:break}
 				\EndIf \label{alg:omcts:eexpand}
-				\State $s \gets s'$ \label{alg:omcts:ss}
+				\State $s \gets s'$ \label{alg:omcts:ss} 
+					\Comment{Continue loop with $s'$}
 			\EndWhile
 			\State $\delta \gets \mathsf{rollout}(s')$ \label{alg:omcts:rollout}
+				\Comment{Simulate until $\mathsf{stop}$}
 			\State $\mathsf{back\_up}(s', \delta)$ \label{alg:omcts:backup}
+				\Comment{Save reward to parent nodes}
 		\EndWhile
-		\State \todo{return}
+		\State \Return{$\max_{o \in c_r} \mathsf{value}(o)$}
 	\end{algorithmic}
 \end{algorithm}
 
 % TODO: Node en state worden nu door elkaar gebruikt...
-The new algorithm, \emph{Option MCTS}, is described in algorithm
-\ref{alg:omcts}. O-MCTS should be invoked with a root node $r$ and a maximum
-number of milliseconds to run. The main loop starts at line
+We describe the new algorithm, \emph{Option MCTS}, in algorithm
+\ref{alg:omcts}. O-MCTS is invoked with a root node $r$, a maximum
+number of milliseconds to run and a maximum search depth. The main loop starts at line
 \ref{alg:omcts:mainloop}, which keeps the algorithm running as long as is
 allowed. The inner loop runs until a node $s$ is reached that meets a stop
-criterion defined by a function \textsf{stop}, or a node is expanded into a new
-node. In lines \ref{alg:omcts:sp} until \ref{alg:omcts:ep} variable $P_s$ is set
+criterion defined by the function \textsf{stop}, or a node is expanded into a new
+node. $P_s$ contains the options that can be used in node $s$. In lines
+\ref{alg:omcts:sp} until \ref{alg:omcts:ep}, it is set
 to the set of options that can be chosen in node $s$. When an option has not
 finished, $P_s$ only contains the currently followed option. Else, $P_s$ will
 contain all options that are available in $s$, i.e. all the options $o$ that
-have state $s$ in their initiation set $I_o$. 
-\todo{Hier bijv. uitleggen wat dat betekent}
-When the set $P_s$ is the same as
+have state $s$ in their initiation set $I_o$. For example, when playing 
+Zelda and using an option for going near an NPC, $I_o$ will not contain states
+in which there are no NPCs on screen and $P_s$ will not contain these options
+either. When the set $P_s$ is the same as
 the set of options in the children of $s$, $c_s$, a new node $s'$ is selected by
 \textsf{uct}. Else, in lines \ref{alg:omcts:sexpand} to \ref{alg:omcts:eexpand}
 a node $s$ is expanded with a random, currently unexplored option. In line
