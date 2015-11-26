@@ -445,10 +445,10 @@ public class SingleTreeNode
 		Option rollerOption = null;
 		// Decides how many points should be awarded or subtracted for a win or
 		// loss respectively
-		double scoreExtra = 0.;
 		//TODO: Check if this is needed
-		//if(USE_MEAN_REWARD)
-		//	scoreExtra = HUGE_POSITIVE;
+		double scoreExtra = 10.;
+		if(USE_MEAN_REWARD)
+			scoreExtra = 100;
 		// Save copy-time when RANDOM_ROLLOUT is true
 		if(chosenOption != null && !RANDOM_ROLLOUT)
 			rollerOption = chosenOption.copy();
