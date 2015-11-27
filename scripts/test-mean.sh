@@ -37,10 +37,10 @@ random_rollout="false"
 #Current best: m=80: d=40, s=30
 rollout_depth="70"
 uct_start_visits="40"
-learning="true false"
+learning="true"
 #naive="true false"
 naive="false"
-steepness="1.5"
+steepness="0.5"
 max_action_time="40"
 use_mean_reward="true"
 
