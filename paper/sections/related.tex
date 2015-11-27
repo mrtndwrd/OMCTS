@@ -1,5 +1,21 @@
 \section{Related Work}
 \label{sec:related}
-This section shows why my milkshake brings all boys to the yard
-\todo{Google Deep Mind}
+Alternatives exist to learn how to play games generally. This section will
+explain the difference between O-MCTS; \emph{deep Q networks (DQN)}
+\cite{mnih2013playing}, a popular algorithm that trains a convolutional neural
+network for a game; and \emph{Planning under Uncertainty with Macro-Actions
+(PUMA)} \cite{he2010puma}, another tree search algorithm with extended actions.
+
+Deep Q networks train a convolutional neural network that has the
+last four frames of a game as input and tries to predict the Q-values of each
+action. A good policy can then be created by selecting the action with the
+highest Q-value. The main difference between O-MCTS and DQN is that O-MCTS has
+to select an optimal action after 40 milliseconds, even when playing an unknown
+game. DQN learns for several days, after which a good policy can be learned.
+Furthermore, DQN does not use a forward model, but always applies actions
+directly to the game in order to learn. 
+Therefore, no accurate comparison can be made.
+
 \todo{Puma (literature/puma.pdf)}
+
+

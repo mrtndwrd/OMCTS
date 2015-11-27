@@ -52,7 +52,7 @@ algorithm to navigate the agent to a specific game sprite or location.
 	\caption{$\mathsf{O-MCTS}(r, max\_time, max\_depth)$}
 	\label{alg:omcts}
 	\begin{algorithmic}[1]
-		\State $c \gets \emptyset$
+		\State $c \gets \emptyset$ \Comment{$c_s$ is the set of options chosen in state $s$}
 		\While {$time\_taken < max\_time$} \label{alg:omcts:mainloop}
 			\State $s \gets r$ \Comment{Start from root node}
 			\While {$\neg \mathsf{stop}(s, max\_depth)$} \label{alg:omcts:innerloop}
@@ -68,7 +68,7 @@ algorithm to navigate the agent to a specific game sprite or location.
 					\State $s' \gets \mathsf{apply\_action}(a, s)$ \label{alg:omcts:apply}
 				\Else \label{alg:omcts:sexpand}
 					\State $o \gets \mathsf{random\_element}(P_s - c_s)$ 
-					\State $c_s \gets c_s \cup \{o\}$
+					\State $c_s \gets c_s \cup \{o\}$ \Comment{Add $o$ to $c_s$}
 					\State $a \gets \mathsf{get\_action}(o, s)$ 
 					\State $s' \gets \mathsf{expand}(s, a)$ 
 						\Comment{create node $s'$ using $a$}
