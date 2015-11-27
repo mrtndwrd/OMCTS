@@ -25,7 +25,18 @@ import java.util.Random;
 @SuppressWarnings("unchecked")
 public class Agent extends AbstractPlayer {
 
-	public static int ROLLOUT_DEPTH = 80;
+	/** Max depth for rollouts */
+	public static int ROLLOUT_DEPTH = 70;
+
+	/** The gamma of this algorithm */
+	public static double GAMMA = .9;
+
+	/** If this is true, no learning about options is done */
+	public static boolean NAIVE_PLANNING = false;
+
+	/** If this is true and NAIVE_PLANNING is false, the algorithm saves the
+	 * option rankings to file */
+	public static boolean LEARNING = true;
 
 	/** Constant C (also known as K) for exploration vs. exploitation */
 	public static double K = Math.sqrt(2);
@@ -42,18 +53,11 @@ public class Agent extends AbstractPlayer {
 	/** list of actions for random action selection in rollout */
 	public static Types.ACTIONS[] actions;
 
-	/** The gamma of this algorithm */
-	public static double GAMMA = .9;
-
 	/** (start of) Filename for optionRanking tables when they are saved */
 	private String filename = "tables/optionRanking";
 
 	/** The set of all options that are currently available */
 	public ArrayList<Option> possibleOptions = new ArrayList<Option>();
-
-	public static boolean LEARNING = true;
-
-	public static boolean NAIVE_PLANNING = false;
 
 	/** Denominator of the ranking (lower part of fraction) */
 	public static DefaultHashMap<String, Double> optionRankingD;

@@ -24,7 +24,7 @@ public class SingleTreeNode
 	 * for the optionRanking. Mean reward works well in games where 1 option is
 	 * the best option. In games where a combination of options has to be used,
 	 * this option should be false */
-	public static boolean USE_MEAN_REWARD = false;
+	public static boolean USE_MEAN_REWARD = true;
 
 	/** Decides weather rollouts are done at random, or following options */
 	public static boolean RANDOM_ROLLOUT = false;
@@ -33,7 +33,7 @@ public class SingleTreeNode
 	 * algorithm is stopped and exploitation using UCT starts */
 	public static int UCT_START_VISITS = 40;
 
-	public static double STEEPNESS = 0.9;
+	public static double STEEPNESS = 0.5;
 
 	public static double epsilon = 1e-6;
 
