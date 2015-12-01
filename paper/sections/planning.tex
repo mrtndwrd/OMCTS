@@ -7,14 +7,16 @@
 %introductie}
 
 Planning over options is traditionally done by applying Q-learning on a set of
-options instead of the set of actions \cite{sutton1999between}. In this section
-we explain our novel algorithm, \emph{option Monte Carlo tree search (O-MCTS)}
-that does planning over options using MCTS, enabling the use of options in more
-complex MDPs. The resulting algorithm is better capable of solving complex games
-that have several sub-goals than traditional MCTS.
+options instead of the set of actions \cite{sutton1999between}. Q-learning
+learns the transition and reward for each state, but some games have an
+enormous state space. Therefore, it works best on simple MDPs. In this section
+we introduce \emph{option Monte Carlo tree search (O-MCTS)}, a novel algorithm
+that plans over options using MCTS, enabling the use of options in complex MDPs.
+The resulting algorithm achieves higher scores on complex games that have
+several sub-goals than traditional MCTS.
 
 %\todo{How to combine options with MCTS - what problems (challenges) occur?}
-In traditional MCTS, each action is represented by one connection from a state to a
+In traditional MCTS, an action is represented by a connection from a state to a
 next state. An option spans over several actions, which complicates the tree
 search. Furthermore, when many options are defined, the branching factor of
 the algorithm increases significantly. This problem will be addressed in the
@@ -37,25 +39,22 @@ the tree representation the same: a node represents a state, a connection
 represents an action. The difference is in the expansion and selection
 strategies, which select options, rather than actions. When a node has an
 unfinished option, the next node will be created using an action selected by
-that option. When a node contains a finished option option (meaning that the
+that option. When a node contains a finished option (meaning that the
 current state satisfies its termination condition $\beta$), a new option can be
 chosen by the expansion or selection strategy. The search tree now looks like
-figure \ref{fig:omcts-tree}.  
+figure \ref{fig:omcts-tree}, in which each blue box represents one option. 
 
 Options are hand defined. We created a set of options that mainly use the A*
 algorithm to navigate the agent to a specific game sprite or location.
 
-%\todo{Options zijn ``hand defined''}
-%\todo{Voorbeeld voor de set van options, voor selectie, etc}
-
 \begin{algorithm}
-	\caption{$\mathsf{O-MCTS}(r, max\_time, max\_depth)$}
+	\caption{$\mathsf{O-MCTS}(r, m, d)$}
 	\label{alg:omcts}
 	\begin{algorithmic}[1]
 		\State $c \gets \emptyset$ \Comment{$c_s$ is the set of options chosen in state $s$}
-		\While {$time\_taken < max\_time$} \label{alg:omcts:mainloop}
+		\While {$time\_taken < m$} \label{alg:omcts:mainloop}
 			\State $s \gets r$ \Comment{Start from root node}
-			\While {$\neg \mathsf{stop}(s, max\_depth)$} \label{alg:omcts:innerloop}
+			\While {$\neg \mathsf{stop}(s, d)$} \label{alg:omcts:innerloop}
 			\If{$s \in \beta(o)$} \label{alg:omcts:sp} \Comment{If option stops in state $s$}
 				\State $P_s \gets \cup_o (s \in I_o)$ \Comment{Set $P_s$ to available options}
 				\Else
@@ -66,6 +65,8 @@ algorithm to navigate the agent to a specific game sprite or location.
 						\Comment{Equation \ref{eq:uct}}
 					\State $a \gets \mathsf{get\_action}(o, s)$ 
 					\State $s' \gets \mathsf{apply\_action}(a, s)$ \label{alg:omcts:apply}
+					\State $s \gets s'$ \label{alg:omcts:ss} 
+						\Comment{Continue loop with $s'$}
 				\Else \label{alg:omcts:sexpand}
 					\State $o \gets \mathsf{random\_element}(P_s - c_s)$ 
 					\State $c_s \gets c_s \cup \{o\}$ \Comment{Add $o$ to $c_s$}
@@ -75,57 +76,60 @@ algorithm to navigate the agent to a specific game sprite or location.
 					%\State $c_{s'} \gets \emptyset$
 					\State \textbf{break} \label{alg:omcts:break}
 				\EndIf \label{alg:omcts:eexpand}
-				\State $s \gets s'$ \label{alg:omcts:ss} 
-					\Comment{Continue loop with $s'$}
 			\EndWhile
 			\State $\delta \gets \mathsf{rollout}(s')$ \label{alg:omcts:rollout}
 				\Comment{Simulate until $\mathsf{stop}$}
 			\State $\mathsf{back\_up}(s', \delta)$ \label{alg:omcts:backup}
 				\Comment{Save reward to parent nodes}
 		\EndWhile
-		\State \Return{$\max_{o \in c_r} \mathsf{value}(o)$}
+		\State \Return{$\mathsf{get\_action}(\max_{o \in c_r} \mathsf{value}(o), r)$}
 	\end{algorithmic}
 \end{algorithm}
 
 % TODO: Node en state worden nu door elkaar gebruikt...
-We describe the new algorithm, \emph{Option MCTS}, in algorithm
-\ref{alg:omcts}. O-MCTS is invoked with a root node $r$, a maximum
-number of milliseconds to run and a maximum search depth. The main loop starts at line
-\ref{alg:omcts:mainloop}, which keeps the algorithm running as long as is
-allowed. The inner loop runs until a node $s$ is reached that meets a stop
-criterion defined by the function \textsf{stop}, or a node is expanded into a new
-node. $P_s$ contains the options that can be used in node $s$. In lines
-\ref{alg:omcts:sp} until \ref{alg:omcts:ep}, it is set
-to the set of options that can be chosen in node $s$. When an option has not
-finished, $P_s$ only contains the currently followed option. Else, $P_s$ will
-contain all options that are available in $s$, i.e. all the options $o$ that
-have state $s$ in their initiation set $I_o$. For example, when playing 
-Zelda and using an option for going near an NPC, $I_o$ will not contain states
-in which there are no NPCs on screen and $P_s$ will not contain these options
-either. When the set $P_s$ is the same as
-the set of options in the children of $s$, $c_s$, a new node $s'$ is selected by
-\textsf{uct}. Else, in lines \ref{alg:omcts:sexpand} to \ref{alg:omcts:eexpand}
-a node $s$ is expanded with a random, currently unexplored option. In line
-\ref{alg:omcts:ss} $s$ is instantiated with the new node $s'$, continuing the
-while loop using the new node. When a state with a stop criterion is reached, a
-rollout is done, resulting in score difference $\delta$. This score difference
-is backed up to $s$'s parent nodes using a backup function, after which the
-algorithm restarts at the root node $r$.
+We describe O-MCTS in algorithm \ref{alg:omcts}. It is invoked with a root node
+$r$, a maximum runtime $m$ in milliseconds and a maximum search depth $d$. The
+main loop starts at line \ref{alg:omcts:mainloop}, which keeps the algorithm
+running as long as allowed. The inner loop runs until a node $s$ is reached
+that meets a stop criterion defined by the function \textsf{stop}, or a node is
+expanded into a new node. $P_s$ contains the options that can be used in node
+$s$. In lines \ref{alg:omcts:sp} until \ref{alg:omcts:ep}, it is set to the set
+of options that can be chosen in node $s$. When an option has not finished,
+$P_s$ only contains the current option. $P_s$ will contain all
+options that are available in $s$, i.e. all the options $o$ that have state $s$
+in their initiation set $I_o$. 
+Example: when the agent is playing Zelda and the
+current state $s$ shows no NPCs on screen. If we set $o$ to an option that goes
+to NPCs, $I_o$ will not contain state $s$, because there are no NPCs on
+screen, rendering this option useless in this state. $P_s$ will then not contain
+option $o$, since $s$ is not in $o$'s initiation set $I_o$.
 
-%\todo{Is this needed?}
-A couple of functions are used by algorithm \ref{alg:omcts}. The condition defined by
-$\mathsf{stop}$ returns true when the game ends in state $s$. Usually
-a maximum depth is defined as well in order to save calculation time. The
-function $\mathsf{expand}$ creates a new child node for node $s$, using option
-$o$. The $\mathsf{rollout}$ function chooses random actions until the stop
-criterion defined by $\mathsf{stop}$ is reached, after which the difference in
-score achieved by the rollout is returned. The $\mathsf{back\_up}$ function
-traverses the tree through all parents of $s$, updating their expected value,
-\todo{dit is raar:} often just the mean of all these values,  with the $\delta$. 
+When the set $P_s$ is the same as the set of options in the children of $s$,
+$c_s$, i.e. all options have been explored at least once in node $s$, a new node $s'$ is
+selected by \textsf{uct} In line
+\ref{alg:omcts:ss}, $s$ is instantiated with the new node $s'$, continuing the
+while loop using this node. If some options are unexplored a node $s$ is
+expanded with a random, currently unexplored option in lines \ref{alg:omcts:sexpand} to
+\ref{alg:omcts:eexpand}. After expansion or when the stop criterion is reached,
+the tree selection loop is stopped and a rollout is done, resulting in score
+difference $\delta$. This score difference is backed up to $s$ its parent nodes
+using the backup function, after which the tree traversal restarts with the root
+node $r$.
 
-This algorithm will explore all options and focus on those that seem promising.
-Each option will be tried at least once in each state where no option is already
-chosen. Although this can be viewed as a thorough exploration strategy, when the
-number of options increases, this strategy might become infeasible.
+A couple of functions are used by algorithm \ref{alg:omcts}. The function
+\textsf{stop} returns true when either the game ends in state $s$ or the maximum
+depth is reached in $s$. The function \textsf{get\_action} lets option $o$
+choose the best action for the state in node $s$, \textsf{apply\_action} applies
+the action to state $s$ in the simulator, returning the resulting state.The
+function \textsf{expand} creates a new child node for node $s$ with option $o$.
+The \textsf{rollout} function chooses random actions until \textsf{stop} returns
+true, after which the difference in score achieved by the rollout is returned.
+The \textsf{back\_up} function traverses the tree through all parents of $s$,
+updating their expected value.
 
-\todo{Hoe werkt het de volgende keer dat ik het aanroep?}
+When the time is up, the algorithm chooses an option from $c_r$ corresponding to
+the child node with the highest expected value. This option chooses the best
+action for the state in the root node and that action is returned. The agent
+plays out this action, and runs the algorithm again in the next state it
+receives, by creating a new root node $r$ for that state.
+
