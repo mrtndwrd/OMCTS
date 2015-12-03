@@ -6,11 +6,11 @@
 %\todo{Wat gaan we doen: herhalen main objective, teruggrijpen op background en
 %introductie}
 
-Planning over options is traditionally done by applying Q-learning on a set of
+Planning over options is traditionally done by applying Q-learning to a set of
 options instead of the set of actions \cite{sutton1999between}. Q-learning
-learns the transition and reward for each state, but as game complexity grows,
-the state space grows as well, increasing Q-learning's memory usage and
-computation time immensely. In this section we introduce \emph{option Monte
+learns the transition and reward for each state, but as game complexity
+increases, the state space grows as well, increasing Q-learning's memory usage
+and computation time immensely. In this section we introduce \emph{option Monte
 Carlo tree search (O-MCTS)}, a novel algorithm that plans over options using
 MCTS, enabling the use of options in complex MDPs.  The resulting algorithm
 achieves higher scores on complex games that have several sub-goals than
@@ -48,71 +48,69 @@ in which each blue box represents one option.
 
 Options are hand defined. We created a set of options most of which use the A*
 algorithm to navigate the agent towards a specific game sprite or location.
-\todo{Chosen options and node children are not clear yet in the algorithm, Also
-make UCT correct}
+\todo{Chosen options and node children are not clear yet in the algorithm}
 
 \begin{algorithm}
-	\caption{$\mathsf{O-MCTS}(r, m, d)$}
+	\caption{$\mathsf{O-MCTS}(O, r, t, d)$}
 	\label{alg:omcts}
 	\begin{algorithmic}[1]
-		\State $c \gets \emptyset$ \Comment{$c_s$ is the set of options chosen in state $s$}
-		\While {$time\_taken < m$} \label{alg:omcts:mainloop}
-			\State $s \gets r$ \Comment{Start from root node}
+		\State $C_{s \in S} \gets \emptyset$ \Comment{$\mathbf{c}_s$ is the set of children nodes of $s$}
+		\State $\mathbf{o} \gets \emptyset$ \Comment{$o_s$ will hold the option followed in $s$}
+		\While {$time\_taken < t$} \label{alg:omcts:mainloop}
+			\State $s \gets r$ \Comment{start from root node}
 			\While {$\neg \mathsf{stop}(s, d)$} \label{alg:omcts:innerloop}
-			\If{$s \in \beta(o)$} \label{alg:omcts:sp} \Comment{If option stops in state $s$}
-				\State $P_s \gets \cup_o (s \in I_o)$ \Comment{Set $P_s$ to available options}
+			\If{$s \in \beta(o_s)$} \label{alg:omcts:sp} \Comment{if option stops in state $s$}
+				\State $\mathbf{p}_s \gets \cup_o (s \in I_{o \in O})$ \Comment{$\mathbf{p}_s$ is available options}
 				\Else
-					\State $P_s \gets \{o\}$ \Comment{No new option can be selected}
+					\State $\mathbf{p}_s \gets \{o_s\}$ \Comment{no new option can be selected}
 				\EndIf \label{alg:omcts:ep}
-				\If{$P_s = c_s$}
-					\State $o \gets \max_{o \in c_s} \mathsf{uct}(o, s)$ \label{alg:omcts:uct} 
-						\Comment{Equation \ref{eq:uct}}
-					\State $a \gets \mathsf{get\_action}(o, s)$ 
-					\State $s' \gets \mathsf{apply\_action}(a, s)$ \label{alg:omcts:apply}
+				\State $\mathbf{m} \gets \cup_o (o_{s \in \mathbf{c}_s})$ \Comment{set $\mathbf{m}$ to expanded options}
+				\If{$\mathbf{p}_s = \mathbf{m}$} \Comment{if all options are expanded}
+					\State $s' \gets \max_{s' \in \mathbf{c_s}} \mathsf{uct}(s, s')$ \label{alg:omcts:uct} 
+						\Comment{child from eq. \ref{eq:uct}}
 					\State $s \gets s'$ \label{alg:omcts:ss} 
-						\Comment{Continue loop with $s'$}
+						\Comment{continue loop with new node $s'$}
 				\Else \label{alg:omcts:sexpand}
-					\State $o \gets \mathsf{random\_element}(P_s - c_s)$ 
-					\State $c_s \gets c_s \cup \{o\}$ \Comment{Add $o$ to $c_s$}
-					\State $a \gets \mathsf{get\_action}(o, s)$ 
+					\State $\omega \gets \mathsf{random\_element}(\mathbf{p}_s - \mathbf{m})$ 
+					\State $a \gets \mathsf{get\_action}(\omega, s)$ 
 					\State $s' \gets \mathsf{expand}(s, a)$ 
-						\Comment{create node $s'$ using $a$}
-					%\State $c_{s'} \gets \emptyset$
+						\Comment{create child $s'$ using $a$}
+					\State $c_s \gets c_s \cup \{s'\}$ \Comment{add $s'$ to $c_s$}
+					\State $o_{s'} \gets \omega$
 					\State \textbf{break} \label{alg:omcts:break}
 				\EndIf \label{alg:omcts:eexpand}
 			\EndWhile
 			\State $\delta \gets \mathsf{rollout}(s')$ \label{alg:omcts:rollout}
-				\Comment{Simulate until $\mathsf{stop}$}
+				\Comment{simulate until $\mathsf{stop}$}
 			\State $\mathsf{back\_up}(s', \delta)$ \label{alg:omcts:backup}
-				\Comment{Save reward to parent nodes}
+				\Comment{save reward to parent nodes}
 		\EndWhile
 		\State \Return{$\mathsf{get\_action}(\max_{o \in c_r} \mathsf{value}(o), r)$}
 	\end{algorithmic}
 \end{algorithm}
 
-% TODO: Node en state worden nu door elkaar gebruikt...
-We describe O-MCTS in algorithm \ref{alg:omcts}. It is invoked with a root node
-$r$, a maximum runtime $m$ in milliseconds and a maximum search depth $d$. The
-main loop starts at line \ref{alg:omcts:mainloop}, which keeps the algorithm
-running as long as allowed. The inner loop runs until a node $s$ is reached
-that meets a stop criterion defined by the function \textsf{stop}, or a node is
-expanded into a new node. $P_s$ contains the options that can be used in node
-$s$. In lines \ref{alg:omcts:sp} until \ref{alg:omcts:ep}, it is set to the set
-of options that can be chosen in node $s$. When an option has not finished,
-$P_s$ only contains the current option. $P_s$ will contain all
-options that are available in $s$, i.e. all the options $o$ that have state $s$
-in their initiation set $I_o$. 
-Example: when the agent is playing Zelda and the
-current state $s$ shows no NPCs on screen. If we set $o$ to an option that goes
-to NPCs, $I_o$ will not contain state $s$, because there are no NPCs on
-screen, rendering this option useless in this state. $P_s$ will then not contain
-option $o$, since $s$ is not in $o$'s initiation set $I_o$.
+We describe O-MCTS in algorithm \ref{alg:omcts}. It is invoked with a set of
+options $O$, a root node $r$, a maximum runtime $t$ in milliseconds and a
+maximum search depth $d$. Two variables are instantiated. $C_s$ is a set of
+sets, containing the set of child nodes for each node and $\mathbf{o}$ contains
+which option is followed for each node. The main loop starts at line
+\ref{alg:omcts:mainloop}, which keeps the algorithm running until time runs out.
+The inner loop runs until a node $s$ is reached that meets a stop criterion
+defined by the function \textsf{stop}, or a node is expanded into a new node.
+In lines \ref{alg:omcts:sp} until \ref{alg:omcts:ep}, $\mathbf{p}_s$ is set to
+all options that are available in $s$. If an option has not finished,
+$\mathbf{p}_s$ contains only the current option. Otherwise, it contains all the options $o$ that have state $s$ in their
+initiation set $I_o$. For example, when the agent is playing Zelda and the current
+state $s$ shows no NPCs on screen. If we set $o$ to an option that goes to NPCs,
+$I_o$ will not contain state $s$, because there are no NPCs on screen, rendering
+this option useless in this state. $P_s$ will then not contain option $o$, since
+$s$ is not in $o$'s initiation set $I_o$.
 
-When the set $P_s$ is the same as the set of options in the children of $s$,
-$c_s$, i.e. all options have been explored at least once in node $s$, a new node $s'$ is
+If the set $P_s$ is the same as the set of options in the children of $s$,
+$m$, i.e. all options have been explored at least once in node $s$, a new node $s'$ is
 selected by \textsf{uct} In line
 \ref{alg:omcts:ss}, $s$ is instantiated with the new node $s'$, continuing the
-while loop using this node. If some options are unexplored a node $s$ is
+while loop using this node. If some options are unexplored in node $s$ is
 expanded with a random, currently unexplored option in lines \ref{alg:omcts:sexpand} to
 \ref{alg:omcts:eexpand}. After expansion or when the stop criterion is reached,
 the tree selection loop is stopped and a rollout is done, resulting in score

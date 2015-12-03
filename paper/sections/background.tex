@@ -65,11 +65,12 @@ higher value. A child node $j$ is selected to maximise
 \todo{use variables from algorithm \ref{alg:omcts}}
 \begin{equation}
 	\label{eq:uct}
-	UCT = 2C_p \sqrt{\frac{2 \ln n}{n_j}}
+	UCT = 2C_p \sqrt{\frac{2 \ln n_s}{n_{s'}}}
 \end{equation}
-Where $n$ is the number of times the current node has been visited, $n_j$ is the
-number of times child $j$ has been visited and $C_p > 0$ is a constant, often
-set to $\sqrt{2}$, that shifts priority from exploration to exploitation.
+Where $n_s$ is the number of times the current node $s$ has been visited,
+$n_{s'}$ is the number of times child $c$ has been visited and $C_p > 0$ is a
+constant, often set to $\sqrt{2}$, that shifts priority from exploration to
+exploitation.
 
 The traditional expansion strategy is to explore each action at least once in
 each node. After all actions have been expanded, the node applies the selection
