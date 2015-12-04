@@ -1,5 +1,20 @@
 \section{Experiments}
 \label{sec:experiments}
+\begin{figure*}
+	\centering
+	\includegraphics[width=\textwidth]{includes/wins}
+	\caption{Win ratio of the algorithms per game on all levels.}
+	\label{fig:wins}
+\end{figure*}
+
+\begin{figure*}
+	\centering
+	\includegraphics[width=\textwidth]{includes/scores}
+	\caption{Normalized mean score of the algorithms per game 1 means the
+	highest score achieved by all the algoriths, 0 the lowest.}
+	\label{fig:scores}
+\end{figure*}
+
 In this section we compare O-MCTS and OL-MCTS to traditional MCTS by running
 simulations on 40 different games in the VGDL framework. For this experiment
 we constructed the following option types. More options can be created and added
@@ -49,3 +64,7 @@ We ran the algorithms on a set of 40 different games with 5 levels each. For
 each level, we use the mean results of 20 plays. For the transfer learning
 algorithm the fifth game after 4 training games was used (it played 100
 games per level altogether).
+
+
+Figures \ref{fig:wins} and \ref{fig:scores} show the score and number of wins
+respectively, for each game and algorithm. 
