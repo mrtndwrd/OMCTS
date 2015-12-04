@@ -61,8 +61,7 @@ on the values of the child nodes. An effective and very popular selection
 strategy is the \emph{upper confidence tree (UCT)} \cite{kocsis2006bandit},
 which balances the choice between poorly explored actions with a high
 uncertainty about their value and actions that have been explored but have a
-higher value. A child node $j$ is selected to maximise
-\todo{use variables from algorithm \ref{alg:omcts}}
+higher value. A child node $j$ is selected to maximize
 \begin{equation}
 	\label{eq:uct}
 	UCT = 2C_p \sqrt{\frac{2 \ln n_s}{n_{s'}}}
