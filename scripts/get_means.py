@@ -4,7 +4,7 @@ import numpy as np
 
 def get_mean(directory):
 	""" Calculates the mean of all the space separated rows in file f """
-	values = {}
+	values = defaultdict(dict)
 
 	# Assumes output/<controller>/<score-files> and nothing else. Score files
 	# end with _score
@@ -16,7 +16,7 @@ def get_mean(directory):
 		if files == []:
 			continue
 		controller = os.path.basename(subdir)
-		values[controller] = {}
+		#values[controller] = {}
 		for fi in files:
 			if fi.endswith('_score'):
 				# Filename is o_<game>_score. get gamename
@@ -26,19 +26,35 @@ def get_mean(directory):
 					game_level = game[1]
 				else:
 					game_level = ''
-				if not(values[controller].has_key(game_name)):
-					values[controller][game_name] = {}
 				# Read values from file
 				scores = \
 					np.genfromtxt(os.path.join(subdir, fi)).tolist()
-				# save values
-				values[controller][game_name][game_level] = scores
-				# get max and min for normalizing
-				sorted_scores = sorted(x[1] for x in scores);
-				if maxes[game_name][game_level] < sorted_scores[-1]:
-					maxes[game_name][game_level] = sorted_scores[-1]
-				if mins[game_name][game_level] > sorted_scores[0]:
-					mins[game_name][game_level] = sorted_scores[0]
+				# If there are several scores, take the first and the last (this
+				# is for OLMCTS)
+				if type(scores[0]) == list:
+					if len(scores) != 5:
+						print "NOT LENGTH 5!", subdir, fi
+						exit();
+					current_controllers = \
+						[("%s%d" % (controller, 1), scores[0]),
+							("%s%d" % (controller, len(scores)), scores[-1])]
+				else:
+					current_controllers = [(controller, scores)]
+				for c, s in current_controllers:
+					if not(values[c].has_key(game_name)):
+						values[c][game_name] = defaultdict(list)
+					# save values
+					values[c][game_name][game_level].append(s)
+					# Sort by score if there are more than one score in the file
+					if type(s[0]) == list:
+						sorted_scores = sorted(x[1] for x in s);
+					else:
+						sorted_scores = [s[1]]
+					# get max and min for normalizing
+					if maxes[game_name][game_level] < sorted_scores[-1]:
+						maxes[game_name][game_level] = sorted_scores[-1]
+					if mins[game_name][game_level] > sorted_scores[0]:
+						mins[game_name][game_level] = sorted_scores[0]
 	normalize_score(values, maxes, mins)
 	return values
 
