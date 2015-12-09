@@ -1,5 +1,11 @@
 TODO 
 ====
+- rerun:
+  ./outputPaper/OLMCTS/o_escape-2_4:108:# There is insufficient memory for
+  the Java Runtime Environment to continue.
+  ./outputPaper/OLMCTS/o_escape-2_3:33:# There is insufficient memory for the
+  Java Runtime Environment to continue.
+
 - read [literature/optionsRecentDevelopments.pdf](literature/optionsRecentDevelopments.pdf)
 - run test-mean.sh with learning=true
 	- should probably improve on (because MCTS is better): whackamole, modality, zenpuzzle, thecitadel,
@@ -38,6 +44,7 @@ TODO
 	- subsectie planning
 		- Ook zeggen dat TD (Q-learing) met options niet werkte in deze setting
 	- subsectie learning
+	- significance: p = 0.032448
 - sectie related work:
 	- Waarom moeten we niet deep q-learning gebruiken? 
 	- Wat is het verschil? Wat is het verschil met TD met options?

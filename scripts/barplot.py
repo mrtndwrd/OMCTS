@@ -43,6 +43,9 @@ def barplot_stats(stats, show_score, filename=None):
 					totals[controller].append(win)
 		plt.bar(i, np.sum(totals[controller]), label=controller, align='center', 
 				width=WIDTH)
+	print "Totals:"
+	for controller in totals.keys():
+		print "%s: %f" % (controller, np.sum(totals[controller]))
 	ax=plt.gca()
 	# Set ticks to each tick + width
 	ax.set_xticks(np.arange(len(controllers)))
