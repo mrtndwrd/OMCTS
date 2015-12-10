@@ -9,7 +9,7 @@ class HyperVolumePlotter:
 	def __init__(self, output_file='plot.pdf',
 		y_min=None, y_max=None, wins=False, score=False, time=False):
 		self.output_file = output_file
-		self.fig = plt.figure(figsize=(5, 5))
+		self.fig = plt.figure(figsize=(3.3, 3.3))
 		self.ax = self.fig.add_subplot(111)
 		self.colour_index = 0
 		self.y_min = y_min
@@ -63,16 +63,17 @@ class HyperVolumePlotter:
 	def add_plot(self, name):
 		""" Adds average and variance of 'name' to plot """
 		self.all_data['average_' + name] = np.average(self.all_data[name], axis=0)
-		self.all_data['variance_' + name] = np.std(self.all_data[name], axis=0)
-		xs = range(0, len(self.all_data['average_' + name]))
+		self.all_data['variance_' + name] = np.square(np.std(self.all_data[name], axis=0))
+		xs = np.add(range(0, len(self.all_data['average_' + name])), 1)
 		bounds = ((y[0] - y[1], y[0] + y[1]) for y in
 				zip(self.all_data['average_' + name],
 					self.all_data['variance_' + name]))
 		ymax, ymin = zip(*bounds)
 		self.ax.plot(xs, self.all_data['average_' + name], label=name, linewidth=1.0)
 		col = self.ax.get_lines()[-1].get_color()
-		self.ax.fill_between(xs, ymax, ymin, alpha=.3, edgecolor="w",
-							 color=col)
+		if name == 'score':
+			self.ax.fill_between(xs, ymax, ymin, alpha=.3, edgecolor="w",
+								 color=col)
 
 
 
@@ -80,6 +81,12 @@ class HyperVolumePlotter:
 	def save(self):
 		self.set_variables()
 		setFigLinesBW(self.fig)
+		xint = []
+		locs, labels = plt.xticks()
+		plt.subplots_adjust(bottom=.26)
+		for each in locs:
+			xint.append(int(each))
+			plt.xticks(xint)
 		print "saving plot to %s" % (self.output_file)
 		self.fig.savefig(self.output_file)
 
@@ -116,7 +123,7 @@ class HyperVolumePlotter:
 		plt.xlabel('# Games Played')
 		# Title is not needed in LaTeX articles
 		# plt.title('Hypervolume')
-		plt.legend()
+		plt.legend(loc='lower right')
 
 
 def setAxLinesBW(ax):
@@ -154,7 +161,6 @@ def setFigLinesBW(fig):
 
 if __name__ == "__main__":
 	mpl.rcParams['axes.color_cycle'] = ['k', 'b', 'g', 'r']
-	mpl.rcParams['figure.figsize'] = (6, 4)
 	parser = argparse.ArgumentParser(description='Plot wins, scores and times')
 	parser.add_argument('file', metavar='file', nargs='+',
 						help='files containing wins, scores, time (in that order)'

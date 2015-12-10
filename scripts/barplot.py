@@ -32,6 +32,8 @@ def barplot_stats(stats, show_score, filename=None):
 	controllers = stats.keys()
 	name = 'score' if show_score else 'wins'
 	# Loop through stats
+	fig = plt.figure(figsize=(2.5, 3.3))
+	ax = fig.add_subplot(111)
 	for i, (controller, dic) in enumerate(stats.iteritems()):
 		print "controller:", controller
 		for game, v in dic.iteritems():
@@ -46,17 +48,20 @@ def barplot_stats(stats, show_score, filename=None):
 	print "Totals:"
 	for controller in totals.keys():
 		print "%s: %f" % (controller, np.sum(totals[controller]))
-	ax=plt.gca()
 	# Set ticks to each tick + width
 	ax.set_xticks(np.arange(len(controllers)))
 	# Set labels to the ticks
 	ax.set_xticklabels(controllers)
 	for label in ax.get_xticklabels():
 		label.set_rotation('vertical')
-	plt.title('Total %s of all runs, all games' % name)
+	plt.title('Total %s' % name)
 	plt.ylabel(name)
-	plt.subplots_adjust(bottom=.4)
-	plt.show()
+	plt.subplots_adjust(bottom=.26, left=0.29)
+	if filename == None:
+		plt.show()
+	else:
+		fig.savefig(filename)
+		print "Barplot saved to", filename
 
 def barplot_games(stats, show_score, filename=None, order_by_controller=None,
 		order_by_list=None, order_by_column=0):

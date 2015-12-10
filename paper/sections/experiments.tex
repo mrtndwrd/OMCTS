@@ -16,6 +16,19 @@
 	highest score achieved by all the algoriths, 0 the lowest.}
 	\label{fig:scores}
 \end{figure*}
+\begin{figure}
+	\centering
+	\subfigure[Learning \textit{bait}]{
+		\includegraphics[scale=.44]{includes/learning}
+		\label{fig:learning-results}
+	}
+	\subfigure[Totals]{
+		\includegraphics[scale=.44]{includes/totals.pdf}
+		\label{fig:learning-results}
+	}
+	\caption{Learning improvement and total number of wins of the algorithms on
+	all games}
+\end{figure}
 
 In this section we compare O-MCTS and OL-MCTS to traditional MCTS by running
 simulations on 40 different games in the VGDL framework. For this experiment
@@ -67,6 +80,5 @@ each level, we use the mean results of 20 plays. For the transfer learning
 algorithm the fifth game after 4 training games was used (it played 100
 games per level altogether).
 
-
-Figures \ref{fig:wins} and \ref{fig:scores} show the score and number of wins
-respectively, for each game and algorithm. 
+Figures \ref{fig:wins} and \ref{fig:scores} respectively show the win ratio and
+normalized score for each game and algorithm.

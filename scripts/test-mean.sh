@@ -24,14 +24,15 @@ rm tables/*
 #games="whackamole modality zenpuzzle thecitadel chipschallenge survivezombies jaws"
 
 # All games!
-games="aliens boulderdash butterflies chase frogs missilecommand portals sokoban survivezombies zelda camelRace digdug firestorms infection firecaster overload pacman seaquest whackamole eggomania bait boloadventures brainman chipschallenge modality painter realportals realsokoban thecitadel zenpuzzle roguelike surround catapults plants plaqueattack jaws labyrinth boulderchase escape lemmings"
+#games="aliens boulderdash butterflies chase frogs missilecommand portals sokoban survivezombies zelda camelRace digdug firestorms infection firecaster overload pacman seaquest whackamole eggomania bait boloadventures brainman chipschallenge modality painter realportals realsokoban thecitadel zenpuzzle roguelike surround catapults plants plaqueattack jaws labyrinth boulderchase escape lemmings"
+games="bait"
 
 # Config variables:
 controllers="mrtndwrd.Agent"
 #controllers="controllers.sampleMCTS.Agent"
-levels="0"
+levels="0 1 2 3 4"
 number_of_games="5"
-number_of_tests="1"
+number_of_tests="45"
 gamma="0.9"
 random_rollout="false"
 #Current best: m=80: d=40, s=30

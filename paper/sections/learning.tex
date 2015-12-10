@@ -24,6 +24,24 @@ subtype's values $\mu_o$ and $\sigma_o$ are updated by respectively taking the
 mean and variance of all the returns of this subtype. By saving values per
 subtype the algorithm can regularize over unique sprites.
 
+Now we have an option value and variance we can use the crazy stone algorithm
+to reduce calculation time by shifting the focus of the exploration to promising
+options. This means that not all children of a node will be expanded, but only
+the ones selected by crazy stone. The algorithm then changes to algorithm
+\ref{alg:olmcts}. Most of it is the same, with the exception that crazy stone
+selects what node to expand in the first $v$ node visits. Because crazy stone
+can select the same option several times, this prevents the algorithm from
+expanding all the children, which saves time. 
+
+Crazy stone uses the mean return $R_o$ of each option as its estimated value
+$\mu$ for selecting which option to select or expand. After a predefined number
+of visits $v$ to a node, the selection strategy $\mathsf{uct}$ is followed to
+tweak the option selection.
+
+The information learned in a game can be transferred if the game is played
+again by supplying OL-MCTS with the $\mu$ and $\sigma$ of the previous game. We
+will refer to this as \emph{Option Tranfer Learning MCTS (OTL-MCTS)}.
+
 \begin{algorithm}
 	\caption{$\mathsf{OL-MCTS}(O, r, t, d, v, \mu, \sigma)$}
 	\label{alg:olmcts}
@@ -63,31 +81,3 @@ subtype the algorithm can regularize over unique sprites.
 		\EndWhile
 	\end{algorithmic}
 \end{algorithm}
-\begin{figure}
-	\centering
-	%\epsfig{file=includes/omcts.eps, width=.5\columnwidth}
-	\includegraphics[width=\columnwidth]{includes/learning}
-	\caption{Shows average improvement of the OL-MCTS on game x when playing 5
-		games in a row for 20 times}
-	\label{fig:learning-results}
-\end{figure}
-
-Now we have an option value and variance we can use the crazy stone algorithm
-to reduce calculation time by shifting the focus of the exploration to promising
-options. This means that not all children of a node will be expanded, but only
-the ones selected by crazy stone. The algorithm then changes to algorithm
-\ref{alg:olmcts}. Most of it is the same, with the exception that crazy stone
-selects what node to expand in the first $v$ node visits. Because crazy stone
-can select the same option several times, this prevents the algorithm from
-expanding all the children, which saves time. 
-
-Crazy stone uses the mean return $R_o$ of each option as its estimated value
-$\mu$ for selecting which option to select or expand. After a predefined number
-of visits $v$ to a node, the selection strategy $\mathsf{uct}$ is followed to
-tweak the option selection.
-
-
-
-The information learned in a game can be transferred if the game is played
-again by supplying OL-MCTS with the $\mu$ and $\sigma$ of the previous game. We
-will refer to this as \emph{Option Tranfer Learning MCTS (OTL-MCTS)}.
