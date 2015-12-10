@@ -12,7 +12,7 @@
 	\centering
 	\includegraphics[width=\textwidth]{includes/scores}
 	\vspace{-.8cm}
-	\caption{Normalized mean score of the algorithms per game 1 means the
+	\caption{Mean normalized score of the algorithms per game 1 means the
 	highest score achieved by all the algoriths, 0 the lowest.}
 	\label{fig:scores}
 \end{figure*}
@@ -24,7 +24,7 @@
 	}
 	\subfigure[Totals]{
 		\includegraphics[scale=.44]{includes/totals.pdf}
-		\label{fig:learning-results}
+		\label{fig:total-results}
 	}
 	\caption{Learning improvement and total number of wins of the algorithms on
 	all games}
@@ -81,4 +81,37 @@ algorithm the fifth game after 4 training games was used (it played 100
 games per level altogether).
 
 Figures \ref{fig:wins} and \ref{fig:scores} respectively show the win ratio and
-normalized score for each game and algorithm.
+normalized score for each game and algorithm. As can be seen in figure
+\ref{fig:wins}, the O-MCTS algorithms performs at least as good as MCTS in
+almost all games. 
+
+Big wins for the MCTS algorithm can be seen in whackamole, jaws and plaque
+attack. The similarity of these games is that they have a very big number of
+different sprites, which results in the algorithm creating too many options.
+When the number of options becomes too big, constructing the initiation set of
+options $\mathbf{p}_s$ becomes so time-consuming that the algorithm is left with
+too little time to build its tree and figure out the best possible move.
+
+On the other hand a big difference in wins can be spotted for missile command,
+overload, firestorms, zelda, camel race, eggomania, firecaster and chase. If we
+inspect the algorithm's working for these games, we can see that the algorithm
+succeeds in efficiently planning paths in a dangerous environment, enabling it
+to do a further forward search than the ordinary Monte Carlo tree search. Camel
+race requires the player to move to the right for 80 consecutive turns, which is
+very hard for MCTS, since it only looks forward 8 turns. O-MCTS almost always
+wins, since it can plan forward a lot further. In Overload, a sword has to be
+picked up before the avatar can finish the game, which seems to be too hard for
+MCTS to figure out.
+
+Furthermore, the graph clearly shows that the transfer learning algorithm
+significantly improves score over the course of 5 plays of bait.  Bait is a game
+in which the objective is to reach a goal portal after collecting a key. The
+player can push boxes around to open paths.  Thare are holes in the ground that
+kill the player, unless they are filled with boxes, which make both the hole and
+the box disappear.  The improvement in score (including variance) and wins for
+this game is shown in figure \ref{fig:learning-results}. There are three
+possible reasons for this improvement: 1.) There are sprites that kill the
+player, which will be evaded by the algorithm when it has learned they do so.
+2.) The algorithm might learn that it is supposed to pick up the key. 3.) The
+player learns to apply options in such a way that he can push boxes into the
+(deadly) holes.

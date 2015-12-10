@@ -105,7 +105,7 @@ def barplot_games(stats, show_score, filename=None, order_by_controller=None,
 	number_of_bars = float(len(stats.keys()))
 	# Bar width
 	width=.8/number_of_bars
-	name = 'Mean score totals' if show_score else 'Win ratio'
+	name = 'Mean normalized score' if show_score else 'Win ratio'
 	for i, (controller, game_dic) in enumerate(stats.iteritems()):
 		legend.append(controller)
 		# Get the indices of all bars (hope N is always the same here...)
@@ -135,8 +135,8 @@ def barplot_games(stats, show_score, filename=None, order_by_controller=None,
 
 	ax.set_xlim(-width,len(ind)+width)
 	#ax.set_ylim(0,45)
-	ax.set_ylabel('%s over %d games' % (name, number_of_games))
-	ax.set_title('Total game %s by controller name' % name)
+	ax.set_ylabel('%s of %d games' % (name, number_of_games))
+	ax.set_title('%s by controller name' % name)
 	xTickMarks = ordered_labels
 	ax.set_xticks(ind+width)
 	xtickNames = ax.set_xticklabels(xTickMarks)
@@ -153,7 +153,8 @@ def barplot_games(stats, show_score, filename=None, order_by_controller=None,
 
 
 	## add a legend
-	#ax.legend( rects, legend )
+	if not(show_score):
+		ax.legend( rects, legend )
 
 	if filename == None:
 		plt.show()

@@ -34,13 +34,16 @@ can select the same option several times, this prevents the algorithm from
 expanding all the children, which saves time. 
 
 Crazy stone uses the mean return $R_o$ of each option as its estimated value
-$\mu$ for selecting which option to select or expand. After a predefined number
-of visits $v$ to a node, the selection strategy $\mathsf{uct}$ is followed to
-tweak the option selection.
+$\mu$ for choosing which option to select or expand. After a predefined number
+of visits $v$ to a node, the selection strategy \textsf{uct} is followed to
+tweak the option selection. When it starts using \textsf{uct}, no new expansions
+are done in this node for the remainder of time.
 
 The information learned in a game can be transferred if the game is played
 again by supplying OL-MCTS with the $\mu$ and $\sigma$ of the previous game. We
-will refer to this as \emph{Option Tranfer Learning MCTS (OTL-MCTS)}.
+will refer to this as \emph{Option Tranfer Learning MCTS (OTL-MCTS)}. Especially
+in games where some options excel over the others, transfer learning can help
+identifying these and focussing exploration on these options. 
 
 \begin{algorithm}
 	\caption{$\mathsf{OL-MCTS}(O, r, t, d, v, \mu, \sigma)$}
