@@ -2,6 +2,12 @@ import sys, os, argparse
 from collections import defaultdict
 import numpy as np
 
+EXCLUDED_GAMES = ['sokoban', 'brainman', 'chipschallenge', 'modality',
+	'realportals', 'painter', 'realsokoban', 'thecitadel', 'zenpuzzle',
+	'catapults', 'labyrinth', 'escape']
+
+EXCLUDED_LEVELS = []
+
 def get_mean(directory):
 	""" Calculates the mean of all the space separated rows in file f """
 	values = defaultdict(dict)
@@ -22,19 +28,20 @@ def get_mean(directory):
 				# Filename is o_<game>_score. get gamename
 				game = fi.split('_')[1].split('-')
 				game_name = game[0]
+				if game_name in EXCLUDED_GAMES:
+					continue
 				if len(game) > 1:
 					game_level = game[1]
 				else:
 					game_level = ''
+				if game_level in EXCLUDED_LEVELS:
+					continue
 				# Read values from file
 				scores = \
 					np.genfromtxt(os.path.join(subdir, fi)).tolist()
 				# If there are several scores, take the first and the last (this
 				# is for OLMCTS)
 				if type(scores[0]) == list:
-					if len(scores) != 5:
-						print "NOT LENGTH 5!", subdir, fi
-						exit();
 					current_controllers = \
 						[("%s%d" % (controller, 1), scores[0]),
 							("%s%d" % (controller, len(scores)), scores[-1])]

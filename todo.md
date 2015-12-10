@@ -1,10 +1,8 @@
 TODO 
 ====
-- rerun:
-  ./outputPaper/OLMCTS/o_escape-2_4:108:# There is insufficient memory for
-  the Java Runtime Environment to continue.
-  ./outputPaper/OLMCTS/o_escape-2_3:33:# There is insufficient memory for the
-  Java Runtime Environment to continue.
+- run seaquest, whackamole, jaws, plaqueattack with more time (120ms action time?)
+- test with *less* time
+- run random to find complexity of games
 
 - read [literature/optionsRecentDevelopments.pdf](literature/optionsRecentDevelopments.pdf)
 - run test-mean.sh with learning=true
@@ -16,6 +14,59 @@ TODO
 	  sokoban
 
 - Tweak Lib.MAX_OBSERVATIONS
+
+## Categorized list of games
+- Puzzle:
+	1.
+		- sokoban
+	2. 
+	3. 
+		- brainman
+		- chipschallenge
+		- modality
+		- realportals
+		- painter
+		- realsokoban
+		- thecitadel
+		- zenpuzzle
+	4. 
+		- catapults
+		- labyrinth
+		- escape
+		- 
+- Random:
+	1. 
+		- aliens
+		- boulderdash
+		- butterflies
+		- chase
+		- frogs
+		- missilecommand
+		- portals
+		- survivezombies
+		- zelda
+	2. 
+		- camelRace
+		- digdug
+		- firestorms
+		- infection
+		- firecaster
+		- overload
+		- pacman
+		- seaquest
+		- whackamole
+		- eggomania
+	3. 
+		- bait
+		- boloadvantures
+	4.
+		- roguelike
+		- surround
+		- plants
+		- plaqueattack
+		- jaws
+		- boulderchase
+		- lemmings
 
 ## Test
 - check if using random rollout is better than option-rollout

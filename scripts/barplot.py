@@ -74,11 +74,8 @@ def barplot_games(stats, show_score, filename=None, order_by_controller=None,
 			  done. 0 = win, 1 = score, 2 = time. Default = 0
 	"""
 	# Custom ordering:
-	if order_by_controller != None:
+	if order_by_controller != None and stats.has_key(order_by_controller):
 		print "Ordering by controller", order_by_controller
-		if not(stats.has_key(order_by_controller)):
-			print "Controller", order_by_controller, "does not exist"
-			exit()
 		ordered_labels = order_labels(stats[order_by_controller],
 				order_by_column)
 	elif order_by_list != None:
@@ -86,7 +83,9 @@ def barplot_games(stats, show_score, filename=None, order_by_controller=None,
 		ordered_labels = order_by_list
 	# By default order by the first controller's wins
 	else:
-		ordered_labels = order_labels(stats[stats.get_keys()[0]],
+		if order_by_controller != None and not(stats.has_key(order_by_controller)):
+			print "Controller", order_by_controller, "does not exist, using default ordering"
+		ordered_labels = order_labels(stats[stats.keys()[0]],
 				order_by_column)
 
 	# Create figure and get some axis
@@ -98,8 +97,9 @@ def barplot_games(stats, show_score, filename=None, order_by_controller=None,
 	rects = []
 	# Names of the controllers, for the legend:
 	legend = []
+	number_of_bars = float(len(stats.keys()))
 	# Bar width
-	width=.8/float(len(stats.keys()))
+	width=.8/number_of_bars
 	name = 'Mean score totals' if show_score else 'Win ratio'
 	for i, (controller, game_dic) in enumerate(stats.iteritems()):
 		legend.append(controller)
@@ -108,19 +108,25 @@ def barplot_games(stats, show_score, filename=None, order_by_controller=None,
 		ind = np.arange(N)
 		print "controller:", controller
 		totals = []
-		stds = []
+		variances = []
 		for game in ordered_labels:
 			v = list(itertools.chain(*game_dic[game]))
 			total = 0
 			number_of_games = len(v)
 			avg = np.mean(v, 0)
-			std = np.std(v, 0)
+			variance = np.square(np.std(v, 0))
 			index = 1 if show_score else 0
 			totals.append(avg[index])
-			stds.append(std[index])
-		rects.append(ax.bar(ind + (i * width), totals, width, color=COLORS[i]))
-			# If we want to plot the std:
-			#yerr=stds, error_kw=dict(elinewith=2, ecolor='black')))
+			variances.append(variance[index])
+
+		show_variance = False
+		if show_variance:
+			rects.append(ax.bar(ind + (i-(.5*number_of_bars) + 1) * width, totals, width, color=COLORS[i],
+				yerr=variances, error_kw=dict(elinewith=2, ecolor='black')))
+		else:
+			rects.append(ax.bar(ind + (i-(.5*number_of_bars) + 1) * width, totals,
+				width, color=COLORS[i]))
+
 
 	ax.set_xlim(-width,len(ind)+width)
 	#ax.set_ylim(0,45)
@@ -132,13 +138,13 @@ def barplot_games(stats, show_score, filename=None, order_by_controller=None,
 	plt.setp(xtickNames, rotation=45, fontsize=9, horizontalalignment='right')
 
 	# Shrink current axis's height by 10% on the bottom
-	box = ax.get_position()
-	ax.set_position([box.x0, box.y0, box.width, 
-		box.height * 0.8])
+	#box = ax.get_position()
+	#ax.set_position([box.x0, box.y0, box.width, 
+	#	box.height * 0.8])
 
-	# Put a legend below current axis
-	ax.legend(rects, legend, loc='upper center', bbox_to_anchor=(0.5, 1.5),
-		fancybox=True, ncol=len(legend))
+	## Put a legend below current axis
+	#ax.legend(rects, legend, loc='upper center', bbox_to_anchor=(0.5, 1.5),
+	#	fancybox=True, ncol=len(legend))
 
 
 	## add a legend
