@@ -76,11 +76,11 @@ that were unavailable earlier. For example, if a door is closed until a key is
 picked up, this A Star algorithm will still be able to plan a path to the door,
 once the key is picked up, winning the game.
 
-Furthermore, in these experiments we use discount factor $\gamma = 0.9$,
-maximum action time $t = 40$ milliseconds. The maximum search depth $d$
-is set to 80, which is higher than most tree search algorithms use in GVGAI. The
-number of node visits $v$ is set to 40, after which \textsf{uct} is used. $K$
-for crazy stone is set to $0.5$.
+Furthermore, in these experiments we use discount factor $\gamma = 0.9$, maximum
+action time $t = 40$ milliseconds. The maximum search depth $d$ is set to 80,
+which is higher than most alternative tree search algorithms, e.g.
+the competitors in the GVGAI competition, use. The number of node visits $v$ is set
+to 40, after which \textsf{uct} is used. $K$ for crazy stone is set to $0.5$.
 
 For comparison, we use the MCTS algorithm provided with the Java implementation
 of VGDL with its default value of maximum search depth 8. 

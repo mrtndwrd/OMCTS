@@ -12,6 +12,7 @@ TODO
 	  brainman, realportals, chase, roguelike, overload, cameRace,
 	  oloadventures, boulderdash, plaqueattack, plants, pacman, firecaster,
 	  sokoban
+- rerun omcts and OLMCTS with WaitAndShoot(0) and uncommented while loop
 
 - Tweak Lib.MAX_OBSERVATIONS
 

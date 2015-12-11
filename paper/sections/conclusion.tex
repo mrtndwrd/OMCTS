@@ -6,6 +6,11 @@ In the future, in order to improve the learning algorithms, some improvement can
 be investigated. Firstly, the option values are now saved using the mean of all
 the games, without regarding how long ago this game was played. For doors that
 unlock under specific conditions (for example when the key is picked up in
-Zelda), one would probably want a discounted option value. More research should
-then be done in using a discounted version of the variance for the crazy stone
-algorithm.
+Zelda), one would probably want a discounted variant of the option values.
+Discounting the reward seems trivial, but a discounted version of the variance
+should also be devised.
+
+Currently the effectiveness of the algorithm strongly relies on the A Star
+implementation. This implementation is currently very time consuming, leaving
+little time for actual tree building. By creating goal-oriented MDP's like PUMA
+does, the algorithm could probably increase sturdiness. 
