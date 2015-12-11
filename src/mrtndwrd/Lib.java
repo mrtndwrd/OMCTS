@@ -250,6 +250,7 @@ public class Lib
 		Lib.setOptions(so, possibleOptionSet);
 		if(Arrays.asList(Agent.actions).contains(Types.ACTIONS.ACTION_USE))
 		{
+			Lib.setWaitAndShootOptions(so, possibleOptionSet, 0);
 			Lib.setWaitAndShootOptions(so, possibleOptionSet, 2);
 			Lib.setWaitAndShootOptions(so, possibleOptionSet, 4);
 		}

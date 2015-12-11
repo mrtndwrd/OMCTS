@@ -32,11 +32,11 @@ public class Agent extends AbstractPlayer {
 	public static double GAMMA = .9;
 
 	/** If this is true, no learning about options is done */
-	public static boolean NAIVE_PLANNING = false;
+	public static boolean NAIVE_PLANNING = true;
 
 	/** If this is true and NAIVE_PLANNING is false, the algorithm saves the
 	 * option rankings to file */
-	public static boolean LEARNING = true;
+	public static boolean LEARNING = false;
 
 	/** Constant C (also known as K) for exploration vs. exploitation */
 	public static double K = Math.sqrt(2);
@@ -118,18 +118,18 @@ public class Agent extends AbstractPlayer {
 
 
 		//// set orientation:
-		//setAvatarOrientation(so);
+		setAvatarOrientation(so);
 
 		//// Initialize with some extra time
-		//while(elapsedTimer.remainingTimeMillis() > 4 * CompetitionParameters.ACTION_TIME)
-		//{
-		//	ElapsedCpuTimer elapsedTimerTemp = new ElapsedCpuTimer();
-		//	elapsedTimerTemp.setMaxTimeMillis(4 * CompetitionParameters.ACTION_TIME);
-		//	// Startup the optionRanking
-		//	// Set the state observation object as the root of the tree.
-		//	mctsPlayer.init(so, this.possibleOptions, this.currentOption);
-		//	mctsPlayer.run(elapsedTimerTemp);
-		//}
+		while(elapsedTimer.remainingTimeMillis() > 4 * CompetitionParameters.ACTION_TIME)
+		{
+			ElapsedCpuTimer elapsedTimerTemp = new ElapsedCpuTimer();
+			elapsedTimerTemp.setMaxTimeMillis(4 * CompetitionParameters.ACTION_TIME);
+			// Startup the optionRanking
+			// Set the state observation object as the root of the tree.
+			mctsPlayer.init(so, this.possibleOptions, this.currentOption);
+			mctsPlayer.run(elapsedTimerTemp);
+		}
 	}
 
 	private void setAvatarOrientation(StateObservation so)

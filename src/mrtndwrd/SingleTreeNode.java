@@ -18,7 +18,7 @@ public class SingleTreeNode
 	private static final double HUGE_POSITIVE =  10000000.0;
 
 	/** mctsSearch continues until there are only so many miliseconds left */
-	public static final int REMAINING_LIMIT = 10;
+	public static final int REMAINING_LIMIT = 15;
 
 	/** Decides whether to use the mean reward, or the mean value of a root node
 	 * for the optionRanking. Mean reward works well in games where 1 option is
@@ -148,10 +148,10 @@ public class SingleTreeNode
 		double acumTimeTaken = 0;
 		long remaining = elapsedTimer.remainingTimeMillis();
 		int numIters = 0;
-
-		while(remaining > 2*avgTimeTaken && remaining > REMAINING_LIMIT)
+		ElapsedCpuTimer elapsedTimerIteration;
+		while(remaining > 3 * avgTimeTaken && remaining > REMAINING_LIMIT)
 		{
-			ElapsedCpuTimer elapsedTimerIteration = new ElapsedCpuTimer();
+			elapsedTimerIteration = new ElapsedCpuTimer();
 
 			// Select the node to explore (either expanding unexpanded node, or
 			// selecting the best one with UCT or crazyStone)
