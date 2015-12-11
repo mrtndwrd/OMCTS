@@ -16,24 +16,14 @@
 	highest score achieved by all the algoriths, 0 the lowest.}
 	\label{fig:scores}
 \end{figure*}
-\begin{figure}
-	\centering
-	\subfigure[Learning \textit{bait}]{
-		\includegraphics[scale=.44]{includes/learning}
-		\label{fig:learning-results}
-	}
-	\subfigure[Totals]{
-		\includegraphics[scale=.44]{includes/totals.pdf}
-		\label{fig:total-results}
-	}
-	\caption{Learning improvement and total number of wins of the algorithms on
-	all games}
-\end{figure}
+
 
 In this section we compare O-MCTS and OL-MCTS to traditional MCTS by running
-simulations on 40 different games in the VGDL framework. For this experiment
-we constructed the following option types. More options can be created and added
-to the algorithm easily.
+simulations on 28 different games in the VGDL framework. These games include all
+games from the first four training sets of the GVGAI competition, excluding the
+puzzle games that can be solved by a simple exhaustive search. For this
+experiment we constructed the following option types. More options can be
+created and added to the algorithm easily.
 
 \begin{itemize}[noitemsep]
 	\item \texttt{ActionOption} executes a specific action once and then
@@ -52,19 +42,39 @@ to the algorithm easily.
 \end{itemize}
 
 For each option type, a subtype per game sprite is created during the game. For
-each sprite, an option of the corresponding subtype is created. For example, the
-game Zelda contains three different sprite types (excluding the avatar); a
-monster, a key and a portal. The first level contains three monsters, one key
-and one portal and the aim of the game is to collect the key and walk towards
-the portal without walking into the monsters. In the first level, there are
-three monsters, one key and one portal. \texttt{GoToMovableOption} and
-\texttt{GoNearMovableOptions} will be created for each of the three monsters and
-for the key. A \texttt{GoToPositionOption} will be created for the portal.
-One \texttt{GoToNearestSpriteOfType} will be created per sprite type. One
+each sprite, an option instance of its corresponding subtype is created. For
+example, the game Zelda, as seen in figure \ref{fig:zelda}, contains three
+different sprite types (excluding the avatar); a monster, a key and a portal.
+The first level contains three monsters, one key and one portal and the aim of
+the game is to collect the key and walk towards the portal without walking into
+the monsters. In the first level, there are three monsters, one key and one
+portal. \texttt{GoToMovableOption} and \texttt{GoNearMovableOptions} will be
+created for each of the three monsters and for the key. A
+\texttt{GoToPositionOption} will be created for the portal.  One
+\texttt{GoToNearestSpriteOfType} will be created per sprite type. One
 \texttt{WaitAndShootOption} will be created for the monsters, and one
-\texttt{AvoidNearestNpcOption} will be
-created. This set of options is $O$ in algorithms \ref{alg:omcts} and
-\ref{alg:olmcts}.
+\texttt{AvoidNearestNpcOption} will be created. This set of options is $O$ in
+algorithms \ref{alg:omcts} and \ref{alg:olmcts}.
+
+The \texttt{GoTo\ldots} options all utilize an adaptation of the A Star
+algorithm, to plan routes. The problem that the adaptation solves is that at the
+beginning of the game there is no knowledge of which sprites are traversable and
+which are not. Thus, during every move that is simulated by the agent, the A
+Star module has to update its beliefs about the location of walls and other
+blocking objects. It does so by comparing the movement the avatar wanted to make
+to the movement that was actually made in game. If the avatar did not move and
+did not change direction, it is assumed that all the sprites on the location the
+avatar should have ended up in are blocking sprites. A Star keeps a \emph{wall
+score} for each sprite type. When a sprite blocks the avatar, its wall score is
+increased by one. Additionally, when a sprite kills the avatar, its wall score
+is increased by 100, in order to prevent the avatar from walking into killing
+sprites. Traditionally, for the A Star's heuristic, the distance between two
+points is calculated. This version of A Star adds the wall score of the location
+being investigated to this heuristic, encouraging the algorithm to take paths
+with a lower wall score. This method enables A Star to try to traverse paths
+that were unavailable earlier. For example, if a door is closed until a key is
+picked up, this A Star algorithm will still be able to plan a path to the door,
+once the key is picked up, winning the game.
 
 Furthermore, in these experiments we use discount factor $\gamma = 0.9$,
 maximum action time $t = 40$ milliseconds. The maximum search depth $d$
@@ -102,6 +112,20 @@ very hard for MCTS, since it only looks forward 8 turns. O-MCTS almost always
 wins, since it can plan forward a lot further. In Overload, a sword has to be
 picked up before the avatar can finish the game, which seems to be too hard for
 MCTS to figure out.
+
+\begin{figure}
+	\centering
+	\subfigure[Learning \textit{bait}]{
+		\includegraphics[scale=.44]{includes/learning}
+		\label{fig:learning-results}
+	}
+	\subfigure[Totals]{
+		\includegraphics[scale=.44]{includes/totals.pdf}
+		\label{fig:total-results}
+	}
+	\caption{Learning improvement and total number of wins of the algorithms on
+	all games.}
+\end{figure}
 
 Furthermore, the graph clearly shows that the transfer learning algorithm
 significantly improves score over the course of 5 plays of bait.  Bait is a game

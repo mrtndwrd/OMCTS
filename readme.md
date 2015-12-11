@@ -8,5 +8,5 @@ Dependencies:
 	- numpy
 	- matplotlib
 	- argparse
-
-
+- src/
+	- *oracle* java 7

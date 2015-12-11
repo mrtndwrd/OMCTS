@@ -47,7 +47,7 @@ selection strategy. The search tree now looks like figure \ref{fig:omcts-tree},
 in which each blue box represents one option.
 
 Options are hand defined. We created a set of options most of which use the A*
-algorithm to navigate the agent towards a specific game sprite or location.
+algorithm to navigate the agent towards a specific game sprite or location \cn.
 
 \begin{algorithm}
 	\caption{$\mathsf{O-MCTS}(O, r, t, d)$}
@@ -87,6 +87,13 @@ algorithm to navigate the agent towards a specific game sprite or location.
 		\State \Return{$\mathsf{get\_action}(\max_{o \in c_r} \mathsf{value}(o), r)$}
 	\end{algorithmic}
 \end{algorithm}
+\begin{figure}
+	\centering
+	\includegraphics[width=\columnwidth]{includes/zelda}
+	\caption{Visual representation of the game Zelda.}
+	\label{fig:zelda}
+\end{figure}
+
 
 We describe O-MCTS in algorithm \ref{alg:omcts}. It is invoked with a set of
 options $O$, a root node $r$, a maximum runtime $t$ in milliseconds and a
@@ -99,7 +106,8 @@ defined by the function \textsf{stop}, or a node is expanded into a new node.
 In lines \ref{alg:omcts:sp} until \ref{alg:omcts:ep}, $\mathbf{p}_s$ is set to
 all options that are available in $s$. If an option has not finished,
 $\mathbf{p}_s$ contains only the current option. Otherwise, it contains all the options $o$ that have state $s$ in their
-initiation set $I_o$. For example, when the agent is playing Zelda and the current
+initiation set $I_o$. For example, when the agent is playing Zelda (see figure
+\ref{fig:zelda} and the current
 state $s$ shows no NPCs on screen. If there is an option $o$ that goes to NPCs,
 $I_o$ will not contain state $s$, because there are no NPCs on screen, rendering
 $o$ useless in state $s$. $\mathbf{p}_s$ will thus not contain option $o$, since
