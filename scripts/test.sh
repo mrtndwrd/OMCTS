@@ -33,13 +33,15 @@ levels="4"
 
 random_rollout="false"
 
-rollout_depth="80"
+rollout_depth="70"
 
-uct_start_visits="80"
+uct_start_visits="40"
 
 learning="true"
 
 steepness="0.5"
+
+use_mean_reward="true"
 
 
 ant
@@ -60,6 +62,7 @@ seq $max | parallel -j3 --eta "java -cp classes MyTest \
 		--uct-start-visits=$uct_start_visits \
 		--rollout-depth=$rollout_depth \
 		--steepness=$steepness \
+		--use-mean-reward=$use_mean_reward \
 		> output/complete_output_{#}"
 # Extract the score from the outputs
 for i in $(eval echo {1..$max})

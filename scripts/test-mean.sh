@@ -25,14 +25,15 @@ rm tables/*
 
 # All games!
 #games="aliens boulderdash butterflies chase frogs missilecommand portals sokoban survivezombies zelda camelRace digdug firestorms infection firecaster overload pacman seaquest whackamole eggomania bait boloadventures brainman chipschallenge modality painter realportals realsokoban thecitadel zenpuzzle roguelike surround catapults plants plaqueattack jaws labyrinth boulderchase escape lemmings"
-games="bait"
+games="seaquest whackamole jaws plaqueattack"
 
 # Config variables:
 controllers="mrtndwrd.Agent"
-#controllers="controllers.sampleMCTS.Agent"
+#controllers="controllers.sampleRandom.Agent"
 levels="0 1 2 3 4"
 number_of_games="5"
-number_of_tests="45"
+number_of_tests="20"
+
 gamma="0.9"
 random_rollout="false"
 #Current best: m=80: d=40, s=30
@@ -41,7 +42,7 @@ uct_start_visits="40"
 learning="true"
 naive="false"
 steepness="0.5"
-max_action_time="40"
+max_action_time="120"
 use_mean_reward="true"
 
 ant
