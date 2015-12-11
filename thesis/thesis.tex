@@ -3,6 +3,8 @@
 \usepackage[latin1]{inputenc}
 
 \usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{algorithmicx}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 \usepackage{amsmath}
@@ -42,21 +44,25 @@
 
 \tableofcontents
 
-\input{sections/introduction}
+\input{../paper/sections/introduction}
 
-\input{sections/related}
+\input{../paper/sections/background}
 
-\input{sections/method}
+\input{../paper/sections/planning}
 
-\input{sections/results}
+\input{../paper/sections/learning}
 
-\input{sections/conclusion}
+\input{../paper/sections/experiments}
+
+\input{../paper/sections/related}
+
+\input{../paper/sections/conclusion}
 % ****************************************************************************
 % BIBLIOGRAPHY AREA
 % ****************************************************************************
 
-%\bibliographystyle{abbrv}
-\bibliography{references}
+\bibliographystyle{abbrv}
+\bibliography{bib}
 
 % ****************************************************************************
 % END OF BIBLIOGRAPHY AREA

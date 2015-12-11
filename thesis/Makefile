@@ -1,16 +1,16 @@
-default: report.ps
+default: thesis.ps
 
-report.bbl: report.aux
-	bibtex report.aux
-	sed -i '/\\begin/a \\\vspace{-7pt}' report.bbl
-	sed -i '/\\begin/i \\\vspace{-7pt}' report.bbl
+thesis.bbl: thesis.aux
+	bibtex thesis.aux
+	sed -i '/\\begin/a \\\vspace{-7pt}' thesis.bbl
+	sed -i '/\\begin/i \\\vspace{-7pt}' thesis.bbl
 
-report.aux: report.tex
-	pdflatex report.tex
+thesis.aux: thesis.tex
+	pdflatex thesis.tex
 
-report.pdf: report.bbl report.tex
-	pdflatex report.tex
-	pdflatex report.tex
+thesis.pdf: thesis.bbl thesis.tex
+	pdflatex thesis.tex
+	pdflatex thesis.tex
 
 img/deepseatreasure.eps: img/deepseatreasure.pdf
 	pdftops -eps img/deepseatreasure.pdf
@@ -18,14 +18,14 @@ img/deepseatreasure.eps: img/deepseatreasure.pdf
 img/buridansass.eps: img/buridansass.pdf
 	pdftops -eps img/buridansass.pdf
 
-report.dvi: report.bbl report.tex img/deepseatreasure.eps img/buridansass.eps
-	latex report.tex
-	latex report.tex
+thesis.dvi: thesis.bbl thesis.tex img/deepseatreasure.eps img/buridansass.eps
+	latex thesis.tex
+	latex thesis.tex
 
-report.ps: report.dvi
-	dvips -t A4 -P pdf report.dvi
+thesis.ps: thesis.dvi
+	dvips -t A4 -P pdf thesis.dvi
 
-all: report.pdf report.ps
+all: thesis.pdf thesis.ps
 
 clean:
 	@rm -f *.aux *.log *.bbl *.blg
