@@ -110,7 +110,8 @@ def barplot_games(stats, show_score, filename=None, order_by_controller=None,
 	# Remove controllers from the stats (for example when RANDOM is only used
 	# for the ordering)
 	for controller in ignore_controllers:
-		del stats[controller]
+		if stats.has_key(controller):
+			del stats[controller]
 	number_of_bars = float(len(stats.keys()))
 	# Bar width
 	width=.8/number_of_bars
