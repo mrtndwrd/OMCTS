@@ -8,7 +8,8 @@ from matplotlib import pyplot as plt
 WIDTH=0.8
 COLORS = ['black', 'blue', 'red', 'yellow','magenta', 'cyan',  'black']
 
-def plot_means(directory='output', style='bar', show_score=False, filename=None):
+def plot_means(directory='output', style='bar', show_score=False, filename=None,
+		ignore_controllers=[]):
 	""" Create barplot for the runs in directory
 
 	Keyword arguments: 
@@ -21,11 +22,13 @@ def plot_means(directory='output', style='bar', show_score=False, filename=None)
 	stats = get_means.calculate_game_stats(means)
 
 	if style == 'bar':
-		barplot_stats(stats, show_score, filename)
+		barplot_stats(stats, show_score, filename,
+				ignore_controllers=ignore_controllers)
 	elif style == 'game':
-		barplot_games(stats, show_score, filename, order_by_controller="MCTS")
+		barplot_games(stats, show_score, filename, order_by_controller="RANDOM",
+				ignore_controllers=ignore_controllers)
 
-def barplot_stats(stats, show_score, filename=None):
+def barplot_stats(stats, show_score, filename=None, ignore_controllers=[]):
 	""" Barplots the totals of stats """
 	# variables 
 	totals = defaultdict(list)
@@ -35,6 +38,8 @@ def barplot_stats(stats, show_score, filename=None):
 	fig = plt.figure(figsize=(2.5, 3.3))
 	ax = fig.add_subplot(111)
 	for i, (controller, dic) in enumerate(stats.iteritems()):
+		if controller in ignore_controllers:
+			continue
 		print "controller:", controller
 		for game, v in dic.iteritems():
 			v = itertools.chain(*v)
@@ -64,7 +69,7 @@ def barplot_stats(stats, show_score, filename=None):
 		print "Barplot saved to", filename
 
 def barplot_games(stats, show_score, filename=None, order_by_controller=None,
-		order_by_list=None, order_by_column=0):
+		order_by_list=None, order_by_column=0, ignore_controllers=[]):
 	""" Plots a bar plot of all individual games, with bar colors per controller
 	in stats. 
 		Params:
@@ -102,6 +107,10 @@ def barplot_games(stats, show_score, filename=None, order_by_controller=None,
 	rects = []
 	# Names of the controllers, for the legend:
 	legend = []
+	# Remove controllers from the stats (for example when RANDOM is only used
+	# for the ordering)
+	for controller in ignore_controllers:
+		del stats[controller]
 	number_of_bars = float(len(stats.keys()))
 	# Bar width
 	width=.8/number_of_bars
@@ -171,10 +180,16 @@ def order_labels(controller_stats, index):
 		score = sum(scores, 0)
 		values[game] = score
 	print "sorting values by", index, "th column"
-	values = sorted(values, cmp=lambda x, y: cmp(values[x][index],
-		values[y][index]), reverse=True)
+	values = sorted(values, cmp=lambda x, y: compare_results(values[x],
+		values[y]), reverse=True)
 	return values
 
+def compare_results(result_a, result_b):
+	c = cmp(result_a[0], result_b[0])
+	if c != 0:
+		return c
+	else:
+		return cmp(result_a[1], result_b[1])
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description='Barplot total wins')
@@ -188,4 +203,5 @@ if __name__ == "__main__":
 	parser.add_argument('--file', '-f', metavar='file',
 		help="If this argument is given plots are written to file f")
 	args = parser.parse_args()
-	plot_means(args.output, args.type, show_score=args.score, filename=args.file)
+	plot_means(args.output, args.type, show_score=args.score,
+			filename=args.file, ignore_controllers=['RANDOM'])
