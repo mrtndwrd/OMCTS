@@ -90,7 +90,10 @@ public class Agent extends AbstractPlayer {
 			actions[i] = act.get(i);
 		}
 
-		
+		// Turn off learning when naive planning is done, we don't need all the
+		// file stuff and updates
+		if(NAIVE_PLANNING)
+			Agent.LEARNING = false;
 		// Add the actions to the option set
 		Lib.setOptionsForActions(act, this.possibleOptions);
 		Lib.updateOptions(so, this.possibleOptions);

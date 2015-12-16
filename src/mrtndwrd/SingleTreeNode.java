@@ -104,14 +104,17 @@ public class SingleTreeNode
 		this.expanded = true;
 
 		// Sort possible options by optionRanking:
-		Collections.sort(this.possibleOptions, Option.optionComparator);
+		if(!Agent.NAIVE_PLANNING)
+		{
+			Collections.sort(this.possibleOptions, Option.optionComparator);
 
-		// Set mu0 to the value of the best option in the optionRanking
-		this.mu0 = Agent.optionRanking.get(
-				this.possibleOptions.get(0).getType());
-		this.muLast = Agent.optionRanking.get(this.possibleOptions.get(this.possibleOptions.size()-1).getType());
-		this.sigma0 = Agent.optionRankingVariance.get(
-				this.possibleOptions.get(0).getType());
+			// Set mu0 to the value of the best option in the optionRanking
+			this.mu0 = Agent.optionRanking.get(
+					this.possibleOptions.get(0).getType());
+			this.muLast = Agent.optionRanking.get(this.possibleOptions.get(this.possibleOptions.size()-1).getType());
+			this.sigma0 = Agent.optionRankingVariance.get(
+					this.possibleOptions.get(0).getType());
+		}
 
 		// Create the possibility of chosing new options
 		if(chosenOption == null || chosenOption.isFinished(state))
@@ -180,7 +183,8 @@ public class SingleTreeNode
 		}
 		// This is the rootnode, because where else would this function be
 		// called!?!! So here we call setCumulativeRewardsForChildren, if needed
-		setCumulativeRewardsForChildren();
+		if(!Agent.NAIVE_PLANNING)
+			setCumulativeRewardsForChildren();
 	}
 
 	/** For each child, set its chosen options cumulative reward to the totValue
@@ -291,7 +295,7 @@ public class SingleTreeNode
 		if(USE_MEAN_REWARD)
 		{
 			nextOption.addReward(nextState.getGameScore() - state.getGameScore());
-			if(nextOption.isFinished(nextState))
+			if(nextOption.isFinished(nextState) && !Agent.NAIVE_PLANNING)
 				nextOption.updateOptionRanking();
 		}
 		else if(nextOption.isFinished(nextState) && this.parent != null)
@@ -557,47 +561,44 @@ public class SingleTreeNode
 		else if(allEqual)
 		{
 			//If all are equal, we opt to choose for the one with the best Q.
-			selected = bestAction();
+			if(Agent.NAIVE_PLANNING)
+				selected = bestActionNaive();
+			else
+				selected = bestActionLearning();
 		}
 		return selected;
 	}
 
-	//public int bestAction()
-	//{
-	//	int selected = -1;
-	//	double bestValue = -Double.MAX_VALUE;
+	public int bestActionNaive()
+	{
+		int selected = -1;
+		double bestValue = -Double.MAX_VALUE;
+		for (int i=0; i<children.length; i++) 
+		{
+			if(children[i] != null) 
+			{
+				double childValue = children[i].totValue / (children[i].nVisits + this.epsilon);
+				childValue = Utils.noise(childValue, this.epsilon, this.random.nextDouble());	 //break ties randomly
+				if (childValue > bestValue)
+				{
+					bestValue = childValue;
+					selected = i;
+				}
+			}
+		}
+		if (selected == -1)
+		{
+			System.out.println("Unexpected selection!");
+			selected = 0;
+		}
+		return selected;
+	}
 
-	//	for (int i=0; i<children.length; i++) 
-	//	{
-	//		if(children[i] != null) 
-	//		{
-	//			//double childValue = children[i].totValue / (children[i].nVisits + this.epsilon);
-	//			double optionRanking = Agent.optionRanking.get(this.possibleOptions.get(i).getType());
-	//			double childValue =  ((1 - Agent.ALPHA) * 
-	//						(children[i].totValue / (children[i].nVisits + this.epsilon))) + 
-	//					Agent.ALPHA * optionRanking;
-	//			childValue = Utils.noise(childValue, this.epsilon, this.random.nextDouble());	 //break ties randomly
-	//			if (childValue > bestValue)
-	//			{
-	//				bestValue = childValue;
-	//				selected = i;
-	//			}
-	//		}
-	//	}
-	//	if (selected == -1)
-	//	{
-	//		System.out.println("Unexpected selection!");
-	//		selected = 0;
-	//	}
-	//	return selected;
-	//}
-
-	public int bestAction()
+	public int bestActionLearning()
 	{
 		int selected = -1;
 		double bestValue = -Double.MAX_VALUE;
 		double bestOptionValue = -Double.MAX_VALUE;
-
 		for (int i=0; i<children.length; i++) 
 		{
 			if(children[i] != null) 

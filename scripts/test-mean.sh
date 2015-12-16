@@ -40,9 +40,9 @@ random_rollout="false"
 rollout_depth="70"
 uct_start_visits="40"
 learning="true"
-naive="false"
+naive="false true"
 steepness="0.5"
-max_action_time="120"
+max_action_time="40"
 use_mean_reward="true"
 
 ant
