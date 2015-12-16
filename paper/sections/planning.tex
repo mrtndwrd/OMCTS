@@ -6,15 +6,16 @@
 %\todo{Wat gaan we doen: herhalen main objective, teruggrijpen op background en
 %introductie}
 
-Planning over options is traditionally done by applying Q-learning to a set of
-options instead of the set of actions \cite{sutton1999between}. Q-learning
-learns the transition and reward for each state, but as game complexity
-increases, the state space grows as well, increasing Q-learning's memory usage
-and computation time immensely. In this section we introduce \emph{option Monte
-Carlo tree search (O-MCTS)}, a novel algorithm that plans over options using
-MCTS, enabling the use of options in complex MDPs.  The resulting algorithm
-achieves higher scores on complex games that have several sub-goals than
-traditional MCTS.
+In order to simulate the use of subgoals, we will introduce planning over
+options in MCTS in this section. Planning over options is traditionally done by
+applying Q-learning to a set of options instead of the set of actions
+\cite{sutton1999between}. Q-learning learns the transition and reward for each
+state, but as game complexity increases, the state space grows as well,
+increasing Q-learning's memory usage and computation time immensely. In this
+section we introduce \emph{option Monte Carlo tree search (O-MCTS)}, a novel
+algorithm that plans over options using MCTS, enabling the use of options in
+complex MDPs.  The resulting algorithm achieves higher scores on complex games
+that have several sub-goals than traditional MCTS.
 
 %\todo{How to combine options with MCTS - what problems (challenges) occur?}
 In normal MCTS, an action is represented by a connection from a state to a next
@@ -37,14 +38,14 @@ chosen to arrive at that node and the time in that node is $t+n$. If nodes in
 O-MCTS would represent options and connections would represent option selection,
 this property would be lost, complicating the comparison of different nodes at
 the same level in the tree. Therefore, we chose to keep the tree representation
-the same: a node represents a state, a connection represents an action. We
-introduce a change in the expansion and selection strategies, which select
-options, rather than actions. When a node has an unfinished option, the next
-node will be created using an action selected by that option. When a node
-contains a finished option (meaning that the current state satisfies its
-termination condition $\beta$), a new option can be chosen by the expansion or
-selection strategy. The search tree now looks like Figure \ref{fig:omcts-tree},
-in which each blue box represents one option.
+the same: a node represents a state, a connection represents an action. An
+option spans several actions and therefore several nodes in the search tree, as
+denoted in figure \ref{fig:omcts-tree}. We introduce a change in the expansion
+and selection strategies, which select options, rather than actions. When a node
+has an unfinished option, the next node will be created using an action selected
+by that option. When a node contains a finished option (meaning that the current
+state satisfies its termination condition $\beta$), a new option can be chosen
+by the expansion or selection strategy.
 
 Options are hand defined. We created a set of options most of which use the A
 Star algorithm to navigate the agent towards a specific game sprite or location
@@ -106,13 +107,13 @@ The inner loop runs until a node $s$ is reached that meets a stop criterion
 defined by the function \textsf{stop}, or a node is expanded into a new node.
 In lines \ref{alg:omcts:sp} until \ref{alg:omcts:ep}, $\mathbf{p}_s$ is set to
 all options that are available in $s$. If an option has not finished,
-$\mathbf{p}_s$ contains only the current option. Otherwise, it contains all the options $o$ that have state $s$ in their
-initiation set $I_o$. For example, when the agent is playing Zelda (see figure
-\ref{fig:zelda} and the current
-state $s$ shows no NPCs on screen. If there is an option $o$ that goes to NPCs,
-$I_o$ will not contain state $s$, because there are no NPCs on screen, rendering
-$o$ useless in state $s$. $\mathbf{p}_s$ will thus not contain option $o$, since
-$s$ is not in $o$'s initiation set $I_o$.
+$\mathbf{p}_s$ contains only the current option. Otherwise, it contains all the
+options $o$ that have state $s$ in their initiation set $I_o$. For example, when
+the agent is playing Zelda (see figure \ref{fig:zelda} and the current state $s$
+shows no NPCs on screen. If there is an option $o$ that goes to NPCs, $I_o$ will
+not contain state $s$, because there are no NPCs on screen, rendering $o$
+useless in state $s$. $\mathbf{p}_s$ will thus not contain option $o$, since $s$
+is not in $o$'s initiation set $I_o$.
 
 Then, the four phases of Figure \ref{fig:mcts} are implemented as follows.  If
 the set $\mathbf{p}_s$ is the same as the set of options in the children of $s$,
@@ -139,15 +140,17 @@ The \textsf{back\_up} function traverses the tree through all parents of $s$,
 updating their expected value.
 
 When the time is up, the algorithm chooses an option from $c_r$ corresponding to
-the child node with the highest expected value. This option chooses the best
+the child node highest expected value. This option chooses the best
 action for the state in the root node and that action is returned. The agent
-plays out this action, and runs the algorithm again in the next state it
-receives, by creating a new root node $r$ for that state. 
+plays out this action. 
 
-Note that there is a difference between planning using the forward model and
-actually acting on the game. During planning, O-MCTS executes options until they are
-finished, whereas when a game action has to be chosen, O-MCTS always selects the
-option that maximizes the future reward in that state, even if the option chosen
-in the previous state was not finished in the current state. This way, when a
-state is reached that was not anticipated upon during planning, the right option
-will still be chosen.
+In the next state, the algorithm starts anew by creating a new root node from
+this state. Note that O-MCTS returns actions, not options. This way, when an
+option would eventually reach a state where the avatar dies, it does not have to
+be followed until it is finished. This can be seen as a version of option
+interruption as discussed in \cite{sutton1999between}.
+
+We expect that this implementation of MCTS with options enables the algorithm to
+create a deeper tree search, looking further ahead and that the usage of options
+will enable the algorithm to plan over subgoals. In the experiments section we
+show results that support our expectations.

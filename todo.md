@@ -10,23 +10,21 @@ testset, Arnoud Visser vragen waar je naar moet refereren voor A*
 
 ### Planning
 
-- starten met: In order to ... we introduce options into mcts
-- "An option spans several actions and therefore several nodes in the search
+- DONE starten met: In order to ... we introduce options into mcts
+- DONE "An option spans several actions and therefore several nodes in the search
   tree" toevoegen aan praatje over traditional MCTS
-- Verwijzingen naar named entities beginnen met een hoofdletter (Figure,
+- DONE Verwijzingen naar named entities beginnen met een hoofdletter (Figure,
   Algorithm, etc., behalve lines)
-- Labels toevoegen aan plaatje O-MCTS
-- Verwachting toevoegen dat de options ervoor zorgen dat je sneller dieper
+- DONE Labels toevoegen aan plaatje O-MCTS
+- DONE Verwachting toevoegen dat de options ervoor zorgen dat je sneller dieper
   actions plant. Verwijzen naar experiments sectie die laat zien dat het ook
   echt beter werkt.
 - 
 
 ### Learning 
-- Wat is de intuitie, waarom kan het evt. werken? Als het lukt ook een intuitie
+- DONE? Wat is de intuitie, waarom kan het evt. werken? Als het lukt ook een intuitie
   geven waarom het niet zou kunnen werken
 - Aan het einde een intuitie en een vooruitverwijzing
-
-
 
 ## Other
 

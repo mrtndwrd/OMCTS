@@ -1,10 +1,13 @@
 \section{Learning}
 \label{sec:learning}
-As mentioned earlier, the branching factor of O-MCTS increases when the number
-of options increases. When many options are defined, exploring all the options
-when an option has finished becomes infeasible. By estimating
-\emph{option values}, the mean and variance of the expected return of an option,
-we can detect which options should be explored.
+Although O-MCTS might improve the tree search, when the number of options
+increases, the branching factor of O-MCTS increases as well. When many options
+are defined exploring all the options, for each node where an option is
+finished, becomes infeasible. In this section, we will define \emph{option
+values}, the expected mean and variance of an option, which can be used to
+estimate which options are feasible and which are not. Exploration can then
+focus on the feasible options, enabling an even deeper search tree than O-MCTS,
+in the same time.
 
 The return $R_o$ for using option $o$ from timestep $t$ to $t+n$ is calculated
 by adding the discounted rewards $r_t$ for all of the states visited by that
