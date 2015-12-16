@@ -8,22 +8,20 @@ options and finally the \emph{video game description language (VGDL)}.
 \subsection{Markov Decision Processes}
 \label{subsec:mdps}
 In this paper, a game will be treated as an MDP, which is a
-tuple $\langle S, A, T, R \rangle$. $S$ denotes the set of states. A state
-contains all the information of the game's current condition: locations of
-monsters, the avatar, etc. If states do not contain all the information, we
-say an MDP is \emph{partially observable}. $A$ is a finite set of actions, the
-input an agent can deliver to the game. $T$ is a transition function defined as
-$T : S \times A \times S \rightarrow \left[0,1\right]$. It specifies the
-probabilities over the possible next states, when taking an action in a state.
-$R$ is a reward function defined as $R: S \times A \times S \rightarrow
-\mathbb{R}$. In this case, when the game score increases, the increase is
-viewed as the reward. Algorithms typically maximize the cumulative reward, which
-is analogous to the score. An MDP by definition has the \emph{Markov property},
-which means that the conditional probability distribution of future states
-depends only upon the present state. No information from previous states is
-needed. Algorithms don't have access to $T$ and $R$ in the scope of this paper.
-
-%\todo{hoe relateren winnen en scores aan elkaar (maar misschien niet hier?)}
+tuple $\langle S, A, T, R \rangle$. $S$ denotes the set of states. An MDP is
+fully observable, meaning that a state contains all the information of the
+game's current condition: locations of monsters, the avatar, etc. $A$ is a
+finite set of actions, the input an agent can deliver to the game. $T$ is a
+transition function defined as $T : S \times A \times S \rightarrow
+\left[0,1\right]$. It specifies the probabilities over the possible next states,
+when taking an action in a state.  $R$ is a reward function defined as $R: S
+\times A \times S \rightarrow \mathbb{R}$. In this case, when the game score
+increases, the increase is viewed as the reward. Algorithms typically maximize
+the cumulative reward, which is analogous to the score. An MDP by definition has
+the \emph{Markov property}, which means that the conditional probability
+distribution of future states depends only upon the present state. No
+information from previous states is needed. Algorithms do not have access to $T$
+and $R$ in the scope of this paper.
 
 \subsection{Monte Carlo Tree Search}
 \begin{figure}
@@ -34,26 +32,35 @@ needed. Algorithms don't have access to $T$ and $R$ in the scope of this paper.
 \end{figure}
 
 \label{subsec:mcts}
-The MCTS algorithm has been a core AI algorithm for a long time
-\cite{browne2012survey}. Here we explain how it approximates the value
-of actions taken in a specific state. A tree is built incrementally from
-the states and actions that are visited in a game. Each node in the tree
-represents a state, each connection in the tree represents an action taken in
-that state leading to a state, which is represented by the next tree node. 
-The process, as explained in figure \ref{fig:mcts}, consists of four phases that
-are constantly repeated. It is started with the current game state, which is
-represented by the root node of the tree. The first action is chosen by an
-\emph{expansion strategy} and subsequently simulated, resulting in a new game
-state, for which a new node is created. A \emph{rollout} is done from the new
-node, which means that a simulation is run from the new node applying random
-actions until a predefined stop criterion is met or the game ends. Finally, the
-score difference resulting from the rollout is backed up, to the root node,
-which means that the reward is saved to the visited nodes. Then a new iteration
-starts. When all actions are expanded in a node, we call that node \emph{fully
-expanded} and use a \emph{selection strategy} to select a next node. When a node
-is selected that is not fully expanded, the expansion strategy is used to create
-a new node, after which a rollout takes place and the results are backed up
-thereafter.
+Monte Carlo methods have their roots in statistical physics, where they have
+been used to approximate intractable integrals. Abrahamson
+\cite{abramson1990expected} demonstrated theoretically that this sampling method might be
+useful for action selection in games as well.  In 2001, Monte Carlo methods were
+effectively used for bridge \cite{ginsberg2001gib}. The real success of MCTS
+started in 2006, when the tree search method and UCT formula were introduced,
+yielding very good results in Computer Go \cite{gelly2006modification}. Since
+2006, the algorithm has been extended with many variations is still being used
+for other computer games \cite{browne2012survey}, including the GVGAI
+competition \cite{perez2014knowledge}.
+
+This section explains how it approximates the value of actions taken in a
+specific state. A tree is built incrementally from the states and actions that
+are visited in a game. Each node in the tree represents a state, each connection
+in the tree represents an action taken in that state leading to a state, which
+is represented by the next tree node.  The process, as explained in Figure
+\ref{fig:mcts}, consists of four phases that are constantly repeated. It is
+started with the current game state, which is represented by the root node of
+the tree. The first action is chosen by an \emph{expansion strategy} and
+subsequently simulated, resulting in a new game state, for which a new node is
+created. A \emph{rollout} is done from the new node, which means that a
+simulation is run from the new node applying random actions until a predefined
+stop criterion is met or the game ends. Finally, the score difference resulting
+from the rollout is backed up, to the root node, which means that the reward is
+saved to the visited nodes. Then a new iteration starts. When all actions are
+expanded in a node, we call that node \emph{fully expanded} and use a
+\emph{selection strategy} to select a next node. When a node is selected that is
+not fully expanded, the expansion strategy is used to create a new node, after
+which a rollout takes place and the results are backed up thereafter.
 
 	%(Term from pMCTS.pdf)
 The selection strategy selects optimal actions in internal tree nodes, depending

@@ -30,8 +30,8 @@ created and added to the algorithm easily.
 		stops.
 	\item \texttt{AvoidNearestNpcOption} makes the agent avoid the nearest NPC
 	\item \texttt{GoNearMovableOption} makes the agent walk towards a
-		movable game sprite and stops when it is within a certain range of the
-		movable
+		movable game sprite (defined as movable by the VGDL) and stops when it
+		is within a certain range of the movable
 	\item \texttt{GoToMovableOption} makes the agent walk towards a
 		movable until its location is the same as that of the movable
 	\item \texttt{GoToNearestSpriteOfType} makes the agent walk to the nearest sprite of
@@ -41,23 +41,22 @@ created and added to the algorithm easily.
 		then uses its weapon.
 \end{itemize}
 
-For each option type, a subtype per game sprite is created during the game. For
+For each option type, a subtype per sprite type is created during the game. For
 each sprite, an option instance of its corresponding subtype is created. For
-example, the game Zelda, as seen in figure \ref{fig:zelda}, contains three
-different sprite types (excluding the avatar); a monster, a key and a portal.
-The first level contains three monsters, one key and one portal and the aim of
-the game is to collect the key and walk towards the portal without walking into
-the monsters. In the first level, there are three monsters, one key and one
-portal. \texttt{GoToMovableOption} and \texttt{GoNearMovableOptions} will be
-created for each of the three monsters and for the key. A
-\texttt{GoToPositionOption} will be created for the portal.  One
+example, the game Zelda, as seen in Figure \ref{fig:zelda}, contains three
+different sprite types (excluding the avatar and walls); monsters, a key and a
+portal. The first level contains three monsters, one key and one portal, and the
+aim of the game is to collect the key and walk towards the portal without
+walking into the monsters. \texttt{GoToMovableOption} and
+\texttt{GoNearMovableOptions} will be created for each of the three monsters and
+for the key. A \texttt{GoToPositionOption} will be created for the portal.  One
 \texttt{GoToNearestSpriteOfType} will be created per sprite type. One
 \texttt{WaitAndShootOption} will be created for the monsters, and one
 \texttt{AvoidNearestNpcOption} will be created. This set of options is $O$ in
-algorithms \ref{alg:omcts} and \ref{alg:olmcts}.
+Algorithms \ref{alg:omcts} and \ref{alg:olmcts}.
 
 The \texttt{GoTo\ldots} options all utilize an adaptation of the A Star
-algorithm, to plan routes. The problem that the adaptation solves is that at the
+algorithm to plan routes. An adaptation was needed, because at the
 beginning of the game there is no knowledge of which sprites are traversable and
 which are not. Thus, during every move that is simulated by the agent, the A
 Star module has to update its beliefs about the location of walls and other
@@ -76,14 +75,15 @@ that were unavailable earlier. For example, if a door is closed until a key is
 picked up, this A Star algorithm will still be able to plan a path to the door,
 once the key is picked up, winning the game.
 
-Furthermore, in these experiments we use discount factor $\gamma = 0.9$, maximum
-action time $t = 40$ milliseconds. The maximum search depth $d$ is set to 80,
-which is higher than most alternative tree search algorithms, e.g.
-the competitors in the GVGAI competition, use. The number of node visits $v$ is set
-to 40, after which \textsf{uct} is used. $K$ for crazy stone is set to $0.5$.
-
+The O(L)-MCTS algorithm has some parameters, which were empirically optimized
+for these experiments. We use discount factor $\gamma = 0.9$, maximum action
+time $t = 40$ milliseconds. The maximum search depth $d$ is set to 80, which is
+higher than most alternative tree search algorithms, e.g.  the competitors in
+the GVGAI competition, use. The number of node visits after which \textsf{uct} is
+used, $v$, is set to 40. Crazy stone parameter $K$ is set to $0.5$.
 For comparison, we use the MCTS algorithm provided with the Java implementation
-of VGDL with its default value of maximum search depth 8. 
+of VGDL with its default value of maximum search depth of 8. Both algorithms
+have \textsf{uct} constant $C_p = \sqrt{2}$.
 
 We ran the algorithms on a set of 40 different games with 5 levels each. For
 each level, we use the mean results of 20 plays. For the transfer learning
@@ -91,27 +91,28 @@ algorithm the fifth game after 4 training games was used (it played 100
 games per level altogether).
 
 Figures \ref{fig:wins} and \ref{fig:scores} respectively show the win ratio and
-normalized score for each game and algorithm. As can be seen in figure
+normalized score for each game and algorithm. As can be seen in Figure
 \ref{fig:wins}, the O-MCTS algorithms performs at least as good as MCTS in
 almost all games. 
 
 Big wins for the MCTS algorithm can be seen in whackamole, jaws and plaque
 attack. The similarity of these games is that they have a very big number of
-different sprites, which results in the algorithm creating too many options.
+different sprites, for each of which several options have to be created.
 When the number of options becomes too big, constructing the initiation set of
-options $\mathbf{p}_s$ becomes so time-consuming that the algorithm is left with
-too little time to build its tree and figure out the best possible move.
+options $\mathbf{p}_s$ for every state $s$ becomes so time-consuming that the
+algorithm has too little time to build a tree and find the best possible
+action.
 
-On the other hand a big difference in wins can be spotted for missile command,
+Contrarily, O-MCTS greatly outperforms MCTS in the games missile command,
 overload, firestorms, zelda, camel race, eggomania, firecaster and chase. If we
-inspect the algorithm's working for these games, we can see that the algorithm
-succeeds in efficiently planning paths in a dangerous environment, enabling it
-to do a further forward search than the ordinary Monte Carlo tree search. Camel
-race requires the player to move to the right for 80 consecutive turns, which is
-very hard for MCTS, since it only looks forward 8 turns. O-MCTS almost always
-wins, since it can plan forward a lot further. In Overload, a sword has to be
-picked up before the avatar can finish the game, which seems to be too hard for
-MCTS to figure out.
+inspect the algorithm's performance for these games, we can see that the
+algorithm succeeds in efficiently planning paths in a dangerous environment,
+enabling it to do a further forward search than the ordinary Monte Carlo tree
+search. Camel race requires the player to move to the right for 80 consecutive
+turns, which is very hard for MCTS, since it only looks forward 8 turns. O-MCTS
+almost always wins, since it can plan forward a lot further. In Overload, a
+sword has to be picked up before the avatar can finish the game, which seems to
+be too hard for MCTS, but poses less of a problem for O-MCTS.
 
 \begin{figure}
 	\centering
@@ -127,15 +128,20 @@ MCTS to figure out.
 	all games.}
 \end{figure}
 
-Furthermore, the graph clearly shows that the transfer learning algorithm
-significantly improves score over the course of 5 plays of bait.  Bait is a game
+Furthermore, the graph shows that the transfer learning algorithm
+significantly improves score over the course of 5 plays of bait. Bait is a game
 in which the objective is to reach a goal portal after collecting a key. The
-player can push boxes around to open paths.  Thare are holes in the ground that
+player can push boxes around to open paths. There are holes in the ground that
 kill the player, unless they are filled with boxes, which make both the hole and
-the box disappear.  The improvement in score (including variance) and wins for
-this game is shown in figure \ref{fig:learning-results}. There are three
+the box disappear. The improvement in score (including variance) and wins for
+this game are shown in Figure \ref{fig:learning-results}. There are three
 possible reasons for this improvement: 1.) There are sprites that kill the
-player, which will be evaded by the algorithm when it has learned they do so.
-2.) The algorithm might learn that it is supposed to pick up the key. 3.) The
-player learns to apply options in such a way that he can push boxes into the
+player, which will be evaded by the algorithm when it has learned to do so.
+2.) The algorithm might learn that it should pick up the key. 3.) The
+player might learn to apply options in such a way that he can push boxes into the
 (deadly) holes.
+
+Figure \ref{fig:total-results} shows the sum of wins over all games, all levels.
+It shows a significant ($p < 0.05$) improvement of O-MCTS, OL-MCTS and OTL-MCTS
+over MCTS. Unfortunately, no significant difference can be found for all games
+by incorporating learning.

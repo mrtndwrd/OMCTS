@@ -43,11 +43,12 @@ options, rather than actions. When a node has an unfinished option, the next
 node will be created using an action selected by that option. When a node
 contains a finished option (meaning that the current state satisfies its
 termination condition $\beta$), a new option can be chosen by the expansion or
-selection strategy. The search tree now looks like figure \ref{fig:omcts-tree},
+selection strategy. The search tree now looks like Figure \ref{fig:omcts-tree},
 in which each blue box represents one option.
 
-Options are hand defined. We created a set of options most of which use the A*
-algorithm to navigate the agent towards a specific game sprite or location \cn.
+Options are hand defined. We created a set of options most of which use the A
+Star algorithm to navigate the agent towards a specific game sprite or location
+\cn.
 
 \begin{algorithm}
 	\caption{$\mathsf{O-MCTS}(O, r, t, d)$}
@@ -95,7 +96,7 @@ algorithm to navigate the agent towards a specific game sprite or location \cn.
 \end{figure}
 
 
-We describe O-MCTS in algorithm \ref{alg:omcts}. It is invoked with a set of
+We describe O-MCTS in Algorithm \ref{alg:omcts}. It is invoked with a set of
 options $O$, a root node $r$, a maximum runtime $t$ in milliseconds and a
 maximum search depth $d$. Two variables are instantiated. $C_s$ is a set of
 sets, containing the set of child nodes for each node and $\mathbf{o}$ contains
@@ -113,7 +114,7 @@ $I_o$ will not contain state $s$, because there are no NPCs on screen, rendering
 $o$ useless in state $s$. $\mathbf{p}_s$ will thus not contain option $o$, since
 $s$ is not in $o$'s initiation set $I_o$.
 
-Then, the four phases of figure \ref{fig:mcts} are implemented as follows.  If
+Then, the four phases of Figure \ref{fig:mcts} are implemented as follows.  If
 the set $\mathbf{p}_s$ is the same as the set of options in the children of $s$,
 $m$, i.e. all options have been explored at least once in node $s$, a new node
 $s'$ is \emph{selected} by \textsf{uct} In line \ref{alg:omcts:ss}, $s$ is
@@ -126,7 +127,7 @@ score difference $\delta$. This score difference is \emph{backed up} to the
 parent nodes of $s$ using the backup function, after which the tree traversal
 restarts with the root node $r$.
 
-A couple of functions are used by algorithm \ref{alg:omcts}. The function
+A couple of functions are used by Algorithm \ref{alg:omcts}. The function
 \textsf{stop} returns true when either the game ends in state $s$ or the maximum
 depth is reached in $s$. The function \textsf{get\_action} lets option $o$
 choose the best action for the state in node $s$, \textsf{apply\_action} applies

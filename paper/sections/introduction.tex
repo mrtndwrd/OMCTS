@@ -1,7 +1,5 @@
 \section{Introduction}
 \label{sec:introduction}
-%\todo{What is AI in games?}
-%\todo{There exists game-specific AI, which works well}
 % This might be useful for AAMAS or something, but not for gaming comferences
 %
 %In the history of AI algorithms, playing games has been one of the objectives
@@ -11,60 +9,51 @@
 %algorithms are designed for solving computer games. For example a lot of
 %strategy games offer computer controlled contestants. 
 
-% TODO examples of good working game-specific algorithms? Star craft competitions?} 
-%	\todo{Next step: General AI}
-%		\todo{e.g. GVGAI competition}
-Many real-world problems can be modelled as games. AI algorithms that can solve
-complex games, are often capable of solving problems that can be modelled
-as a game as well. Many game-specific AIs work very well, but it is a very time
-consuming task to create an AI for every game. Recent research
-focusses on algorithms capable of solving several games with differing types of
-objectives. 
+AI algorithms that can play complex games successfully are often very effective
+problem solvers as well, since many real-world problems can be modelled as a
+game. Game-specific AIs work very well, but it is a very time consuming
+task to create an AI for every game. Therefore, recent research focusses on
+algorithms capable of solving several games with differing types of objectives.
+A very common general game solving approach is to use a tree search in order to
+select the best action in a game state. The tree search is repeated in every new
+state until the game ends. 
 
-% TODO: Maybe say this somewhere else?
-%Algorithms for general game solving are competing against each other
-%in the \emph{general video game AI (GVGAI)} competition \cite{perez2014}.
+However, since many games are too complex to plan far ahead, planning
+by tree search based methods often only considers short-term score differences
+and does not incorporate long-term plans. Moreover, algorithms lack common video game
+knowledge and do not use any of the knowledge gained from the previous games.
 
-When humans play a game, they are expected to do assumptions about
-its mechanics, e.g. pressing the left button should result in the player's
+In contrast, when humans play a game they are expected to do assumptions about
+its mechanics, e.g., pressing the left button should result in the player's
 avatar moving to the left on the screen. Players can use these assumptions to
-learn how to play the game more quickly. Furthermore, humans players 
-have an abstraction layer over their action choices; instead of
-choosing one action at a time they define a specific subgoal for themselves. 
-For example: when there's a portal on screen, a human player is
-likely to try to find out what the portal does by walking towards it. Walking
-towards the portal can then be seen as a subgoal of playing the game.
-
-%\todo{Most effective algorithms on this moment are based on MCTS, but don't
-%really use common knowledge, which is why we're doing this}
-%Many competitors in the GVGAI competition use an approach based on tree
-%search in order to select the best action to take in a state. 
-A very common game solving approach is using a tree search in order to select
-the best action in a game state. The tree search is repeated in every new state
-until the game ends. These algorithms lack common video game knowledge and do
-not use any of the knowledge gained from the previous games.
-%\footnote{in fact, the GVGAI competition currently prohibits algorithms to
-%transfer any information to the next game in its planning track, which is the
-%only track at the time of writing}
-Furthermore, planning by tree search based methods often only considers
-short-term score differences and do not include long-term plans. 
-%\todo{When people play games, they use common knowledge about games to win}
+learn how to play the game more quickly. Furthermore, humans players have an
+abstraction layer over their action choices; instead of choosing one action at a
+time they define a specific subgoal for themselves.  For example: when there is
+a portal on screen, a human player is likely to try to find out what the portal
+does by walking towards it. Walking towards the portal can then be seen as a
+subgoal of playing the game.
 
 %\todo{Introduction of options (abstract thinking level)}
 %	\todo{Introduction of learning about options}
 %	\todo{Options have never been used with MCTS, this combination is
 %	revolutionary!}
 
-In this paper, a new algorithm is introduced, that extends \emph{Monte Carlo
-tree search (MCTS)} to the use of \emph{options}. Options are predefined
+Therefore, a new algorithm is introduced in this paper, that extends \emph{Monte
+Carlo tree search (MCTS)} to the use of \emph{options}. Options are predefined
 policies for reaching a specific subgoal, thus an option selects an action,
 given a state, that aims at satisfying the subgoal. Options, in this context,
-are game-independent. For example there is an option that has the objective of
-reaching a specific location in the game (for example a portal). It
-selects actions using A*, that will reach the goal location.
-The new algorithm chooses between options, rather than actions, when playing a
-game, resulting in more abstract game planning. Over time, information can be
-learned about the type of options that is more useful in a game, which can be
-used to focus exploration of the search tree to promising options. This
-information can also be transferred in order to increase performance on a next,
-possibly harder, level. The resulting algorithm outperforms traditional MCTS.
+are game-independent. For example, an option that has reaching a specific
+location in the game (for example a portal) as its objective, selects actions
+using a path planning heuristic that will reach the goal location. The new
+algorithm chooses between options rather than actions, when playing a game,
+resulting in more abstract game planning. Over time, information can be learned
+about the type of options that is more useful in a game, which can be used to
+focus exploration of the search tree to promising options. This information can
+also be transferred in order to increase performance on a next, possibly harder,
+level. 
+
+The algorithm will be benchmarked on four sets of games from the General Video
+Game AI Competition \cite{perez2014}, against the standard Monte Carlo Tree
+Search algorithm that is provided with that competition.  Our results indicate
+that the resulting algorithm outperforms traditional MCTS.
+
