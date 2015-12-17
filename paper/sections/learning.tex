@@ -7,11 +7,13 @@ finished, becomes infeasible. In this section, we will define \emph{option
 values}, the expected mean and variance of an option, which can be used to
 estimate which options are feasible and which are not. Exploration can then
 focus on the feasible options, enabling an even deeper search tree than O-MCTS,
-in the same time.
+in the same time. We expect that this increases performance, especially in games
+where the set of possible options is large, or where only a small set of options
+is needed in order to win.
 
 The return $R_o$ for using option $o$ from timestep $t$ to $t+n$ is calculated
 by adding the discounted rewards $r_t$ for all of the states visited by that
-option.  $$R_o = r_{t} + \gamma r_{t+1} + \gamma^2 r_{t+2} + \cdots + \gamma^n
+option \cite{sutton1999between}. $$R_o = r_{t} + \gamma r_{t+1} + \gamma^2 r_{t+2} + \cdots + \gamma^n
 r_{t+n},$$ where $\gamma \in [0, 1]$ is the discount rate parameter, which
 influences the importance of rewards that lay further in the future: an option
 with reward 1 at timestep $t$ will get a greater return than an option with the
@@ -22,19 +24,19 @@ there is an option for going to a movable sprite, which has type
 \texttt{GoToMovableOption}. An instance of this option exists for each movable
 sprite in the game. \emph{Subtypes} are defined as well. In this case, each
 unique game sprite has its own subtype. The mean and variance of the options'
-discounted rewards are kept per subtype. Each time an option is finished, its
-subtype's values $\mu_o$ and $\sigma_o$ are updated by respectively taking the
-mean and variance of all the returns of this subtype. By saving values per
-subtype the algorithm can regularize over unique sprites.
+discounted rewards are saved and calculated per subtype. Each time an option is
+finished, its subtype's values $\mu_o$ and $\sigma_o$ are updated by
+respectively taking the mean and variance of all the returns of this subtype. By
+saving values per subtype the algorithm can generalize over sprites of the same
+type.
 
-Now we have an option value and variance we can use the crazy stone algorithm
-to reduce calculation time by shifting the focus of the exploration to promising
-options. This means that not all children of a node will be expanded, but only
-the ones selected by crazy stone. The algorithm then changes to algorithm
-\ref{alg:olmcts}. Most of it is the same, with the exception that crazy stone
-selects what node to expand in the first $v$ node visits. Because crazy stone
-can select the same option several times, this prevents the algorithm from
-expanding all the children, which saves time. 
+Because we have an option's expected mean and variance we can use the crazy
+stone algorithm from Equation \ref{eq:crazystone} to reduce calculation time by
+shifting the focus of the exploration to promising options. The crazy stone
+algorithm is applied in the expansion phase of O-MCTS. As a result, not all
+children of a node will be expanded, but only the ones selected by crazy stone.
+Because crazy stone can select the same option several times, it enables deeper
+exploration of promising subtrees. 
 
 Crazy stone uses the mean return $R_o$ of each option as its estimated value
 $\mu$ for choosing which option to select or expand. After a predefined number
@@ -42,11 +44,33 @@ of visits $v$ to a node, the selection strategy \textsf{uct} is followed to
 tweak the option selection. When it starts using \textsf{uct}, no new expansions
 are done in this node for the remainder of time.
 
+The new algorithm can be seen in Algorithm \ref{alg:olmcts}. The updates of the
+option values are done in line \ref{alg:olmcts:update}. The function
+\textsf{update\_values} takes the return of the option that was used, and
+updates its $\mu$ and $\sigma$ by calculating the new mean and variance of all
+returns. The next difference with O-MCTS starts in line \ref{alg:olmcts:ns},
+where the algorithm applies crazy stone if the current node has been visited
+less than $v$ times, or alternatively applies \textsf{uct} like in O-MCTS.
+\textsf{crazy\_stone} returns a set of weights over options. A weighted random
+then chooses a new option $\omega$ by using these weights.  If $\omega$ has not
+been explored yet, i.e., there is no child node of $s$ in $c_s$ that uses this
+option, the algorithm chooses and applies an action, and breaks to rollout in
+lines \ref{alg:olmcts:scs} to \ref{alg:olmcts:ecs}. This is similar to the
+exploration steps in O-MCTS. If $\omega$ has been explored in this node before,
+the corresponding child node $s'$ is selected from $c_s$ and the loop continues
+similar to when \textsf{uct} selects a child.
+
 The information learned in a game can be transferred if the game is played
 again by supplying OL-MCTS with the $\mu$ and $\sigma$ of the previous game. We
-will refer to this as \emph{Option Tranfer Learning MCTS (OTL-MCTS)}. Especially
+will refer to this as \emph{Option Transfer Learning MCTS (OTL-MCTS)}. Especially
 in games where some options excel over the others, transfer learning can help
 identifying these and focussing exploration on these options. 
+
+We expect that by learning option values and applying crazy stone, the algorithm
+can create even deeper search trees, focussed more on promising areas of the
+search space, thereby improving its performance more than O-MCTS. Furthermore,
+we expect that transferring option values to the next game, the algorithm can
+improve over the course of several games.
 
 \begin{algorithm}
 	\caption{$\mathsf{OL-MCTS}(O, r, t, d, v, \mu, \sigma)$}
@@ -58,25 +82,26 @@ identifying these and focussing exploration on these options.
 			\State $s \gets r$
 			\While {$\neg \mathsf{stop}(s, d)$} \label{alg:olmcts:innerloop}
 				\If{$s \in \beta(o_s)$} \label{alg:olmcts:sp}
-					\State $\mathsf{update\_values}(s, o_s, \mu, \sigma)$ \Comment{Update $\mu$ and $\sigma$}
+					\State $\mathsf{update\_values}(s, o_s, \mu, \sigma)$
+						\Comment{Update $\mu$ and $\sigma$} \label{alg:olmcts:update}
 					\State $\mathbf{p}_s \gets \cup_o (s \in I_{o \in O})$
 				\Else
 					\State $\mathbf{p}_s \gets \{o_s\}$
 				\EndIf \label{alg:olmcts:scs}
 				\State $\mathbf{m} \gets \cup_o (o_{s \in \mathbf{c}_s})$
-				\If{$n_s < v$} \Comment{Apply \textsf{crazy\_stone}}
+				\If{$n_s < v$} \Comment{Apply \textsf{crazy\_stone}} \Comment{Eq. \ref{eq:crazystone}}
+					\label{alg:olmcts:ns}
 					\State $\mathbf{u}_s \gets \mathsf{crazy\_stone}(\mu, \sigma, \mathbf{p}_s)$
 					\State $\omega \gets \mathsf{weighted\_random}(\mathbf{u}_s, \mathbf{p}_s)$
 					\If{$\omega \not\in \mathbf{m}$} \Comment{option $\omega$ not expanded}
-						\State $a \gets \mathsf{get\_action}(\omega, s)$ 
+						\State $a \gets \mathsf{get\_action}(\omega, s)$ \label{alg:olmcts:scs}
 						\State $s' \gets \mathsf{expand}(s, a)$ 
 						\State $\mathbf{c}_s \gets \mathbf{c}_s \cup \{s'\}$
 						\State $o_{s'} \gets \omega$
-						\State \textbf{break}
+						\State \textbf{break} \label{alg:olmcts:ecs}
 					\Else
-						\State $s' \gets s \in \mathbf{c}_s : o_s = \omega$
+						\State $s' \gets s \in \mathbf{c}_s : o_s = \omega$ \label{alg:olmcts:s}
 					\EndIf
-
 				\Else \Comment{Apply \textsf{uct}}
 					\State $s' \gets \mathsf{uct}(s)$ \label{alg:olmcts:uct}
 				\EndIf \label{alg:olmcts:ecs}

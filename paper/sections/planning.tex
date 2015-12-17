@@ -49,7 +49,7 @@ by the expansion or selection strategy.
 
 Options are hand defined. We created a set of options most of which use the A
 Star algorithm to navigate the agent towards a specific game sprite or location
-\cn.
+\cite{hart1968formal}.
 
 \begin{algorithm}
 	\caption{$\mathsf{O-MCTS}(O, r, t, d)$}
@@ -68,7 +68,7 @@ Star algorithm to navigate the agent towards a specific game sprite or location
 				\State $\mathbf{m} \gets \cup_o (o_{s \in \mathbf{c}_s})$ \Comment{set $\mathbf{m}$ to expanded options}
 				\If{$\mathbf{p}_s = \mathbf{m}$} \Comment{if all options are expanded}
 					\State $s' \gets \max_{c \in \mathbf{c}_s} \mathsf{uct}(s, c)$ \label{alg:omcts:uct} 
-						\Comment{child from eq. \ref{eq:uct}}
+						\Comment{child from Eq. \ref{eq:uct}}
 					\State $s \gets s'$ \label{alg:omcts:ss} 
 						\Comment{continue loop with new node $s'$}
 				\Else \label{alg:omcts:sexpand}
