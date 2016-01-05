@@ -8,6 +8,15 @@ verwijzen
 Meer references: Paper over GVGAI, Andere papers die hebben getest op mijn
 testset, Arnoud Visser vragen waar je naar moet refereren voor A*
 
+
+### Experiments
+- Kijken of learning wel werkt met game-specifieke parameters voor 1 game (bijv.
+  Zelda)
+- Goed onderzoeken waarom learning werkt voor Bait en Surround
+- kijken of de complexiteit van de games uit te drukken is op een of andere
+  manier
+- goed verklaren waarom verschillen zo groot zijn in voordeel van MCTS
+
 ### Planning
 
 - DONE starten met: In order to ... we introduce options into mcts
@@ -19,11 +28,11 @@ testset, Arnoud Visser vragen waar je naar moet refereren voor A*
 - DONE Verwachting toevoegen dat de options ervoor zorgen dat je sneller dieper
   actions plant. Verwijzen naar experiments sectie die laat zien dat het ook
   echt beter werkt.
-- 
 
 ### Learning 
 - DONE? Wat is de intuitie, waarom kan het evt. werken? Als het lukt ook een intuitie
   geven waarom het niet zou kunnen werken
+- Uitleg algoritme
 - Aan het einde een intuitie en een vooruitverwijzing
 
 ## Other

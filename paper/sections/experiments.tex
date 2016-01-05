@@ -17,13 +17,18 @@
 	\label{fig:scores}
 \end{figure*}
 
+In order to test if O-MCTS improves upon MCTS, and if OL-MCTS improves upon
+O-MCTS, this section simulates the algorithms on 28 different games in the VGDL
+framework. These games include all games from the first four training sets of
+the GVGAI competition, excluding puzzle games that can be solved by a simple
+exhaustive search and have no random component (like NPCs, for example). Each
+game consists of 5 levels. 
 
-In this section we compare O-MCTS and OL-MCTS to traditional MCTS by running
-simulations on 28 different games in the VGDL framework. These games include all
-games from the first four training sets of the GVGAI competition, excluding the
-puzzle games that can be solved by a simple exhaustive search. For this
-experiment we constructed the following option types. More options can be
-created and added to the algorithm easily.
+For this experiment we construct an option set which is aimed at providing
+action sequences for any type of game, since the aim here is general video game
+playing. Note that a more specific set of options can be created when the
+algorithm should be tailored to only one type of games and similarly, more
+options can be added to the algorithm easily.
 
 \begin{itemize}[noitemsep]
 	\item \texttt{ActionOption} executes a specific action once and then
@@ -41,78 +46,97 @@ created and added to the algorithm easily.
 		then uses its weapon.
 \end{itemize}
 
-For each option type, a subtype per sprite type is created during the game. For
-each sprite, an option instance of its corresponding subtype is created. For
-example, the game Zelda, as seen in Figure \ref{fig:zelda}, contains three
-different sprite types (excluding the avatar and walls); monsters, a key and a
-portal. The first level contains three monsters, one key and one portal, and the
-aim of the game is to collect the key and walk towards the portal without
-walking into the monsters. \texttt{GoToMovableOption} and
-\texttt{GoNearMovableOptions} will be created for each of the three monsters and
-for the key. A \texttt{GoToPositionOption} will be created for the portal.  One
-\texttt{GoToNearestSpriteOfType} will be created per sprite type. One
-\texttt{WaitAndShootOption} will be created for the monsters, and one
-\texttt{AvoidNearestNpcOption} will be created. This set of options is $O$ in
-Algorithms \ref{alg:omcts} and \ref{alg:olmcts}.
+For each option type, a subtype per visible sprite type is created during the
+game. For each sprite, an option instance of its corresponding subtype is
+created. For example, the game \textit{zelda}, as seen in Figure \ref{fig:zelda},
+contains three different sprite types (excluding the avatar and walls);
+monsters, a key and a portal. The first level contains three monsters, one key
+and one portal, and the aim of the game is to collect the key and walk towards
+the portal without walking into the monsters. The score is increased by 1 if a
+monster is killed (i.e., its sprite is on the same location as the sword sprite)
+if the key is picked up, and when the game is won. \texttt{GoToMovableOption} and
+\texttt{GoNearMovableOptions} are created for each of the three monsters and
+for the key. A \texttt{GoToPositionOption} is created for the portal.  One
+\texttt{GoToNearestSpriteOfType} is created per sprite type. One
+\texttt{WaitAndShootOption} is created for the monsters, and one
+\texttt{AvoidNearestNpcOption} is created. This set of options is $O$ in
+Algorithms \ref{alg:omcts} and \ref{alg:olmcts}. In a state where, for example,
+all the monsters are dead, the possible option set $\mathbf{p}_s$ does not
+contain the \texttt{AvoidNearestNpcOption} and \texttt{GoToMovableOption}s and
+\texttt{GoNearMovableOption}s for the monsters.
 
 The \texttt{GoTo\ldots} options all utilize an adaptation of the A Star
-algorithm to plan routes. An adaptation was needed, because at the
-beginning of the game there is no knowledge of which sprites are traversable and
-which are not. Thus, during every move that is simulated by the agent, the A
-Star module has to update its beliefs about the location of walls and other
-blocking objects. It does so by comparing the movement the avatar wanted to make
-to the movement that was actually made in game. If the avatar did not move and
-did not change direction, it is assumed that all the sprites on the location the
-avatar should have ended up in are blocking sprites. A Star keeps a \emph{wall
-score} for each sprite type. When a sprite blocks the avatar, its wall score is
-increased by one. Additionally, when a sprite kills the avatar, its wall score
-is increased by 100, in order to prevent the avatar from walking into killing
-sprites. Traditionally, for the A Star's heuristic, the distance between two
-points is calculated. This version of A Star adds the wall score of the location
-being investigated to this heuristic, encouraging the algorithm to take paths
-with a lower wall score. This method enables A Star to try to traverse paths
-that were unavailable earlier. For example, if a door is closed until a key is
-picked up, this A Star algorithm will still be able to plan a path to the door,
-once the key is picked up, winning the game.
+algorithm to plan routes. An adaptation is needed, because at the beginning of
+the game there is no knowledge of which sprites are traversable and which are
+not. Thus, during every move that is simulated by the agent, the A Star module
+has to update its beliefs about the location of walls and other blocking
+objects. This is accomplished by comparing the movement the avatar wanted to
+make to the movement that was actually made in game. If the avatar did not move,
+it is assumed that all the sprites on the location the avatar should have
+arrived in are blocking sprites. A Star keeps a \emph{wall score} for each
+sprite type. When a sprite blocks the avatar, its wall score is increased by
+one. Additionally, when a sprite kills the avatar, its wall score is increased
+by 100, in order to prevent the avatar from walking into killing sprites.
+Traditionally the A Star's heuristic uses the distance between two points. Our A
+Star adaptation adds the wall score of the goal location to this heuristic,
+encouraging the algorithm to take paths with a lower wall score. This method
+enables A Star to try to traverse paths that were unavailable earlier, while
+preferring safe and easily traversable paths. For example in \textit{zelda}, a
+door is closed until a key is picked up. Our A Star version will still be able
+to plan a path to the door once the key is picked up, winning the game.
 
-The O(L)-MCTS algorithm has some parameters, which were empirically optimized
+We empirically optimize the parameters of the O(L)-MCTS algorithm
 for these experiments. We use discount factor $\gamma = 0.9$, maximum action
-time $t = 40$ milliseconds. The maximum search depth $d$ is set to 80, which is
-higher than most alternative tree search algorithms, e.g.  the competitors in
-the GVGAI competition, use. The number of node visits after which \textsf{uct} is
-used, $v$, is set to 40. Crazy stone parameter $K$ is set to $0.5$.
-For comparison, we use the MCTS algorithm provided with the Java implementation
-of VGDL with its default value of maximum search depth of 8. Both algorithms
-have \textsf{uct} constant $C_p = \sqrt{2}$.
+time $t = 40$ milliseconds. The maximum search depth $d$ is set to 70, which is
+higher than most alternative tree search algorithms, for example in the GVGAI
+competition, use. The number of node visits after which \textsf{uct} is used,
+$v$, is set to 40. Crazy stone parameter $K$ is set to $0.5$.  For comparison,
+we use the MCTS algorithm provided with the Java implementation of VGDL with its
+default value of maximum search depth of 8. Both algorithms have \textsf{uct}
+constant $C_p = \sqrt{2}$. Unfortunately, comparing to Q-learning with options
+was impossible, because the state space of these games is too big for the
+algorithm to learn any reasonable behavior. All the experiments are run on an
+Intel i7 \todo{type} quad core processor with 6 GB of RAM memory.
 
-We ran the algorithms on a set of 40 different games with 5 levels each. For
-each level, we use the mean results of 20 plays. For the transfer learning
-algorithm the fifth game after 4 training games was used (it played 100
-games per level altogether).
+In order to compare the algorithms, each algorithm plays each of the 5 levels
+of each game 20 times. The goal of the algorithms is to win as many games as
+possible, while maximizing the score. The transfer learning algorithm is
+allowed four learning games, after which the fifth is used for the
+comparisons. Figures \ref{fig:wins} and \ref{fig:scores} respectively show the
+win ratio and normalized score for each game and algorithm. The games are
+ordered by the performance of a random algorithm, indicating the complexity of
+the games. From left to right, the random algorithm's win ratio and score
+decreases. As can be seen in Figure \ref{fig:wins}, the O-MCTS algorithms
+performs at least as good as MCTS in almost all games. The MCTS algorithm
+performs significantly better than O-MCTS in \textit{whackamole}, \textit{jaws},
+\textit{seaquest} and \textit{plaque attack}. The similarity of these games is
+that they have a very big number of different sprites, for each of which several
+options have to be created by O-MCTS.  When the number of options becomes too
+big, constructing the set of possible options $\mathbf{p}_s$ for every state $s$
+becomes so time-consuming that the algorithm has too little time to build a tree
+and find the best possible action. When the computation time is increased to
+120ms, the win ratio of O-MCTS increases to around $0.8$ for \textit{seaquest}
+and \textit{plaque attack}.
 
-Figures \ref{fig:wins} and \ref{fig:scores} respectively show the win ratio and
-normalized score for each game and algorithm. As can be seen in Figure
-\ref{fig:wins}, the O-MCTS algorithms performs at least as good as MCTS in
-almost all games. 
-
-Big wins for the MCTS algorithm can be seen in whackamole, jaws and plaque
-attack. The similarity of these games is that they have a very big number of
-different sprites, for each of which several options have to be created.
-When the number of options becomes too big, constructing the initiation set of
-options $\mathbf{p}_s$ for every state $s$ becomes so time-consuming that the
-algorithm has too little time to build a tree and find the best possible
-action.
-
-Contrarily, O-MCTS greatly outperforms MCTS in the games missile command,
-overload, firestorms, zelda, camel race, eggomania, firecaster and chase. If we
-inspect the algorithm's performance for these games, we can see that the
-algorithm succeeds in efficiently planning paths in a dangerous environment,
+Contrarily, O-MCTS greatly outperforms MCTS in the games \textit{missile
+command}, \textit{overload}, \textit{firestorms}, \textit{boulderchase},
+\textit{zelda}, \textit{bait}, \textit{camel race}, \textit{eggomania},
+\textit{firecaster}, \textit{chase} and \textit{lemmings}, winning many more
+games. Analyzing the algorithm's actions for these games, we can see that
+the algorithm succeeds in efficiently planning paths in a dangerous environment,
 enabling it to do a further forward search than the ordinary Monte Carlo tree
-search. Camel race requires the player to move to the right for 80 consecutive
-turns, which is very hard for MCTS, since it only looks forward 8 turns. O-MCTS
-almost always wins, since it can plan forward a lot further. In Overload, a
-sword has to be picked up before the avatar can finish the game, which seems to
-be too hard for MCTS, but poses less of a problem for O-MCTS.
+search. \textit{Camel race} requires the player to move to the right for 80
+consecutive turns, which is very hard for MCTS, since it only looks forward 8
+turns. O-MCTS almost always wins, since it can plan forward a lot further. In
+Overload, a sword has to be picked up before the avatar can finish the game,
+which seems to be too hard for MCTS, but poses less of a problem for O-MCTS.
+Furthermore, in Zelda we can see that the MCTS algorithm achieves roughly the
+same score as O-MCTS, but does not win the game, since picking up the key and
+walking towards the door is a difficult action sequence. We assume that the
+score achieved by MCTS is because it succeeds in killing the monsters, whereas
+O-MCTS achieves its score by picking up the key and walking to the door. We can
+conclude that O-MCTS and OL-MCTS perform better than MCTS in games where a
+longer sequence of action planning has to be done.
 
 \begin{figure}
 	\centering
@@ -124,24 +148,33 @@ be too hard for MCTS, but poses less of a problem for O-MCTS.
 		\includegraphics[scale=.44]{includes/totals.pdf}
 		\label{fig:total-results}
 	}
-	\caption{Learning improvement and total number of wins of the algorithms on
+	\caption{Learning improvement on game \textit{bait}, it shows win ratio and
+		normalized score. Total number of wins of the algorithms on
 	all games.}
 \end{figure}
 
-Furthermore, the graph shows that the transfer learning algorithm
-significantly improves score over the course of 5 plays of bait. Bait is a game
-in which the objective is to reach a goal portal after collecting a key. The
-player can push boxes around to open paths. There are holes in the ground that
-kill the player, unless they are filled with boxes, which make both the hole and
-the box disappear. The improvement in score (including variance) and wins for
-this game are shown in Figure \ref{fig:learning-results}. There are three
-possible reasons for this improvement: 1.) There are sprites that kill the
-player, which will be evaded by the algorithm when it has learned to do so.
-2.) The algorithm might learn that it should pick up the key. 3.) The
-player might learn to apply options in such a way that he can push boxes into the
-(deadly) holes.
+In order to test the improvement of the transfer learning algorithm, we compare
+the blue bars with the red. We can see that the red bar is at least as high as
+the blue bar in the majority of the games. Furthermore, the transfer learning
+algorithm significantly improves score and win ratio for the game \textit{bait},
+which is a game in which the objective is to reach a goal portal after
+collecting a key. The player can push boxes around to open paths. There are
+holes in the ground that kill the player, unless they are filled with boxes,
+which make both the hole and the box disappear. Figure
+\ref{fig:learning-results} shows the improvement in score and win ratio for this
+game. There are three possible reasons for this improvement: 1.) There are
+sprites that kill the player, which will be evaded by the algorithm when it has
+learned to do so.  2.) The algorithm might learn that it should pick up the key.
+3.) The player might learn to apply options in such a way that he can push boxes
+into the (deadly) holes.
 
 Figure \ref{fig:total-results} shows the sum of wins over all games, all levels.
 It shows a significant ($p < 0.05$) improvement of O-MCTS, OL-MCTS and OTL-MCTS
-over MCTS. Unfortunately, no significant difference can be found for all games
-by incorporating learning.
+over MCTS. OL-MCTS also slightly, but significantly improves on itself over the
+course of 5 plays of these games, although it does not outperform O-MCTS in its
+first game-play.
+
+Summarizing, our tests indicate that on complex games O-MCTS outperforms MCTS.
+For other games it performs at least as well, as long as the number of game
+sprites is not too high. The OL-MCTS algorithm performs worse than O-MCTS before
+learning but can, in specific situations, increase performance significantly.

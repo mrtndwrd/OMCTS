@@ -47,9 +47,12 @@ by that option. When a node contains a finished option (meaning that the current
 state satisfies its termination condition $\beta$), a new option can be chosen
 by the expansion or selection strategy.
 
-Options are hand defined. We created a set of options most of which use the A
-Star algorithm to navigate the agent towards a specific game sprite or location
-\cite{hart1968formal}.
+Methods exist for automatically generating options \cite{castro2012automatic},
+but these are only used on a simple room navigation problem and generating the
+options would take learning time which the GVGAI framework does not provide.
+Therefore, in this paper options are hand defined. We created a set of options
+most of which use the A Star algorithm to navigate the agent towards a specific
+game sprite or location \cite{hart1968formal}.
 
 \begin{algorithm}
 	\caption{$\mathsf{O-MCTS}(O, r, t, d)$}
@@ -92,7 +95,7 @@ Star algorithm to navigate the agent towards a specific game sprite or location
 \begin{figure}
 	\centering
 	\includegraphics[width=\columnwidth]{includes/zelda}
-	\caption{Visual representation of the game Zelda.}
+	\caption{Visual representation of the game \textit{zelda}.}
 	\label{fig:zelda}
 \end{figure}
 
@@ -109,7 +112,7 @@ In lines \ref{alg:omcts:sp} until \ref{alg:omcts:ep}, $\mathbf{p}_s$ is set to
 all options that are available in $s$. If an option has not finished,
 $\mathbf{p}_s$ contains only the current option. Otherwise, it contains all the
 options $o$ that have state $s$ in their initiation set $I_o$. For example, when
-the agent is playing Zelda (see figure \ref{fig:zelda} and the current state $s$
+the agent is playing \textit{zelda} (see figure \ref{fig:zelda} and the current state $s$
 shows no NPCs on screen. If there is an option $o$ that goes to NPCs, $I_o$ will
 not contain state $s$, because there are no NPCs on screen, rendering $o$
 useless in state $s$. $\mathbf{p}_s$ will thus not contain option $o$, since $s$
@@ -134,9 +137,11 @@ depth is reached in $s$. The function \textsf{get\_action} lets option $o$
 choose the best action for the state in node $s$, \textsf{apply\_action} applies
 the action to state $s$ in the simulator, returning the resulting state.The
 function \textsf{expand} creates a new child node for node $s$ with option $o$.
-The \textsf{rollout} function chooses random actions until \textsf{stop} returns
-true, after which the difference in score achieved by the rollout is returned.
-The \textsf{back\_up} function traverses the tree through all parents of $s$,
+Typically, the \textsf{rollout} function chooses random actions until
+\textsf{stop} returns true, after which the difference in score achieved by the
+rollout is returned.  In O-MCTS however, \textsf{rollout} always applies actions
+chosen by option $o$ first and applies random actions after $o$ is finished. The
+\textsf{back\_up} function traverses the tree through all parents of $s$,
 updating their expected value.
 
 When the time is up, the algorithm chooses an option from $c_r$ corresponding to

@@ -32,14 +32,15 @@ def barplot_stats(stats, show_score, filename=None, ignore_controllers=[]):
 	""" Barplots the totals of stats """
 	# variables 
 	totals = defaultdict(list)
-	controllers = stats.keys()
+	for controller in ignore_controllers:
+		if stats.has_key(controller):
+			del stats[controller]
+	controllers = sorted(stats.keys())
 	name = 'score' if show_score else 'wins'
 	# Loop through stats
 	fig = plt.figure(figsize=(2.5, 3.3))
 	ax = fig.add_subplot(111)
-	for i, (controller, dic) in enumerate(stats.iteritems()):
-		if controller in ignore_controllers:
-			continue
+	for i, (controller, dic) in enumerate(sorted(stats.iteritems())):
 		print "controller:", controller
 		for game, v in dic.iteritems():
 			v = itertools.chain(*v)
@@ -115,8 +116,8 @@ def barplot_games(stats, show_score, filename=None, order_by_controller=None,
 	number_of_bars = float(len(stats.keys()))
 	# Bar width
 	width=.8/number_of_bars
-	name = 'Mean normalized score' if show_score else 'Win ratio'
-	for i, (controller, game_dic) in enumerate(stats.iteritems()):
+	name = 'Mean score' if show_score else 'Win ratio'
+	for i, (controller, game_dic) in enumerate(sorted(stats.iteritems())):
 		legend.append(controller)
 		# Get the indices of all bars (hope N is always the same here...)
 		N = len(game_dic)
@@ -164,7 +165,7 @@ def barplot_games(stats, show_score, filename=None, order_by_controller=None,
 
 	## add a legend
 	if not(show_score):
-		ax.legend( rects, legend )
+		ax.legend( rects, legend, fancybox=True, shadow=True, bbox_to_anchor=(1.1, 1.1) )
 
 	if filename == None:
 		plt.show()

@@ -4,7 +4,7 @@ import numpy as np
 
 EXCLUDED_GAMES = ['sokoban', 'brainman', 'chipschallenge', 'modality',
 	'realportals', 'painter', 'realsokoban', 'thecitadel', 'zenpuzzle',
-	'catapults', 'labyrinth', 'escape']
+	'catapults', 'labyrinth', 'escape', ]
 
 EXCLUDED_LEVELS = []
 
