@@ -92,7 +92,7 @@ higher than most alternative tree search algorithms, for example in the GVGAI
 competition, use. The number of node visits after which \textsf{uct} is used,
 $v$, is set to 40. Crazy stone parameter $K$ is set to $0.5$.  For comparison,
 we use the MCTS algorithm provided with the Java implementation of VGDL with its
-default value of maximum search depth of 8. Both algorithms have \textsf{uct}
+default value of maximum search depth of 10. Both algorithms have \textsf{uct}
 constant $C_p = \sqrt{2}$. Unfortunately, comparing to Q-learning with options
 was impossible, because the state space of these games is too big for the
 algorithm to learn any reasonable behavior. All the experiments are run on an
@@ -126,7 +126,7 @@ games. Analyzing the algorithm's actions for these games, we can see that
 the algorithm succeeds in efficiently planning paths in a dangerous environment,
 enabling it to do a further forward search than the ordinary Monte Carlo tree
 search. \textit{Camel race} requires the player to move to the right for 80
-consecutive turns, which is very hard for MCTS, since it only looks forward 8
+consecutive turns, which is very hard for MCTS, since it only looks forward 10 
 turns. O-MCTS almost always wins, since it can plan forward a lot further. In
 Overload, a sword has to be picked up before the avatar can finish the game,
 which seems to be too hard for MCTS, but poses less of a problem for O-MCTS.

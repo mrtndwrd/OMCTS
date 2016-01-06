@@ -30,47 +30,6 @@ updated by respectively taking the mean and variance of all the returns of this
 subtype. By saving values per subtype the algorithm can generalize over sprites
 of the same type.
 
-Using the expected mean and variance of the return $R_o$ of option $o$, we can
-incorporate the crazy stone algorithm from Equation \ref{eq:crazystone} to shift
-the focus of exploration to promising regions of the tree. The crazy stone
-algorithm is applied in the expansion phase of O-MCTS. As a result, not all
-children of a node will be expanded, but only the ones selected based on crazy
-stone. When using crazy stone, we can select the same option several times, this
-enables deeper exploration of promising subtrees, even during the expansion
-phase. After a predefined number of visits $v$ to a node, the selection strategy
-\textsf{uct} is followed in that node to tweak the option selection. When it
-starts using \textsf{uct}, no new expansions will be done in this node.
-
-The new algorithm can be seen in Algorithm \ref{alg:olmcts} and has two big
-modifications. The updates of the option values are done in line
-\ref{alg:olmcts:update}. The function \textsf{update\_values} takes the return
-of the option $o$, and updates its mean $\mu_o$ and variance $\sigma_o$ by
-calculating the new mean and variance of all returns of that option subtype. The
-second modification starts on line \ref{alg:olmcts:ns}, where the algorithm
-applies crazy stone if the current node has been visited less than $v$ times, or
-alternatively applies \textsf{uct} similarly to O-MCTS. The
-\textsf{crazy\_stone} function returns a set of weights over the set of possible
-options $\mathbf{p}_s$. A simple weighted random then chooses a new option
-$\omega$ by using these weights.  If $\omega$ has not been explored yet, i.e.,
-there is no child node of $s$ in $c_s$ that uses this option, the algorithm
-chooses and applies an action, and breaks to rollout in lines
-\ref{alg:olmcts:scs} to \ref{alg:olmcts:ecs}. This is similar to the exploration
-steps in O-MCTS. If $\omega$ has been explored in this node before, the
-corresponding child node $s'$ is selected from $c_s$ and the loop continues
-similar to when \textsf{uct} selects a child.
-
-The information learned in a game can be transferred if the game is played
-again by supplying OL-MCTS with the $\mu$ and $\sigma$ of the previous game. We
-will refer to this as \emph{Option Transfer Learning MCTS (OTL-MCTS)}. Especially
-in games where some options excel over the others, transfer learning can help
-identifying these and focussing exploration on these options. 
-
-We expect that by learning option values and applying crazy stone, the algorithm
-can create even deeper search trees, focussed more on promising areas of the
-search space, thereby improving its performance more than O-MCTS. Furthermore,
-we expect that transferring option values to the next game, the algorithm can
-improve over the course of several games.
-
 \begin{algorithm}
 	\caption{$\mathsf{OL-MCTS}(O, r, t, d, v, \mu, \sigma)$}
 	\label{alg:olmcts}
@@ -111,3 +70,46 @@ improve over the course of several games.
 		\EndWhile
 	\end{algorithmic}
 \end{algorithm}
+
+Using the expected mean and variance of the return $R_o$ of option $o$, we can
+incorporate the \todo{Say something about progressive widening} crazy stone
+algorithm from Equation \ref{eq:crazystone} to shift the focus of exploration to
+promising regions of the tree. The crazy stone algorithm is applied in the
+expansion phase of O-MCTS. As a result, not all children of a node will be
+expanded, but only the ones selected based on crazy stone. When using crazy
+stone, we can select the same option several times, this enables deeper
+exploration of promising subtrees, even during the expansion phase. After a
+predefined number of visits $v$ to a node, the selection strategy \textsf{uct}
+is followed in that node to tweak the option selection. When it starts using
+\textsf{uct}, no new expansions will be done in this node.
+
+The new algorithm can be seen in Algorithm \ref{alg:olmcts} and has two big
+modifications. The updates of the option values are done in line
+\ref{alg:olmcts:update}. The function \textsf{update\_values} takes the return
+of the option $o$, and updates its mean $\mu_o$ and variance $\sigma_o$ by
+calculating the new mean and variance of all returns of that option subtype. The
+second modification starts on line \ref{alg:olmcts:ns}, where the algorithm
+applies crazy stone if the current node has been visited less than $v$ times, or
+alternatively applies \textsf{uct} similarly to O-MCTS. The
+\textsf{crazy\_stone} function returns a set of weights over the set of possible
+options $\mathbf{p}_s$. A simple weighted random then chooses a new option
+$\omega$ by using these weights.  If $\omega$ has not been explored yet, i.e.,
+there is no child node of $s$ in $c_s$ that uses this option, the algorithm
+chooses and applies an action, and breaks to rollout in lines
+\ref{alg:olmcts:scs} to \ref{alg:olmcts:ecs}. This is similar to the exploration
+steps in O-MCTS. If $\omega$ has been explored in this node before, the
+corresponding child node $s'$ is selected from $c_s$ and the loop continues
+similar to when \textsf{uct} selects a child.
+
+The information learned in a game can be transferred if the game is played
+again by supplying OL-MCTS with the $\mu$ and $\sigma$ of the previous game. We
+will refer to this as \emph{Option Transfer Learning MCTS (OTL-MCTS)} \todo{no
+we don't}. Especially
+in games where some options excel over the others, transfer learning can help
+identifying these and focussing exploration on these options. 
+
+We expect that by learning option values and applying crazy stone, the algorithm
+can create even deeper search trees, focussed more on promising areas of the
+search space, thereby improving its performance more than O-MCTS. Furthermore,
+we expect that transferring option values to the next game, the algorithm can
+improve over the course of several games.
