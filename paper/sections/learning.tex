@@ -1,15 +1,22 @@
-\section{Learning} 
+\section{OL-MCTS: Learning Option Values} 
 \label{sec:learning} 
 Although we expect O-MCTS improves the tree search, as the number of options
-increases, we expect the branching factor of O-MCTS to increase. When many
+increases, the branching factor of O-MCTS increases as well. When many
 options are defined, exploring all the options for each node that uses a
 finished option becomes infeasible. In this section, we will define \emph{option
 values}, the expected mean and variance of an option, which can be used to
-estimate which options are feasible and which are not. Exploration can then
-focus on the feasible options, enabling an even deeper search tree than O-MCTS,
-in the same amount of time. We expect that this increases performance,
-especially in games where the set of possible options is large, or where only a
-small set of options is needed in order to win.
+estimate which options are feasible and which are not. We adjust O-MCTS to use
+the option values to focus more on the options that seem more feasible and call
+it \emph{Option Learning MCTS (OL-MCTS)}. We expect that this results in an even
+deeper search tree than O-MCTS generates in the same amount of time and that
+this increases performance, especially in games where the set of possible
+options is large, or where only a small subset of the option set is needed in
+order to win.
+
+Generally, OL-MCTS saves the return of each option after it is finished, which
+is then used to calculate the option values. During the expansion phase of O-MCTS,
+options that have a higher mean or variance in return are prioritized. Contrary
+to O-MCTS, not all options are expanded, but only those with high enough values.
 
 The return $R_o$ for using option $o$ from timestep $t$ to $t+n$ is calculated
 by adding the discounted rewards $r_t$ for all of the states visited by that
@@ -30,7 +37,19 @@ updated by respectively taking the mean and variance of all the returns of this
 subtype. By saving values per subtype the algorithm can generalize over sprites
 of the same type.
 
-\begin{algorithm}
+Using the expected mean and variance of the return $R_o$ of option $o$, we can
+incorporate the progressive widening algorithm, crazy stone, from Equation
+\ref{eq:crazystone} to shift the focus of exploration to promising regions of
+the tree. The crazy stone algorithm is applied in the expansion phase of OL-MCTS.
+As a result, not all children of a node will be expanded, but only the ones
+selected based on crazy stone. When using crazy stone, we can select the same
+option several times, this enables deeper exploration of promising subtrees,
+even during the expansion phase. After a predefined number of visits $v$ to a
+node, the selection strategy \textsf{uct} is followed in that node to tweak the
+option selection. When it starts using \textsf{uct}, no new expansions will be
+done in this node.
+
+\begin{algorithm}[h]
 	\caption{$\mathsf{OL-MCTS}(O, r, t, d, v, \mu, \sigma)$}
 	\label{alg:olmcts}
 	\begin{algorithmic}[1]
@@ -71,19 +90,7 @@ of the same type.
 	\end{algorithmic}
 \end{algorithm}
 
-Using the expected mean and variance of the return $R_o$ of option $o$, we can
-incorporate the \todo{Say something about progressive widening} crazy stone
-algorithm from Equation \ref{eq:crazystone} to shift the focus of exploration to
-promising regions of the tree. The crazy stone algorithm is applied in the
-expansion phase of O-MCTS. As a result, not all children of a node will be
-expanded, but only the ones selected based on crazy stone. When using crazy
-stone, we can select the same option several times, this enables deeper
-exploration of promising subtrees, even during the expansion phase. After a
-predefined number of visits $v$ to a node, the selection strategy \textsf{uct}
-is followed in that node to tweak the option selection. When it starts using
-\textsf{uct}, no new expansions will be done in this node.
-
-The new algorithm can be seen in Algorithm \ref{alg:olmcts} and has two big
+The new algorithm can be seen in Algorithm \ref{alg:olmcts} and has two major
 modifications. The updates of the option values are done in line
 \ref{alg:olmcts:update}. The function \textsf{update\_values} takes the return
 of the option $o$, and updates its mean $\mu_o$ and variance $\sigma_o$ by

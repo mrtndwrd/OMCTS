@@ -1,4 +1,4 @@
-\section{Planning}
+\section{O-MCTS}
 \label{sec:planning}
 
 %\todo{hieronder: Dit is onze contributie, ``a novel algorithm'', ``key
@@ -16,6 +16,13 @@ section we introduce \emph{option Monte Carlo tree search (O-MCTS)}, a novel
 algorithm that plans over options using MCTS, enabling the use of options in
 complex MDPs.  The resulting algorithm achieves higher scores on complex games
 that have several sub-goals than traditional MCTS.
+
+Generally, O-MCTS works as follows: like in MCTS, a tree of states is
+built by simulating game plays. In stead of actions, the algorithm chooses
+options. When an option is chosen, the actions returned by its policy are used
+to build the tree. When an option is finished, a new option has to be chosen.
+This enables the tree to branch on that point. This section describes in detail
+how this process works.
 
 %\todo{How to combine options with MCTS - what problems (challenges) occur?}
 In normal MCTS, an action is represented by a connection from a state to a next
@@ -54,7 +61,7 @@ Therefore, in this paper options are hand defined. We created a set of options
 most of which use the A Star algorithm to navigate the agent towards a specific
 game sprite or location \cite{hart1968formal}.
 
-\begin{algorithm}
+\begin{algorithm}[h]
 	\caption{$\mathsf{O-MCTS}(O, r, t, d)$}
 	\label{alg:omcts}
 	\begin{algorithmic}[1]
@@ -98,7 +105,6 @@ game sprite or location \cite{hart1968formal}.
 	\caption{Visual representation of the game \textit{zelda}.}
 	\label{fig:zelda}
 \end{figure}
-
 
 We describe O-MCTS in Algorithm \ref{alg:omcts}. It is invoked with a set of
 options $O$, a root node $r$, a maximum runtime $t$ in milliseconds and a
