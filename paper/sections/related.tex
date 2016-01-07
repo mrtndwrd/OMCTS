@@ -1,41 +1,39 @@
 \section{Related Work}
 \label{sec:related}
-This section covers some popular alternatives to O-MCTS and explain the
-differences. \emph{Deep Q networks (DQN)} is a popular algorithm that trains a
-convolutional neural network for a game \cite{mnih2013playing}, \emph{Planning
-under Uncertainty with Macro-Actions (PUMA)} is a forward search algorithm that
-uses extended actions in \emph{partially observable MDPs (POMDPs)}
-\cite{he2010puma}.  \emph{Purofvio} is an algorithm that combines MCTS with
-macro-actions that consist of repeating one action several times
-\cite{powley2012monte}.
+This section covers some popular alternative methods for general video game
+playing or tree search with options. \emph{Deep Q networks
+(DQN)} is a popular algorithm that trains a convolutional neural network for a
+game \cite{mnih2013playing}, \emph{Planning under Uncertainty with Macro-Actions
+(PUMA)} is a forward search algorithm that uses extended actions in
+\emph{partially observable MDPs (POMDPs)} \cite{he2010puma}.  \emph{Purofvio} is
+an algorithm that combines MCTS with macro-actions that consist of repeating one
+action several times \cite{powley2012monte}.
 
 DQN trains a convolutional neural network that has the last four frames of a
 game as input and tries to predict the Q-values of each action. A good policy
-can then be created by selecting the action with the highest Q-value. The main
-difference between O-MCTS and DQN is that O-MCTS has to select an optimal action
-after 40 milliseconds, even when playing an unknown game. DQN learns for several
-days, after which a good policy can be learned.  Furthermore, DQN does not use a
-forward model, but always applies actions directly to the game in order to
-learn.  Therefore, no accurate comparison can be made.
+can then be created by selecting the action with the highest Q-value. We decided
+not to use DQN, because in our testing framework, an algorithm has 40
+milliseconds to choose an action, even when playing a game for the first time.
+DQN learns for several days, after which a good policy can be learned.
+Furthermore, DQN does not use a forward model, but always applies actions
+directly to the game in order to learn.
 
 Another alternative is the PUMA algorithm, which applies forward search to
-options (referred to as macro-actions) and works on POMDPs. The key difference
-between PUMA and O-MCTS is that PUMA automatically generates goal-oriented MDPs
-for specific subgoals. The advantage of which is that effective options can be
-created without requiring any prior knowledge of the (PO)MDP. The disadvantage
-is that this takes a lot of computation time and thus would not work in the
-GVGAI framework, where only 40 milliseconds of computing time is allowed between
-actions. Furthermore PUMA has to find out the optimal length per macro-action,
-whereas O-MCTS can use options of variable length with starting an stopping
-conditions.
+options (referred to as macro-actions) and works on POMDPs. PUMA automatically
+generates goal-oriented MDPs for specific subgoals, the advantage of which is
+that effective options can be created without requiring any prior knowledge of
+the (PO)MDP. The disadvantage is that this takes a lot of computation time and
+thus would not work in the GVGAI framework, where only 40 milliseconds of
+computation time is allowed between actions. Furthermore PUMA has to find out the
+optimal length per macro-action, our algorithm can use options of variable
+length with starting an stopping conditions.
 
-A last alternative to O-MCTS is MCTS with macro actions called Purofvio.
-Similar to O-MCTS, Purofvio plans over macro-actions, which are defined as
-repeating an action several times. No more complex options are defined. The
-paper notes that their options must always be of the same size, because they
-found that otherwise MCTS seems to favor options with a longer time span over
-shorter options. This problem does not exist in O-MCTS, probably because we
-discount the option values. Furthermore Purofvio is only created for the
-physical travelling salesperson problem, whereas O-MCTS can be used on many
-different games. It must be noted though, that Purofvio could also work on other
-games.
+Another algorithm that uses MCTS with macro actions is called Purofvio.
+Purofvio plans over macro-actions which, in this case, are defined as repeating
+one action several times. No more complex options are defined. The paper notes
+that their options must always be of the same size, because they found that
+otherwise MCTS seems to favor options with a longer time span over shorter
+options. Furthermore Purofvio is only created for the physical travelling
+salesperson problem. Although Purofvio could also work on other games, we
+decided to create a different algorithm, that is capable of using more complex
+options.
