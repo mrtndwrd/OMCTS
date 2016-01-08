@@ -1,4 +1,4 @@
-default: thesis.ps
+default: thesis.pdf
 
 thesis.bbl: thesis.aux
 	bibtex thesis.aux
@@ -17,10 +17,6 @@ img/deepseatreasure.eps: img/deepseatreasure.pdf
 
 img/buridansass.eps: img/buridansass.pdf
 	pdftops -eps img/buridansass.pdf
-
-thesis.dvi: thesis.bbl thesis.tex img/deepseatreasure.eps img/buridansass.eps
-	latex thesis.tex
-	latex thesis.tex
 
 thesis.ps: thesis.dvi
 	dvips -t A4 -P pdf thesis.dvi

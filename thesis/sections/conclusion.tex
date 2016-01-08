@@ -1,3 +1,38 @@
-\chapter{Conclusions}
-\label{chap:conclusion}
-Conclusion
+\chapter{Conclusions and Future Work}
+\label{sec:conclusion}
+We can conclude that the Option MCTS algorithm almost always performs at least
+as good as MCTS. O-MCTS excels in games with a small amount of game sprites, but
+high complexity, such as \textit{zelda}, \textit{overload} and \textit{eggomania}.
+Furthermore, O-MCTS can do a further lookahead than most tree searching
+alternatives, resulting in a high performance on \textit{camel race}. The
+algorithm does struggle with a high amount of sprites, since many options have
+to be constructed and checked each round, leaving too little time for exploring
+options. Our results of OL-MCTS indicate that learning
+option values can aid the algorithm in improving win ratio and score, but not
+for all games.
+
+Our results with OL-MCTS indicate that it is possible to detect infeasible
+options, meaning that in the future, it should be possible to completely remove
+options from the option set, that have low expected rewards for certain games.
+We expect that this could reduce the computation time O-MCTS needs to construct
+and check all the options.
+
+Furthermore, more research should be done in the influence of the option set.
+Currently the effectiveness of the algorithm strongly relies on the A Star
+implementation. This implementation is too time consuming, leaving
+little time for actual tree building. In future work, trials can be done with
+simpler and computationally cheaper alternatives, such as for example Enforced
+Hill Climbing, as proposed in \cite{ross2014general}, although that has the
+problem that the agent can get stuck. Alternatively, by creating goal-oriented
+MDPs similar to PUMA's, the algorithm could probably increase sturdiness.
+
+In order to improve the learning algorithms, some other improvements can be
+investigated. Firstly, the backup method can be tweaked. In
+\cite{coulom2007efficient}, in stead of the mean value, other values, like the
+maximum return are used in the backup phase. Furthermore, the mean and standard
+deviation of option returns are now calculated over all the games, without
+regarding how long ago this game was played. This might lead to underrated
+options, for example with doors that unlock under specific conditions (for
+example when the key is picked up in \textit{zelda}).  Using a maximum return,
+or discounting the option values might have a different effect.
+

@@ -3,6 +3,7 @@
 \usepackage[latin1]{inputenc}
 
 \usepackage{hyperref}
+\usepackage{listings}
 \usepackage{enumitem}
 \usepackage{algorithmicx}
 \usepackage{algorithm}
@@ -15,18 +16,20 @@
 \usepackage{microtype}
 \usepackage{tikz}
 \usepackage{wrapfig}
+\usepackage{subfigure}
 \usepackage{bm}
+\usepackage{makebox}
 
 \newcommand{\todo}[1]{{\bfseries\sffamily{\textcolor{red}{TODO:} #1}}}
 \newcommand{\cn}{{\colorbox{red}{\color{white}{[citation needed]}}}}
 
 \usepackage{illcmolthesis} % For title page, slightly modified
 
-\title{Monte Carlo Tree Search with Options for General Video Game Playing}
+\title{Monte Carlo Tree Search with Options\\for General Video Game Playing}
 \author{\href{mailto:mrtndwrd@gmail.com}{Maarten de Waard}}
 \birthdate{November 14\textsuperscript{th}, 1989}
 \birthplace{Alkmaar, the Netherlands}
-\defensedate{November 28\textsuperscript{th}, 2015}  %% TODO: UPDATE BEFORE HAND IN!
+\defensedate{February 22\textsuperscript{nd}, 2015}  %% TODO: UPDATE BEFORE HAND IN!
 \supervisor{\href{mailto:S.C.J.Bakkes@uva.com}{Sander Bakkes}}
 \supervisor{\href{mailto:D.M.Roijers@uva.nl}{Diederik Roijers}}
 \committeemember{\href{mailto:L.Dorst@uva.nl}{dr.ir.\ Leo Dorst}}
@@ -36,27 +39,54 @@
 \begin{document}
 %\frontmatter
 
+\lstset{ %
+	frame=single,
+	numbers=left,
+	numberstyle=\color{gray},
+}
 \maketitle
 
 \begin{abstract}
-	abstract here
+	General video game playing is a popular research area in artificial
+	intelligence, because AI algorithms that successfully play many different
+	games, are often capable of solving other complex problems as well.  Monte
+	Carlo Tree Search (MCTS) is a popular AI algorithm that has been used for
+	general video game playing, as well as many other types of decision
+	problems. Often, in the domain of general video game AI, no prior knowledge
+	is available to the algorithms, even though many games have similar
+	mechanics. Furthermore, the MCTS algorithm always plans over actions and
+	does not incorporate any high level planning, as one would expect from a
+	human player. This paper introduces a new algorithm called ``Option Monte
+	Carlo Tree Search (O-MCTS)''. It introduces general video game knowledge and
+	high level planning in the form of options, which are action sequences
+	(policies) aimed at achieving a specific subgoal. Furthermore, we introduce
+	``Option Learning MCTS (OL-MCTS)'', which applies a progressive widening
+	technique to the expected returns of options for specific games.  We compare
+	O-MCTS and OL-MCTS to MCTS on a diverse set of 28 games from the GVGAI
+	competition. Our results indicate that by using MCTS's efficient tree
+	searching technique on options, in stead of single actions, O-MCTS performs
+	better on most games, especially those that require high level planning.
+	Lastly, we show that OL-MCTS can improve its performance on specific games
+	by learning expected values for options.
 \end{abstract}
 
 \tableofcontents
 
-\input{../paper/sections/introduction}
+\input{sections/introduction}
 
-\input{../paper/sections/background}
+\input{sections/related}
 
-\input{../paper/sections/planning}
+\input{sections/background}
 
-\input{../paper/sections/learning}
+\input{sections/priorwork}
 
-\input{../paper/sections/experiments}
+\input{sections/planning}
 
-\input{../paper/sections/related}
+\input{sections/learning}
 
-\input{../paper/sections/conclusion}
+\input{sections/experiments}
+
+\input{sections/conclusion}
 % ****************************************************************************
 % BIBLIOGRAPHY AREA
 % ****************************************************************************
