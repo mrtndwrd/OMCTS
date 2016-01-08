@@ -47,7 +47,7 @@ this property would be lost, complicating the comparison of different nodes at
 the same level in the tree. Therefore, we chose to keep the tree representation
 the same: a node represents a state, a connection represents an action. An
 option spans several actions and therefore several nodes in the search tree, as
-denoted in figure \ref{fig:omcts-tree}. We introduce a change in the expansion
+denoted in Figure \ref{fig:omcts-tree}. We introduce a change in the expansion
 and selection strategies, which select options, rather than actions. When a node
 has an unfinished option, the next node will be created using an action selected
 by that option. When a node contains a finished option (meaning that the current
@@ -118,7 +118,7 @@ In lines \ref{alg:omcts:sp} until \ref{alg:omcts:ep}, $\mathbf{p}_s$ is set to
 all options that are available in $s$. If an option has not finished,
 $\mathbf{p}_s$ contains only the current option. Otherwise, it contains all the
 options $o$ that have state $s$ in their initiation set $I_o$. For example, when
-the agent is playing \textit{zelda} (see figure \ref{fig:zelda} and the current state $s$
+the agent is playing \textit{zelda} (see Figure \ref{fig:zelda} and the current state $s$
 shows no NPCs on screen. If there is an option $o$ that goes to NPCs, $I_o$ will
 not contain state $s$, because there are no NPCs on screen, rendering $o$
 useless in state $s$. $\mathbf{p}_s$ will thus not contain option $o$, since $s$

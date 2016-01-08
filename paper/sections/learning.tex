@@ -1,22 +1,25 @@
 \section{OL-MCTS: Learning Option Values} 
 \label{sec:learning} 
 Although we expect O-MCTS improves the tree search, as the number of options
-increases, the branching factor of O-MCTS increases as well. When many
+increases the branching factor of O-MCTS increases as well. When many
 options are defined, exploring all the options for each node that uses a
 finished option becomes infeasible. In this section, we will define \emph{option
-values}, the expected mean and variance of an option, which can be used to
-estimate which options are feasible and which are not. We adjust O-MCTS to use
+values}: the expected mean and variance of an option, which can be used to
+estimate for each game which options seem promising and which do not. We adjust O-MCTS to use
 the option values to focus more on the options that seem more feasible and call
 it \emph{Option Learning MCTS (OL-MCTS)}. We expect that this results in an even
-deeper search tree than O-MCTS generates in the same amount of time and that
-this increases performance, especially in games where the set of possible
-options is large, or where only a small subset of the option set is needed in
-order to win.
+deeper search tree, hence more accurate node values, than O-MCTS generates in
+the same amount of time and that this increases performance, especially in games
+where the set of possible options is large, or where only a small subset of the
+option set is needed in order to win.
 
 Generally, OL-MCTS saves the return of each option after it is finished, which
-is then used to calculate the option values. During the expansion phase of O-MCTS,
-options that have a higher mean or variance in return are prioritized. Contrary
-to O-MCTS, not all options are expanded, but only those with high enough values.
+is then used to calculate the option values. During the expansion phase of
+OL-MCTS, options that have a higher mean or variance in return are prioritized,
+so contrary to O-MCTS not all options are expanded, but only those with high
+enough values. The information learned in a game can be transferred if the game
+is played again by supplying OL-MCTS with the option values of the previous
+game. 
 
 The return $R_o$ for using option $o$ from timestep $t$ to $t+n$ is calculated
 by adding the discounted rewards $r_t$ for all of the states visited by that
@@ -106,14 +109,7 @@ chooses and applies an action, and breaks to rollout in lines
 \ref{alg:olmcts:scs} to \ref{alg:olmcts:ecs}. This is similar to the exploration
 steps in O-MCTS. If $\omega$ has been explored in this node before, the
 corresponding child node $s'$ is selected from $c_s$ and the loop continues
-similar to when \textsf{uct} selects a child.
-
-The information learned in a game can be transferred if the game is played
-again by supplying OL-MCTS with the $\mu$ and $\sigma$ of the previous game. We
-will refer to this as \emph{Option Transfer Learning MCTS (OTL-MCTS)} \todo{no
-we don't}. Especially
-in games where some options excel over the others, transfer learning can help
-identifying these and focussing exploration on these options. 
+like when \textsf{uct} selects a child.
 
 We expect that by learning option values and applying crazy stone, the algorithm
 can create even deeper search trees, focussed more on promising areas of the
