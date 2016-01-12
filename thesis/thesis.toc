@@ -1,0 +1,16 @@
+\contentsline {chapter}{\numberline {1}Introduction}{2}{chapter.1}
+\contentsline {chapter}{\numberline {2}Background}{4}{chapter.2}
+\contentsline {section}{\numberline {2.1}Markov Decision Processes}{4}{section.2.1}
+\contentsline {section}{\numberline {2.2}Monte Carlo Tree Search}{4}{section.2.2}
+\contentsline {section}{\numberline {2.3}Options}{6}{section.2.3}
+\contentsline {section}{\numberline {2.4}Video Game Description Language}{7}{section.2.4}
+\contentsline {chapter}{\numberline {3}Related Work}{8}{chapter.3}
+\contentsline {chapter}{\numberline {4}Q-learning}{10}{chapter.4}
+\contentsline {chapter}{\numberline {5}O-MCTS}{13}{chapter.5}
+\contentsline {chapter}{\numberline {6}OL-MCTS: Learning Option Values}{17}{chapter.6}
+\contentsline {chapter}{\numberline {7}Experiments}{20}{chapter.7}
+\contentsline {section}{\numberline {7.1}A Test Game}{22}{section.7.1}
+\contentsline {section}{\numberline {7.2}O-MCTS}{23}{section.7.2}
+\contentsline {section}{\numberline {7.3}OL-MCTS}{24}{section.7.3}
+\contentsline {section}{\numberline {7.4}Totals}{26}{section.7.4}
+\contentsline {chapter}{\numberline {8}Discussion}{27}{chapter.8}

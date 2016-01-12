@@ -126,8 +126,9 @@ satisfies a termination condition in $\beta$. Using options in an MDP removes
 the Markov property for that process: the state information alone is no longer
 enough to predict an agent's actions, since the actions are now not only
 state-dependant, but dependant on what option the agent has chosen in the past
-as well. The process is now called a \emph{semi-Markov decision process
-(SMDP)}. For convenience, we will call the original action set of the MDP $A$,
+as well. According to \cite{sutton1999between}, we can now view the process as a
+\emph{semi-Markov decision process (SMDP)}, since its actions are of variable
+length. For convenience, we will call the original action set of the MDP $A$,
 and the set of options $O$.  Normal actions can be treated as options as well.
 An option for action $a \in A$ has a initiation set $I = S$, the policy $\pi$ is
 taking action $a$ in all the states. The termination condition $\beta$ is that

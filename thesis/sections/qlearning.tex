@@ -1,0 +1,113 @@
+\chapter{Q-learning}
+
+Traditionally, options are used in combination with Q-learning
+\cite{sutton1999between}. In order to be able to compare our contribution to the
+Q-learning approach, we implement a variant of \emph{SMDP Q-learning} for VGDL,
+based on the description made by Sutton et al. in section 3.2. In general, SMDP
+Q-learning estimates the transition function and expected rewards for using an
+option in a certain state, in order to find an optimal policy over the option
+set $O$.
+
+SMDP Q-learning estimates an approximate option-value function $Q$, which
+contains the expected return $Q(s, o)$ of using an option $o \in O$ in state $s
+\in S$. Updates for the $Q$ function are done after each option termination by
+\begin{equation}
+	\label{eq:qlearning}
+	Q(s, o) \gets Q(s, o) + \alpha \left[r + \gamma^k \max_{o' \in O_{s'}}Q(s',
+	o') Q(s, o)\right],
+\end{equation}
+where $\gamma$ is the discount factor, $k$ denotes the number of time steps
+between the start state $s$ and stop state $s'$ for option $o$, $r$ denotes
+the cumulative and discounted reward over this time, and step size parameter
+$\alpha$ is similar to the learning rate parameter from traditional Q-learning.
+
+Using the Q-table, an option policy can be constructed. A \emph{greedy policy}
+selects the option that maximizes the expected return $Q(s, o)$ for any state
+$s$ and option $o \in O$ with $s$ in its initiation set $I(s)$. When a Q-table
+is fully converged, the greedy policy is the optimal policy\footnote{Note that
+it is optimal for the maximum achievable by using only the options in the option
+set $O$.} \cite{sutton1999between}. Exploration is often done by using an
+\emph{$\epsilon$-greedy policy}. This is a policy that chooses a random option
+with probability $\epsilon$ and the greedy option otherwise. The parameter
+$\epsilon$ is set to a value between 0 and 1.
+
+\begin{algorithm}[h]
+	\caption{$\mathsf{SMDP~Q-learning}(Q, O, s, t, d, o)$}
+	\label{alg:ql}
+	\begin{algorithmic}[1]
+		\State $\mathbf{i} \gets \emptyset$ \Comment{$i_o$ counts the number of steps an option has been used}
+		\While {$time\_taken < t$} \label{alg:ql:smainloop}
+			\State $s' \gets s$ \label{alg:ql:copys} \Comment{Copy the initial state}
+			\If{$s' \in \beta(o)$} \label{alg:ql:sno} \Comment{if option stops in state $s'$}
+				\State $o \gets \mathsf{epsilon\_greedy\_option}(s', Q, O)$ 
+					\Comment{Get epsilon greedy option}
+				\State $i_o \gets 0$ \Comment{reset step counter $i_o$}
+			\EndIf \label{alg:ql:eno}
+			%\For{$depth$ \textbf{in} $\left{0 \ldots d\right}$}
+			\For{$depth$ \textbf{in} $\left\{ 0 \ldots d \right\} $} \label{alg:ql:sfor}
+				\State $a \gets \mathsf{get\_action}(o, s')$ 
+					\Comment{get action from $o$}
+				\State $(s', r) \gets \mathsf{apply\_action}(s', a)$ \label{alg:ql:apply}
+					\Comment{set $s'$ to new state, get reward $r$}
+				\State $\mathsf{update\_option}(Q, o, s', r, \mathbf{i})$ 
+					\Comment{Algorithm \ref{alg:update}}
+				\If{$s' \in \beta(o)$} 
+					\Comment{Same as lines \ref{alg:ql:sno} to \ref{alg:ql:eno}}
+					\State $o \gets \mathsf{epsilon\_greedy\_option}(s', Q, O)$ 
+					\State $i_o \gets 0$
+				\EndIf
+			\EndFor \label{alg:ql:efor}
+		\EndWhile \label{alg:ql:emainloop}
+		\State \Return{$\mathsf{get\_action}(\mathsf{greedy\_option}(s, Q, O), s)$}
+	\end{algorithmic}
+\end{algorithm}
+\begin{algorithm}[h]
+	\caption{$\mathsf{update\_option}(Q, o, s, r, \mathbf{i})$}
+	\label{alg:update}
+	\begin{algorithmic}[1]
+		\State $i_o \gets i_o + 1$ \Comment{Increase this option's step count by 1}
+		\State $o_r \gets o_r + \gamma^{i_o} r;$
+			\Comment{Change this option's discounted reward}
+		\If{$s \in \beta(o)$} \label{alg:ql:sp} \Comment{if option stops in state $s$}
+			\State $\mathsf{update\_Q}(o, s, o_r, i_o)$ \Comment{Equation
+			\ref{eq:qlearning} }
+		\EndIf
+	\end{algorithmic}
+\end{algorithm}
+
+For our implementation, the state information that is available in the Java VGDL
+framework was serialized in order to be able to distinguish between states. The
+set of options $O$ was designed by us. The algorithm is shown in Algorithm
+\ref{alg:ql}.
+
+We initialize Q-learning with a Q-table $Q$ (empty in the first game), a
+predefined option set $O$, the current state $s$, a time limit $t$, the maximum
+search depth $d$ and the currently followed option $o$. The algorithm starts
+with a loop that keeps running as long as the time maximum $t$ is not achieved,
+from line \ref{alg:ql:smainloop} to \ref{alg:ql:emainloop}. In line
+\ref{alg:ql:copys}, the initial state $s$ is copied to $s'$, for mutation in the
+inner loop. Then, in lines \ref{alg:ql:sno} to \ref{alg:ql:eno}, the algorithm
+checks if a new option is needed. If the currently used option $o$ is finished,
+meaning that state $s'$ is in its termination set $\beta(o)$, a new option is
+chosen with an epsilon greedy policy. 
+
+Then, from lines \ref{alg:ql:sfor} to \ref{alg:ql:efor}, the option provides an
+action, which is applied to the simulator in line \ref{alg:ql:apply}, after
+which the option's return, and the Q-table if the option is finished, are
+updated by \textsf{update\_option}, as displayed in Algorithm \ref{alg:update}.
+Finally, if the option is finished, a new option is again selected with an
+epsilon greedy policy. The inner loop keeps restarting until a maximum depth is
+reached, after which the outer loop restarts from the initial state.
+
+Algorithm \ref{alg:update} describes how the \textsf{update\_option}
+function works: First the step counter $i_o$ is increased. Secondly, the
+cumulative discounted reward is altered. If the option is finished, $Q$ is
+updated using equation \ref{eq:qlearning} (note that the cumulative reward $o_r$
+is $r$ in the equation, and step counter $i_o$ is $k$).
+
+By repeatedly applying an epsilon greedy option's actions to the game, the
+Q-values of promising options should quickly converge to indicate which option
+should be chosen in which game state. When the time runs out, the algorithm
+returns the action chosen by the greedy option, which is the best option for
+state $s$ at that moment. After the action has been applied, the algorithm is
+restarted with the new state. 

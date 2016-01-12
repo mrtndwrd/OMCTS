@@ -1,20 +1,5 @@
 \chapter{Experiments}
 \label{sec:experiments}
-\begin{figure}
-	\centering
-	\makebox[\columnwidth]{\includegraphics[width=1.25\textwidth]{includes/wins}}
-	\caption{Win ratio of the algorithms per game on all levels.}
-	\label{fig:wins}
-\end{figure}
-
-\begin{figure}
-	\centering
-	\makebox[\columnwidth]{\includegraphics[width=1.25\textwidth]{includes/scores}}
-	\caption{Mean normalized score of the algorithms per game 1 means the
-	highest score achieved by all the algoriths, 0 the lowest.}
-	\label{fig:scores}
-\end{figure}
-
 This chapter starts with a proof of concept, showing that the principle of
 O-MCTS and OL-MCTS works on a very simple game. Consequently, we will run O-MCTS
 and OL-MCTS on a set of twenty-eight different games from the VGDL framework and
@@ -105,12 +90,68 @@ Intel i7 \todo{type} quad core processor with 6 GB of RAM memory. For all
 experiments, each algorithm plays each of the 5 levels of each game
 20 times. 
 
-\section{A Simple Game}
-For testing purposes, we create a very simple game with the avatar and one NPC.
-When the avatar walks into the NPC, it dies and the avatar wins the game. 
+\section{A Test Game}
+
+\lstinputlisting[caption=prey.txt, label=lst:preytxt, float=t]{../examples/gridphysics/prey.txt}
+
+\lstinputlisting[caption=prey\_lvl0.txt, label=lst:preylvl, float=t]{../examples/gridphysics/prey_lvl0.txt}
+
+For testing the performance of the algorithms, we create a simple test game. The
+game should be very simple and easy to win, but it should be possible to see any
+improvement an algorithm could achieve as well. We chose the \emph{predator \&
+prey} game, in which the player is a predator, that should catch its prey (an
+NPC) by walking into it. We decided to have three types of prey, one that never
+moves, one that moves every 10 turns and one that moves every 2 turns. This
+section describes how the game is made in VGDL.
+
+As explained in chapter \ref{subsec:vgdl}, the first file that is needed by the
+VGDL is the game description, which describes the game sprites and how they
+interact with each other. Our game description can be seen in listing
+\ref{lst:preytxt}.
+
+
+Lines 2 to 8 describe the available sprites. There are two sprites in the game,
+which are both \texttt{movable}: the avatar (predator) and the monster (prey).
+The avatar is of type \texttt{MovingAvatar}, which means that the player has
+four possible actions (up, right, down, left). The prey has three
+instantiations, all of the type \texttt{RandomNPC}, which is an NPC that moves
+about in random directions: the \texttt{inactivePrey}, which only moves every
+3000 steps (which is more than the timeout explained shortly, so it never
+moves); the \texttt{slowPrey} which moves once every 10 steps, and the
+\texttt{fastPrey} which moves once every 2 steps.  By default, the
+\texttt{MovingAvatar} can move once in each time step.
+
+Lines 10 to 14 describe the level mapping. These characters can be used in the
+level description files, to show where the sprites spawn. 
+
+In the interaction set, Line 17 means that if the prey walks into the avatar (or
+vice versa) this will kill the prey, and the player will get a score increase of
+one point. Line 18 dictates that no \texttt{movable} sprite can walk through
+walls.
+
+Lastly, in the termination set, line 21 shows that the player wins when there
+are no more sprites of the type \texttt{prey}, and line 22 shows that the player
+loses after 100 time steps.
+
+Listing \ref{lst:preylvl} shows a very simple level description. This level is
+surrounded with walls and contains one avatar and one slow prey. 
 
 \section{O-MCTS}
 \label{subsec:omcts}
+\begin{figure}
+	\centering
+	\makebox[\columnwidth]{\includegraphics[width=1.25\textwidth]{includes/wins}}
+	\vspace{-.8cm}
+	\caption{Win ratio of the algorithms per game on all levels.}
+	\label{fig:wins}
+	\centering
+	\makebox[\columnwidth]{\includegraphics[width=1.25\textwidth]{includes/scores}}
+	\vspace{-.8cm}
+	\caption{Mean normalized score of the algorithms per game 1 means the
+	highest score achieved by all the algoriths, 0 the lowest.}
+	\label{fig:scores}
+\end{figure}
+
 In the first experiment, we compare O-MCTS and MCTS. Figures \ref{fig:wins} and
 \ref{fig:scores} respectively show the win ratio and normalized score of the
 algorithms for each game. The games are ordered by the performance an algorithm
