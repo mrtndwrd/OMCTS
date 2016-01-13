@@ -20,8 +20,8 @@ public class Test
         String sampleMCTSController = "controllers.sampleMCTS.Agent";
         String sampleOLMCTSController = "controllers.sampleOLMCTS.Agent";
         String sampleGAController = "controllers.sampleGA.Agent";
-        String myController = "mrtndwrd.Agent";
-        //String myController = "montecarlo.Agent";
+        //String myController = "mrtndwrd.Agent";
+        String myController = "qlearning.Agent";
         //String myController = "controllers.sampleMCTS.Agent";
 
         //Available games:
