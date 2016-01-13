@@ -242,8 +242,8 @@ public class Agent extends AbstractPlayer
 				option = epsilonGreedyOption(simpleNewState, EPSILON);
 			// Change oldState to newState. 
 			this.previousState = newState.copy();
-			if(greedy)
-				System.out.println("Changed to option " + option);
+			//if(greedy)
+			//	System.out.println("Changed to option " + option);
 		}
 		// If a new option is selected, return the new option. Else the old
 		// option will be returned
@@ -383,11 +383,19 @@ public class Agent extends AbstractPlayer
 					Option o;
 					// Create option for this obsID
 					if(type == Lib.GETTER_TYPE.NPC || type == Lib.GETTER_TYPE.MOVABLE)
+					{
 						o = new GoToMovableOption(GAMMA, 
 							type, observation.itype, observation.obsID, so);
+						Option o2 = new GoNearMovableOption(GAMMA, 
+							type, observation.itype, observation.obsID, so);
+						if(!this.possibleOptions.contains(o2))
+							this.possibleOptions.add(o2);
+					}
 					else
+					{
 						o = new GoToPositionOption(GAMMA, 
 							type, observation.itype, observation.obsID, so);
+					}
 					if(!this.possibleOptions.contains(o))
 						this.possibleOptions.add(o);
 				}
@@ -507,8 +515,8 @@ public class Agent extends AbstractPlayer
 			currentOption = greedyOption(newState);
 		}
 		//System.out.println("Astar:\n" + aStar);
-		System.out.println("Possible options" + this.possibleOptions);
-		System.out.println("Following option " + currentOption);
+		//System.out.println("Possible options" + this.possibleOptions);
+		//System.out.println("Following option " + currentOption);
 		this.previousScore = newScore;
 		return currentOption.act(so);
 	}
