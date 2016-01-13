@@ -7,7 +7,6 @@ BasicGame
         slowPrey > RandomNPC cooldown=10
         fastPrey > RandomNPC cooldown=2
 
-
   LevelMapping
     A > avatar
     I > inactivePrey
@@ -17,8 +16,7 @@ BasicGame
   InteractionSet
     prey avatar > killSprite scoreChange=1
     movable wall  > stepBack
+
   TerminationSet
     SpriteCounter stype=prey limit=0 win=True
     Timeout limit=100 win=False
-
-
