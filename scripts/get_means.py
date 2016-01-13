@@ -2,9 +2,24 @@ import sys, os, argparse
 from collections import defaultdict
 import numpy as np
 
+#EXCLUDED_GAMES = ['sokoban', 'brainman', 'chipschallenge', 'modality',
+#	'realportals', 'painter', 'realsokoban', 'thecitadel', 'zenpuzzle',
+#	'catapults', 'labyrinth', 'escape', ]
+# For paper:
 EXCLUDED_GAMES = ['sokoban', 'brainman', 'chipschallenge', 'modality',
 	'realportals', 'painter', 'realsokoban', 'thecitadel', 'zenpuzzle',
-	'catapults', 'labyrinth', 'escape', ]
+	'catapults', 'labyrinth', 'escape', 'infection', 'butterflies',
+	'missilecommand', 'whackamole', 'aliens', 'plants', 'camelrace',
+	'survivezombies', 'firestorms', 'pacman', 'overload', 'zelda',
+	'boulderdash', 'chase', 'roguelike', 'digdug', 'boulderchase']
+
+
+
+
+
+
+
+
 
 EXCLUDED_LEVELS = []
 

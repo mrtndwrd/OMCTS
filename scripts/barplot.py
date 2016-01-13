@@ -6,7 +6,10 @@ from collections import defaultdict
 from matplotlib import pyplot as plt
 
 WIDTH=0.8
-COLORS = ['black', 'blue', 'red', 'yellow','magenta', 'cyan',  'black']
+# For OMCTS:
+#COLORS = ['red', 'yellow', 'magenta', 'blue', 'cyan',  'black']
+# For OLMCTS (Ditch red, since that's already been used for MCTS)
+COLORS = ['yellow', 'magenta', 'blue', 'cyan',  'black']
 
 def plot_means(directory='output', style='bar', show_score=False, filename=None,
 		ignore_controllers=[]):
@@ -100,7 +103,7 @@ def barplot_games(stats, show_score, filename=None, order_by_controller=None,
 				order_by_column)
 
 	# Create figure and get some axis
-	fig = plt.figure(figsize=(14, 3.3))
+	fig = plt.figure(figsize=(7, 3.3))
 	# Add some space to the bottom
 	plt.subplots_adjust(bottom=.3)
 	ax = fig.add_subplot(111)
@@ -164,8 +167,8 @@ def barplot_games(stats, show_score, filename=None, order_by_controller=None,
 
 
 	## add a legend
-	if not(show_score):
-		ax.legend( rects, legend, fancybox=True, shadow=True, bbox_to_anchor=(1.1, 1.1) )
+	#if not(show_score):
+	ax.legend( rects, legend, fancybox=True, shadow=True, bbox_to_anchor=(1.1, 1.1) )
 
 	if filename == None:
 		plt.show()
