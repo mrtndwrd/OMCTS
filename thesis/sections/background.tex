@@ -34,14 +34,15 @@ and $R$ in the scope of this paper.
 \label{subsec:mcts}
 Monte Carlo methods have their roots in statistical physics, where they have
 been used to approximate intractable integrals. Abrahamson
-\cite{abramson1990expected} demonstrated theoretically that this sampling method might be
-useful for action selection in games as well.  In 2001, Monte Carlo methods were
-effectively used for bridge \cite{ginsberg2001gib}. The real success of MCTS
-started in 2006, when the tree search method and UCT formula were introduced,
-yielding very good results in Computer Go \cite{gelly2006modification}. Since
-2006, the algorithm has been extended with many variations is still being used
-for other computer games \cite{browne2012survey}, including the GVGAI
-competition \cite{perez2014knowledge}.
+\cite{abramson1990expected} demonstrated theoretically that this sampling method
+might be useful for action selection in games as well.  In 2001, Monte Carlo
+methods were effectively used for bridge \cite{ginsberg2001gib}. The real
+success of MCTS started in 2006, when the tree search method and UCT formula
+were introduced, yielding very good results in Computer Go
+\cite{gelly2006modification}. Since 2006, the algorithm has been extended with
+many variations is still being used for other computer games
+\cite{browne2012survey}, including the GVGAI competition
+\cite{perez2014knowledge}.
 
 This section explains how it approximates the value of actions taken in a
 specific state. A tree is built incrementally from the states and actions that

@@ -143,6 +143,7 @@ to find the prey. The minimum number of time steps to win the game in level 1,
 taking the optimal route, is six.
 
 \section{Game Test Set}
+\label{subsec:games}
 The algorithms we propose are tested on a subset of the first four training sets
 of the GVGAI competition. We exclude puzzle games that can be solved by an
 exhaustive search, because these have no random components, and the algorithms
@@ -242,9 +243,9 @@ specified otherwise.
 		allowed to enter the exit. If the avatar collects more coins than that,
 		he is trapped, but can kill marsh sprites with his sword for points.
 	\item Boulderdash:
-		The player collects diamons while moving through a cave. He should avoid
-		boulders that fall from above, and avoid or kill monsters. If the avatar
-		has enough diamonds, he may enter the exit and wins.
+		The player collects diamons while digging through a cave. He should
+		avoid boulders that fall from above, and avoid or kill monsters. If the
+		avatar has enough diamonds, he may enter the exit and wins.
 	\item Zelda:
 		The avatar should collect a key and walk towards the door in order to
 		win. He can kill monsters with his sword for additional points.
@@ -270,24 +271,24 @@ specified otherwise.
 		gems. After being hit by an enemy, it is possible to exchange gold for
 		health.
 	\item Boulderchase:
-		\todo{Finish from here}
-
-		Similar to Boulderdash, but the enemies can dig as well and chase the
-		player. They also drop an additional gem every time a gem is consumed.
+		Similar to \textit{boulderdash}, but when an enemy is killed, it drops a
+		diamond. Furthermore, in \textit{boulderdash} the enemy cannot dig
+		routes through the environment, but here it can.
 	\item Eggomania:
-		There is a chicken at the top of the level throwing eggs down. The
-		avatar must move from left to right to avoid eggs breaking on the floor.
-		Only when the avatar has collected enough eggs, he can shoot at the
-		chicken to win the game. If a single egg is broken, the player loses the
-		game.
+		A chicken at the top of the screen throws eggs. The aim of the game is
+		to move from left to right in order to catch the eggs. If the avatar
+		fails to catch even one, the game is lost. When the avatar
+		has collected enough eggs, it is possible to shoot the chicken to win
+		the game.
 	\item Portals:
-		You control an avatar that needs to find the exit of a maze, but moving
-		around is not so simple. Find the correct doors that take you to the
-		exit!
+		The avatar needs to find the exit of the maze. When he enters a portal,
+		he appears at another portal. The aim of the game is to find the correct
+		sequence of portals that lead to the exit.
 	\item Frogs:
-		Why did the frog cross the road? Because there is a river at the other
-		side. What would you cross the river as well? Because your home is
-		there, and it's cosy.
+		Like the commonly known game \textit{frogger}, the avatar is a frog,
+		that needs to cross a busy road and a river. On the road, the frog
+		should evade the trucks that move by. On the river, the frog should leap
+		from tree trunk to tree trunk in order to reach the exit.
 \end{enumerate}
 
 
@@ -342,7 +343,7 @@ game. After that, it wins consistently by applying the correct options. This
 indicates that the values for the Q-table converge correctly.
 
 Secondly, we run the algorithm on all the games described in chapter  
-\ref{subsec:games}. \todo{finish}
+\ref{subsec:games}. 
 
 \section{O-MCTS}
 \label{subsec:omcts}
