@@ -1,13 +1,20 @@
 \chapter{Background}
 \label{sec:background}
 
-As base knowledge for the algorithm, the following items must be explained. We
-first describe \emph{Markov decision processes (MDPs)}, then  MCTS, then
-options and finally the \emph{video game description language (VGDL)}.
+This chapter explains the most important concepts needed to understand the
+algorithms that are proposed in this thesis. We first describe \emph{Markov
+decision processes (MDPs)}, the type of problem that our algorithms have to
+deale with. Then  MCTS the tree search algorithm that is commonly used on MDPs.
+Subsequently, options will be explained, these simulate the idea of defining
+subgoals and reaching them.  Then, the basics of Q-learning are described.
+Finally the \emph{video game description language (VGDL)} is explained. This is
+the protocol that is used in the GVGAI competition to generate many different
+games that all have the same interaction with the game playing algorithms.
 
 \section{Markov Decision Processes}
 \label{subsec:mdps}
-In this paper, a game will be treated as an MDP, which is a
+In this thesis, each game will be treated as an MDP. MDPs provide a mathematical
+framework for use in decision making problems. An MDP is formally defined as a
 tuple $\langle S, A, T, R \rangle$. $S$ denotes the set of states. An MDP is
 fully observable, meaning that a state contains all the information of the
 game's current condition: locations of monsters, the avatar, etc. $A$ is a
@@ -21,7 +28,23 @@ the cumulative reward, which is analogous to the score. An MDP by definition has
 the \emph{Markov property}, which means that the conditional probability
 distribution of future states depends only upon the present state. No
 information from previous states is needed. Algorithms do not have access to $T$
-and $R$ in the scope of this paper.
+and $R$ in the scope of this thesis.
+
+For example, for the game Zelda, a state $s$ consists of the location, rotation
+and speed of the avatar, the location of the monsters, the locations of walls
+and the location of the key and portal that need to be found. $S$ is the set of
+all possible states, so all possible combinations of these variables. The action
+set $A$ consists of the actions \textsc{up}, \textsc{down}, \textsc{left},
+\textsc{right} and \textsc{use}. The transition function $T$ defines the
+transition from a state, given an action. This means that the transition defines
+the change in location of the monsters and the avatar, if any of the sprites
+disappear (like when the avatar picks up the key), etc. Note that, since the
+transition function is not by definition deterministic, the resulting state from
+an action $a$ in state $s$ is not always the same state. For example: because a
+monster moves about randomly, it could have moved left or right in the new
+state. The reward function describes the change in game score, given a state,
+action and resulting next state, for example when the avatar kills a monster
+with the action \textsc{use}, its score will increase with 1.
 
 \section{Monte Carlo Tree Search}
 \begin{figure}
@@ -110,9 +133,35 @@ for every node that has been visited in this iteration is updated with the
 reward of this simulation. Usually the estimated value of a node is the average
 of all rewards backed up to that node.
 
+\section{Q-learning}
+\label{subsec:qlearning}
+Q-learning is a relatively simple model free temporal difference learning method
+that was proposed in 1992 \cite{watkins1992q}. The \emph{Q-value}, $Q(s, a)$, is
+the discounted reward that can be achieved by applying action $a$ to state $s$
+and following the optimal policy afterwards. By learning Q-values for every
+action in every state, it can estimate an optimal policy. 
+
+The general idea of Q-learning is to incrementally save the reward from the MDP,
+in combination with the current Q-value function: the update function uses the
+reward and the maximum of the Q-values of the next state: 
+\begin{equation}
+	\label{eq:qlearning}
+	Q(s, a) \gets Q(s, a) + \alpha \left(r + \gamma \max_a Q(s', a) - Q(s, a)\right),
+\end{equation}
+where $r$ is the reward that is achieved by using action $a$ in state $s$,
+leading to state $s'$. The algorithm has two parameters: $\gamma$ is the
+discount factor. This indicates the importance of future states. $\alpha$ is the
+learning rate, which determines how quickly the Q-values are updated. An
+exploration policy selects the actions for each state.  The Q-table can be used
+to find the optimal policy by, for each state $s$, selecting the action $a$ that
+maximizes $Q(s, a)$. Because after each action only one state-action pair is
+being updated, Q-learning can take a long time to converge, but it is guaranteed
+to converge to the optimal policy, given that the exploration policy visits each
+state-action pair an infinite number of times and, for stochastic problems, the
+learning rate $\alpha$ decreases over time.
+
 \section{Options}
 \label{subsec:options}
-%\todo{Options}
 For mimicking human game playing strategies like defining and solving subgoals
 and subtasks, we use options \cite{sutton1999between, barto2003recent}. An
 option is a predefined method of reaching a specific subgoal. Formally, it is a
@@ -136,9 +185,10 @@ initiation set $I = S$, the policy $\pi$ is taking action $a$ in all the
 states.  The termination condition $\beta$ is that action $a$ should be
 performed once.
 
+
 \section{Video Game Description Language}
 \label{subsec:vgdl}
-This paper will use a framework called the video game description
+This thesis will use a framework called the video game description
 language \cite{schaul2013video}, in which games can very easily be defined.
 
 To define a game in VGDL, two files should be created. Firstly, the game
@@ -149,6 +199,6 @@ game. Secondly, a level description should be made, in which each character maps
 to an object in the game, on the same grid location as the character has in the
 file. By only defining these two files a wide spectrum of games can be created.
 
-In this paper, we will use a Java implementation made for the GVGAI competition,
-which comes with many games. The algorithm proposed in this paper will be
+In this thesis, we will use a Java implementation made for the GVGAI competition,
+which comes with many games. The algorithm proposed in this thesis will be
 benchmarked on these games, using the rules of the GVGAI competition. 

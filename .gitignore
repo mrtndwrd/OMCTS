@@ -10,6 +10,7 @@ winScore*pdf
 actions.txt
 *.pdf
 *.log
+*.toc
 *.aux
 *.out
 *.pyc

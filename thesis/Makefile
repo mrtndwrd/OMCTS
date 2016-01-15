@@ -2,8 +2,6 @@ default: thesis.pdf
 
 thesis.bbl: thesis.aux
 	bibtex thesis.aux
-	sed -i '/\\begin/a \\\vspace{-7pt}' thesis.bbl
-	sed -i '/\\begin/i \\\vspace{-7pt}' thesis.bbl
 
 thesis.aux: thesis.tex
 	pdflatex thesis.tex

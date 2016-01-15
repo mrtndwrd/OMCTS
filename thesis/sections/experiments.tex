@@ -86,9 +86,11 @@ default value of maximum search depth of 10. Both algorithms have \textsf{uct}
 constant $C_p = \sqrt{2}$. Unfortunately, comparing to Q-learning with options
 was impossible, because the state space of these games is too big for the
 algorithm to learn any reasonable behavior. All the experiments are run on an
-Intel i7 \todo{type} quad core processor with 6 GB of RAM memory. For all
-experiments, each algorithm plays each of the 5 levels of each game
-20 times. 
+Intel %\textsuperscript{\textregistered} 
+Core %\texttrademark 
+i7-2600, 3.40GHz quad core processor with 6 GB of DDR3, 1333 MHz RAM memory. For
+all experiments, each algorithm plays each of the 5 levels of each game 20
+times. 
 
 \section{Toy Problem}
 
@@ -257,7 +259,7 @@ specified otherwise.
 	\item Digdug:
 		The aim of the game is to collect all the gems and gold coins by digging
 		a way through a cave. Enemies kill the players on collision. When the
-		avatar presses USE in two consecutive time steps, it shoots a boulder to
+		avatar presses \textsc{use} in two consecutive time steps, it shoots a boulder to
 		kill the enemy.
 	\item Bolo Adventures:
 		The avatar should reach the goal. He can push around boxes 1 cell at a
@@ -281,9 +283,10 @@ specified otherwise.
 		has collected enough eggs, it is possible to shoot the chicken to win
 		the game.
 	\item Portals:
-		The avatar needs to find the exit of the maze. When he enters a portal,
-		he appears at another portal. The aim of the game is to find the correct
-		sequence of portals that lead to the exit.
+		The avatar needs to find the exit of the maze. He can use the available
+		portals to teleport from one place to another. The aim of the game is to
+		find the correct sequence of portals that lead to the exit. There are
+		moving objects that kill the player on touch.
 	\item Frogs:
 		Like the commonly known game \textit{frogger}, the avatar is a frog,
 		that needs to cross a busy road and a river. On the road, the frog
@@ -445,14 +448,14 @@ algorithm learns that it should pick up the key.
 
 \begin{figure}
 	\centering
-	\subfigure[Learning \textit{bait}]{
-		\includegraphics[scale=.44]{includes/learning}
-		\label{fig:learning-results}
-	}
-	\subfigure[Totals]{
-		\includegraphics[scale=.44]{includes/totals.pdf}
-		\label{fig:total-results}
-	}
+	%\subfigure[Learning \textit{bait}]{
+	%	\includegraphics[scale=.44]{includes/learning}
+	%	\label{fig:learning-results}
+	%}
+	%\subfigure[Totals]{
+	%	\includegraphics[scale=.44]{includes/totals.pdf}
+	%	\label{fig:total-results}
+	%}
 	\caption{Learning improvement on game \textit{bait}, it shows win ratio and
 		normalized score. Total number of wins of the algorithms on
 	all games.}
