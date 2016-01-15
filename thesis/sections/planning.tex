@@ -148,7 +148,20 @@ Typically, the \textsf{rollout} function chooses random actions until
 rollout is returned.  In O-MCTS however, \textsf{rollout} always applies actions
 chosen by option $o$ first and applies random actions after $o$ is finished. The
 \textsf{back\_up} function traverses the tree through all parents of $s$,
-updating their expected value.
+updating their expected value. Instead of backing up the mean value of the
+reward to all parent nodes, a discounted value is backed up. The backup function
+looks like this:
+\begin{equation}
+	v_s \gets v_s + \delta\gamma^{d_s-d_{s'}}
+\end{equation}
+where $\delta$ is the reward that is being backed up, $v_s$ is the value of the
+ancestor node $s$ that is being updated. $d_s$ and $d_{s'}$ are the node depths
+of tree nodes $s$ and $s'$. Thus, a node that is a further ancestor of node
+$s'$, will be updated with a smaller value. This discounting method is similar
+to that of SMDP Q-learning done in Equation \ref{eq:smdp-qlearning}, where
+$\gamma^k$ is used to discount for the length of an option. Our hypothesis is
+that this prevents the algorithm of favoring longer options, as is the problem
+with the Puma algorithm.
 
 When the time is up, the algorithm chooses an option from $c_r$ corresponding to
 the child node highest expected value. This option chooses the best

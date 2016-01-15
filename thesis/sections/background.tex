@@ -2,58 +2,55 @@
 \label{sec:background}
 
 This chapter explains the most important concepts needed to understand the
-algorithms that are proposed in this thesis. We first describe \emph{Markov
-decision processes (MDPs)}, the type of problem that our algorithms have to
-deale with. Then  MCTS the tree search algorithm that is commonly used on MDPs.
-Subsequently, options will be explained, these simulate the idea of defining
-subgoals and reaching them.  Then, the basics of Q-learning are described.
-Finally the \emph{video game description language (VGDL)} is explained. This is
-the protocol that is used in the GVGAI competition to generate many different
-games that all have the same interaction with the game playing algorithms.
+algorithms that are proposed in this thesis. The first section describes
+\emph{Markov decision processes (MDPs)}, a formalization of the type of problem
+that the algorithms have to solve. The next section describes MCTS, a tree
+search algorithm that is commonly used on games and other MDPs. Subsequently,
+options will be formalized, these simulate the idea of defining subgoals and
+how to reach them. Then, the basics of Q-learning are described, from which SMDP
+Q-learning is derived. Finally the \emph{video game description language (VGDL)}
+is explained. This is the protocol that is used by the GVGAI competition to
+generate the many different games the competition offers, that all use the same
+interaction framework with the game playing algorithms.
 
 \section{Markov Decision Processes}
 \label{subsec:mdps}
-In this thesis, each game will be treated as an MDP. MDPs provide a mathematical
+In this thesis, games will be treated as MDPs, which provide a mathematical
 framework for use in decision making problems. An MDP is formally defined as a
-tuple $\langle S, A, T, R \rangle$. $S$ denotes the set of states. An MDP is
-fully observable, meaning that a state contains all the information of the
-game's current condition: locations of monsters, the avatar, etc. $A$ is a
-finite set of actions, the input an agent can deliver to the game. $T$ is a
-transition function defined as $T : S \times A \times S \rightarrow
-\left[0,1\right]$. It specifies the probabilities over the possible next states,
-when taking an action in a state.  $R$ is a reward function defined as $R: S
-\times A \times S \rightarrow \mathbb{R}$. In this case, when the game score
-increases, the increase is viewed as the reward. Algorithms typically maximize
-the cumulative reward, which is analogous to the score. An MDP by definition has
-the \emph{Markov property}, which means that the conditional probability
-distribution of future states depends only upon the present state. No
-information from previous states is needed. Algorithms do not have access to $T$
-and $R$ in the scope of this thesis.
+tuple $\langle S, A, T, R \rangle$, where $S$ denotes the set of states. Since an MDP
+is fully observable, a state contains all the information of the
+game's current condition: locations of sprites like monsters and portals; the
+location, direction and speed of the avatar; which resources the avatar has
+picked up; etcetera. $A$ is a finite set of actions, the input an agent can
+deliver to the game. $T$ is a transition function defined as $T : S \times A
+\times S \rightarrow \left[0,1\right]$. It specifies the probabilities over the
+possible next states, when taking an action in a state.  $R$ is a reward
+function defined as $R: S \times A \times S \rightarrow \mathbb{R}$. In this
+case, when the game score changes, the difference is viewed as the reward.
+Algorithms typically maximize the cumulative reward, which is analogous to the
+score. An MDP by definition has the \emph{Markov property}, which means that the
+conditional probability distribution of future states depends only upon the
+present state. No information from previous states is needed. Algorithms do not
+have access to $T$ and $R$ in the scope of this thesis.
 
 For example, for the game Zelda, a state $s$ consists of the location, rotation
-and speed of the avatar, the location of the monsters, the locations of walls
-and the location of the key and portal that need to be found. $S$ is the set of
-all possible states, so all possible combinations of these variables. The action
-set $A$ consists of the actions \textsc{up}, \textsc{down}, \textsc{left},
-\textsc{right} and \textsc{use}. The transition function $T$ defines the
-transition from a state, given an action. This means that the transition defines
-the change in location of the monsters and the avatar, if any of the sprites
-disappear (like when the avatar picks up the key), etc. Note that, since the
-transition function is not by definition deterministic, the resulting state from
-an action $a$ in state $s$ is not always the same state. For example: because a
-monster moves about randomly, it could have moved left or right in the new
-state. The reward function describes the change in game score, given a state,
-action and resulting next state, for example when the avatar kills a monster
-with the action \textsc{use}, its score will increase with 1.
+and speed of the avatar and the location of the avatar's sword, the monsters, the
+walls and the key and portal that need to be found. $S$ is the set of all
+possible states, so all possible combinations of these variables. The action set
+$A$ consists of the actions \textsc{up}, \textsc{down}, \textsc{left},
+\textsc{right} and \textsc{use}, the latter of which spawns the sword in front
+of the avatar for a couple of time steps. The transition function $T$ defines the
+transition from a state, given an action.  This means that the transition
+defines the change in location of the monsters and the avatar and if any of the
+sprites disappear (e.g. when the avatar picks up the key). Note that, since
+the transition function is not by definition deterministic, the resulting state
+from an action $a$ in state $s$ is not always the same state. For instance,
+because a monster moves about randomly, it could have moved left or right in the
+new state. The reward function describes the change in game score, given a
+state, action and resulting next state, for example when the avatar kills a
+monster with the action \textsc{use}, its score will increase with 1.
 
 \section{Monte Carlo Tree Search}
-\begin{figure}
-	\centering
-	\epsfig{file=includes/mcts-wide.eps, width=\textwidth}
-	\caption{One Monte Carlo tree search iteration}
-	\label{fig:mcts}
-\end{figure}
-
 \label{subsec:mcts}
 Monte Carlo methods have their roots in statistical physics, where they have
 been used to approximate intractable integrals. Abrahamson
@@ -67,11 +64,18 @@ many variations is still being used for other computer games
 \cite{browne2012survey}, including the GVGAI competition
 \cite{perez2014knowledge}.
 
+\begin{figure}
+	\centering
+	\epsfig{file=includes/mcts-wide.eps, width=\textwidth}
+	\caption{One Monte Carlo tree search iteration}
+	\label{fig:mcts}
+\end{figure}
+
 This section explains how it approximates the value of actions taken in a
 specific state. A tree is built incrementally from the states and actions that
 are visited in a game. Each node in the tree represents a state, each connection
-in the tree represents an action taken in that state leading to a state, which
-is represented by the next tree node.  The process, as explained in Figure
+in the tree represents an action taken in that state leading to a new state,
+which is represented by the next tree node.  The process, as explained in Figure
 \ref{fig:mcts}, consists of four phases that are constantly repeated. It is
 started with the current game state, which is represented by the root node of
 the tree. The first action is chosen by an \emph{expansion strategy} and
@@ -86,19 +90,20 @@ expanded in a node, we call that node \emph{fully expanded} and use a
 not fully expanded, the expansion strategy is used to create a new node, after
 which a rollout takes place and the results are backed up thereafter.
 
-	%(Term from pMCTS.pdf)
-The selection strategy selects optimal actions in internal tree nodes, depending
-on the values of the child nodes. An effective and very popular selection
-strategy is the \emph{upper confidence tree (UCT)} \cite{kocsis2006bandit},
-which balances the choice between poorly explored actions with a high
-uncertainty about their value and actions that have been explored but have a
-higher value. A child node $j$ is selected to maximize
+The selection strategy selects optimal actions in internal tree nodes, by
+analyzing the values of their child nodes. An effective and very popular
+selection strategy is the \emph{upper confidence tree (UCT)}
+\cite{kocsis2006bandit}, which balances the choice between poorly explored
+actions with a high uncertainty about their value and actions that have been
+explored extensively, but have a higher value. A child node $j$ is selected to
+maximize
 \begin{equation}
 	\label{eq:uct}
-	UCT = 2C_p \sqrt{\frac{2 \ln n_s}{n_{s'}}}
+	UCT = v_{s'} C_p \sqrt{\frac{2 \ln n_s}{n_{s'}}}
 \end{equation}
-Where $n_s$ is the number of times the current node $s$ has been visited,
-$n_{s'}$ is the number of times child $c$ has been visited and $C_p > 0$ is a
+\todo{$\frac{v_{s'}}{n_s'}$ maybe?}
+Where $v_{s'}$ is the value of child $s'$, $n_s$ is the number of times the current node $s$ has been visited,
+$n_{s'}$ is the number of times child $s'$ has been visited and $C_p > 0$ is a
 constant, often set to $\sqrt{2}$, that shifts priority from exploration to
 exploitation.
 
@@ -109,7 +114,7 @@ factor of the tree by only expanding the nodes selected by a special expansion
 strategy. A specific example is the \emph{crazy stone} algorithm
 \cite{coulom2007efficient}, which is an expansion strategy that was designed
 specifically for Go. We will use an adaptation of this strategy in the algorithm
-proposed in Section \ref{sec:learning}.  When using crazy stone, an action $i$
+proposed in Chapter \ref{sec:learning}.  When using crazy stone, an action $i$
 is selected with a probability proportional to $u_i$
 \begin{equation}
 	\label{eq:crazystone}
@@ -151,23 +156,27 @@ reward and the maximum of the Q-values of the next state:
 where $r$ is the reward that is achieved by using action $a$ in state $s$,
 leading to state $s'$. The algorithm has two parameters: $\gamma$ is the
 discount factor. This indicates the importance of future states. $\alpha$ is the
-learning rate, which determines how quickly the Q-values are updated. An
-exploration policy selects the actions for each state.  The Q-table can be used
-to find the optimal policy by, for each state $s$, selecting the action $a$ that
+learning rate, which determines how quickly the Q-values are updated. For
+Q-learning to converge in stochastic problems, $\alpha$ should decrease over
+time, although in practice it is often set to $0.1$. The Q-table can be used to
+find the optimal policy by, for each state $s$, selecting the action $a$ that
 maximizes $Q(s, a)$. Because after each action only one state-action pair is
 being updated, Q-learning can take a long time to converge, but it is guaranteed
-to converge to the optimal policy, given that the exploration policy visits each
-state-action pair an infinite number of times and, for stochastic problems, the
-learning rate $\alpha$ decreases over time.
+to converge to the optimal policy, given that during exploration, each
+state-action pair is visited an infinite number of times.
 
 \section{Options}
 \label{subsec:options}
 For mimicking human game playing strategies like defining and solving subgoals
-and subtasks, we use options \cite{sutton1999between, barto2003recent}. An
-option is a predefined method of reaching a specific subgoal. Formally, it is a
-triple $\langle I, \pi, \beta\rangle$ in which $I \subseteq S$ is an initiation
-set, $\pi: S \times A \rightarrow [0, 1]$ is a policy and $\beta: S^+
-\rightarrow[0,1]$ is a termination condition.
+and subtasks, we use options. Options have been proposed by Sutton et al.
+\cite{sutton1999between} as a new method for incorporating temporal abstraction
+into the field of artificial intelligence. A lot of work has been done since,
+although little work seems to have been done into combining options with the
+popular tree search methods \cite{barto2003recent}.  An option is a predefined
+method of reaching a specific subgoal. Formally, it is a triple $\langle I, \pi,
+\beta\rangle$ in which $I \subseteq S$ is an initiation set, $\pi: S \times A
+\rightarrow [0, 1]$ is a policy and $\beta: S^+ \rightarrow[0,1]$ is a
+termination condition.
 
 A policy $\pi$ defines the action that should be taken in a state. The
 initiation set $I$ is a set of states in which the option can be started. When the
@@ -202,3 +211,5 @@ file. By only defining these two files a wide spectrum of games can be created.
 In this thesis, we will use a Java implementation made for the GVGAI competition,
 which comes with many games. The algorithm proposed in this thesis will be
 benchmarked on these games, using the rules of the GVGAI competition. 
+
+\todo{Algorithms have no access to this}
