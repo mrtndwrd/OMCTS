@@ -7,24 +7,48 @@
 % TODO: Meer future work (wat had ik nog allemaal willen doen?)
 % TODO: Vragen hoe Sander vindt dat dit hoofdstuk moet heten
 
-
+% Conclusion:
 We can conclude that the Option MCTS algorithm almost always performs at least
 as good as MCTS. O-MCTS excels in games with a small amount of game sprites, but
 high complexity, such as \textit{zelda}, \textit{overload} and \textit{eggomania}.
 Furthermore, O-MCTS can do a further lookahead than most tree searching
 alternatives, resulting in a high performance on \textit{camel race}. The
-algorithm does struggle with a high amount of sprites, since many options have
-to be constructed and checked each round, leaving too little time for exploring
-options. Our results of OL-MCTS indicate that learning
-option values can aid the algorithm in improving win ratio and score, but not
-for all games.
+algorithm performs worse than expected in games with a high amount of sprites,
+since the size of the option set becomes so large, that maintaining it takes a
+lot of time, leaving too little time for exploring options. 
 
-Our results with OL-MCTS indicate that it is possible to detect infeasible
-options, meaning that in the future, it should be possible to completely remove
-options from the option set, that have low expected rewards for certain games.
-We expect that this could reduce the computation time O-MCTS needs to construct
-and check all the options.
+Our results with OL-MCTS indicate that it is possible to learn some information
+about which options work better, meaning that in the future, it should be
+possible to completely remove infeasible options from the option set, that have
+low expected rewards for certain games. We expect that this could reduce the
+computation time O-MCTS needs to construct and check all the options.
+Because our results only show significant improvement on one game, more work
+needs to be done in this area.
 
+% Discussion:
+Although O-MCTS outperforms MCTS in most games, it is unclear why Although
+O-MCTS outperforms MCTS in most games, it is unclear why Although O-MCTS
+outperforms MCTS in most games, it is unclear why MCTS outperforms O-MCTS in
+\textit{jaws} and \textit{whackamole}. For these games, the performance of
+O-MCTS did not increase when the action time was increased from 40 to 120
+milliseconds. Presumably, the current option set does not enable any improvement
+for these games, thus only creating a larger overhead for the algorithm.
+
+% Why doesn't OL-MCTS work?
+The OL-MCTS algorithm was constructed to reduce this overhead, but offers very
+little improvement on most games. The current hypothesis is, that the problem is
+that the algorithm does not completely exclude the poorly performing options
+from the option set. It should be possible to set a threshold to the option
+values, below which the options are not maintained. This should reduce the
+overhead of the algorithm. The problem would arise, however, that options might
+be excluded prematurely: The \texttt{GoToPosition} option for the portal in
+Zelda, that is closed at first, should not be discarded because after picking up
+the key it becomes useful. In the future, a solution should be introduced that
+weighs the trade off between these factors.
+
+% 
+
+% Future work:
 Furthermore, more research should be done in the influence of the option set.
 Currently the effectiveness of the algorithm strongly relies on the A Star
 implementation. This implementation is too time consuming, leaving
@@ -33,6 +57,10 @@ simpler and computationally cheaper alternatives, such as for example Enforced
 Hill Climbing, as proposed in \cite{ross2014general}, although that has the
 problem that the agent can get stuck. Alternatively, by creating goal-oriented
 MDPs similar to PUMA's, the algorithm could probably increase sturdiness.
+
+% PTSP (like Purofvio)
+% Combining calculation time of several actions, (like Purofvio)
+% 
 
 In order to improve the learning algorithms, some other improvements can be
 investigated. Firstly, the backup method can be tweaked. In

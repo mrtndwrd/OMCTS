@@ -382,15 +382,15 @@ enabling it to do a further forward search than the ordinary Monte Carlo tree
 search. \textit{Camel race} requires the player to move to the right for 80
 consecutive turns, which is very hard for MCTS, since it only looks forward 10 
 turns. O-MCTS almost always wins, since it can plan forward a lot further. In
-Overload, a sword has to be picked up before the avatar can finish the game,
-which seems to be too hard for MCTS, but poses less of a problem for O-MCTS.
-Furthermore, in Zelda we can see that the MCTS algorithm achieves roughly the
-same score as O-MCTS, but does not win the game, since picking up the key and
-walking towards the door is a difficult action sequence. We assume that the
-score achieved by MCTS is because it succeeds in killing the monsters, whereas
-O-MCTS achieves its score by picking up the key and walking to the door.  These
-results indicate that O-MCTS performs better than MCTS in games where a longer
-sequence of action planning has to be done.
+\textit{Overload}, a sword has to be picked up before the avatar can finish the
+game, which seems to be too hard for MCTS, but poses less of a problem for
+O-MCTS.  Furthermore, in Zelda we can see that the MCTS algorithm achieves
+roughly the same score as O-MCTS, but does not win the game, since picking up
+the key and walking towards the door is a difficult action sequence. We assume
+that the score achieved by MCTS is because it succeeds in killing the monsters,
+whereas O-MCTS achieves its score by picking up the key and walking to the door.
+These results indicate that O-MCTS performs better than MCTS in games where a
+longer sequence of action planning has to be done.
 
 The MCTS algorithm performs significantly better than O-MCTS in
 \textit{whackamole}, \textit{jaws}, \textit{seaquest} and \textit{plaque
