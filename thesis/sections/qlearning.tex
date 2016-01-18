@@ -9,20 +9,25 @@ option in a certain state, in order to find an optimal policy over the option
 set $O$.
 
 Like traditional Q-learning, SMDP Q-learning estimates a value function. The
-option-value function contains the expected return $Q(s, o)$ of using
-an option $o \in O$ in state $s \in S$. Updates for the $Q$ function are done
-after each option termination by an adaptation of the original update function
+option-value function contains the expected return $Q(s, o)$ of using an option
+$o \in O$ in state $s \in S$. Updates of the $Q$ function are done after each
+option termination by an adaptation of the original Q-learning update function
 from Equation \ref{eq:qlearning}:
 \begin{equation}
 	\label{eq:smdp-qlearning}
-	Q(s, o) \gets Q(s, o) + \alpha \left[r + \gamma^k \max_{o' \in O_{s'}}Q(s',
-	o') Q(s, o)\right],
+	Q(s, o) \gets Q(s, o) + \alpha \left(r + \gamma^k \max_{o' \in O_{s'}}Q(s',
+	o') - Q(s, o)\right),
 \end{equation}
 where $\gamma$ is the discount factor, $k$ denotes the number of time steps
 between the start state $s$ and stop state $s'$ for option $o$, $r$ denotes
-the cumulative and discounted reward over this time, and step size parameter
-$\alpha$ is similar to the learning rate parameter from traditional Q-learning.
-\todo{Difference between this and Eq. \ref{eq:qlearning}}
+the cumulative and discounted option reward from Equation
+\ref{eq:option-reward}, and step size parameter $\alpha$ is similar to the
+learning rate parameter from traditional Q-learning.  The difference with
+Equation \ref{eq:qlearning} is that here we take the $k$\textsuperscript{th}
+power of $\gamma$. The function of this is that the algorithm needs to discount
+the future reward more for options that take more time. Using this method, an
+option that takes half the time, but has more than double the reward of another
+option gets preferred.
 
 Using the Q-table, an option policy can be constructed. A \emph{greedy policy}
 selects the option that maximizes the expected return $Q(s, o)$ for any state
@@ -32,7 +37,9 @@ it is optimal for the maximum achievable by using only the options in the option
 set $O$.} \cite{sutton1999between}. Exploration is often done by using an
 \emph{$\epsilon$-greedy policy}. This is a policy that chooses a random option
 with probability $\epsilon$ and the greedy option otherwise. The parameter
-$\epsilon$ is set to a value between 0 and 1.
+$\epsilon$ is set to a value between 0 and 1. A higher value for $\epsilon$
+leads more exploration of unknown states, whereas a lower value shifts the
+algorithm's focus to exploiting the currently known feasible states.
 
 \begin{algorithm}[h]
 	\caption{$\mathsf{SMDP~Q-learning}(Q, O, s, t, d, o)$}
@@ -78,35 +85,36 @@ $\epsilon$ is set to a value between 0 and 1.
 	\end{algorithmic}
 \end{algorithm}
 
-For our implementation, the state information that is available in the Java VGDL
-framework was serialized in order to be able to distinguish between states. The
-set of options $O$ was designed by us. The algorithm is shown in Algorithm
-\ref{alg:ql}.
+%For our implementation, the state information that is available in the Java VGDL
+%framework was serialized in order to be able to distinguish between states. The
+%set of options $O$ was designed by us. 
 
-We initialize Q-learning with a Q-table $Q$ (empty in the first game), a
-predefined option set $O$, the current state $s$, a time limit $t$, the maximum
-search depth $d$ and the currently followed option $o$. The algorithm starts
-with a loop that keeps running as long as the time maximum $t$ is not achieved,
-from line \ref{alg:ql:smainloop} to \ref{alg:ql:emainloop}. In line
-\ref{alg:ql:copys}, the initial state $s$ is copied to $s'$, for mutation in the
-inner loop. Then, in lines \ref{alg:ql:sno} to \ref{alg:ql:eno}, the algorithm
-checks if a new option is needed. If the currently used option $o$ is finished,
-meaning that state $s'$ is in its termination set $\beta(o)$, a new option is
-chosen with an epsilon greedy policy. 
+The algorithm is shown in Algorithm \ref{alg:ql}. We initialize Q-learning with
+the table $Q$ (empty in the first game), a predefined option set $O$, the
+current state $s$, a time limit $t$, the maximum search depth $d$ and the
+currently followed option $o$ (for the first iteration of a game, initialize $o$
+to any finished option). The algorithm starts with a loop that keeps running as
+long as the maximum time $t$ is not surpassed, from line \ref{alg:ql:smainloop}
+to \ref{alg:ql:emainloop}. In line \ref{alg:ql:copys}, the initial state $s$ is
+copied to $s'$, for mutation in the inner loop. Then, in lines \ref{alg:ql:sno}
+to \ref{alg:ql:eno}, the algorithm checks if a new option is needed. If the
+currently used option $o$ is finished, meaning that state $s'$ is in its
+termination set $\beta(o)$, a new option is chosen with an epsilon greedy
+policy. 
 
-Then, from lines \ref{alg:ql:sfor} to \ref{alg:ql:efor}, the option provides an
-action, which is applied to the simulator in line \ref{alg:ql:apply}, after
-which the option's return, and the Q-table if the option is finished, are
-updated by \textsf{update\_option}, as displayed in Algorithm \ref{alg:update}.
-Finally, if the option is finished, a new option is again selected with an
+Then, from lines \ref{alg:ql:sfor} to \ref{alg:ql:efor} the option provides an
+action, which is applied to the simulator in line \ref{alg:ql:apply}.
+Afterwards, the option's return, and possibly the Q-table, are updated by the
+function \textsf{update\_option} as displayed in Algorithm \ref{alg:update}.
+Finally, if the option is finished, a new option is selected with the
 epsilon greedy policy. The inner loop keeps restarting until a maximum depth is
 reached, after which the outer loop restarts from the initial state.
 
 Algorithm \ref{alg:update} describes how the \textsf{update\_option}
 function works: First the step counter $i_o$ is increased. Secondly, the
 cumulative discounted reward is altered. If the option is finished, $Q$ is
-updated using Equation \ref{eq:smdp-qlearning} (note that the cumulative reward $o_r$
-is $r$ in the equation, and step counter $i_o$ is $k$).
+updated using Equation \ref{eq:smdp-qlearning} (note that in the equation the cumulative reward $o_r$
+is $r$, and step counter $i_o$ is $k$).
 
 By repeatedly applying an epsilon greedy option's actions to the game, the
 Q-values of promising options should quickly converge to indicate which option

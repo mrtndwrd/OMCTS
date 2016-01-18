@@ -21,14 +21,6 @@ enough values. The information learned in a game can be transferred if the game
 is played again by supplying OL-MCTS with the option values of the previous
 game. 
 
-The return $R_o$ for using option $o$ from timestep $t$ to $t+n$ is calculated
-by adding the discounted rewards $r_t$ for all of the states visited by that
-option \cite{sutton1999between}. $$R_o = r_{t} + \gamma r_{t+1} + \gamma^2 r_{t+2} + \cdots + \gamma^n
-r_{t+n},$$ where $\gamma \in [0, 1]$ is the discount rate parameter, which
-influences the importance of rewards that lay further in the future: an option
-with reward 1 at timestep $t$ will get a greater return than an option with the
-same reward at timestep $t+1$.  
-
 For the purpose of generalizing, we divide the set of options into \emph{types}.
 For example, an option for going to a movable sprite has type
 \texttt{GoToMovableOption}. An instance of this option exists for each movable

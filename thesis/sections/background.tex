@@ -155,7 +155,7 @@ state-action pair. More specifically, the update function for a state-action
 pair is
 \begin{equation}
 	\label{eq:qlearning}
-	Q(s, a) \gets Q(s, a) + \alpha \left(r + \gamma \max_{a \in A} Q(s', a) - Q(s, a)\right),
+	Q(s, a) \gets Q(s, a) + \alpha \left(r + \gamma \max_{a' \in A} Q(s', a') - Q(s, a)\right),
 \end{equation}
 where $r$ is the reward that is achieved by using action $a$ in state $s$,
 leading to state $s'$. The algorithm has two parameters: $\gamma$ is the
@@ -196,11 +196,22 @@ has chosen in the past as well. According to \cite{sutton1999between}, we can
 now view the process as a \emph{semi-Markov decision process (SMDP)}
 \cite{duff1995reinforcement}, where options are viewed as actions of variable
 length. In this thesis, we will keep calling the original action set of the MDP
-$A$, and the set of options $O$.  Normal actions can be treated as options as
+$A$, and the set of options $O$.  
+
+Typically, because an option can span over several actions, its reward is
+discounted. This means that rewards that lay further in the future are valued
+less than those that lay nearer. A reward is calculated for using an option from
+timestep $t$ to timestep $t+n$ with
+\begin{equation}
+	\label{eq:option-reward}
+	r_o = r_{t} + \gamma r_{t+1} + \gamma^2 r_{t+2} + \cdots + \gamma^n r_{t+n},
+\end{equation}
+where $\gamma$ is similar to Q-learning's discount parameter.
+
+Normal actions can be treated as options as
 well.  An option for action $a \in A$ has a initiation set $I = S$, the policy
 $\pi$ is taking action $a$ in all the states.  The termination condition $\beta$
-is that action $a$ should be performed once.
-
+is that action $a$ should be performed once. 
 
 \section{Video Game Description Language}
 \label{subsec:vgdl}
