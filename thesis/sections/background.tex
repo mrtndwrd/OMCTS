@@ -60,7 +60,7 @@ methods were effectively used for bridge \cite{ginsberg2001gib}. The real
 success of MCTS started in 2006, when the tree search method and UCT formula
 were introduced, yielding very good results in Computer Go
 \cite{gelly2006modification}. Since 2006, the algorithm has been extended with
-many variations is still being used for other computer games
+many variations and is still being used for other (computer) games
 \cite{browne2012survey}, including the GVGAI competition
 \cite{perez2014knowledge}.
 
@@ -71,24 +71,24 @@ many variations is still being used for other computer games
 	\label{fig:mcts}
 \end{figure}
 
-This section explains how it approximates the value of actions taken in a
-specific state. A tree is built incrementally from the states and actions that
-are visited in a game. Each node in the tree represents a state, each connection
-in the tree represents an action taken in that state leading to a new state,
-which is represented by the next tree node.  The process, as explained in Figure
-\ref{fig:mcts}, consists of four phases that are constantly repeated. It is
-started with the current game state, which is represented by the root node of
-the tree. The first action is chosen by an \emph{expansion strategy} and
-subsequently simulated, resulting in a new game state, for which a new node is
-created. A \emph{rollout} is done from the new node, which means that a
-simulation is run from the new node applying random actions until a predefined
-stop criterion is met or the game ends. Finally, the score difference resulting
-from the rollout is backed up, to the root node, which means that the reward is
-saved to the visited nodes. Then a new iteration starts. When all actions are
-expanded in a node, we call that node \emph{fully expanded} and use a
-\emph{selection strategy} to select a next node. When a node is selected that is
-not fully expanded, the expansion strategy is used to create a new node, after
-which a rollout takes place and the results are backed up thereafter.
+This section explains how MCTS approximates action values for states.  A tree is
+built incrementally from the states and actions that are visited in a game. Each
+node in the tree represents a state and each connection in the tree represents
+an action taken in that state leading to a new state, which is represented by
+the next tree node.  The process, as explained in Figure \ref{fig:mcts},
+consists of four phases that are constantly repeated. It is started with the
+current game state, which is represented by the root node of the tree. The first
+action is chosen by an \emph{expansion strategy} and subsequently simulated,
+resulting in a new game state, for which a new node is created. After expansion,
+a \emph{rollout} is done from the new node, which means that a simulation is run
+from the new node applying random actions until a predefined stop criterion is
+met or the game ends. Finally, the score difference resulting from the rollout
+is \emph{backed up} to the root node, which means that the reward is saved to the
+visited nodes.  Then a new iteration starts. When all actions are expanded in a
+node, that node is deemed \emph{fully expanded} and uses a \emph{selection
+strategy} to select a next node. When a node is selected that is not fully
+expanded, the expansion strategy is used to create a new node, after which a
+rollout takes place and the results are backed up thereafter.
 
 The selection strategy selects optimal actions in internal tree nodes, by
 analyzing the values of their child nodes. An effective and very popular
@@ -101,11 +101,10 @@ maximize
 	\label{eq:uct}
 	UCT = v_{s'} C_p \sqrt{\frac{2 \ln n_s}{n_{s'}}}
 \end{equation}
-\todo{$\frac{v_{s'}}{n_s'}$ maybe?}
-Where $v_{s'}$ is the value of child $s'$, $n_s$ is the number of times the current node $s$ has been visited,
-$n_{s'}$ is the number of times child $s'$ has been visited and $C_p > 0$ is a
-constant, often set to $\sqrt{2}$, that shifts priority from exploration to
-exploitation.
+Where $v_{s'}$ is the value of child $s'$ as calculated by the backup function,
+$n_s$ is the number of times the current node $s$ has been visited, $n_{s'}$ is
+the number of times child $s'$ has been visited and $C_p > 0$ is a constant,
+often set to $\sqrt{2}$, that shifts priority from exploration to exploitation.
 
 The traditional expansion strategy is to explore each action at least once in
 each node. After all actions have been expanded, the node applies the selection
@@ -141,75 +140,99 @@ of all rewards backed up to that node.
 \section{Q-learning}
 \label{subsec:qlearning}
 Q-learning is a relatively simple model free temporal difference learning method
-that was proposed in 1992 \cite{watkins1992q}. The \emph{Q-value}, $Q(s, a)$, is
-the discounted reward that can be achieved by applying action $a$ to state $s$
-and following the optimal policy afterwards. By learning Q-values for every
-action in every state, it can estimate an optimal policy. 
+that was proposed in 1992 \cite{watkins1992q}. The \emph{Q-value} of an action
+for a state, $Q(s, a)$, is the discounted reward that can be achieved by
+applying action $a$ to state $s$ and following the optimal policy afterwards. By
+learning Q-values for every action in every state, it can estimate an optimal
+policy. 
 
 The general idea of Q-learning is to incrementally save the reward from the MDP,
-in combination with the current Q-value function: the update function uses the
-reward and the maximum of the Q-values of the next state: 
+in combination with the current Q-value of the state-action pair: the update
+function uses the reward and the maximum of the Q-values of the next state. By
+always using the maximum value of the next state as well, the Q-value function
+will eventually converge to a depiction of the maximum future reward for a
+state-action pair. More specifically, the update function for a state-action
+pair is
 \begin{equation}
 	\label{eq:qlearning}
-	Q(s, a) \gets Q(s, a) + \alpha \left(r + \gamma \max_a Q(s', a) - Q(s, a)\right),
+	Q(s, a) \gets Q(s, a) + \alpha \left(r + \gamma \max_{a \in A} Q(s', a) - Q(s, a)\right),
 \end{equation}
 where $r$ is the reward that is achieved by using action $a$ in state $s$,
 leading to state $s'$. The algorithm has two parameters: $\gamma$ is the
-discount factor. This indicates the importance of future states. $\alpha$ is the
-learning rate, which determines how quickly the Q-values are updated. For
-Q-learning to converge in stochastic problems, $\alpha$ should decrease over
-time, although in practice it is often set to $0.1$. The Q-table can be used to
-find the optimal policy by, for each state $s$, selecting the action $a$ that
-maximizes $Q(s, a)$. Because after each action only one state-action pair is
-being updated, Q-learning can take a long time to converge, but it is guaranteed
-to converge to the optimal policy, given that during exploration, each
-state-action pair is visited an infinite number of times.
+discount factor, which indicates the importance of future states. $\alpha$ is the
+learning rate, which determines how quickly the Q-values are updated.
+Q-learning is shown to converge, even in problems with a stochastic transition
+function, if $\alpha$, $\alpha$ decreases over time. In practice, however, it is
+often set to $0.1$. The Q-table can be used to find the optimal policy by, for
+each state $s$, selecting the action $a$ that maximizes $Q(s, a)$. Because after
+each action only one state-action pair is being updated, Q-learning can take a
+long time to converge, but it is guaranteed to converge to the optimal policy,
+given that during exploration, each state-action pair is visited an infinite
+number of times.
 
 \section{Options}
 \label{subsec:options}
-For mimicking human game playing strategies like defining and solving subgoals
-and subtasks, we use options. Options have been proposed by Sutton et al.
-\cite{sutton1999between} as a new method for incorporating temporal abstraction
-into the field of artificial intelligence. A lot of work has been done since,
-although little work seems to have been done into combining options with the
-popular tree search methods \cite{barto2003recent}.  An option is a predefined
-method of reaching a specific subgoal. Formally, it is a triple $\langle I, \pi,
-\beta\rangle$ in which $I \subseteq S$ is an initiation set, $\pi: S \times A
-\rightarrow [0, 1]$ is a policy and $\beta: S^+ \rightarrow[0,1]$ is a
-termination condition.
+In order to mimic human game playing strategies, defining subgoals and subtask,
+we use options. Options have been proposed by Sutton et al.
+\cite{sutton1999between} as a method to incorporate temporal abstraction in
+field of reinforcement learning. A lot of progress has been made since, but a
+lot of the research seems to focus on learning algorithms and little work is
+done on combining options with tree search methods \cite{barto2003recent}, which
+offer a model free planning framework.
 
-A policy $\pi$ defines the action that should be taken in a state. The
-initiation set $I$ is a set of states in which the option can be started. When the
-option starts, policy $\pi$ will be followed, until a state is reached that
-satisfies a termination condition in $\beta$. Using options in an MDP removes
-the Markov property for that process: the state information alone is no longer
-enough to predict an agent's actions, since the actions are now not only
-state-dependant, but dependant on what option the agent has chosen in the past
-as well. According to \cite{sutton1999between}, we can now view the process as
-a \emph{semi-Markov decision process (SMDP)} \cite{duff1995reinforcement},
-since its actions are of variable length. For convenience, we will call the
-original action set of the MDP $A$, and the set of options $O$.  Normal actions
-can be treated as options as well.  An option for action $a \in A$ has a
-initiation set $I = S$, the policy $\pi$ is taking action $a$ in all the
-states.  The termination condition $\beta$ is that action $a$ should be
-performed once.
+An option is a predefined method of reaching a specific subgoal. Formally, it is
+a triple $\langle I, \pi, \beta\rangle$ in which $I \subseteq S$ is an
+initiation set, $\pi: S \times A \rightarrow [0, 1]$ is a policy and $\beta: S^+
+\rightarrow[0,1]$ is a termination condition.  A policy $\pi$ defines the action
+that should be taken in a state. The initiation set $I$ is a set of states in
+which the option can be started. Typically, when the option starts, policy $\pi$
+will be followed, until a state is reached that satisfies a termination
+condition in $\beta$. After that, a new option is chosen and followed. 
+
+Using options in an MDP removes the Markov property for that process: the state
+information alone is no longer enough to predict an agent's actions, since the
+actions are now not only state-dependant, but dependant on what option the agent
+has chosen in the past as well. According to \cite{sutton1999between}, we can
+now view the process as a \emph{semi-Markov decision process (SMDP)}
+\cite{duff1995reinforcement}, where options are viewed as actions of variable
+length. In this thesis, we will keep calling the original action set of the MDP
+$A$, and the set of options $O$.  Normal actions can be treated as options as
+well.  An option for action $a \in A$ has a initiation set $I = S$, the policy
+$\pi$ is taking action $a$ in all the states.  The termination condition $\beta$
+is that action $a$ should be performed once.
 
 
 \section{Video Game Description Language}
 \label{subsec:vgdl}
-This thesis will use a framework called the video game description
-language \cite{schaul2013video}, in which games can very easily be defined.
+In order to test algorithms on several different games, a framework is used that
+can access a large number of games in a similar manner. The GVGAI competition
+uses the \emph{video game description language (VGDL)} \cite{schaul2013video},
+in which games can be defined easily. VGDL aims to be a description language
+for games that is clear, human readable and unambiguous. Games are easy to parse
+and it is possible to automatically generate them. Using a VGDL framework,
+algorithms can access all the games in a similar manner, resulting in a fair
+method to compare their performances on several games.
 
-To define a game in VGDL, two files should be created. Firstly, the game
-description should be made, which defines for each type of object what its
-character in the level description is, what it looks like in the game, how it
-interacts with other objects and the world, and when it disappears from the
-game. Secondly, a level description should be made, in which each character maps
-to an object in the game, on the same grid location as the character has in the
-file. By only defining these two files a wide spectrum of games can be created.
+To define a game in VGDL, two files are required. Firstly, the game description
+should be made, which defines for each type of object what character in the
+level description it corresponds to, what it looks like in a game visualization,
+how it interacts with the rest of the game, and when it disappears from the
+game. Secondly, a level description file is needed, in which each character maps
+to an object in the game. The location in the file corresponds to its grid
+location in the game. By defining these two files, a wide spectrum of games
+can be created. A more extensive explanation of VGDL can be found in Chapter
+\ref{subsec:games}.
 
-In this thesis, we will use a Java implementation made for the GVGAI competition,
-which comes with many games. The algorithm proposed in this thesis will be
+In this thesis, we will use a Java implementation made for the GVGAI
+competition, which comes with many games. In this version, algorithms only
+observe the game information: score, game tick (timestep), the set of possible
+actions and information about if the game is over and if the player won; Avatar
+information: its position, orientation, speed and resources; and screen
+information: Which sprites are on what location of the screen, and the size (in
+pixels) of the game grid's blocks.
+
+The algorithm proposed in this thesis will be
 benchmarked on these games, using the rules of the GVGAI competition. 
-
-\todo{Algorithms have no access to this}
+This means that the algorithms do not have any access to the game and level
+descriptions. When an algorithms starts playing a game, it typically knows
+nothing of the game, except for the observation described above.

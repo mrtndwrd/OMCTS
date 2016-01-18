@@ -1,52 +1,50 @@
 \chapter{Related Work}
 \label{sec:related}
 This chapter covers some popular alternative methods for general video game
-playing or tree search with options. \emph{Deep Q networks (DQN)} is a popular
-algorithm that trains a convolutional neural network for a game
+playing and prior work on tree search with options. \emph{Deep Q networks (DQN)}
+is a popular algorithm that trains a convolutional neural network for a game
 \cite{mnih2013playing}, \emph{Planning under Uncertainty with Macro-Actions
 (PUMA)} is a forward search algorithm that uses extended actions in
 \emph{partially observable MDPs (POMDPs)} \cite{he2010puma}.  \emph{Purofvio} is
 an algorithm that combines MCTS with macro-actions that consist of repeating one
 action several times \cite{powley2012monte}. 
 
-DQN trains a convolutional neural network that has the last four pixel frames of
-a game as input and tries to predict the expected return of each action. A good
-policy can then be created by selecting the action with the highest return. This
-is one of the first algorithms that successfully combines neural network
-learning with reinforcement learning. In this case, however, it was not
-desirable to implement DQN, because in our testing framework, an algorithm has
-40 milliseconds to choose an action, even when playing a game for the first
-time. DQN learns for several days, after which a good policy can be learned.
-Furthermore, DQN does not use a forward model, but always applies actions
-directly to the game in order to learn. Furthermore, the current rules of the
-GVGAI competition do not enable an agent to transfer information from one game
-to the next.
+DQN is a general video game playing algorithm that trains a convolutional neural
+network that has the last four pixel frames of a game as input and tries to
+predict the return of each action. A good policy can then be created by
+selecting the action with the highest return. This is one of the first
+algorithms that successfully combines neural network learning with reinforcement
+learning. In this case, however, it was not desirable to implement DQN, because
+in our testing framework, an algorithm has 40 milliseconds to choose an action,
+even when playing a game for the first time. DQN has to train for several days,
+before a good policy can be found.  Furthermore, it does not use a forward
+model, but always applies actions directly to the game in order to learn.
 
 Although learning is currently not a goal in the GVGAI competition and not
 supported by the rules, there are results showing that several types of learning
 algorithms can improve their scores on many game plays, using a simple state
 representation \cite{samothrakis2015neuroevolution}. Their features consist
 solely of: 
-
 \begin{itemize}[noitemsep]
 	\item the game score, 
-	\item game tick (time step),
-	\item game winner (-1 if game is still ongoing, 0 if the player lost and 1 if the player won), 
-	\item game over, 
+	\item the game tick,
+	\item the winner ($-1$ if game is still ongoing, $0$ if the player lost and
+		$1$ if the player won), 
+	\item game over ($0$ if the game is ongoing, $1$ if the game is over), 
 	\item a list of resources, 
 	\item a list of Euclidean distances to the nearest sprite of each type,
-	\item speed of the avatar. 
+	\item the speed of the avatar. 
 \end{itemize}
-
 The results of the paper show that the algorithms are capable of learning in the
-course of 1000 game plays of the first level of each game. It has to be noted,
-though, that no results of how many times the algorithms \emph{win} the game are
-reported, and that it seems (looking at the score that is achieved) that many of
-the games are actually lost most of the times. The algorithms proposed in this
-thesis will focus more on early results than on long term learning.
+course of 1000 game plays of the first level of each game. It has to be noted
+that no results of how many times the algorithms \emph{win} the game are
+reported and that it seems (looking at the score that is achieved) that many of
+the games are actually lost most of the times. Furthermore, the learning
+algorithms proposed in this thesis will focus more on early results than on long
+term learning.
 
-Another alternative is the PUMA algorithm, which applies forward search to
-options (referred to as macro-actions) and works on POMDPs. PUMA automatically
+An alternative tree search algorithm is PUMA, which applies forward search to
+options (referred to as macro-actions) and works on POMDPs.  PUMA automatically
 generates goal-oriented MDPs for specific subgoals, the advantage of which is
 that using this method, effective options can be generated without requiring any
 prior knowledge of the (PO)MDP. The disadvantage is that this takes a lot of
@@ -60,9 +58,14 @@ length with starting an stopping conditions.
 
 Another algorithm that uses MCTS with macro actions is called Purofvio.
 Purofvio plans over macro-actions which, in this case, are defined as repeating
-one action for a fixed number of times. No more complex options are defined. The
-paper notes that their options must always be of the same size, because they
-found that otherwise MCTS seems to favor options with a longer time span over
-shorter options. Furthermore Purofvio is specifically created for the physical
-travelling salesperson problem and can thus not necessarily be generalized to
-any other game.
+one action for a fixed number of times. No more complex options are defined.
+Generally, when executing an option, Purofvio executes only the actions chosen
+by that option, reducing the branching of MCTS. The algorithm is constructed for
+the physical traveling salesperson problem, in which (like GVGAI) the action
+time is set to 40 ms. An important feature of this algorithm is that it can use
+the time budget of several actions to compute which macro-action to choose next.
+This is possible, because when a macro-action has been chosen, it is not
+reconsidered. The paper notes that their options must always be of the same
+size, because they found that otherwise MCTS seems to favor options with a
+longer time span over shorter options. It is suggested that Purofvio could work
+on other games as well, but that is not shown.
