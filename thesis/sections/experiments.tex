@@ -14,6 +14,7 @@ progress it makes over 5 games.  Lastly we compare the three algorithms by
 summing over all the games.  The goal of the algorithms is to primarily win as
 many games as possible, while secondly maximizing the score. 
 
+\section{Option Set}
 For these experiments we construct an option set which is aimed at providing
 action sequences for any type of game, since the aim here is general video game
 playing. Note that a more specific set of options can be created when the
@@ -75,18 +76,33 @@ preferring safe and easily traversable paths. For example in \textit{zelda}, a
 door is closed until a key is picked up. Our A Star version will still be able
 to plan a path to the door once the key is picked up, winning the game.
 
-We empirically optimize the parameters of the O(L)-MCTS algorithm
-for these experiments. We use discount factor $\gamma = 0.9$, maximum action
-time $t = 40$ milliseconds. The maximum search depth $d$ is set to 70, which is
-higher than most alternative tree search algorithms, for example in the GVGAI
-competition, use. The number of node visits after which \textsf{uct} is used,
-$v$, is set to 40. Crazy stone parameter $K$ is set to $0.5$.  For comparison,
-we use the MCTS algorithm provided with the Java implementation of VGDL with its
-default value of maximum search depth of 10. Both algorithms have \textsf{uct}
-constant $C_p = \sqrt{2}$. Unfortunately, comparing to Q-learning with options
-was impossible, because the state space of these games is too big for the
-algorithm to learn any reasonable behavior. All the experiments are run on an
-Intel %\textsuperscript{\textregistered} 
+The GVGAI competition comes with some predefined parameters. Every algorithm has
+a maximum of one second to initialize, before starting the game. Then, the
+algorithm has a maximum forty milliseconds to choose an action, after which a
+new game state is given. If the agent takes more time than that, the action
+\textsc{null} will be applied and the avatar will not do anything\footnote{There
+seems to be a bug in the system, that causes actions to sometimes take hundreds
+of milliseconds to simulate. This bug has been reported to the competition's
+discussion platform by several users. Because this bug was not solved at the
+time of writing, we chose to not honor the GVGAI competition's original rule to
+disqualify a controller that does not return an action within fifty
+milliseconds.}. The framework was edited in order to be able to pass information
+from one game to the next. After a game is finished, the learning algorithms
+OL-MCTS and Q-Learning get the possibility to save their values to a file. Our
+restriction is that the file can be opened during the initialization of the next
+game, within one second. 
+
+We empirically optimize the parameters of the O(L)-MCTS algorithm for these
+experiments. We use discount factor $\gamma = 0.9$. The maximum search depth $d$
+is set to 70, which is higher than most alternative tree search algorithms, for
+example in the GVGAI competition, use. The number of node visits after which
+\textsf{uct} is used, $v$, is set to 40. Crazy stone parameter $K$ is set to
+$0.5$.  For comparison, we use the MCTS algorithm provided with the Java
+implementation of VGDL with its default value of maximum search depth of 10.
+Both algorithms have \textsf{uct} constant $C_p = \sqrt{2}$. Unfortunately,
+comparing to Q-learning with options was impossible, because the state space of
+these games is too big for the algorithm to learn any reasonable behavior. All
+the experiments are run on an Intel %\textsuperscript{\textregistered} 
 Core %\texttrademark 
 i7-2600, 3.40GHz quad core processor with 6 GB of DDR3, 1333 MHz RAM memory. For
 all experiments, each algorithm plays each of the 5 levels of each game 20
@@ -245,7 +261,7 @@ specified otherwise.
 		allowed to enter the exit. If the avatar collects more coins than that,
 		he is trapped, but can kill marsh sprites with his sword for points.
 	\item Boulderdash:
-		The player collects diamons while digging through a cave. He should
+		The player collects diamonds while digging through a cave. He should
 		avoid boulders that fall from above, and avoid or kill monsters. If the
 		avatar has enough diamonds, he may enter the exit and wins.
 	\item Zelda:
@@ -288,13 +304,11 @@ specified otherwise.
 		find the correct sequence of portals that lead to the exit. There are
 		moving objects that kill the player on touch.
 	\item Frogs:
-		Like the commonly known game \textit{frogger}, the avatar is a frog,
-		that needs to cross a busy road and a river. On the road, the frog
-		should evade the trucks that move by. On the river, the frog should leap
-		from tree trunk to tree trunk in order to reach the exit.
+		Commonly known as \textit{frogger}, the avatar is a frog, that needs to
+		cross a busy road and a river. On the road, the frog should evade the
+		trucks that move by. On the river, the frog should leap from tree trunk
+		to tree trunk in order to reach the exit.
 \end{enumerate}
-
-
 
 
 \section{SMDP Q-learning}
@@ -308,13 +322,13 @@ specified otherwise.
 		\includegraphics[scale=.48]{includes/timeQlearningPrey}
 		\label{fig:time-qlearning-prey}
 	}
-	\caption{Performance of SMDP Q-learning on the toy problem.}
+	\caption{Mean performance over 20 games of SMDP Q-learning on the
+	\textit{prey} toy problem.}
 	\label{fig:qlearning}
 \end{figure}
 
 Firstly, we will test our implementation of SMDP Q-learning. This section shows
 the results on the toy problem \textit{prey} and a set of the other test games.
-
 In order to get SMDP Q-learning to work correctly, we need to serialize the
 state space. Furthermore, to prevent the Q-table to become too big, we apply a
 state space reduction. These are the values that are saved:
@@ -323,7 +337,7 @@ state space reduction. These are the values that are saved:
 	\item The avatar orientation
 	\item The avatar's resources (this is often a number, for example
 		\texttt{"diamonds:3"})
-	\item The Euclidean distance and direction to the nearest of:
+	\item The direction and Euclidean distance to the nearest of:
 		\begin{itemize}
 			\item NPCs
 			\item Other Movable sprites
@@ -334,11 +348,11 @@ state space reduction. These are the values that are saved:
 \end{itemize}
 
 This crude state space reduction removes information about the map and location
-of the avatar, but enables the algorithm to keep a smaller Q-table, enabling it
-to work on more games, without running out of memory.
+of the avatar, but enables the algorithm to keep a smaller Q-table and as a
+result, work on more games without running out of memory.
 
-In the first experiment, we check if SMDP Q-learning, with our option set and
-state space reduction, works by applying it to the test game. The results can be
+In the first experiment, we check if SMDP Q-learning works with our option set
+and state space reduction, by applying it to the toy problem. The results can be
 seen in figure \ref{fig:qlearning}. We can see that the algorithm wins
 consistently starting at game 3 and that the time it takes to win quickly and
 almost always converges to 6, the least number of steps possible to win the

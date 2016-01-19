@@ -17,7 +17,7 @@ algorithm performs worse than expected in games with a high amount of sprites,
 since the size of the option set becomes so large, that maintaining it takes a
 lot of time, leaving too little time for exploring options. 
 
-Our results with OL-MCTS indicate that it is possible to learn some information
+The results of OL-MCTS indicate that it is possible to learn some information
 about which options work better, meaning that in the future, it should be
 possible to completely remove infeasible options from the option set, that have
 low expected rewards for certain games. We expect that this could reduce the
@@ -26,13 +26,12 @@ Because our results only show significant improvement on one game, more work
 needs to be done in this area.
 
 % Discussion:
-Although O-MCTS outperforms MCTS in most games, it is unclear why Although
-O-MCTS outperforms MCTS in most games, it is unclear why Although O-MCTS
-outperforms MCTS in most games, it is unclear why MCTS outperforms O-MCTS in
-\textit{jaws} and \textit{whackamole}. For these games, the performance of
-O-MCTS did not increase when the action time was increased from 40 to 120
-milliseconds. Presumably, the current option set does not enable any improvement
-for these games, thus only creating a larger overhead for the algorithm.
+Although O-MCTS outperforms MCTS in most games, it is unclear why MCTS
+outperforms O-MCTS in \textit{jaws} and \textit{whackamole}. For these games,
+the performance of O-MCTS did not increase when the action time was increased
+from 40 to 120 milliseconds. Presumably, the current option set does not enable
+any improvement for these games, thus only creating a larger overhead for the
+algorithm.
 
 % Why doesn't OL-MCTS work?
 The OL-MCTS algorithm was constructed to reduce this overhead, but offers very
@@ -41,12 +40,31 @@ that the algorithm does not completely exclude the poorly performing options
 from the option set. It should be possible to set a threshold to the option
 values, below which the options are not maintained. This should reduce the
 overhead of the algorithm. The problem would arise, however, that options might
-be excluded prematurely: The \texttt{GoToPosition} option for the portal in
+be excluded prematurely: the \texttt{GoToPosition} option for the portal in
 Zelda, that is closed at first, should not be discarded because after picking up
 the key it becomes useful. In the future, a solution should be introduced that
 weighs the trade off between these factors.
 
-% 
+% Trade off between score and winning
+Another difficulty in game solving research is the trade-off between scoring,
+playing time and winning. First the trade off between playing time and winning:
+winning earlier, is often better. For some games, however, winning later
+increases the score. For example, in the game butterflies, the butterflies keep
+spawning indefinitely. Each butterfly that is caught, increases the score with
+1. When all butterflies are gone, the game is won. An algorithm that catches all
+the butterflies as quickly as possible, will have a lower score than an
+algorithm that catches them less efficiently. The question to ask then is: which
+is the winner? The one with the highest score, or the one that finishes the
+fastest. Another trade-off is that between winning and scoring: in the game
+Zelda, for instance, the goal is to pick up the key and walk to the portal. If
+the monsters are killed, this increases the eventual score. But trying to kill a
+monster comes at a risk: the player has to come close to the monster in order to
+use his sword on it. So increasing the score, comes with the risk of dying,
+decreasing the win ratio.
+
+% Q-learning should get more time to load its table
+
+% Disqualifications
 
 % Future work:
 Furthermore, more research should be done in the influence of the option set.
@@ -60,7 +78,7 @@ MDPs similar to PUMA's, the algorithm could probably increase sturdiness.
 
 % PTSP (like Purofvio)
 % Combining calculation time of several actions, (like Purofvio)
-% 
+% Test if there really is no preference for longer options
 
 In order to improve the learning algorithms, some other improvements can be
 investigated. Firstly, the backup method can be tweaked. In
