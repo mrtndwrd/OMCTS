@@ -437,6 +437,22 @@ for \textit{seaquest} and \textit{plaque attack}.
 
 \section{OL-MCTS}
 \label{subsec:olmcts}
+By running Option Learning MCTS on the toy problem \textit{prey}, we can find
+out if it learns, similar to what we did with Q-learning. As can be seen in
+Figure \todo{ref figure todo hieronder}, OL-MCTS successfully improves on the
+game, and wins consistently after \todo{} games. A more interesting test is one
+with a level where the prey is outside the reach of OL-MCTS's rollouts. For this
+test, we set the max rollout distance $d$ of OL-MCTS to 10 and make a level
+where the prey can be reached in 20 actions. Figure \todo{ref} shows that
+OL-MCTS successfully learns to prefer the options that lead to the avatar over
+the other options.
+
+
+\todo{Results on \textit{prey}}
+\todo{Results on \textit{prey} level with 20 distance to prey, max depth $d =
+10$}
+
+
 For the second experiment, we compare OL-MCTS to O-MCTS, by running it on the
 same set of games. The option learning algorithm is allowed four learning games,
 after which the fifth is used for the comparisons. Figures \ref{fig:wins-olmcts}
