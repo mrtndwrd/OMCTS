@@ -28,14 +28,15 @@ rm tables/*
 #games="seaquest whackamole jaws plaqueattack"
 
 # oopsie, forgot some games:
-games="surround infection butterflies missilecommand aliens plants bait camelRace survivezombies firestorms lemmings firecaster pacman overload chase zelda boulderdash digdug roguelike boloadventures boulderchase eggomania portals frogs"
-#games="surround infection butterflies missilecommand aliens boloadventures boulderchase eggomania portals frogs"
+#games="surround infection butterflies missilecommand aliens plants bait camelRace survivezombies firestorms lemmings firecaster pacman overload chase zelda boulderdash digdug roguelike boloadventures boulderchase eggomania portals frogs"
+
+games="prey"
 
 # Config variables:
-controllers="qlearning.Agent"
+controllers="mrtndwrd.Agent"
 #controllers="controllers.sampleRandom.Agent"
-levels="0 1 2 3 4"
-number_of_games="5"
+levels="0 3"
+number_of_games="10"
 number_of_tests="20"
 
 gamma="0.9"
@@ -54,13 +55,20 @@ rm -r output/*
 game_numbers=`seq $number_of_tests`
 
 # Run 3 parallel jobs of java until $max jobs are done
-parallel -j1 --eta "mkdir -p output/{1}g{5}r{6}d{7}s{8}a{9}m{10}i{11}S{12}M{14}; and java -cp classes QlearningTest \
+parallel -j1 --eta "mkdir -p output/{1}g{5}r{6}d{7}s{8}a{9}m{10}i{11}S{12}M{14}; and java -cp classes MyTest \
 		--controller={1} \
 		--game={2} \
 		--levels={3} \
 		--number-of-games={4} \
 		--gamma={5} \
+		--random-rollout={6} \
+		--rollout-depth={7} \
+		--uct-start-visits={8} \
+		--learning={9} \
 		--max-action-time={10} \
+		--naive={11} \
+		--steepness={12} \
+		--use-mean-reward={14} \
 		--file-postfix={1}g{5}r{6}d{7}s{8}a{9}m{10}i{11}S{12}M{14}game{2}level{3}_{13} \
 		> \
 		output/{1}g{5}r{6}d{7}s{8}a{9}m{10}i{11}S{12}M{14}/o_{2}-{3}_{13}" ::: $controllers ::: $games ::: $levels ::: $number_of_games ::: $gamma ::: $random_rollout ::: $rollout_depth ::: $uct_start_visits ::: $learning ::: $max_action_time ::: $naive ::: $steepness ::: $game_numbers ::: $use_mean_reward
