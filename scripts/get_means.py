@@ -42,9 +42,16 @@ def get_mean(directory):
 				# If there are several scores, take the first and the last (this
 				# is for OLMCTS)
 				if type(scores[0]) == list:
-					current_controllers = \
-						[("%s%d" % (controller, 1), scores[0]),
-							("%s%d" % (controller, len(scores)), scores[-1])]
+					# Jua kali special case for Q-learning
+					if(controller == 'Q-LEARNING'):
+						index = 3
+						current_controllers = \
+							[("%s%d" % (controller, 1), scores[0]),
+								("%s%d" % (controller, index+1), scores[index])]
+					else:
+						current_controllers = \
+							[("%s%d" % (controller, 1), scores[0]),
+								("%s%d" % (controller, len(scores)), scores[-1])]
 				else:
 					current_controllers = [(controller, scores)]
 				for c, s in current_controllers:

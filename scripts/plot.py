@@ -63,7 +63,10 @@ class HyperVolumePlotter:
 	def add_plot(self, name):
 		""" Adds average and variance of 'name' to plot """
 		self.all_data['average_' + name] = np.average(self.all_data[name], axis=0)
-		self.all_data['variance_' + name] = np.square(np.std(self.all_data[name], axis=0))
+		if name == 'score':
+			self.all_data['variance_' + name] = np.square(np.std(self.all_data[name], axis=0))
+		else:
+			self.all_data['variance_' + name] = np.std(self.all_data[name], axis=0)
 		xs = np.add(range(0, len(self.all_data['average_' + name])), 1)
 		bounds = ((y[0] - y[1], y[0] + y[1]) for y in
 				zip(self.all_data['average_' + name],
@@ -71,7 +74,7 @@ class HyperVolumePlotter:
 		ymax, ymin = zip(*bounds)
 		self.ax.plot(xs, self.all_data['average_' + name], label=name, linewidth=1.0)
 		col = self.ax.get_lines()[-1].get_color()
-		if name == 'score':
+		if name == 'score' or name == 'time':
 			self.ax.fill_between(xs, ymax, ymin, alpha=.3, edgecolor="w",
 								 color=col)
 
@@ -123,7 +126,8 @@ class HyperVolumePlotter:
 		plt.xlabel('# Games Played')
 		# Title is not needed in LaTeX articles
 		# plt.title('Hypervolume')
-		plt.legend(loc='lower right')
+		#plt.legend(loc='lower right')
+		plt.legend()
 
 
 def setAxLinesBW(ax):

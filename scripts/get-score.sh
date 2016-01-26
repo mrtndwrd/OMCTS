@@ -1,6 +1,6 @@
 #!/bin/bash
 # Remove disqualifications, since they are created by a bug in the framework
-grep -v 'Result (1->win; 0->lose):-100, Score:-1000.0, timesteps:' | \
+# grep -v 'Result (1->win; 0->lose):-100, Score:-1000.0, timesteps:' | \
 # Get all the rules with scores in them
 grep 'Result (1->win; 0->lose)' | \
 	# Extract only the scores

@@ -2,11 +2,19 @@ import sys, os, argparse
 import get_means
 import numpy as np
 import itertools
+import random
 from collections import defaultdict
 from matplotlib import pyplot as plt
 
 WIDTH=0.8
-COLORS = ['black', 'blue', 'red', 'yellow','magenta', 'cyan',  'black']
+COLORS = ['black', 'blue', 'red', 'yellow','magenta', 'cyan',  'orange']
+COLORS_DICT = {'MCTS': 'black',
+	'O-MCTS': 'blue',
+	'OL-MCTS1': 'red',
+	'OL-MCTS5': 'yellow',
+	'Q-LEARNING1': 'magenta',
+	'Q-LEARNING4': 'cyan',
+	'RANDOM': 'orange'}
 
 def plot_means(directory='output', style='bar', show_score=False, filename=None,
 		ignore_controllers=[]):
@@ -38,7 +46,7 @@ def barplot_stats(stats, show_score, filename=None, ignore_controllers=[]):
 	controllers = sorted(stats.keys())
 	name = 'score' if show_score else 'wins'
 	# Loop through stats
-	fig = plt.figure(figsize=(2.5, 3.3))
+	fig = plt.figure(figsize=(5, 3.5))
 	ax = fig.add_subplot(111)
 	for i, (controller, dic) in enumerate(sorted(stats.iteritems())):
 		print "controller:", controller
@@ -50,7 +58,7 @@ def barplot_stats(stats, show_score, filename=None, ignore_controllers=[]):
 				else:
 					totals[controller].append(win)
 		plt.bar(i, np.sum(totals[controller]), label=controller, align='center', 
-				width=WIDTH)
+				width=WIDTH, color=get_color(controller))
 	print "Totals:"
 	for controller in totals.keys():
 		print "%s: %f" % (controller, np.sum(totals[controller]))
@@ -62,7 +70,9 @@ def barplot_stats(stats, show_score, filename=None, ignore_controllers=[]):
 		label.set_rotation('vertical')
 	plt.title('Total %s' % name)
 	plt.ylabel(name)
-	plt.subplots_adjust(bottom=.26, left=0.29)
+	plt.subplots_adjust(bottom=.26, left=0.17)
+	xtick_names = ax.get_xticklabels()
+	plt.setp(xtick_names, rotation=45, fontsize=9, horizontalalignment='right')
 	if filename == None:
 		plt.show()
 	else:
@@ -137,12 +147,12 @@ def barplot_games(stats, show_score, filename=None, order_by_controller=None,
 
 		show_variance = False
 		if show_variance:
-			rects.append(ax.bar(ind + (i-(.5*number_of_bars) + 1) * width, totals, width, color=COLORS[i],
-				yerr=variances, error_kw=dict(elinewith=2, ecolor='black')))
+			rects.append(ax.bar(ind + (i-(.5*number_of_bars) + 1) * width,
+				totals, width, color=get_color(controller), yerr=variances,
+				error_kw=dict(elinewith=2, ecolor='black')))
 		else:
-			rects.append(ax.bar(ind + (i-(.5*number_of_bars) + 1) * width, totals,
-				width, color=COLORS[i]))
-
+			rects.append(ax.bar(ind + (i-(.5*number_of_bars) + 1) * width,
+				totals, width, color=get_color(controller)))
 
 	ax.set_xlim(-width,len(ind)+width)
 	#ax.set_ylim(0,45)
@@ -150,8 +160,8 @@ def barplot_games(stats, show_score, filename=None, order_by_controller=None,
 	ax.set_title('%s by controller name' % name)
 	xTickMarks = ordered_labels
 	ax.set_xticks(ind+width)
-	xtickNames = ax.set_xticklabels(xTickMarks)
-	plt.setp(xtickNames, rotation=45, fontsize=9, horizontalalignment='right')
+	xtick_names = ax.set_xticklabels(xTickMarks)
+	plt.setp(xtick_names, rotation=45, fontsize=9, horizontalalignment='right')
 
 	# Shrink current axis's height by 10% on the bottom
 	#box = ax.get_position()
@@ -172,6 +182,12 @@ def barplot_games(stats, show_score, filename=None, order_by_controller=None,
 	else:
 		fig.savefig(filename)
 		print "Barplot saved to", filename
+
+def get_color(controller):
+	if controller in COLORS_DICT.keys():
+		return COLORS_DICT[controller]
+	else:
+		return random.choice(COLORS)
 
 def order_labels(controller_stats, index):
 	""" Orders the labels in controller_stats by the index in the scores """
@@ -204,6 +220,8 @@ if __name__ == "__main__":
 		help="If this argument is given, scores are plotted")
 	parser.add_argument('--file', '-f', metavar='file',
 		help="If this argument is given plots are written to file f")
+	parser.add_argument('-i', '--ignore-controllers', 
+			help='list of controllers not to plot', default=[], nargs="+")
 	args = parser.parse_args()
 	plot_means(args.output, args.type, show_score=args.score,
-			filename=args.file, ignore_controllers=['RANDOM'])
+			filename=args.file, ignore_controllers=args.ignore_controllers)

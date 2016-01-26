@@ -50,7 +50,6 @@ def get_option_rankings(directory, file_prefix):
 							d[l[0]][filename].append(0.)
 					# add and strip \n
 					d[l[0]][filename].append(float(l[1][:-1]))
-	print variances
 	return values, variances
 
 def make_plot(values, contains, legend_location, variance=None, plot_variance=False):
@@ -93,8 +92,8 @@ def make_plot(values, contains, legend_location, variance=None, plot_variance=Fa
 		return
 	for option, values in new_values.iteritems():
 		print "adding option", option
-		print [np.size(v) for v in values]
-		print [np.size(v) for v in new_variances[option]]
+		#print [np.size(v) for v in values]
+		#print [np.size(v) for v in new_variances[option]]
 		averages = np.average(values, axis=0)
 		# stds = np.std(values, axis=0)
 		stds = np.average(new_variances[option], axis=0)
@@ -115,7 +114,7 @@ def make_plot(values, contains, legend_location, variance=None, plot_variance=Fa
 
 
 if __name__ == "__main__":
-	parser = argparse.ArgumentParser(description='Barplot total wins')
+	parser = argparse.ArgumentParser(description='plot option rankings')
 	parser.add_argument('-o', '--output', 
 			help='directory with output files', default="output/")
 	parser.add_argument('-c', '--contains', 
