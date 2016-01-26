@@ -1,47 +1,38 @@
 \chapter{Introduction}
 \label{sec:introduction}
 
-
-% TODO: Waarom is het belangrijk voor AI?
-% Meer toelichting geven op de bijdrages en waarom dat belangrijk is
-% We -> I?
-
-
-
-% TODO: Verhaaltje dat dit onderzoek past in 2 velden (AI/decision theory en
-% GVGP), omschrijven wat er is gebeurd in beide velden Gedeeld doel: ze willen
-% beide generiekere methodes
-
 In the history of decision theory, playing games has been one of the objectives
 for a long time. The algorithms typically maximize their score or win
 probability. Early AI algorithms focused on simple games like tic tac toe.
 Later focus was shifted to chess and even later to Go. Nowadays, many algorithms
 are designed for winning computer games. For example a lot of strategy games
 offer the player computer-controlled contestants. 
+An increasingly important goal in decision theory is creating AI algorithms that
+are capable of solving more than one problem. A general AI, instead of a
+specific alternative, is considered a step towards creating a strong AI.
 
-General video game playing is a challenging problem and since many real-world
-problems can be modeled as a game, algorithms that can play complex games
-successfully are often highly effective problem solvers as well.
+An especially challenging domain of AI is general video game playing.  Since
+many real-world problems can be modeled as a game, algorithms that can play
+complex games successfully are often highly effective problem solvers as well.
 Therefore, recent research focuses on algorithms capable of solving several
-games with differing types of objectives. A common general game solving
-approach is to use a tree search in order to select the best action for any
-given game state. In every new game state, the tree search is restarted, until
-the game ends. A popular example of this is \emph{Monte Carlo Tree Search
-(MCTS)}, which achieves reasonable results on many games.
+games with differing types of objectives. A common general game solving approach
+is to use a tree search in order to select the best action for any given game
+state. In every new game state, the tree search is restarted, until the game
+ends. 
 
-Although decision theory and general video game playing are different research
-areas, both can benefit from each other. For general video game playing, an
-increase of performance can be found using algorithms designed for complex
-decision-theoretic problems, whereas the algorithms that are created for general
-video game playing can be applied to other decision-theoretic problems. For
-example, MCTS owes its fame to playing games \cite{gelly2006modification}, but
-is used for other decision-theoretic problems as well, e.g., scheduling problems
-or combinatorial optimization problems (see \cite{browne2012survey}, section 7.8
-for an extensive list). Both research areas share a common goal: they want
-better generic problem solving methods.
-
-% TODO: Wat is er "gebeurd" in decision theory? (geen idee wat ik dan moet
-% omschrijven)
+A popular decision theoretic algorithm, that has been used in general video game
+playing as well, is \emph{Monte Carlo tree search (MCTS)}. Decision theory and
+general video game playing are different research areas, but both can benefit
+from each other. For general video game playing, an increase of performance can
+be found using algorithms designed for complex decision-theoretic problems,
+whereas the algorithms that are created for general video game playing can be
+applied to other decision-theoretic problems.  Furthermore, applying decision
+theoretic algorithms to a new class of problems, like general video game
+playing, can lead to a better understanding of the algorithms, and new insights
+in their strengths and weaknesses.  MCTS owes its fame to playing games
+\cite{gelly2006modification}, but is used for other decision-theoretic problems
+as well, e.g., scheduling problems or combinatorial optimization problems (see
+\cite{browne2012survey}, section 7.8 for an extensive list). 
 
 A method to test the performance of a general video game playing algorithm is
 by using the framework of the \emph{general video game AI (GVGAI)} competition
@@ -86,24 +77,36 @@ combination of 10 actions. Our hypothesis is that by using options, exploration
 can be guided to find out the function of specific game objects, leading to
 better results while playing the game.
 
-% TODO: Talk about Q-learning
+In this thesis, we aim to incorporate the use of options in general video game
+playing, hypothesising that the use of options speeds up planning in the limited
+time algorithms often have before taking a decision. An existing option planning
+and learning approach is \emph{SMDP Q-learning}. It was originally proposed for
+solving problems with a continuous action time \cite{duff1995reinforcement} and
+later adapted to be used in combination with options to
+navigate a grid world environment \cite{sutton1999between, stolle2002learning}.
+
 SMDP Q-learning is an algorithm that is currently able to learn and plan game
 actions using options. The traditional Q-learning is adapted to apply the update
 rules for SMDPs (which are MDPs with continuous action time) to an MDP with a
 given set of options, in order to be able to find the optimal option, for a game
 state. This thesis will explain how SMDP Q-learning can be implemented for
-general video game solving in the GVGAI competition.
+general video game solving in the GVGAI competition. 
+However, Q-learning does not have the same favorable properties as Monte Carlo
+tree search. For instance, although they are both anytime algorithms, which
+means that they can both return an action that maximizes their hypothesis at any
+time, Q-learning often needs many plays of the same game, before it can return
+good actions, whereas MCTS can return reasonable actions with less simulations.
+We expect that combining MCTS with the option framework yields better results.
 
-% TODO: alvast meer in gaan op de resultaten
-Furthermore, a new algorithm, called \emph{option Monte Carlo tree search (O-MCTS)} is introduced
-that extends MCTS to use options. Because O-MCTS chooses between options rather
-than actions when playing a game, we expect it to be able to plan at a higher
-level of abstraction. Furthermore, we introduce \emph{option learning MCTS
-(OL-MCTS)}, an extension of O-MCTS that approximates which of the options in the
-option set is more feasible for the game it is playing. This can be used to
-shift the focus of the tree search exploration to more promising options. This
-information can be transferred in order to increase performance on the next
-level.
+Therefore, we propose a new algorithm called \emph{option Monte Carlo tree
+search (O-MCTS)} that extends MCTS to use options. Because O-MCTS chooses
+between options rather than actions when playing a game, we expect it to be able
+to plan at a higher level of abstraction. Furthermore, we introduce \emph{option
+learning MCTS (OL-MCTS)}, an extension of O-MCTS that approximates which of the
+options in the option set is more feasible for the game it is playing. This can
+be used to shift the focus of the tree search exploration to more promising
+options. This information can be transferred in order to increase performance on
+the next level.
 
 The algorithms will be benchmarked on games from the General Video Game AI
 competition, against the Monte Carlo tree search algorithm that is

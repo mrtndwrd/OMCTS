@@ -1,9 +1,10 @@
-\chapter{SMDP Q-learning}
+\section{SMDP Q-learning}
+\label{sec:qlearning}
 
-Traditionally, options are used in combination with Q-learning. In order to be
-able to compare our contribution to the Q-learning approach, we implement a
-variant of \emph{SMDP Q-learning} \cite{sutton1999between} for VGDL, based on
-the description made by Sutton et al. in section 3.2. In general, SMDP
+When options were introduced, they were used in combination with Q-learning. In
+order to be able to compare our contribution to the Q-learning approach, we
+implement a variant of \emph{SMDP Q-learning} \cite{sutton1999between} for VGDL,
+based on the description made by Sutton et al. in section 3.2. In general, SMDP
 Q-learning estimates the transition function and expected rewards for using an
 option in a certain state, in order to find an optimal policy over the option
 set $O$.
@@ -35,9 +36,9 @@ $s$ and option $o \in O$ with $s$ in its initiation set $I(s)$. When a Q-table
 is fully converged, the greedy policy is the optimal policy\footnote{Note that
 it is optimal for the maximum achievable by using only the options in the option
 set $O$.} \cite{sutton1999between}. Exploration is often done by using an
-\emph{$\epsilon$-greedy policy}. This is a policy that chooses a random option
-with probability $\epsilon$ and the greedy option otherwise. The parameter
-$\epsilon$ is set to a value between 0 and 1. A higher value for $\epsilon$
+\emph{$\varepsilon$-greedy policy}. This is a policy that chooses a random option
+with probability $\varepsilon$ and the greedy option otherwise. The parameter
+$\varepsilon$ is set to a value between 0 and 1. A higher value for $\varepsilon$
 leads more exploration of unknown states, whereas a lower value shifts the
 algorithm's focus to exploiting the currently known feasible states.
 

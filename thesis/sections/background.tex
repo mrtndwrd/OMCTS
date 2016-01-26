@@ -13,6 +13,11 @@ is explained. This is the protocol that is used by the GVGAI competition to
 generate the many different games the competition offers, that all use the same
 interaction framework with the game playing algorithms.
 
+In this thesis, games are considered to be an unknown environment and an agent
+has to learn by interacting with it. After interaction, agents receive
+rewards that can be either positive or negative. This problem is called
+reinforcement learning \cite{wiering2012reinforcement}.
+
 \section{Markov Decision Processes}
 \label{subsec:mdps}
 In this thesis, games will be treated as MDPs, which provide a mathematical
@@ -118,16 +123,16 @@ is selected with a probability proportional to $u_i$
 \begin{equation}
 	\label{eq:crazystone}
 	u_i = \exp\left(K \frac{\mu_0 - \mu_i}{\sqrt{2\left(\sigma_0^2 +
-\sigma_i^2\right)}}\right) + \epsilon_i
+\sigma_i^2\right)}}\right) + \varepsilon_i
 \end{equation}
 Each action has an estimated value $\mu_i$ ordered in such a way that $\mu_0 >
-\mu_1 > \ldots > \mu_N$, and a variance $\sigma_i^2$. $\epsilon_i$ prevents 
+\mu_1 > \ldots > \mu_N$, and a variance $\sigma_i^2$. $\varepsilon_i$ prevents 
 the probability of selecting a move to reach zero and its value is proportional to
 the ordering of the expected values of the possible actions. K is a constant
 that influences the exploration/exploitation trade off.
 \begin{equation}
 	\label{eq:epsilon}
-	\epsilon_i = \frac{0.1 + 2^{-i} + a_i}{N}
+	\varepsilon_i = \frac{0.1 + 2^{-i} + a_i}{N}
 \end{equation}
 Where $a_i$ is 1 when an action is \emph{an atari move}, a go-specific
 move that can otherwise easily be underestimated by MCTS, and otherwise 0.
@@ -139,7 +144,7 @@ of all rewards backed up to that node.
 
 \section{Q-learning}
 \label{subsec:qlearning}
-Q-learning is a relatively simple model free temporal difference learning method
+Q-learning is a relatively simple method for reinforcement learning,
 that was proposed in 1992 \cite{watkins1992q}. The \emph{Q-value} of an action
 for a state, $Q(s, a)$, is the discounted reward that can be achieved by
 applying action $a$ to state $s$ and following the optimal policy afterwards. By
@@ -162,16 +167,21 @@ leading to state $s'$. The algorithm has two parameters: $\gamma$ is the
 discount factor, which indicates the importance of future states. $\alpha$ is the
 learning rate, which determines how quickly the Q-values are updated.
 Q-learning is shown to converge, even in problems with a stochastic transition
-function, if $\alpha$, $\alpha$ decreases over time. In practice, however, it is
-often set to $0.1$. The Q-table can be used to find the optimal policy by, for
-each state $s$, selecting the action $a$ that maximizes $Q(s, a)$. Because after
-each action only one state-action pair is being updated, Q-learning can take a
-long time to converge, but it is guaranteed to converge to the optimal policy,
-given that during exploration, each state-action pair is visited an infinite
-number of times.
+function, if $\alpha$, $\alpha$ decreases over time. However, in practice it is
+often set to a small constant. The Q-table can be used to find the optimal
+policy by, for each state $s$, selecting the action $a$ that maximizes $Q(s,
+a)$. Because after each action only one state-action pair is being updated,
+Q-learning can take a long time to converge, but it is guaranteed to converge to
+the optimal policy, given that during exploration, each state-action pair is
+visited an infinite number of times.
 
 \section{Options}
 \label{subsec:options}
+
+\todo{Uitgebreider zeggen dat een option loopt vanaf een specifieke state tot
+een specifieke andere state. In principe blijf je een option altijd volgen
+tot een van de termination criteria bereikt is (goal reached, of exception)}
+
 In order to mimic human game playing strategies, defining subgoals and subtask,
 we use options. Options have been proposed by Sutton et al.
 \cite{sutton1999between} as a method to incorporate temporal abstraction in
@@ -213,8 +223,13 @@ well.  An option for action $a \in A$ has a initiation set $I = S$, the policy
 $\pi$ is taking action $a$ in all the states.  The termination condition $\beta$
 is that action $a$ should be performed once. 
 
-\section{Video Game Description Language}
+\input{sections/qlearning}
+
+\section{Generalized Video Game Playing}
 \label{subsec:vgdl}
+\todo{We willen gvgp gaan doen.. Er zijn recente ontwikkelingen, waarvan de
+belangrijksten VGDL en de GVGAI competitie}
+
 In order to test algorithms on several different games, a framework is used that
 can access a large number of games in a similar manner. The GVGAI competition
 uses the \emph{video game description language (VGDL)} \cite{schaul2013video},

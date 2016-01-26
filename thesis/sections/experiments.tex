@@ -15,6 +15,7 @@ summing over all the games.  The goal of the algorithms is to primarily win as
 many games as possible, while secondly maximizing the score. 
 
 \section{Option Set}
+\todo{Move naar options for gvgp chapter}
 For these experiments we construct an option set which is aimed at providing
 action sequences for any type of game, since the aim here is general video game
 playing. Note that a more specific set of options can be created when the
@@ -109,6 +110,7 @@ all experiments, each algorithm plays each of the 5 levels of each game 20
 times. 
 
 \section{Toy Problem}
+\todo{Move naar options for gvgp chapter}
 
 \lstinputlisting[caption=prey.txt, label=lst:preytxt, float=t]{../examples/gridphysics/prey.txt}
 
@@ -164,10 +166,10 @@ taking the optimal route, is six.
 \label{subsec:games}
 The algorithms we propose are tested on a subset of the first four training sets
 of the GVGAI competition. We exclude puzzle games that can be solved by an
-exhaustive search, because these have no random components, and the algorithms
-would not be able to benefit from the option set that was constructed for these
-experiments. This leaves us with the twenty-eight games that are described in this
-section. All games are lost when they take longer than 2000 time steps, unless
+exhaustive search, because since these have no random components, the algorithms
+will not be able to benefit from the option set that was constructed for these
+experiments. This leaves us with the twenty-eight games that are described in
+this section. All games are lost when the time step counter reaches 2000, unless
 specified otherwise.
 
 \begin{enumerate}
@@ -310,28 +312,16 @@ specified otherwise.
 		to tree trunk in order to reach the exit.
 \end{enumerate}
 
+We applied Monte Carlo tree search to this set of games, to have a baseline
+comparison. Furthermore, we applied SMDP Q-Learning, O-MCTS and OL-MCTS. Each 
 
 \section{SMDP Q-learning}
-\begin{figure}
-	\centering
-	\subfigure[Win ratio on \textit{prey}]{
-		\includegraphics[scale=.48]{includes/winsQlearningPrey}
-		\label{fig:wins-qlearning-prey}
-	}
-	\subfigure[Time taken for \textit{prey}]{
-		\includegraphics[scale=.48]{includes/timeQlearningPrey}
-		\label{fig:time-qlearning-prey}
-	}
-	\caption{Mean performance over 20 games of SMDP Q-learning on the
-	\textit{prey} toy problem.}
-	\label{fig:qlearning}
-\end{figure}
-
-Firstly, we will test our implementation of SMDP Q-learning. This section shows
-the results on the toy problem \textit{prey} and a set of the other test games.
-In order to get SMDP Q-learning to work correctly, we need to serialize the
-state space. Furthermore, to prevent the Q-table to become too big, we apply a
-state space reduction. These are the values that are saved:
+In this section, we test the implementation of SMDP Q-Learning that was proposed
+in chapter \ref{sec:qlearning}. Q-learning's first implementation requirement is
+a serialization of the state space.  Furthermore, to prevent the Q-table to
+become too big, we apply a crude state space reduction, similar to what was done
+for other GVGAI learning algorithms \cite{samothrakis2015neuroevolution}.  These
+are the values that are saved:
 
 \begin{itemize}
 	\item The avatar orientation
@@ -347,20 +337,50 @@ state space reduction. These are the values that are saved:
 		\end{itemize}
 \end{itemize}
 
-This crude state space reduction removes information about the map and location
-of the avatar, but enables the algorithm to keep a smaller Q-table and as a
+Although this representation loses information about the map and location
+of the avatar, it enables the algorithm to keep a smaller Q-table and as a
 result, work on more games without running out of memory.
 
-In the first experiment, we check if SMDP Q-learning works with our option set
-and state space reduction, by applying it to the toy problem. The results can be
-seen in figure \ref{fig:qlearning}. We can see that the algorithm wins
-consistently starting at game 3 and that the time it takes to win quickly and
-almost always converges to 6, the least number of steps possible to win the
-game. After that, it wins consistently by applying the correct options. This
-indicates that the values for the Q-table converge correctly.
+\begin{figure}
+	\centering
+	\subfigure[Win ratio on \textit{prey}]{
+		\includegraphics[scale=.48]{includes/winsQlearningPrey}
+		\label{fig:wins-qlearning-prey}
+	}
+	\subfigure[Time taken for \textit{prey}]{
+		\includegraphics[scale=.48]{includes/timeQlearningPrey}
+		\label{fig:time-qlearning-prey}
+	}
+	\caption{Mean performance over 20 games of SMDP Q-learning on the
+	\textit{prey} toy problem.}
+	\label{fig:qlearning}
+\end{figure}
 
-Secondly, we run the algorithm on all the games described in chapter  
-\ref{subsec:games}. 
+In the first experiment, we check if SMDP Q-learning works with our option set
+and state space reduction by applying it to the toy problem. The results can be
+seen in figure \ref{fig:qlearning}. We can see that the algorithm wins
+consistently starting from the fifth game and that the time it takes to win
+converges to 6, which is the least number of steps possible to reach the prey.
+We can conclude that it wins consistently by applying the correct options. This
+indicates that the values for the Q-table converge to their optima.
+
+\begin{figure}
+	\centering
+	\makebox[\columnwidth]{\includegraphics[width=1.25\textwidth]{includes/qLearningWins}}
+	\vspace{-.8cm}
+	\caption{Win ratio of SMDP Q-Learning per game on all levels, compared to Monte Carlo Tree Search.}
+	\label{fig:wins}
+	\centering
+	\makebox[\columnwidth]{\includegraphics[width=1.25\textwidth]{includes/qLearningScores}}
+	\vspace{-.8cm}
+	\caption{Mean normalized score of the algorithms per game 1 means the
+	highest score achieved by all the algorithms (including all of the following
+tests), 0 the lowest.}
+	\label{fig:scores}
+\end{figure}
+
+For the next experiment, SMDP Q-learning and Monte Carlo tree search are applied
+to all the games described in chapter \ref{subsec:games}. 
 
 \section{O-MCTS}
 \label{subsec:omcts}
@@ -421,19 +441,17 @@ for \textit{seaquest} and \textit{plaque attack}.
 
 \begin{figure}
 	\centering
-	\includegraphics[width=\columnwidth]{includes/winsOLMCTS}
+	\makebox[\columnwidth]{\includegraphics[width=1.25\textwidth]{includes/winsOLMCTS}}
 	\vspace{-.8cm}
-	\caption{Win ratio comparison of OL-MCTS and O-MCTS.}
-	\label{fig:wins-olmcts}
+	\caption{Win ratio of OL-MCTS compared to O-MCTS in its first and fifth game.}
+	\label{fig:wins}
+	\centering
+	\makebox[\columnwidth]{\includegraphics[width=1.25\textwidth]{includes/scoresOLMCTS}}
+	\vspace{-.8cm}
+	\caption{Mean normalized score comparison of OL-MCTS and O-MCTS.}
+	\label{fig:scores}
 \end{figure}
 
-\begin{figure}
-	\centering
-	\includegraphics[width=\columnwidth]{includes/scoresOLMCTS}
-	\vspace{-.8cm}
-	\caption{Normalized score comparison of OL-MCTS and O-MCTS.}
-	\label{fig:scores-olmcts}
-\end{figure}
 
 \section{OL-MCTS}
 \label{subsec:olmcts}
@@ -476,23 +494,16 @@ explanations for this improvement: 1.) There are sprites that kill the player,
 which are evaded by the algorithm when it has learned to do so.  2.) The
 algorithm learns that it should pick up the key.
 
-\begin{figure}
-	\centering
-	%\subfigure[Learning \textit{bait}]{
-	%	\includegraphics[scale=.44]{includes/learning}
-	%	\label{fig:learning-results}
-	%}
-	%\subfigure[Totals]{
-	%	\includegraphics[scale=.44]{includes/totals.pdf}
-	%	\label{fig:total-results}
-	%}
-	\caption{Learning improvement on game \textit{bait}, it shows win ratio and
-		normalized score. Total number of wins of the algorithms on
-	all games.}
-\end{figure}
-
 \section{Totals}
 \label{subsec:totals}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=.6\textwidth]{includes/totalsThesis}
+	\label{fig:total-results}
+	\caption{Sum of all wins of each algorithm.}
+\end{figure}
+
 Figure \ref{fig:total-results} shows the sum of wins over all games, all levels.
 It shows a significant ($p < 0.05$) improvement of O-MCTS and OL-MCTS over MCTS.
 There is no significant difference in performance of OL-MCTS over O-MCTS,

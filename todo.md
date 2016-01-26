@@ -1,6 +1,23 @@
 TODO 
 ====
 
+## Aantekeninen diederik
+Ik gebruik te veel bijvoegelijke naamwoorden. Elke keer dat er een staat en ik
+denk "kan dit weg?" moet het weg.
+
+\epsilon -> \varepsilon
+
+### abstract
+eennalaatste regel: "especially those that require high level planning"
+herformuleren naar iets dat niet a -> a implies
+
+### Introduction
+Meer in de vorm van AI schrijven, niet als "twee research methodes", zinsbouw
+net iets anders hiervoor
+
+
+
+
 ## Paper:
 Elke sectie begint met herhaling van probleem en eindigt met intuitie en vooruit
 verwijzen
