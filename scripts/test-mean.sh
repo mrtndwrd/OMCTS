@@ -28,15 +28,17 @@ rm tables/*
 #games="seaquest whackamole jaws plaqueattack"
 
 # oopsie, forgot some games:
-games="surround infection butterflies missilecommand aliens plants bait camelRace survivezombies firestorms lemmings firecaster pacman overload chase zelda boulderdash digdug roguelike boloadventures boulderchase eggomania portals frogs"
+#games="surround infection butterflies missilecommand aliens plants bait camelRace survivezombies firestorms lemmings firecaster pacman overload chase zelda boulderdash digdug roguelike boloadventures boulderchase eggomania portals frogs"
 #games="surround infection butterflies missilecommand aliens boloadventures boulderchase eggomania portals frogs"
+
+games="prey"
 
 # Config variables:
 controllers="qlearning.Agent"
 #controllers="controllers.sampleRandom.Agent"
-levels="0 1 2 3 4"
-number_of_games="5"
-number_of_tests="20"
+levels="0 3"
+number_of_games="10"
+number_of_tests="100"
 
 gamma="0.9"
 random_rollout="false"
