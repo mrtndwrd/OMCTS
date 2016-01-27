@@ -1,14 +1,223 @@
 \chapter{Options for General Video Game Playing}
 
-- wat is een game (met voorbeeld van toy problem)
+Options have previously mostly been used in specific cases and for relatively
+simple problems. To specify the problem domain, this chapter will cover how a
+game is defined in VGDL and how it is observed by the game playing algorithm.
+Furthermore, we will explain what options mean in the context of general video
+game playing and what we have done to create a set of options that can be used
+in any game. Lastly, this chapter explains what is needed to use SMDP Q-learning
+on the domain of general video game playing.
 
-- Wat zijn options die mensen bedenken bij het zien van een game?
-	- dit soort dingen
+\section{Toy Problem}
 
-- Hoe maken we dit concreet?
-	- omschrijving van options
+As described in the background section, the foundation of a game lies in two
+specifications. The game dynamics, and levels. The game dynamics are typically
+the same for each level and do not change over the course of a game. Levels
+define the layout of the game. Each level is different and typically the last
+level of a game is harder than the first level.
 
-- Laatste paragraaf: SMDP Q-learning for GVGP
-	- Als we deze options gebruiken voor SMDP Q-learning, leidt dat tot een algoritme, dat wordt experimenteel getest in section 7
-	- Beschrijven voor- en nadelen van SMDP Q-learning toegepast op games
-		- Deze disadvantages worden ge-metegate door ons nieuwe algoritme
+In VGDL, the game description defines the game dynamics. Each game has one game
+description file, which describes the game sprites and their interaction with
+each other. The levels are defined in separate level files and define the layout
+of the screen.
+
+In this section, we introduce our test game \emph{prey}. We created this game
+for testing the learning capacities of the algorithm. Furthermore, this section
+contains an in-depth explanation of the VGDL. The game aims to be simple to
+understand and easy to win. It should be possible to see any improvement an
+algorithm could achieve as well. We chose the \emph{predator \& prey} game, in
+which the player is a predator, that should catch its prey (an NPC) by walking
+into it. We decided to have three types of prey, one that never moves, one that
+moves once in 10 turns and one that moves once in 2 turns. This section
+describes how the game is made in VGDL and how a GVGAI agent can interact with
+it.
+
+\lstinputlisting[basicstyle=\footnotesize, frame=tb, xleftmargin=.1\textwidth, %
+xrightmargin=.1\textwidth, caption=prey.txt, label=lst:preytxt, float=t]%
+{../examples/gridphysics/prey.txt}
+
+\begin{minipage}[t]{.4\textwidth}
+	\lstset{
+		caption=Prey level 1, 
+		label=lst:prey1,
+		basicstyle=\footnotesize, frame=tb,
+		xleftmargin=.1\textwidth, xrightmargin=.1\textwidth
+	}
+	\begin{lstlisting}
+wwwwwww
+wA    w
+w     w
+w     w
+w    Iw
+wwwwwww
+	\end{lstlisting}
+\end{minipage}
+\begin{minipage}[t]{.5\textwidth}
+	\lstset{
+		caption=Prey level 2,
+		label=lst:prey2,
+		basicstyle=\footnotesize, frame=tb,
+		xleftmargin=.1\textwidth, xrightmargin=.1\textwidth
+	}
+	\begin{lstlisting}
+wwwwwwwwwwwww
+wA     w    w
+w      w    w
+w      w    w
+w wwwwww    w
+w           w
+w           w
+w           w
+w           w
+w           w
+w           w
+w       wwwww
+w          Iw
+wwwwwwwwwwwww
+	\end{lstlisting}
+\end{minipage}
+
+The code in Listing \ref{lst:preytxt} contains the game description. Lines 2 to
+8 describe the available sprites. There are two sprites in the game, which are
+both \texttt{movable}: the avatar (predator) and the monster (prey).  The avatar
+is of type \texttt{MovingAvatar}, which means that the player has four possible
+actions (up, right, down, left). The prey has three instantiations, all of the
+type \texttt{RandomNPC}, which is an NPC that moves about in random directions:
+the \texttt{inactivePrey}, which only moves every 3000 steps (which is more than
+the timeout explained shortly, so it never moves); the \texttt{slowPrey} which
+moves once every 10 steps, and the \texttt{fastPrey} which moves once every 2
+steps.  By default, the \texttt{MovingAvatar} can move once in each time step.
+
+Lines 10 to 14 describe the level mapping. These characters can be used in the
+level description files, to show where the sprites spawn. 
+
+In the interaction set, Line 17 means that if the prey walks into the avatar (or
+vice versa) this will kill the prey, and the player will get a score increase of
+one point. Line 18 dictates that no \texttt{movable} sprite can walk through
+walls.
+
+Lastly, in the termination set, line 21 shows that the player wins when there
+are no more sprites of the type \texttt{prey}, and line 22 shows that the player
+loses after 100 time steps.
+
+Listing \ref{lst:prey1} shows a very simple level description. This level is
+surrounded with walls and contains one avatar and one inactive prey. 
+The game can be used to test the functionality of an algorithm. The first level
+is very simple and is only lost when the agent is not able to find the prey
+within the time limit of 100 time steps, which is unlikely. A learning
+algorithm should, however be able to improve the number of time steps it needs
+to find the prey. The minimum number of time steps to win the game in the first
+level, taking the optimal route, is six. The second level, shown in Listing
+\ref{lst:prey2}, is more complex. The agent has to plan a route around the
+walls and the prey is further away. We chose to still use the inactive prey,
+because then we know the exact minimum number of time steps needed to win, which
+in this case is twenty.
+
+\todo{observation}
+
+
+\section{Option Set}
+\todo{- Wat zijn options die mensen bedenken bij het zien van een game?}
+
+
+\todo{Zeggen dat dit de concrete implementatie van options is}
+For these experiments we construct an option set which is aimed at providing
+action sequences for any type of game, since the aim here is general video game
+playing. Note that a more specific set of options can be created when the
+algorithm should be tailored to only one type of games and similarly, more
+options can be added to the algorithm easily.
+
+\begin{itemize}[noitemsep]
+	\item \texttt{ActionOption} executes a specific action once and then
+		stops.
+	\item \texttt{AvoidNearestNpcOption} makes the agent avoid the nearest NPC
+	\item \texttt{GoNearMovableOption} makes the agent walk towards a
+		movable game sprite (defined as movable by the VGDL) and stops when it
+		is within a certain range of the movable
+	\item \texttt{GoToMovableOption} makes the agent walk towards a
+		movable until its location is the same as that of the movable
+	\item \texttt{GoToNearestSpriteOfType} makes the agent walk to the nearest sprite of
+		a specific type
+	\item \texttt{GoToPositionOption} makes the agent walk to a specific position
+	\item \texttt{WaitAndShootOption} waits until an NPC is in a specific location and
+		then uses its weapon.
+\end{itemize}
+
+For each option type, a subtype per visible sprite type is created during the
+game. For each sprite, an option instance of its corresponding subtype is
+created. For example, the game \textit{zelda}, as seen in Figure \ref{fig:zelda},
+contains three different sprite types (excluding the avatar and walls);
+monsters, a key and a portal. The first level contains three monsters, one key
+and one portal, and the aim of the game is to collect the key and walk towards
+the portal without walking into the monsters. The score is increased by 1 if a
+monster is killed (i.e., its sprite is on the same location as the sword sprite)
+if the key is picked up, and when the game is won. \texttt{GoToMovableOption} and
+\texttt{GoNearMovableOptions} are created for each of the three monsters and
+for the key. A \texttt{GoToPositionOption} is created for the portal.  One
+\texttt{GoToNearestSpriteOfType} is created per sprite type. One
+\texttt{WaitAndShootOption} is created for the monsters, and one
+\texttt{AvoidNearestNpcOption} is created. This set of options is $O$ in
+Algorithms \ref{alg:omcts} and \ref{alg:olmcts}. In a state where, for example,
+all the monsters are dead, the possible option set $\mathbf{p}_s$ does not
+contain the \texttt{AvoidNearestNpcOption} and \texttt{GoToMovableOption}s and
+\texttt{GoNearMovableOption}s for the monsters.
+
+The \texttt{GoTo\ldots} options all utilize an adaptation of the A Star
+algorithm to plan routes. An adaptation is needed, because at the beginning of
+the game there is no knowledge of which sprites are traversable and which are
+not. Thus, during every move that is simulated by the agent, the A Star module
+has to update its beliefs about the location of walls and other blocking
+objects. This is accomplished by comparing the movement the avatar wanted to
+make to the movement that was actually made in game. If the avatar did not move,
+it is assumed that all the sprites on the location the avatar should have
+arrived in are blocking sprites. A Star keeps a \emph{wall score} for each
+sprite type. When a sprite blocks the avatar, its wall score is increased by
+one. Additionally, when a sprite kills the avatar, its wall score is increased
+by 100, in order to prevent the avatar from walking into killing sprites.
+Traditionally the A Star's heuristic uses the distance between two points. Our A
+Star adaptation adds the wall score of the goal location to this heuristic,
+encouraging the algorithm to take paths with a lower wall score. This method
+enables A Star to try to traverse paths that were unavailable earlier, while
+preferring safe and easily traversable paths. For example in \textit{zelda}, a
+door is closed until a key is picked up. Our A Star version will still be able
+to plan a path to the door once the key is picked up, winning the game.
+
+The GVGAI competition comes with some predefined parameters. Every algorithm has
+a maximum of one second to initialize, before starting the game. Then, the
+algorithm has a maximum forty milliseconds to choose an action, after which a
+new game state is given. If the agent takes more time than that, the action
+\textsc{null} will be applied and the avatar will not do anything\footnote{There
+seems to be a bug in the system, that causes actions to sometimes take hundreds
+of milliseconds to simulate. This bug has been reported to the competition's
+discussion platform by several users. Because this bug was not solved at the
+time of writing, we chose to not honor the GVGAI competition's original rule to
+disqualify a controller that does not return an action within fifty
+milliseconds.}. The framework was edited in order to be able to pass information
+from one game to the next. After a game is finished, the learning algorithms
+OL-MCTS and Q-learning get the possibility to save their values to a file. Our
+restriction is that the file can be opened during the initialization of the next
+game, within one second. 
+
+We empirically optimize the parameters of the O(L)-MCTS algorithm for these
+experiments. We use discount factor $\gamma = 0.9$. The maximum search depth $d$
+is set to 70, which is higher than most alternative tree search algorithms, for
+example in the GVGAI competition, use. The number of node visits after which
+\textsf{uct} is used, $v$, is set to 40. Crazy stone parameter $K$ is set to
+$0.5$.  For comparison, we use the MCTS algorithm provided with the Java
+implementation of VGDL with its default value of maximum search depth of 10.
+Both algorithms have \textsf{uct} constant $C_p = \sqrt{2}$. Unfortunately,
+comparing to Q-learning with options was impossible, because the state space of
+these games is too big for the algorithm to learn any reasonable behavior. All
+the experiments are run on an Intel %\textsuperscript{\textregistered} 
+Core %\texttrademark 
+i7-2600, 3.40GHz quad core processor with 6 GB of DDR3, 1333 MHz RAM memory. For
+all experiments, each algorithm plays each of the 5 levels of each game 20
+times. 
+
+\section{SMDP Q-learning for General Video Game Playing}
+\todo{- Laatste paragraaf: SMDP Q-learning for GVGP%
+	- Wat hebben we aan aanpassingen gedaan%
+	- Als we deze options gebruiken voor SMDP Q-learning, leidt dat tot een%
+	algoritme, dat wordt experimenteel getest in section 7%
+	- Beschrijven voor- en nadelen van SMDP Q-learning toegepast op games %
+		- Deze disadvantages worden ge-metegate door ons nieuwe algoritme}

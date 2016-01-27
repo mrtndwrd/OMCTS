@@ -142,6 +142,65 @@ for every node that has been visited in this iteration is updated with the
 reward of this simulation. Usually the estimated value of a node is the average
 of all rewards backed up to that node.
 
+
+\section{Options}
+\label{subsec:options}
+
+In order to mimic human game playing strategies, defining subgoals and subtask,
+we use options. Options have been proposed by Sutton et al.
+\cite{sutton1999between} as a method to incorporate temporal abstraction in
+field of reinforcement learning. A lot of progress has been made since, but a
+lot of the research seems to focus on learning algorithms and little work is
+done on combining options with tree search methods \cite{barto2003recent}, which
+offer a model free planning framework.
+
+An option is a predefined method of reaching a specific subgoal. Formally, it is
+a triple $\langle I, \pi, \beta \rangle$ in which $I \subseteq S$ is an
+initiation set, $\pi: S \times A \rightarrow [0, 1]$ is a policy and $\beta: S^+
+\rightarrow [0,1]$ is a termination condition.  A policy $\pi$ defines the
+action that should be taken in a state. The initiation set $I$ is a set of
+states in which the option can be started. 
+
+When an agent starts in state $s$, it can choose from all of the options that
+have $s$ in its initiation set $I$.  Then the option's policy $\pi$ is followed,
+possibly for several time steps. The agent stops following the policy as soon as
+it reaches a state that satisfies a termination condition in $\beta$. This often
+means that the option has reached its subgoal, or a criterion is met that
+renders the option obsolete (e.g., its goal does not exist anymore). Afterwards,
+the agent chooses a new option that will be followed.
+
+Normally, an agent can never choose a new option in a state that is not in the
+termination set of any of the options. Some algorithms use \emph{interruption},
+which means they are designed to not follow an option until its stop criterion
+is met, but choose a new option every time step \cite{sutton1999between,
+precup2000temporal}. Using this method, an agent can choose a new option in any
+state that is present in the MDP, which can lead to better performance than
+without interruption.
+
+Using options in an MDP removes the Markov property for that process: the state
+information alone is no longer enough to predict an agent's actions, since the
+actions are now not only state-dependant, but dependant on what option the agent
+has chosen in the past as well. According to \cite{sutton1999between}, we can
+view the process as a \emph{semi-Markov decision process (SMDP)}
+\cite{duff1995reinforcement}, using options as actions of variable length. In
+this thesis, we will call the original action set of the MDP $A$, and the set of
+options $O$.
+
+Typically, because an option can span over several actions, its reward is
+discounted. This means that rewards that lay further in the future are valued
+less than those that lay nearer. A reward is calculated for using an option from
+timestep $t$ to timestep $t+n$ with
+\begin{equation}
+	\label{eq:option-reward}
+	r_o = r_{t} + \gamma r_{t+1} + \gamma^2 r_{t+2} + \cdots + \gamma^n r_{t+n},
+\end{equation}
+where $\gamma$ is similar to Q-learning's discount parameter.
+
+Normal actions can be treated as options as
+well.  An option for action $a \in A$ has a initiation set $I = S$, the policy
+$\pi$ is taking action $a$ in all the states.  The termination condition $\beta$
+is that action $a$ should be performed once. 
+
 \section{Q-learning}
 \label{subsec:qlearning}
 Q-learning is a relatively simple method for reinforcement learning,
@@ -175,69 +234,20 @@ Q-learning can take a long time to converge, but it is guaranteed to converge to
 the optimal policy, given that during exploration, each state-action pair is
 visited an infinite number of times.
 
-\section{Options}
-\label{subsec:options}
-
-\todo{Uitgebreider zeggen dat een option loopt vanaf een specifieke state tot
-een specifieke andere state. In principe blijf je een option altijd volgen
-tot een van de termination criteria bereikt is (goal reached, of exception)}
-
-In order to mimic human game playing strategies, defining subgoals and subtask,
-we use options. Options have been proposed by Sutton et al.
-\cite{sutton1999between} as a method to incorporate temporal abstraction in
-field of reinforcement learning. A lot of progress has been made since, but a
-lot of the research seems to focus on learning algorithms and little work is
-done on combining options with tree search methods \cite{barto2003recent}, which
-offer a model free planning framework.
-
-An option is a predefined method of reaching a specific subgoal. Formally, it is
-a triple $\langle I, \pi, \beta\rangle$ in which $I \subseteq S$ is an
-initiation set, $\pi: S \times A \rightarrow [0, 1]$ is a policy and $\beta: S^+
-\rightarrow[0,1]$ is a termination condition.  A policy $\pi$ defines the action
-that should be taken in a state. The initiation set $I$ is a set of states in
-which the option can be started. Typically, when the option starts, policy $\pi$
-will be followed, until a state is reached that satisfies a termination
-condition in $\beta$. After that, a new option is chosen and followed. 
-
-Using options in an MDP removes the Markov property for that process: the state
-information alone is no longer enough to predict an agent's actions, since the
-actions are now not only state-dependant, but dependant on what option the agent
-has chosen in the past as well. According to \cite{sutton1999between}, we can
-now view the process as a \emph{semi-Markov decision process (SMDP)}
-\cite{duff1995reinforcement}, where options are viewed as actions of variable
-length. In this thesis, we will keep calling the original action set of the MDP
-$A$, and the set of options $O$.  
-
-Typically, because an option can span over several actions, its reward is
-discounted. This means that rewards that lay further in the future are valued
-less than those that lay nearer. A reward is calculated for using an option from
-timestep $t$ to timestep $t+n$ with
-\begin{equation}
-	\label{eq:option-reward}
-	r_o = r_{t} + \gamma r_{t+1} + \gamma^2 r_{t+2} + \cdots + \gamma^n r_{t+n},
-\end{equation}
-where $\gamma$ is similar to Q-learning's discount parameter.
-
-Normal actions can be treated as options as
-well.  An option for action $a \in A$ has a initiation set $I = S$, the policy
-$\pi$ is taking action $a$ in all the states.  The termination condition $\beta$
-is that action $a$ should be performed once. 
-
 \input{sections/qlearning}
 
 \section{Generalized Video Game Playing}
 \label{subsec:vgdl}
-\todo{We willen gvgp gaan doen.. Er zijn recente ontwikkelingen, waarvan de
-belangrijksten VGDL en de GVGAI competitie}
 
-In order to test algorithms on several different games, a framework is used that
-can access a large number of games in a similar manner. The GVGAI competition
-uses the \emph{video game description language (VGDL)} \cite{schaul2013video},
-in which games can be defined easily. VGDL aims to be a description language
-for games that is clear, human readable and unambiguous. Games are easy to parse
-and it is possible to automatically generate them. Using a VGDL framework,
-algorithms can access all the games in a similar manner, resulting in a fair
-method to compare their performances on several games.
+In this thesis, algorithms will be benchmarked on the general video game playing
+problem. Recent developments in this area include the \emph{video game
+description language (VGDL)} \cite{schaul2013video}, a framework in which a
+large number of games can be defined easily an accessed in a similar manner.
+VGDL aims to be a description language for games that is clear, human readable
+and unambiguous. Games are easy to parse and it is possible to automatically
+generate them. Using a VGDL framework, algorithms can access all the games in a
+similar manner, resulting in a fair method to compare their performances on
+several games.
 
 To define a game in VGDL, two files are required. Firstly, the game description
 should be made, which defines for each type of object what character in the
@@ -249,16 +259,17 @@ location in the game. By defining these two files, a wide spectrum of games
 can be created. A more extensive explanation of VGDL can be found in Chapter
 \ref{subsec:games}.
 
-In this thesis, we will use a Java implementation made for the GVGAI
-competition, which comes with many games. In this version, algorithms only
+The General Video Game AI competition provides many games written in VGDL.
+Furthermore, it provides a Java framework in which algorithms can be
+benchmarked, using a static set of rules. Algorithms are only allowed to
 observe the game information: score, game tick (timestep), the set of possible
 actions and information about if the game is over and if the player won; Avatar
 information: its position, orientation, speed and resources; and screen
-information: Which sprites are on what location of the screen, and the size (in
-pixels) of the game grid's blocks.
+information: Which sprites are on the screen, including their location and the
+size (in pixels) of the level grid's blocks.
 
-The algorithm proposed in this thesis will be
-benchmarked on these games, using the rules of the GVGAI competition. 
-This means that the algorithms do not have any access to the game and level
-descriptions. When an algorithms starts playing a game, it typically knows
-nothing of the game, except for the observation described above.
+The algorithm proposed in this thesis will be benchmarked on the GVGAI game
+sets, using the rules of the competition. This means that the algorithms do not
+have any access to the game and level descriptions. When an algorithms starts
+playing a game, it typically knows nothing of the game, except for the
+observations described above.
