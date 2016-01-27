@@ -7,15 +7,11 @@
 %introductie}
 
 In order to simulate the use of subgoals, we will introduce planning over
-options in MCTS. Planning over options is traditionally done by
-applying Q-learning to a set of options instead of the set of actions
-\cite{sutton1999between}. Q-learning learns the transition and reward for each
-state, but as game complexity increases, the state space grows as well,
-increasing Q-learning's memory usage and computation time immensely. In this
-chapter we introduce \emph{option Monte Carlo tree search (O-MCTS)}, a novel
-algorithm that plans over options using MCTS, enabling the use of options in
-complex MDPs.  The resulting algorithm achieves higher scores on complex games
-that have several sub-goals than traditional MCTS.
+options in MCTS, in stead of SMDP Q-learning. In this chapter we introduce
+\emph{option Monte Carlo tree search (O-MCTS)}, a novel algorithm that plans
+over options using MCTS, enabling the use of options in complex MDPs. The
+resulting algorithm achieves higher scores on complex games that have several
+sub-goals than traditional MCTS and SMDP Q-learning.
 
 Generally, O-MCTS works as follows: like in MCTS, a tree of states is
 built by simulating game plays. In stead of actions, the algorithm chooses
@@ -99,12 +95,6 @@ game sprite or location \cite{hart1968formal}.
 		\State \Return{$\mathsf{get\_action}(\max_{o \in c_r} \mathsf{value}(o), r)$}
 	\end{algorithmic}
 \end{algorithm}
-\begin{figure}
-	\centering
-	\includegraphics[width=.6\textwidth]{includes/zelda}
-	\caption{Visual representation of the game \textit{zelda}.}
-	\label{fig:zelda}
-\end{figure}
 
 We describe O-MCTS in Algorithm \ref{alg:omcts}. It is invoked with a set of
 options $O$, a root node $r$, a maximum runtime $t$ in milliseconds and a

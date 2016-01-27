@@ -2,28 +2,23 @@ TODO
 ====
 
 ## Aantekeninen diederik
+
+### Algemeen
 Ik gebruik te veel bijvoegelijke naamwoorden. Elke keer dat er een staat en ik
 denk "kan dit weg?" moet het weg.
+Checken of ik ergens het "forward model" goed uitleg
 
-\epsilon -> \varepsilon
 
 ### abstract
 eennalaatste regel: "especially those that require high level planning"
-herformuleren naar iets dat niet a -> a implies
+herformuleren naar iets dat niet a -> a implies (DONE?)
 
 ### Introduction
 Meer in de vorm van AI schrijven, niet als "twee research methodes", zinsbouw
-net iets anders hiervoor
+net iets anders hiervoor(DONE?)
 
 
 
-
-## Paper:
-Elke sectie begint met herhaling van probleem en eindigt met intuitie en vooruit
-verwijzen
-
-Meer references: Paper over GVGAI, Andere papers die hebben getest op mijn
-testset, Arnoud Visser vragen waar je naar moet refereren voor A*
 
 
 ### Experiments

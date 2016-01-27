@@ -170,7 +170,7 @@ comparison. Furthermore, we applied SMDP Q-learning, O-MCTS and OL-MCTS. Each
 
 \section{SMDP Q-learning}
 In this section, we test the implementation of SMDP Q-learning that was proposed
-in chapter \ref{sec:qlearning}. Q-learning's first implementation requirement is
+in chapter \ref{subsec:smdp-qlearning-gvgp}. Q-learning's first implementation requirement is
 a serialization of the state space.  Furthermore, to prevent the Q-table to
 become too big, we apply a crude state space reduction, similar to what was done
 for other GVGAI learning algorithms \cite{samothrakis2015neuroevolution}.  These
@@ -291,8 +291,6 @@ O-MCTS to 120ms and found that the win ratio of O-MCTS increases to around $0.8$
 for \textit{seaquest} and \textit{plaque attack}.
 % TODO: I probably want to check if MCTS's performance also increases with more
 % computation time
-
-
 
 \section{OL-MCTS}
 \label{subsec:olmcts}
