@@ -285,37 +285,6 @@ example in \textit{zelda}, a door is closed until a key is picked up. Our A Star
 version will still be able to plan a path to the door once the key is picked up,
 winning the game.
 
-The GVGAI competition comes with some predefined parameters. Every algorithm has
-a maximum of one second to initialize, before starting the game. Then, the
-algorithm has a maximum forty milliseconds to choose an action, after which a
-new game state is given. If the agent takes more time than that, the action
-\textsc{null} will be applied and the avatar will not do anything\footnote{There
-seems to be a bug in the system, that causes actions to sometimes take hundreds
-of milliseconds to simulate. This bug has been reported to the competition's
-discussion platform by several users. Because this bug was not solved at the
-time of writing, we chose to not honor the GVGAI competition's original rule to
-disqualify a controller that does not return an action within fifty
-milliseconds.}. The framework was edited in order to be able to pass information
-from one game to the next. After a game is finished, the learning algorithms
-OL-MCTS and Q-learning get the possibility to save their values to a file. Our
-restriction is that the file can be opened during the initialization of the next
-game, within one second. 
-
-We empirically optimize the parameters of the O(L)-MCTS algorithm for these
-experiments. We use discount factor $\gamma = 0.9$. The maximum search depth $d$
-is set to 70, which is higher than most alternative tree search algorithms, for
-example in the GVGAI competition, use. The number of node visits after which
-\textsf{uct} is used, $v$, is set to 40. Crazy stone parameter $K$ is set to
-$0.5$.  For comparison, we use the MCTS algorithm provided with the Java
-implementation of VGDL with its default value of maximum search depth of 10.
-Both algorithms have \textsf{uct} constant $C_p = \sqrt{2}$. Unfortunately,
-comparing to Q-learning with options was impossible, because the state space of
-these games is too big for the algorithm to learn any reasonable behavior. All
-the experiments are run on an Intel %\textsuperscript{\textregistered} 
-Core %\texttrademark 
-i7-2600, 3.40GHz quad core processor with 6 GB of DDR3, 1333 MHz RAM memory. For
-all experiments, each algorithm plays each of the 5 levels of each game 20
-times. 
 
 \section{SMDP Q-learning for General Video Game Playing}
 \label{subsec:smdp-qlearning-gvgp}
@@ -327,6 +296,8 @@ during planning. This way, the algorithm can identify options that are good
 during planning, but will not follow then in dangerous situations that have not
 been encountered during planning. This is advantageous in our situation, where
 there is only a short amount of planning time before an action has to be chosen.
+Furthermore, because of the time limitation we added a maximum search depth $d$
+to the algorithm that limits exploration to the direct surroundings of a state.
 
 \begin{algorithm}[h]
 	\caption{$\mathsf{SMDP~Q-learning}(Q, O, s, t, d, o)$}
@@ -365,7 +336,7 @@ there is only a short amount of planning time before an action has to be chosen.
 		\State $i_o \gets i_o + 1$ \Comment{Increase this option's step count by 1}
 		\State $o_r \gets o_r + \gamma^{i_o} r;$
 			\Comment{Change this option's discounted reward}
-		\If{$s \in \beta(o)$} \label{alg:ql:sp} \Comment{if option stops in state $s$}
+		\If{$s \in \beta(o)$} \Comment{if option stops in state $s$}
 			\State $\mathsf{update\_Q}(o, s, o_r, i_o)$ \Comment{Equation
 			\ref{eq:smdp-qlearning} }
 		\EndIf
