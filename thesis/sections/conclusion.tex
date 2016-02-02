@@ -74,12 +74,16 @@ hypothesis is that because the algorithm does not completely exclude the poorly
 performing options from the option set, little of the overhead is reduced. It
 should be possible to set a threshold to the option values, below which the
 options are not maintained. This should reduce the overhead of the algorithm,
-but could introduce overfitting: options might be excluded prematurely, 
-e.g., the \texttt{GoToPosition} option for the portal in Zelda, that is closed
-at first, should not be discarded because after picking up the key it becomes
-useful. In the future, a solution should be introduced that weighs the trade off
-between these factors.
+but could introduce overfitting: options might be excluded prematurely, e.g.,
+the \texttt{GoToPosition} option for the portal in Zelda, that is closed at
+first, should not be discarded because after picking up the key it becomes
+useful. 
 
+A similar limitation of the OL-MCTS algorithm, is that it does not learn the
+conditions in which options are good: it only learns the mean and variance of an
+option's return. Although the crazy stone algorithm is inclined to try options
+with a high variance, an algorithm that can learn the conditions in which these
+options result in a score improvement can yield better results.
 
 \section{Future Work}
 This section discusses future research that can be conducted to improve O-MCTS
