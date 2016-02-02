@@ -8,82 +8,141 @@
 % TODO: Vragen hoe Sander vindt dat dit hoofdstuk moet heten
 
 % Conclusion:
+\section{Conclusion}
 We can conclude that the Option MCTS algorithm almost always performs at least
-as good as MCTS. O-MCTS excels in games with a small amount of game sprites, but
-high complexity, such as \textit{zelda}, \textit{overload} and \textit{eggomania}.
-Furthermore, O-MCTS can do a further lookahead than most tree searching
-alternatives, resulting in a high performance on \textit{camel race}. The
-algorithm performs worse than expected in games with a high amount of sprites,
-since the size of the option set becomes so large, that maintaining it takes a
-lot of time, leaving too little time for exploring options. 
+as good as MCTS. O-MCTS excels in games with a small level grid or little
+sprites, but high complexity, such as \textit{zelda}, \textit{overload} and
+\textit{eggomania}.  Furthermore, O-MCTS can do a further lookahead than most
+tree searching alternatives, resulting in a high performance on games like
+\textit{camel race}. The algorithm performs worse than expected in games with a
+high amount of sprites, since the size of the option set becomes so large, that
+maintaining it takes a lot of time, leaving too little time for exploring
+options. 
 
 The results of OL-MCTS indicate that it is possible to learn some information
 about which options work better, meaning that in the future, it should be
 possible to completely remove infeasible options from the option set, that have
 low expected rewards for certain games. We expect that this could reduce the
-computation time O-MCTS needs to construct and check all the options.
-Because our results only show significant improvement on one game, more work
-needs to be done in this area.
+computation time O-MCTS needs to construct and check all the options. However,
+more work needs to be done in this area to enable more improvement.
 
-% Discussion:
-Although O-MCTS outperforms MCTS in most games, it is unclear why MCTS
-outperforms O-MCTS in \textit{jaws} and \textit{whackamole}. For these games,
-the performance of O-MCTS did not increase when the action time was increased
-from 40 to 120 milliseconds. Presumably, the current option set does not enable
-any improvement for these games, thus only creating a larger overhead for the
-algorithm.
-
-% Why doesn't OL-MCTS work?
-The OL-MCTS algorithm was constructed to reduce this overhead, but offers very
-little improvement on most games. The current hypothesis is, that the problem is
-that the algorithm does not completely exclude the poorly performing options
-from the option set. It should be possible to set a threshold to the option
-values, below which the options are not maintained. This should reduce the
-overhead of the algorithm. The problem would arise, however, that options might
-be excluded prematurely: the \texttt{GoToPosition} option for the portal in
-Zelda, that is closed at first, should not be discarded because after picking up
-the key it becomes useful. In the future, a solution should be introduced that
-weighs the trade off between these factors.
+\section{Discussion}
+This section critically discusses the research that is shown in this thesis and
+assumptions that have been made alongside it. Firstly, the trade-offs between
+scoring, winning and playing time are discussed. Then, the evaluation of the
+SMDP Q-learning algorithm is discussed and lastly, this section discusses why
+OL-MCTS does not introduce a significant improvement upon O-MCTS.
 
 % Trade off between score and winning
-Another difficulty in game solving research is the trade-off between scoring,
-playing time and winning. First the trade off between playing time and winning:
-winning earlier, is often better. For some games, however, winning later
-increases the score. For example, in the game butterflies, the butterflies keep
-spawning indefinitely. Each butterfly that is caught, increases the score with
-1. When all butterflies are gone, the game is won. An algorithm that catches all
-the butterflies as quickly as possible, will have a lower score than an
-algorithm that catches them less efficiently. The question to ask then is: which
-is the winner? The one with the highest score, or the one that finishes the
-fastest. Another trade-off is that between winning and scoring: in the game
-Zelda, for instance, the goal is to pick up the key and walk to the portal. If
-the monsters are killed, this increases the eventual score. But trying to kill a
-monster comes at a risk: the player has to come close to the monster in order to
-use his sword on it. So increasing the score, comes with the risk of dying,
-decreasing the win ratio.
+A difficulty in game solving research is the trade-off between scoring, playing
+time and winning. First the trade off between playing time and winning: winning
+earlier, is often better. For some games, however, winning later increases the
+score. For example, in the game \textit{butterflies}, butterflies keep spawning
+indefinitely. Each butterfly that is caught, increases the score.  When all the
+butterflies are gone, the game is won. An algorithm that catches all the
+butterflies as quickly as possible, will have a lower score than an algorithm
+that catches them less efficiently. The question to ask then is: which of these
+is better? The one with a high score, or the one that finishes quickly.
+
+Another trade-off is between winning and scoring: in the game Zelda, for
+instance, the goal is to pick up the key and walk to the portal. If the monsters
+are killed, this increases the eventual score. But trying to kill a monster
+comes at a risk: the player has to come close to the monster in order to use his
+sword on it. So increasing the score, comes with the risk of dying, decreasing
+the win ratio. It is unclear how these trade-offs should be handled.
 
 % Q-learning should get more time to load its table
-
-% Disqualifications
+In section \ref{subsec:experiments-smdp-qlearning}, SMDP Q-learning was allowed
+one second of initialization time, as per the rules of the GVGAI competition.
+The comparison in this thesis, between SMDP Q-learning and OL-MCTS, is fair
+because they both have to adhere the GVGAI competition rules. It would, however,
+be interesting to do more experiments with a longer initialization time, because
+Q-learning could learn for more games without getting disqualified and its
+performance might improve.
 
 % Smaller option set
+The experiments that have been done in Chapter \ref{sec:experiments}, all use
+the same option set. More experiments need to be done to find out the influence
+of each of the options. The addition of a bad option in the option set might add
+overhead without improving the mean score of the algorithm on any of the games.
+Bad options should be taken out of the option set, improving the performance of
+O-MCTS by removing overhead. 
 
-% Future work:
-Furthermore, more research should be done in the influence of the option set.
-Currently the effectiveness of the algorithm strongly relies on the A Star
-implementation. This implementation is too time consuming, leaving
-little time for actual tree building. In future work, trials can be done with
-simpler and computationally cheaper alternatives, such as for example Enforced
-Hill Climbing, as proposed in \cite{ross2014general}, although that has the
-problem that the agent can get stuck. Alternatively, by creating goal-oriented
-MDPs similar to PUMA's, the algorithm could probably increase sturdiness.
+The OL-MCTS algorithm was constructed to reduce the overhead introduced by the
+O-MCTS algorithm, but offers little improvement on most games. The current
+hypothesis is that because the algorithm does not completely exclude the poorly
+performing options from the option set, little of the overhead is reduced. It
+should be possible to set a threshold to the option values, below which the
+options are not maintained. This should reduce the overhead of the algorithm,
+but could introduce overfitting: options might be excluded prematurely, 
+e.g., the \texttt{GoToPosition} option for the portal in Zelda, that is closed
+at first, should not be discarded because after picking up the key it becomes
+useful. In the future, a solution should be introduced that weighs the trade off
+between these factors.
+
+
+\section{Future Work}
+This section discusses future research that can be conducted to improve O-MCTS
+and OL-MCTS and to get a better understanding of the algorithms. 
+
+Firstly, more research should be done in the individual options. Currently the
+effectiveness of the algorithm relies on the A Star implementation.  This
+implementation is too time consuming, leaving little computation time for tree
+building. In future work, trials should be done with simpler and computationally
+cheaper alternatives, such as for example Enforced Hill Climbing, as proposed in
+\cite{ross2014general}, although that has the problem that the agent can get
+stuck. Alternatively, by creating goal-oriented MDPs similar to PUMA's, the
+algorithm could probably increase sturdiness, although this will be hard in the
+context of the GVGAI competition.
+
+% Remove options from the option set after n games have been won
+Furthermore, OL-MCTS might be improved by removing options from the option set
+$O$ after several games have been won. By requiring the algorithm to first win
+some of the games, it is possible to know which options never contribute to a
+positive score change. These options can be removed from the option set,
+reducing the time it takes to maintain it.
 
 % No/periodical interruption
-% PTSP (like Purofvio)
-% Combining calculation time of several actions, (like Purofvio)
-% Test if there really is no preference for longer options
+Early in the development process, many of the options resulted in the agent
+getting killed because it was following a specific option for too long. For this
+reason, as described in Section \ref{subsec:options}, interruption was
+introduced. In the mean time, the sturdiness of the options increased, but
+because interruption was embedded in the algorithms, it was never disabled.
+Although we hypothesize that this contributes to the performance of the
+algorithm, research needs to be done in the impact it has on the algorithms.
 
-In order to improve the learning algorithms, some other improvements can be
+% Combining calculation time of several actions, (like Purofvio)
+If interruption is disabled, the computation time of several actions can be
+used to build the tree for the next option. This means that whereas normally a
+tree has to be built in the time for one action, with interruption disabled, it
+can be built in the action time of the duration of an option. This multiplies
+the available computation time and is expected to have a positive effect on the
+performance of O(L)-MCTS.
+
+% PTSP (like Purofvio)
+In Chapter \ref{sec:background}, the Purofvio algorithm is descibed. This
+algorithm is comparable to O-MCTS, but was only tested on the physical traveling
+salesperson problem. O-MCTS should be run on the PTSP problem as well, in order
+to compare these algorithms.
+
+% Test if there really is no preference for longer options
+Powley et al. suggest that Purofvio always prefers longer options over shorter
+ones. We hypothesize that O-MCTS does have this problem, due to the discounting
+that is done by the backup function.  This has to be tested by creating an
+option set with two options.  One that achieves a subgoal and one that achieves
+the same goal with more actions. If O-MCTS prefers the shorter one, we can
+conclude that our backup method indeed solves Purofvio's problem.
+
+% Multi-objective?
+Multi-objective algorithms do not optimize one objective, but search for 
+optimal solutions that maximize a combination of several objectives at once
+instead. A multi-objective variant of MCTS exists, on which a multi-objective
+variant of O-MCTS can be based. Using a multi-objective variant of the
+algorithm, it might be possible to balance the trade-offs between playing time,
+score and winning discussed in the previous section. 
+
+% Other option value methods
+Lastly, in order to improve the learning algorithms, some other improvements can be
 investigated. Firstly, the backup method can be tweaked. In
 \cite{coulom2007efficient}, instead of the mean value, other values, like the
 maximum return are used in the backup phase. Furthermore, the mean and standard

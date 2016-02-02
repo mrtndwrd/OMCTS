@@ -1,25 +1,25 @@
 \chapter{Experiments}
 \label{sec:experiments}
 This chapter describes the experiments that have been done on SMDP Q-learning,
-O-MCTS and OL-MCTS. The algorithms are compared to the popular UCT Monte Carlo
-tree search algorithm, as described in section \ref{subsec:mcts}. The learning
-capacities of SMDP Q-learning and OL-MCTS are demonstrated by experimenting with
-the toy problem, \textit{prey}. Furthermore, we will run O-MCTS and OL-MCTS on a
-set of twenty-eight different games from the VGDL framework and compare them to
-MCTS's perfomance.  These games include all games from the first four training
-sets of the GVGAI competition, excluding puzzle games that can be solved by a
-simple exhaustive search and have no random component (like NPCs, for example).
-Each game consists of 5 levels. 
+O-MCTS and OL-MCTS. The algorithms are compared to the Monte Carlo tree search
+algorithm, as described in section \ref{subsec:mcts}. The learning capacities of
+SMDP Q-learning and OL-MCTS are demonstrated by experimenting with the toy
+problem, \textit{prey}. Furthermore, all algorithms are run on a set of
+twenty-eight different games in the VGDL framework. The set consists of all the
+games from the first four training sets of the GVGAI competition, excluding
+puzzle games that can be solved by an exhaustive search and have no random
+component (e.g. NPCs). The games have 5 levels each, the first of which
+traditionally is the easiest and the last of which is the hardest.
 
-Firstly, this chapter demonstrates SMDP Q-learning's performance on the games.
-Secondly, we compare O-MCTS's performance to that of MCTS, by showing the win
-ratio and mean score of both algorithms on all the games.  Then, we show the
-improvement that OL-MCTS makes on the games if it is allowed 4 games of learning
-time and demonstrate the progress it achieves.  Lastly we compare the three
-algorithms by summing up all the victories.  The algorithms are primarily judged
+Firstly, this chapter demonstrates the performance of our implementation of SMDP
+Q-learning. Secondly, we compare O-MCTS to MCTS, by showing the win ratio and
+mean score of both algorithms on all the games. Then, we show the improvement
+that OL-MCTS makes compared to O-MCTS if it is allowed 4 games of learning time.
+We demonstrate the progress it achieves by showing the first and last of the
+games it plays.  Lastly we compare the three algorithms by summing over all the
+victories of all the levels of each game.  The algorithms are primarily judged
 on their ability to win the games. The scores they achieve are treated as a
 secondary objective.
-
 
 \section{Game Test Set}
 \label{subsec:games}
@@ -288,9 +288,9 @@ the algorithms in a level of a game is 1, and the worst score achieved by an
 algorithm is normalized to 0. The bars are ordered by the performance of the
 random algorithm, from left to right, its win ratio and score decreases. 
 
-The bars labeled \textsc{q-learning1} show the performance of SMDP Q-learning in
+The bars labeled Q-LEARNING1 show the performance of SMDP Q-learning in
 the first game it plays. It is then allowed three subsequent games to learn and
-that score is shown by the bars labeled \textsc{q-learning4}. Our further
+that score is shown by the bars labeled Q-LEARNING4. Our further
 experiments have shown that starting from the fifth learning game the
 performance of Q-learning dropped, because the size of the Q-table causes the
 algorithm to be disqualified. 
@@ -306,10 +306,10 @@ experiments the results of SMDP Q-learning will be left out and we will and
 focus on MCTS and O-MCTS.
 
 \section{O-MCTS}
-This section describes the result of the option Monte Carlo tree search
-algorithm, compared to the standard Monte Carlo tree search algorithm. This
-comparison demonstrates the improvement that can be achieved by enhancing MCTS
-with options. 
+This section describes the results of the option Monte Carlo tree search
+algorithm in comparison with the standard Monte Carlo tree search algorithm.
+This demonstrates the improvement that can be achieved by using our method to
+enhance MCTS with our option set.
 
 \label{subsec:omcts}
 \begin{figure}
@@ -335,34 +335,66 @@ O-MCTS greatly outperforms MCTS in the games \textit{missile
 command}, \textit{overload}, \textit{firestorms}, \textit{boulderchase},
 \textit{zelda}, \textit{bait}, \textit{camel race}, \textit{eggomania},
 \textit{firecaster}, \textit{chase} and \textit{lemmings}, winning many more
-games. When we visually replay the algorithms for these games, we can see
-that the algorithm succeeds in efficiently planning paths in a dangerous
-environment, enabling it to do a further forward search than the ordinary Monte
-Carlo tree search. \textit{Camel race} requires the player to move to the right
-for 80 consecutive turns, which is very hard for MCTS, since it only looks
-forward 10 turns. O-MCTS almost always wins, since it can plan forward a lot
-further. In \textit{Overload}, a sword has to be picked up before the avatar can
-finish the game, which seems to be too hard for MCTS, but poses less of a
-problem for O-MCTS.  Furthermore, in Zelda we can see that the MCTS algorithm
-achieves roughly the same score as O-MCTS, but does not win the game, since
-picking up the key and walking towards the door is a difficult action sequence.
-We assume that the score achieved by MCTS is because it succeeds in killing the
+games. By looking at the algorithms' actions for these games, we can see
+that O-MCTS succeeds in efficiently planning paths in a dangerous environment,
+enabling it to do a further forward search than the ordinary Monte Carlo tree
+search. \textit{Camel race} requires the player to move to the right for 80
+consecutive turns, which is very hard for MCTS, since it only looks forward 10
+turns. O-MCTS always wins, since it can plan forward a lot further. In
+\textit{Overload}, a sword has to be picked up before the avatar can finish the
+game, which seems to be too hard for MCTS, but poses less of a problem for
+O-MCTS.  Furthermore, in Zelda we can see that the MCTS algorithm achieves
+roughly the same score as O-MCTS, but does not win the game, since picking up
+the key and walking towards the door is a difficult action sequence.  We assume
+that the mean score achieved by MCTS is because it succeeds in killing the
 monsters, whereas O-MCTS achieves its score by picking up the key and walking to
 the door.  These results indicate that O-MCTS performs better than MCTS in games
-where a longer sequence of action planning has to be done.
+where a sequence subgoals have to be reached.
 
-The MCTS algorithm performs significantly better than O-MCTS in
-\textit{whackamole}, \textit{jaws}, \textit{seaquest} and \textit{plaque
-attack}. The similarity of these games is that they have a very big number of
-different sprites, for each of which several options have to be created by
-O-MCTS.  When the number of options becomes too big, constructing the set of
-possible options $\mathbf{p}_s$ for every state $s$ becomes so time-consuming
-that the algorithm has too little time to build a tree and find the best
-possible action. In another experiment, we increased the computation time for
-O-MCTS to 120ms and found that the win ratio of O-MCTS increases to around $0.8$
-for \textit{seaquest} and \textit{plaque attack}.
-% TODO: I probably want to check if MCTS's performance also increases with more
-% computation time
+The MCTS algorithm performs better than O-MCTS in \textit{pacman},
+\textit{whackamole}, \textit{jaws}, \textit{seaquest} and \textit{plaque attack}
+(note that for \textit{seaquest}, O-MCTS has a higher mean score, but wins less
+than MCTS). The similarity of most of these games is that they have a very big
+number of different sprites, for each of which several options have to be
+created by O-MCTS. When the number of options becomes too big, constructing the
+set of possible options $\mathbf{p}_s$ for every state $s$ becomes so
+time-consuming that the algorithm has too little time to build a tree and find
+the best possible action. In another experiment, we increased the computation
+time for O-MCTS to 120ms and found that the win ratio of O-MCTS increases to
+around $0.8$ for \textit{seaquest} and \textit{plaque attack}.
+
+\begin{figure}
+	\centering
+	\subfigure[\textit{Plaque attack}, level 4]{
+		\includegraphics[scale=.2]{includes/plaqueattack}
+		\label{fig:plaqueattack}
+	}
+	\subfigure[\textit{Overload}, level 4]{
+		\includegraphics[scale=.2]{includes/overload}
+		\label{fig:overload}
+	}
+	\caption{The different in size of \textit{plaque attack} ($24\times21$) and 
+		\textit{overload} ($19\times11$)}
+	\label{fig:game-size}
+\end{figure}
+
+As illustrated in figure \ref{fig:game-size}, the games \textit{seaquest},
+\textit{plaque attack} and \textit{pacman} have very large maps, in which using
+A Star to calculate routes becomes increasingly time consuming. For example,
+\textit{plaque attack}, seen in figure \ref{fig:plaqueattack}, has a grid that
+is more than twice the size of \textit{overload} in figure \ref{fig:overload}.
+It is probable that this is one of the reasons for O-MCTS's reduced performance
+as well.
+
+The game \textit{jaws} starts with an almost empty screen. The algorithm is then
+inclined to walk towards the portals that are on the screen, because there are
+more options that lead towards portals than options that do not. These portals
+spawn enemies, which upon spawning immediately kill the avatar. 
+
+In summation, O-MCTS mostly struggles with the overhead that is created by
+maintaining the option set: planning routes with A Star, checking if options are
+finished and constructing the possible option set $\mathbf{p}_s$. By learning
+option values, OL-MCTS should be able to improve performance on these games.
 
 \section{OL-MCTS}
 \label{subsec:olmcts}
@@ -389,8 +421,8 @@ section with O-MCTS.
 
 Firstly, by running Option Learning MCTS on the toy problem \textit{prey}, we
 demonstrate its capacity to learn, similar to what was done in section
-\ref{subsec:experiments-smdp-qlearning}. As can be seen in Figure
-\ref{fig:olmctsPrey}, OL-MCTS never loses the toy problem, and after the first
+\ref{subsec:experiments-smdp-qlearning}. The results are displayed in Figure
+\ref{fig:olmctsPrey}. OL-MCTS never loses the toy problem and after the first
 game almost always takes 6 time steps to catch the prey. 
 
 \begin{figure}
@@ -408,18 +440,16 @@ game almost always takes 6 time steps to catch the prey.
 	\label{fig:olmctsPrey3}
 \end{figure}
 
-
-As more challenging test, the algorithm is run on the second level and set the
-maximum rollout distance $d$ of OL-MCTS to 10, so the prey is outside the reach
-of the rollouts. Figure \ref{fig:olmctsPrey3} shows that OL-MCTS successfully
+As more challenging test, the algorithm is run on the second level and we set
+the maximum rollout distance $d$ to 10, so the prey is outside the reach of the
+rollouts. Figure \ref{fig:olmctsPrey3} demonstrates that OL-MCTS successfully
 learns to prefer the options that lead to the avatar over the other options.
 This results in the algorithm taking a path that is close to the smallest number
 of time steps needed starting from game 2, even though in the first ten time
-steps, the algorithm has no rollouts that lead to the predator catching the
-prey. From this, we can conclude that the algorithm is capable to learn from 
-which options it benefits more in a small number of games. Furthermore, we
-observe that the performance of OL-MCTS is better than that of SMDP Q-learning
-on the same problem.
+steps, the algorithm has no rollouts that lead to the winning condition. From
+this we can conclude that the algorithm is capable to learn from which options
+it benefits. Furthermore, we observe that the performance of OL-MCTS is better
+than that of SMDP Q-learning on the same problem.
 
 
 \begin{figure}
@@ -435,14 +465,13 @@ on the same problem.
 	\label{fig:scores-olmcts}
 \end{figure}
 
-\todo{Start from here}
-For the second experiment, we compare OL-MCTS to O-MCTS, by running it on the
-same set of games. The option learning algorithm is allowed four learning games,
-after which the fifth is used for the comparisons. Figures \ref{fig:wins-olmcts}
-and \ref{fig:scores-olmcts} show the games for which the results of OL-MCTS
-differ from O-MCTS. For the other games, the performance was approximately the
-same. Here OL-MCTS1 shows the performance of OL-MCTS on the first game. OL-MCTS5
-shows the performance of the algorithm after learning for four games. 
+Lastly, we compare OL-MCTS to O-MCTS, by running it on the same set of games.
+The option learning algorithm is allowed four learning games, after which the
+fifth is used for the comparisons. Figures \ref{fig:wins-olmcts} and
+\ref{fig:scores-olmcts} show the results of the algorithm on these games.
+OL-MCTS1 denotes the performance of OL-MCTS on the first game, OL-MCTS5 shows
+the performance of the algorithm after learning for four games. 
+
 
 We can see that, although the first iteration of OL-MCTS sometimes performs a
 bit worse than O-MCTS, the fifth iteration often scores at least as high, or
@@ -459,14 +488,31 @@ explanations for this improvement: 1.) There are sprites that kill the player,
 which are evaded by the algorithm when it has learned to do so.  2.) The
 algorithm learns that it should pick up the key.
 
+Furthermore, we can see small improvements on the games \textit{seaquest} and
+\textit{jaws}, on which O-MCTS performs worse than MCTS.  OL-MCTS does not
+exceed the score of the original Monte Carlo tree search algorithm, although
+this improvement indicates that OL-MCTS is on the right path of improving
+O-MCTS' weaknesses.
+
 \section{Totals}
 \label{subsec:totals}
 
 \begin{figure}
-	\centering
-	\includegraphics[width=.6\textwidth]{includes/totalsThesis}
-	\label{fig:total-results}
-	\caption{Sum of all wins of each algorithm.}
+	\hfill
+	\begin{minipage}{.45\textwidth}
+		\begin{center}
+			\includegraphics[scale=.61]{includes/learning-crop}
+			\caption{Learning improvement on \textit{bait}}
+			\label{fig:learning-results}
+		\end{center}
+	\end{minipage}
+	\hfill
+	\begin{minipage}{.45\textwidth}
+		\includegraphics[width=\textwidth]{includes/totalsThesis-crop}
+		\caption{Sum of all wins of each algorithm.}
+		\label{fig:total-results}
+	\end{minipage}
+	\hfill
 \end{figure}
 
 Figure \ref{fig:total-results} shows the sum of wins over all games, all levels.
