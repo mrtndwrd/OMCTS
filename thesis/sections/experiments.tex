@@ -2,7 +2,7 @@
 \label{sec:experiments}
 This chapter describes the experiments that have been done on SMDP Q-learning,
 O-MCTS and OL-MCTS. The algorithms are compared to the Monte Carlo tree search
-algorithm, as described in section \ref{subsec:mcts}. The learning capacities of
+algorithm, as described in Section \ref{subsec:mcts}. The learning capacities of
 SMDP Q-learning and OL-MCTS are demonstrated by experimenting with the toy
 problem, \textit{prey}. Furthermore, all algorithms are run on a set of
 twenty-eight different games in the VGDL framework. The set consists of all the
@@ -177,7 +177,7 @@ ordering.
 		to tree trunk in order to reach the exit.
 \end{enumerate}
 
-We apply Monte Carlo tree search to this set of games as the baseline.
+We apply Monte Carlo tree search to this set of games as our baseline algorithm.
 Furthermore, we run SMDP Q-learning, O-MCTS and OL-MCTS.  The GVGAI competition
 comes with some predefined competition parameters: every algorithm has a maximum
 of one second to initialize, before starting the game. Then, the algorithm has a
@@ -189,12 +189,12 @@ new game state is given. If the agent exceeds the time limit, the action
 	competition's discussion platform by several users. Because this bug was not
 	solved at the time of writing, we chose to not honor the GVGAI competition's
 	original rule to disqualify a controller that does not return an action
-within fifty milliseconds.}. The framework was edited in order to be able to
-pass information from one game to the next. After a game is finished, the
-learning algorithms OL-MCTS and SMDP Q-learning get the possibility to save their
-values to a file. The file can be read during the initialization of the next
-game. Since the initialization has a time limit, the algorithms are encouraged
-to minimize their file size.
+within fifty milliseconds.}. To enable inter-game learning, the framework is
+edited to be able to pass information from one game to the next. After a game is
+finished, the learning algorithms OL-MCTS and SMDP Q-learning get the
+possibility to save their values to a file. The file can be read during the
+initialization of the next game. Since the initialization has a time limit, the
+algorithms are encouraged to minimize their file size.
 
 We empirically optimize the parameters of the O(L)-MCTS algorithm for these
 experiments. We use discount factor $\gamma = 0.9$. The maximum search depth $d$
@@ -203,8 +203,8 @@ example in the GVGAI competition, use. The number of node visits after which
 \textsf{uct} is used, $v$, is set to 40. Crazy stone parameter $K$ is set to
 $2.5$. The maximum search depth for MCTS is set to 10, which is value the GVGAI
 implementation uses by default.  MCTS and O-MCTS have \textsf{uct} constant $C_p
-= \sqrt{2}$. SMDP Q-learning has a maximum exploration depth $d$ of 20 and an
-exploration parameter $\varepsilon$ of 0.2, and $\alpha$ is set to $0.1$.  All the
+= \sqrt{2}$. SMDP Q-learning has a maximum exploration depth $d$ of 20, an
+exploration parameter $\varepsilon$ of 0.2 and $\alpha$ is set to $0.1$.  All the
 experiments are run on an Intel %\textsuperscript{\textregistered} 
 Core %\texttrademark 
 i7-2600, 3.40GHz quad core processor with 6 GB of DDR3, 1333 MHz RAM memory. In
@@ -213,30 +213,31 @@ all the following experiments on this game set, each algorithm plays each of the
 
 \section{SMDP Q-learning}
 \label{subsec:experiments-smdp-qlearning}
-Firstly, the SMDP Q-learning that was proposed in chapter
+In this section, the SMDP Q-learning implementation that was proposed in chapter
 \ref{subsec:smdp-qlearning-gvgp} is tested. Q-learning's first implementation
 requirement is a serialization of the state space.  Furthermore, to prevent the
-Q-table to become too big, we apply a state space reduction, similar to what was
-done for other GVGAI learning algorithms \cite{samothrakis2015neuroevolution}.
-These are the values that are saved:
+Q-table to become too big, we apply a state space reduction similar to that of
+other GVGAI learning algorithms \cite{samothrakis2015neuroevolution}.  The
+following values are saved:
 
 \begin{itemize}
-	\item The avatar orientation
-	\item The avatar's resources (this is often a number, for example
-		\texttt{"diamonds:3"})
-	\item The direction and Euclidean distance to the nearest of:
+	\item the avatar orientation;
+	\item the avatar's resources (one or more quantities, e.g.,
+		\texttt{"diamonds:3"});
+	\item the direction and Euclidean distance to the nearest:
 		\begin{itemize}
-			\item NPCs
-			\item Other Movable sprites
-			\item Resources
-			\item Portals
-			\item Other immovable sprites
+			\item NPC,
+			\item other movable sprite,
+			\item resource,
+			\item portal,
+			\item other immovable sprite.
 		\end{itemize}
 \end{itemize}
 
-Although this representation loses information about the map and location
-of the avatar, it enables the algorithm to keep a smaller Q-table and as a
-result work on more games without running out of memory.
+Although this representation loses information about the map and the grid
+location of the avatar, it enables the algorithm to keep a smaller and more
+generalized Q-table and as a result work on more games without running out of
+memory.
 
 \begin{figure}
 	\centering
@@ -253,17 +254,18 @@ result work on more games without running out of memory.
 	\label{fig:qlearning}
 \end{figure}
 
-In the first experiment, we check if our version of SMDP Q-learning works with
-our option set and state space reduction by applying it to the toy problem,
-\textit{prey}. The results can be seen in figure \ref{fig:qlearning}. We can see
-that the algorithm wins consistently starting from the fifth game and that the
-time it takes to win converges to 6, which is the least number of steps possible
-to reach the prey.  We can conclude that it wins consistently by applying the
-correct options. This indicates that the values for the Q-table converge to
-their optima. Unfortunately, when applied to the second level of \textit{prey},
-which requires a more complex and longer action sequence, SMDP is not able to
-find a winning policy in the first 500 games. After that, its Q-table becomes
-too large to load in the initialization time and the algorithm is disqualified.
+In the first experiment, as a proof of concept of our implementation of SMDP
+Q-learning with our option set and state space reduction, we apply it to the
+first level of the toy problem, \textit{prey}. The results can be seen in figure
+\ref{fig:qlearning}. We can see that the algorithm wins consistently starting
+from the fifth game and that the time it takes to win converges to 6, which is
+the least number of steps possible to reach the prey.  We can conclude that it
+wins consistently by applying the correct options. This indicates that the
+values for the Q-table converge to their optima. Unfortunately, when applied to
+the second level of \textit{prey}, which requires a more complex and longer
+action sequence, SMDP is not able to find a winning policy in the first 500
+games, after which its Q-table becomes too large to load in the initialization
+time and the algorithm is disqualified.
 
 \begin{figure}
 	\centering
@@ -281,31 +283,32 @@ tests), 0 the lowest.}
 \end{figure}
 
 For the next experiment, SMDP Q-learning and Monte Carlo tree search are applied
-to all the games described in chapter \ref{subsec:games}. The results are shown
+to all the games described in Chapter \ref{subsec:games}. The results are shown
 in Figures \ref{fig:qlearning-wins} and \ref{fig:qlearning-scores}. The scores
 in Figure \ref{fig:qlearning-scores} are normalized using the data of all the
-algorithms, including O-MCTS and OL-MCTS and the random algorithm, of which the
-results will be covered by the next sections. The best score achieved by any of
-the algorithms in a level of a game is 1, and the worst score achieved by an
-algorithm is normalized to 0. The bars are ordered by the performance of the
-random algorithm, from left to right, its win ratio and score decreases. 
+algorithms, including O-MCTS and OL-MCTS and the random algorithm. The best
+score achieved by any of the algorithms in a level of a game is 1, the worst is
+normalized to 0. Like the game descriptions in Section \ref{subsec:games}, the
+bars are ordered by the performance of the random algorithm, from left to right
+its win ratio and score decreases, from which we can assume that the leftmost
+game is the easiest, and the rightmost is the hardest.
 
 The bars labeled Q-LEARNING1 show the performance of SMDP Q-learning in
-the first game it plays. It is then allowed three subsequent games to learn and
-that score is shown by the bars labeled Q-LEARNING4. Our further
-experiments have shown that starting from the fifth learning game the
-performance of Q-learning dropped, because the size of the Q-table causes the
-algorithm to be disqualified. 
+the first game it plays. It is then allowed three subsequent games to learn.
+The score of the fourth game is shown by the bars labeled Q-LEARNING4. Our
+further experiments have shown that a longer learning sequence decreases the
+total score for Q-learning, because the size of the Q-table causes the algorithm
+to be disqualified during initialization.
 
 The figures show that MCTS outperforms SMDP Q-learning in almost all the games.
 Our theory is that if the algorithm is allowed to learn for more games and is
 given more time in the initialization phase to load the Q-table, its performance
 will increase. However, the framework does not allow this, and the size of the
-Q-table might still become infeasibly large, since the number of states in these
-games is many times larger than the games that SMDP Q-learning with options was
-demonstrated with \cite{sutton1999between}. For this reason, in the following
-experiments the results of SMDP Q-learning will be left out and we will and
-focus on MCTS and O-MCTS.
+Q-table might still become infeasible, since the number of states in these
+games is many times larger than the type of problem that SMDP Q-learning with
+options was demonstrated with \cite{sutton1999between}. For this reason, in the
+next section the results of SMDP Q-learning will omitted and we will compare
+O-MCTS to MCTS.
 
 \section{O-MCTS}
 This section describes the results of the option Monte Carlo tree search
@@ -333,35 +336,35 @@ win ratio and normalized score of the algorithms for each game. In short, the
 O-MCTS algorithms performs at least as good as MCTS in almost all games, and
 better in most.
 
-O-MCTS greatly outperforms MCTS in the games \textit{missile
-command}, \textit{overload}, \textit{firestorms}, \textit{boulderchase},
-\textit{zelda}, \textit{bait}, \textit{camel race}, \textit{eggomania},
-\textit{firecaster}, \textit{chase} and \textit{lemmings}, winning many more
-games. By looking at the algorithms' actions for these games, we can see
-that O-MCTS succeeds in efficiently planning paths in a dangerous environment,
-enabling it to do a further forward search than the ordinary Monte Carlo tree
-search. \textit{Camel race} requires the player to move to the right for 80
-consecutive turns, which is very hard for MCTS, since it only looks forward 10
-turns. O-MCTS always wins, since it can plan forward a lot further. In
-\textit{Overload}, a sword has to be picked up before the avatar can finish the
-game, which seems to be too hard for MCTS, but poses less of a problem for
-O-MCTS.  Furthermore, in Zelda we can see that the MCTS algorithm achieves
-roughly the same score as O-MCTS, but does not win the game, since picking up
-the key and walking towards the door is a difficult action sequence.  We assume
-that the mean score achieved by MCTS is because it succeeds in killing the
-monsters, whereas O-MCTS achieves its score by picking up the key and walking to
-the door.  These results indicate that O-MCTS performs better than MCTS in games
-where a sequence subgoals have to be reached.
+O-MCTS outperforms MCTS in the games \textit{missile command}, \textit{bait},
+\textit{camel race}, \textit{survive zombies}, \textit{firestorms},
+\textit{lemmings}, \textit{firecaster}, \textit{overload}, \textit{zelda},
+\textit{chase}, \textit{boulderchase} and \textit{eggomania} winning more games
+or achieving a higher mean score. By looking at the algorithm's actions for
+these games, we can see that O-MCTS succeeds in efficiently planning paths in a
+dangerous environment, enabling it to do a further forward search than the
+ordinary Monte Carlo tree search. \textit{Camel race} requires the player to
+move to the right for 80 consecutive turns, which is hard for MCTS, since
+it only looks 10 turns ahead. O-MCTS always wins, since it can plan forward a
+lot further. In \textit{Overload}, a sword has to be picked up before the avatar
+can finish the game, which seems to be too hard for MCTS, but poses less of a
+problem for O-MCTS.  Furthermore, in Zelda we can see that the MCTS algorithm
+achieves roughly the same score as O-MCTS, but does not win the game, since
+picking up the key and walking towards the door is a difficult action sequence.
+We assume that the mean score achieved by MCTS is because it succeeds in killing
+the monsters, whereas O-MCTS achieves its score by picking up the key and
+walking to the door.  These results indicate that O-MCTS performs better than
+MCTS in games where a sequence subgoals have to be reached.
 
 The MCTS algorithm performs better than O-MCTS in \textit{pacman},
 \textit{whackamole}, \textit{jaws}, \textit{seaquest} and \textit{plaque attack}
 (note that for \textit{seaquest}, O-MCTS has a higher mean score, but wins less
-than MCTS). The similarity of most of these games is that they have a very big
-number of different sprites, for each of which several options have to be
+than MCTS). A parallel between these games is that they have a very
+big number of different sprites, for each of which several options have to be
 created by O-MCTS. When the number of options becomes too big, constructing the
 set of possible options $\mathbf{p}_s$ for every state $s$ becomes so
 time-consuming that the algorithm has too little time to build a tree and find
-the best possible action. In another experiment, we increased the computation
+the best possible action. To test this hypothesis, we increased the computation
 time for O-MCTS to 120ms and found that the win ratio of O-MCTS increases to
 around $0.8$ for \textit{seaquest} and \textit{plaque attack}.
 
@@ -380,31 +383,27 @@ around $0.8$ for \textit{seaquest} and \textit{plaque attack}.
 	\label{fig:game-size}
 \end{figure}
 
-As illustrated in figure \ref{fig:game-size}, the games \textit{seaquest},
-\textit{plaque attack} and \textit{pacman} have very large maps, in which using
-A Star to calculate routes becomes increasingly time consuming. For example,
-\textit{plaque attack}, seen in figure \ref{fig:plaqueattack}, has a grid that
-is more than twice the size of \textit{overload} in figure \ref{fig:overload}.
-It is probable that this is one of the reasons for O-MCTS's reduced performance
-as well.
+Another difficulty for O-MCTS in these games is illustrated in figure
+\ref{fig:game-size}: the games \textit{seaquest}, \textit{plaque attack} and
+\textit{pacman} have very large maps, in which using A Star to calculate routes
+becomes increasingly time consuming. For example, \textit{plaque attack}, seen
+in Figure \ref{fig:plaqueattack}, has a grid of 24 by 21 blocks, which is more
+than twice the size of \textit{overload}, seen in Figure \ref{fig:overload} with
+a grid of 19 by 11 blocks.
 
-The game \textit{jaws} starts with an almost empty screen. The algorithm is then
-inclined to walk towards the portals that are on the screen, because there are
-more options that lead towards portals than options that do not. These portals
-spawn enemies, which upon spawning immediately kill the avatar. 
+Lastly, the game \textit{jaws} starts with an almost empty screen. The algorithm
+is then inclined to walk towards the portals that are on the screen, because
+there are more options that lead towards portals than options that do not. These
+portals spawn enemies, which upon spawning immediately kill the avatar. 
 
-In summation, O-MCTS mostly struggles with the overhead that is created by
-maintaining the option set: planning routes with A Star, checking if options are
-finished and constructing the possible option set $\mathbf{p}_s$. By learning
-option values, OL-MCTS should be able to improve performance on these games.
+In summation, O-MCTS performs good on most games. When it does not, it mostly
+struggles with the overhead that is created by maintaining the option set:
+planning routes with A Star, checking if options are finished and constructing
+the possible option set, $\mathbf{p}_s$. By learning option values, OL-MCTS
+should be able to improve performance on these games.
 
 \section{OL-MCTS}
 \label{subsec:olmcts}
-
-This section describes the improvements that can be found on the O-MCTS
-algorithm, when a bias can be learned towards certain more feasible options. The
-improvement that was proposed in chapter \ref{sec:learning} is compared in this
-section with O-MCTS.
 
 \begin{figure}
 	\centering
@@ -421,11 +420,28 @@ section with O-MCTS.
 	\label{fig:olmctsPrey}
 \end{figure}
 
+This section describes the improvements that can be found on the O-MCTS
+algorithm, when a bias can be learned towards certain more feasible options. The
+improvement that was proposed in Chapter \ref{sec:learning} is compared in this
+section with O-MCTS.
+
 Firstly, by running Option Learning MCTS on the toy problem \textit{prey}, we
 demonstrate its capacity to learn, similar to what was done in section
 \ref{subsec:experiments-smdp-qlearning}. The results are displayed in Figure
 \ref{fig:olmctsPrey}. OL-MCTS never loses the toy problem and after the first
 game almost always takes 6 time steps to catch the prey. 
+
+As more challenging test, the algorithm is run on the second level and we set
+the maximum rollout distance $d$ to 10, so the prey is outside the reach of the
+rollouts. Figure \ref{fig:olmctsPrey3} demonstrates that OL-MCTS successfully
+learns to prefer the options that lead to the avatar over the other options.
+This results in the algorithm taking a path that is close to the smallest number
+of time steps needed starting from game 2, even though in the first ten time
+steps, the algorithm has no rollouts that lead to the winning condition. From
+this we can conclude that the algorithm is capable to learn from which options
+it benefits and bias its search towards those. Furthermore, we observe that the
+performance of OL-MCTS is better than that of SMDP Q-learning on the same
+problem.
 
 \begin{figure}
 	\centering
@@ -442,17 +458,6 @@ game almost always takes 6 time steps to catch the prey.
 	\label{fig:olmctsPrey3}
 \end{figure}
 
-As more challenging test, the algorithm is run on the second level and we set
-the maximum rollout distance $d$ to 10, so the prey is outside the reach of the
-rollouts. Figure \ref{fig:olmctsPrey3} demonstrates that OL-MCTS successfully
-learns to prefer the options that lead to the avatar over the other options.
-This results in the algorithm taking a path that is close to the smallest number
-of time steps needed starting from game 2, even though in the first ten time
-steps, the algorithm has no rollouts that lead to the winning condition. From
-this we can conclude that the algorithm is capable to learn from which options
-it benefits. Furthermore, we observe that the performance of OL-MCTS is better
-than that of SMDP Q-learning on the same problem.
-
 
 \begin{figure}
 	\centering
@@ -467,34 +472,32 @@ than that of SMDP Q-learning on the same problem.
 	\label{fig:scores-olmcts}
 \end{figure}
 
-Lastly, we compare OL-MCTS to O-MCTS, by running it on the same set of games.
-The option learning algorithm is allowed four learning games, after which the
-fifth is used for the comparisons. Figures \ref{fig:wins-olmcts} and
-\ref{fig:scores-olmcts} show the results of the algorithm on these games.
-OL-MCTS1 denotes the performance of OL-MCTS on the first game, OL-MCTS5 shows
-the performance of the algorithm after learning for four games. 
-
+We compare OL-MCTS to O-MCTS, by running it on the game test set.  The option
+learning algorithm is allowed four learning games, after which the fifth is used
+for the comparisons. Figures \ref{fig:wins-olmcts} and \ref{fig:scores-olmcts}
+show the results of the algorithm on these games.  OL-MCTS1 denotes the
+performance of OL-MCTS on the first game, OL-MCTS5 shows the performance of the
+algorithm after learning. 
 
 We can see that, although the first iteration of OL-MCTS sometimes performs a
 bit worse than O-MCTS, the fifth iteration often scores at least as high, or
 higher than O-MCTS. We expect that the loss of performance in OL-MCTS1 is
-because of the overhead that is created by the crazy stone algorithm: A sorting
-of all the options has to take place in each game state. The learning algorithm
-significantly improves score and win ratio for the game \textit{bait}, which is
-a game in which the objective is to reach a goal portal after collecting a key.
-The player can push boxes around to open paths. There are holes in the ground
-that kill the player, unless they are filled with boxes, which make both the
-hole and the box disappear. Figure \ref{fig:learning-results} shows the
-improvement in score and win ratio for this game. There are two likely 
-explanations for this improvement: 1.) There are sprites that kill the player,
-which are evaded by the algorithm when it has learned to do so.  2.) The
-algorithm learns that it should pick up the key.
+a result of the extra overhead that is added by the crazy stone algorithm: A
+sorting of all the options has to take place in each tree node. The learning
+algorithm significantly improves score and win ratio for the game \textit{bait},
+which is a game in which the objective is to reach a goal portal after
+collecting a key.  The player can push boxes around to open paths. There are
+holes in the ground that kill the player, unless they are filled with boxes,
+which make both the hole and the box disappear. Figure
+\ref{fig:learning-results} shows the improvement in score and win ratio for this
+game. There are two likely explanations for this improvement: 1.) There are
+sprites that kill the player, which are evaded by the algorithm when it has
+learned to do so.  2.) The algorithm learns that it should pick up the key.
 
 Furthermore, we can see small improvements on the games \textit{seaquest} and
-\textit{jaws}, on which O-MCTS performs worse than MCTS.  OL-MCTS does not
-exceed the score of the original Monte Carlo tree search algorithm, although
-this improvement indicates that OL-MCTS is on the right path of improving
-O-MCTS' weaknesses.
+\textit{jaws}, on which O-MCTS performs worse than MCTS.  Although OL-MCTS does
+not exceed the score of the original Monte Carlo tree search algorithm, this
+improvement suggests that OL-MCTS is on the right path of improving O-MCTS.
 
 \section{Totals}
 \label{subsec:totals}
@@ -520,7 +523,12 @@ O-MCTS' weaknesses.
 Figure \ref{fig:total-results} shows the sum of wins over all games, all levels.
 It shows a significant ($p < 0.05$) improvement of O-MCTS and OL-MCTS over MCTS.
 There is no significant difference in performance of OL-MCTS over O-MCTS,
-although our results indicate that it does improve for some of the games.
+although our results suggest that it does improve for a subset of the games.
+SMDP Q-learning was not proven to be useful for general video game playing, and
+scores marginally better than the random algorithm. This might be a result of
+the rules of the GVGAI competition, which indirectly prevent the algorithm to
+learn for more than four games, which is a relatively low amount for a learning
+algorithm.
 
 Summarizing, our tests indicate that on complex games O-MCTS outperforms MCTS.
 For other games it performs at least as well, as long as the number of game

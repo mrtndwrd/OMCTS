@@ -7,14 +7,14 @@
 %introductie}
 
 In order to simulate the use of subgoals, we will introduce planning over
-options in MCTS, in stead of SMDP Q-learning. In this chapter we introduce
+options in MCTS, instead of SMDP Q-learning. In this chapter we introduce
 \emph{option Monte Carlo tree search (O-MCTS)}, a novel algorithm that plans
 over options using MCTS, enabling the use of options in complex MDPs. The
 resulting algorithm achieves higher scores on complex games that have several
 sub-goals than traditional MCTS and SMDP Q-learning.
 
 Generally, O-MCTS works as follows: like in MCTS, a tree of states is
-built by simulating game plays. In stead of actions, the algorithm chooses
+built by simulating game plays. Instead of actions, the algorithm chooses
 options. When an option is chosen, the actions returned by its policy are used
 to build the tree. When an option is finished, a new option has to be chosen.
 This enables the tree to branch on that point. This chapter describes in detail
