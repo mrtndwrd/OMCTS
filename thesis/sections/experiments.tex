@@ -366,7 +366,10 @@ set of possible options $\mathbf{p}_s$ for every state $s$ becomes so
 time-consuming that the algorithm has too little time to build a tree and find
 the best possible action. To test this hypothesis, we increased the computation
 time for O-MCTS to 120ms and found that the win ratio of O-MCTS increases to
-around $0.8$ for \textit{seaquest} and \textit{plaque attack}.
+around $0.8$ for \textit{seaquest} and \textit{plaque attack}, whereas the win
+ratio for MCTS increased to $0.9$ and $0.7$ respectively. This means that with
+more action time, the difference between O-MCTS and MCTS is reduced for
+\textit{seaquest} and that, O-MCTS outperforms MCTS on \textit{plaque attack}.
 
 \begin{figure}
 	\centering

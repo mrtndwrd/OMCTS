@@ -3,15 +3,15 @@
 
 This chapter explains the most important concepts needed to understand the
 algorithms that are proposed in this thesis. The first section describes
-\emph{Markov decision processes (MDPs)}, a formalization of the type of problem
-that the algorithms have to solve. The next section describes MCTS, a tree
-search algorithm that is commonly used on games and other MDPs. Subsequently,
-options will be formalized, these simulate the idea of defining subgoals and
-how to reach them. Then, the basics of Q-learning are described, from which SMDP
-Q-learning is derived. Finally the \emph{video game description language (VGDL)}
-is explained. This is the protocol that is used by the GVGAI competition to
-generate the many different games the competition offers, that all use the same
-interaction framework with the game playing algorithms.
+\emph{Markov decision processes (MDPs)}, the problem formalization we will use
+for games. The next section describes MCTS, a tree search algorithm that is
+commonly used on games and other MDPs. Subsequently, options will be formalized,
+these simulate the idea of defining subgoals and how to reach them. Then, the
+basics of Q-learning are described, after which SMDP Q-learning is explained.
+Finally the \emph{video game description language (VGDL)} is explained. This is
+the protocol that is used by the GVGAI competition to implement the many
+different games the competition offers, each of which uses the same interaction
+framework with the game playing algorithms.
 
 In this thesis, games are considered to be an unknown environment and an agent
 has to learn by interacting with it. After interaction, agents receive
@@ -42,18 +42,18 @@ For example, for the game Zelda, a state $s$ consists of the location, rotation
 and speed of the avatar and the location of the avatar's sword, the monsters, the
 walls and the key and portal that need to be found. $S$ is the set of all
 possible states, so all possible combinations of these variables. The action set
-$A$ consists of the actions \textsc{up}, \textsc{down}, \textsc{left},
-\textsc{right} and \textsc{use}, the latter of which spawns the sword in front
-of the avatar for a couple of time steps. The transition function $T$ defines the
-transition from a state, given an action.  This means that the transition
-defines the change in location of the monsters and the avatar and if any of the
-sprites disappear (e.g. when the avatar picks up the key). Note that, since
-the transition function is not by definition deterministic, the resulting state
-from an action $a$ in state $s$ is not always the same state. For instance,
-because a monster moves about randomly, it could have moved left or right in the
-new state. The reward function describes the change in game score, given a
-state, action and resulting next state, for example when the avatar kills a
-monster with the action \textsc{use}, its score will increase with 1.
+$A$ consists of the movement actions \textsc{up}, \textsc{down}, \textsc{left}
+and \textsc{right}, and \textsc{use}, which in this case spawns the sword in
+front of the avatar for a couple of time steps. The transition function $T$
+defines the transition from a state, given an action.  This means that the
+transition defines the change in location of the monsters and the avatar and if
+any of the sprites disappear (e.g. when the avatar picks up the key). Note that,
+since the transition function is not by definition deterministic, the resulting
+state from an action $a$ in state $s$ is not always the same state. For
+instance, because a monster moves about randomly, it could have moved left or
+right in the new state. The reward function describes the change in game score,
+given a state, action and resulting next state, for example when the avatar
+kills a monster with the action \textsc{use}, its score will increase with 1.
 
 \section{Monte Carlo Tree Search}
 \label{subsec:mcts}
@@ -83,20 +83,20 @@ an action taken in that state leading to a new state, which is represented by
 the next tree node.  The process, as explained in Figure \ref{fig:mcts},
 consists of four phases that are constantly repeated. It is started with the
 current game state, which is represented by the root node of the tree. The first
-action is chosen by an \emph{expansion strategy} and subsequently simulated,
+action is chosen by an \emph{expansion} strategy and subsequently simulated,
 resulting in a new game state, for which a new node is created. After expansion,
 a \emph{rollout} is done from the new node, which means that a simulation is run
 from the new node applying random actions until a predefined stop criterion is
 met or the game ends. Finally, the score difference resulting from the rollout
 is \emph{backed up} to the root node, which means that the reward is saved to the
 visited nodes.  Then a new iteration starts. When all actions are expanded in a
-node, that node is deemed \emph{fully expanded} and uses a \emph{selection
-strategy} to select a next node. When a node is selected that is not fully
+node, that node is deemed \emph{fully expanded} and uses a \emph{selection}
+strategy to select the next node. When a node is selected that is not fully
 expanded, the expansion strategy is used to create a new node, after which a
 rollout takes place and the results are backed up thereafter.
 
 The selection strategy selects optimal actions in internal tree nodes, by
-analyzing the values of their child nodes. An effective and very popular
+analyzing the values of their child nodes. An effective and popular
 selection strategy is the \emph{upper confidence tree (UCT)}
 \cite{kocsis2006bandit}, which balances the choice between poorly explored
 actions with a high uncertainty about their value and actions that have been
@@ -108,8 +108,8 @@ maximize
 \end{equation}
 Where $v_{s'}$ is the value of child $s'$ as calculated by the backup function,
 $n_s$ is the number of times the current node $s$ has been visited, $n_{s'}$ is
-the number of times child $s'$ has been visited and $C_p > 0$ is a constant,
-often set to $\sqrt{2}$, that shifts priority from exploration to exploitation.
+the number of times child $s'$ has been visited and $C_p > 0$ is a constant
+that shifts priority from exploration to exploitation.
 
 The traditional expansion strategy is to explore each action at least once in
 each node. After all actions have been expanded, the node applies the selection
@@ -146,28 +146,32 @@ of all rewards backed up to that node.
 \section{Options}
 \label{subsec:options}
 
-In order to mimic human game playing strategies, defining subgoals and subtask,
+In order to mimic human game playing strategies, defining subgoals and subtasks,
 we use options. Options have been proposed by Sutton et al.
-\cite{sutton1999between} as a method to incorporate temporal abstraction in
-field of reinforcement learning. A lot of progress has been made since, but a
-lot of the research seems to focus on learning algorithms and little work is
-done on combining options with tree search methods \cite{barto2003recent}, which
-offer a model free planning framework.
+\cite{sutton1999between} as a method to incorporate temporal abstraction in the
+field of reinforcement learning, after which progress has been made
+\cite{barto2003recent}, although the majority of the research seems to focus on
+learning algorithms and little work has been done on combining options with tree
+search methods, which offer a model free planning framework.
 
 An option is a predefined method of reaching a specific subgoal. Formally, it is
 a triple $\langle I, \pi, \beta \rangle$ in which $I \subseteq S$ is an
 initiation set, $\pi: S \times A \rightarrow [0, 1]$ is a policy and $\beta: S^+
-\rightarrow [0,1]$ is a termination condition.  A policy $\pi$ defines the
-action that should be taken in a state. The initiation set $I$ is a set of
-states in which the option can be started. 
+\rightarrow [0,1]$ is a termination condition. The initiation set $I$ is a set of
+states in which the option can be started. This set can be different for each
+option. The option's policy $\pi$ defines the action that should be taken in a
+state. The termination condition $\beta$ is used to decide if an option is
+finished, given that the agent arrived at a certain state.
 
-When an agent starts in state $s$, it can choose from all of the options that
-have $s$ in its initiation set $I$.  Then the option's policy $\pi$ is followed,
-possibly for several time steps. The agent stops following the policy as soon as
-it reaches a state that satisfies a termination condition in $\beta$. This often
-means that the option has reached its subgoal, or a criterion is met that
-renders the option obsolete (e.g., its goal does not exist anymore). Afterwards,
-the agent chooses a new option that will be followed.
+When an agent starts in state $s$, it can choose from all of the options $o \in
+O$ that have $s$ in its initiation set $I_o$. Then the option's policy $\pi$ is
+followed, possibly for several time steps. The agent stops following the policy
+as soon as it reaches a state that satisfies a termination condition in $\beta$.
+This often means that the option has reached its subgoal, or a criterion is met
+that renders the option obsolete (e.g., its goal does not exist anymore).
+Afterwards, the agent chooses a new option that will be followed.
+
+\todo{Make more logical connections between paragraphs starting from here}
 
 Normally, an agent can never choose a new option in a state that is not in the
 termination set of any of the options. Some algorithms use \emph{interruption},
