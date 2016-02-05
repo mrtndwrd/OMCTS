@@ -15,7 +15,7 @@ framework with the game playing algorithms.
 
 In this thesis, games are considered to be an unknown environment and an agent
 has to learn by interacting with it. After interaction, agents receive
-rewards that can be either positive or negative. This problem is called
+rewards that can be either positive or negative. This type of problem is called
 reinforcement learning \cite{wiering2012reinforcement}.
 
 \section{Markov Decision Processes}
@@ -47,13 +47,24 @@ and \textsc{right}, and \textsc{use}, which in this case spawns the sword in
 front of the avatar for a couple of time steps. The transition function $T$
 defines the transition from a state, given an action.  This means that the
 transition defines the change in location of the monsters and the avatar and if
-any of the sprites disappear (e.g. when the avatar picks up the key). Note that,
+any of the sprites disappear, e.g., when the avatar picks up the key. Note that,
 since the transition function is not by definition deterministic, the resulting
-state from an action $a$ in state $s$ is not always the same state. For
-instance, because a monster moves about randomly, it could have moved left or
-right in the new state. The reward function describes the change in game score,
-given a state, action and resulting next state, for example when the avatar
-kills a monster with the action \textsc{use}, its score will increase with 1.
+state from an action $a$ in state $s$ is not necessarily the same state
+(an NPC that moves about randomly can move in any direction between
+states independent of the agent's action). The reward function describes the
+change in game score, given a state, action and resulting next state. For
+example, when the avatar kills a monster with the action \textsc{use}, its score
+will increase with 1.
+
+An important trade-off in decision theory is the choice between exploration and
+exploitation. Exploration means to use the actions that have been used little
+and find out whether they lead to a reward. On the other hand, exploitation
+means to use the actions that you already know will lead to a reward. When an
+algorithm prioritizes exploitation over exploration too much, it has the risk of
+never finding unknown states which have higher rewards. It will keep exploiting
+the states with a lower reward that it has already found. In contrast, too much
+exploration might lead to lower rewards, because the algorithm takes the action
+that maximizes reward less often.
 
 \section{Monte Carlo Tree Search}
 \label{subsec:mcts}
@@ -83,22 +94,23 @@ an action taken in that state leading to a new state, which is represented by
 the next tree node.  The process, as explained in Figure \ref{fig:mcts},
 consists of four phases that are constantly repeated. It is started with the
 current game state, which is represented by the root node of the tree. The first
-action is chosen by an \emph{expansion} strategy and subsequently simulated,
-resulting in a new game state, for which a new node is created. After expansion,
-a \emph{rollout} is done from the new node, which means that a simulation is run
-from the new node applying random actions until a predefined stop criterion is
-met or the game ends. Finally, the score difference resulting from the rollout
-is \emph{backed up} to the root node, which means that the reward is saved to the
-visited nodes.  Then a new iteration starts. When all actions are expanded in a
-node, that node is deemed \emph{fully expanded} and uses a \emph{selection}
-strategy to select the next node. When a node is selected that is not fully
-expanded, the expansion strategy is used to create a new node, after which a
-rollout takes place and the results are backed up thereafter.
+action is chosen by an \emph{expansion} strategy and subsequently simulated.
+This results in a new game state, for which a new node is created. After
+expansion, a \emph{rollout} is done from the new node, which means that a
+simulation is run from the new node applying random actions until a predefined
+stop criterion is met or the game ends. Finally, the score difference resulting
+from the rollout is \emph{backed up} to the root node, which means that the
+reward is saved to the visited nodes.  Then a new iteration starts. When all
+actions are expanded in a node, that node is deemed \emph{fully expanded}.
+This means that MCTS will use its \emph{selection} strategy to select child
+nodes until a node is selected that is not fully expanded.  Then, the expansion
+strategy is used to create a new node, after which a rollout takes place and the
+results are backed up.
 
-The selection strategy selects optimal actions in internal tree nodes, by
+The selection strategy selects optimal actions in internal tree nodes by
 analyzing the values of their child nodes. An effective and popular
 selection strategy is the \emph{upper confidence tree (UCT)}
-\cite{kocsis2006bandit}, which balances the choice between poorly explored
+\cite{kocsis2006bandit}. This balances the choice between poorly explored
 actions with a high uncertainty about their value and actions that have been
 explored extensively, but have a higher value. A child node $j$ is selected to
 maximize
@@ -109,7 +121,11 @@ maximize
 Where $v_{s'}$ is the value of child $s'$ as calculated by the backup function,
 $n_s$ is the number of times the current node $s$ has been visited, $n_{s'}$ is
 the number of times child $s'$ has been visited and $C_p > 0$ is a constant
-that shifts priority from exploration to exploitation.
+that shifts priority from exploration to exploitation. By increasing $C_p$, the
+priority is shifted to exploration: states that have been visited less, will be
+visited with a higher priority than states that have been visited more. A
+decrease shifts priority to exploitation: states that have a high value are
+visited more, in order to maximize reward. 
 
 The traditional expansion strategy is to explore each action at least once in
 each node. After all actions have been expanded, the node applies the selection
@@ -126,10 +142,10 @@ is selected with a probability proportional to $u_i$
 \sigma_i^2\right)}}\right) + \varepsilon_i
 \end{equation}
 Each action has an estimated value $\mu_i$ ordered in such a way that $\mu_0 >
-\mu_1 > \ldots > \mu_N$, and a variance $\sigma_i^2$. $\varepsilon_i$ prevents 
-the probability of selecting a move to reach zero and its value is proportional to
-the ordering of the expected values of the possible actions. K is a constant
-that influences the exploration/exploitation trade off.
+\mu_1 > \ldots > \mu_N$, and a variance $\sigma_i^2$. K is a constant
+that influences the exploration -- exploitation trade off. $\varepsilon_i$ prevents
+the probability of selecting a move to reach zero and its value is proportional
+to the ordering of the expected values of the possible actions. 
 \begin{equation}
 	\label{eq:epsilon}
 	\varepsilon_i = \frac{0.1 + 2^{-i} + a_i}{N}
@@ -146,22 +162,23 @@ of all rewards backed up to that node.
 \section{Options}
 \label{subsec:options}
 
-In order to mimic human game playing strategies, defining subgoals and subtasks,
-we use options. Options have been proposed by Sutton et al.
-\cite{sutton1999between} as a method to incorporate temporal abstraction in the
-field of reinforcement learning, after which progress has been made
-\cite{barto2003recent}, although the majority of the research seems to focus on
-learning algorithms and little work has been done on combining options with tree
-search methods, which offer a model free planning framework.
+In order to mimic human game playing strategies, such as defining subgoals and
+subtasks, we use options. Options have been proposed by Sutton et al.  as a
+method to incorporate temporal abstraction in the field of reinforcement
+learning \cite{sutton1999between}. The majority of the research seems to focus
+on learning algorithms and little work has been done on combining options with
+tree search methods, which offer a model free planning framework
+\cite{barto2003recent}.
 
-An option is a predefined method of reaching a specific subgoal. Formally, it is
-a triple $\langle I, \pi, \beta \rangle$ in which $I \subseteq S$ is an
-initiation set, $\pi: S \times A \rightarrow [0, 1]$ is a policy and $\beta: S^+
-\rightarrow [0,1]$ is a termination condition. The initiation set $I$ is a set of
-states in which the option can be started. This set can be different for each
-option. The option's policy $\pi$ defines the action that should be taken in a
-state. The termination condition $\beta$ is used to decide if an option is
-finished, given that the agent arrived at a certain state.
+An option, sometimes referred to as a macro-action, is a predefined method of
+reaching a specific subgoal. Formally, it is a triple $\langle I, \pi, \beta
+\rangle$ in which $I \subseteq S$ is an initiation set, $\pi: S \times A
+\rightarrow [0, 1]$ is a policy and $\beta: S^+ \rightarrow [0,1]$ is a
+termination condition. The initiation set $I$ is a set of states in which the
+option can be started. This set can be different for each option. The option's
+policy $\pi$ defines the actions that should be taken for each state. The
+termination condition $\beta$ is used to decide if an option is finished, given
+that the agent arrived at a certain state.
 
 When an agent starts in state $s$, it can choose from all of the options $o \in
 O$ that have $s$ in its initiation set $I_o$. Then the option's policy $\pi$ is
@@ -171,34 +188,33 @@ This often means that the option has reached its subgoal, or a criterion is met
 that renders the option obsolete (e.g., its goal does not exist anymore).
 Afterwards, the agent chooses a new option that will be followed.
 
-\todo{Make more logical connections between paragraphs starting from here}
-
-Normally, an agent can never choose a new option in a state that is not in the
-termination set of any of the options. Some algorithms use \emph{interruption},
-which means they are designed to not follow an option until its stop criterion
-is met, but choose a new option every time step \cite{sutton1999between,
-precup2000temporal}. Using this method, an agent can choose a new option in any
-state that is present in the MDP, which can lead to better performance than
-without interruption.
-
 Using options in an MDP removes the Markov property for that process: the state
 information alone is no longer enough to predict an agent's actions, since the
 actions are now not only state-dependant, but dependant on what option the agent
 has chosen in the past as well. According to \cite{sutton1999between}, we can
 view the process as a \emph{semi-Markov decision process (SMDP)}
-\cite{duff1995reinforcement}, using options as actions of variable length. In
-this thesis, we will call the original action set of the MDP $A$, and the set of
-options $O$.
+\cite{duff1995reinforcement}, in which options are actions of variable length.
+In this thesis, we will call the original action set of the MDP $A$, and the set
+of options $O$.
 
-Typically, because an option can span over several actions, its reward is
-discounted. This means that rewards that lay further in the future are valued
-less than those that lay nearer. A reward is calculated for using an option from
-timestep $t$ to timestep $t+n$ with
+Normally, an agent can never choose a new option in a state that is not in the
+termination set of any of the options. Some algorithms use \emph{interruption},
+which means they are designed not to follow an option until its stop criterion
+is met, but choose a new option every time step \cite{sutton1999between,
+precup2000temporal}. Using this method, an agent can choose a new option in any
+state that is present in the MDP, which can lead to better performance than
+without interruption.
+
+Most options span over several actions. Their rewards are discounted over time.
+This means that rewards that lay further in the future are valued less than
+those that lay nearer. A reward $r_o$ for option $o$ is calculated for using an
+option from timestep $t$ to timestep $t+n$ with
 \begin{equation}
 	\label{eq:option-reward}
 	r_o = r_{t} + \gamma r_{t+1} + \gamma^2 r_{t+2} + \cdots + \gamma^n r_{t+n},
 \end{equation}
-where $\gamma$ is similar to Q-learning's discount parameter.
+where $\gamma$ is the discount factor, which indicates the importance of future
+states. 
 
 Normal actions can be treated as options as
 well.  An option for action $a \in A$ has a initiation set $I = S$, the policy
@@ -214,39 +230,36 @@ applying action $a$ to state $s$ and following the optimal policy afterwards. By
 learning Q-values for every action in every state, it can estimate an optimal
 policy. 
 
-The general idea of Q-learning is to incrementally save the reward from the MDP,
-in combination with the current Q-value of the state-action pair: the update
-function uses the reward and the maximum of the Q-values of the next state. By
-always using the maximum value of the next state as well, the Q-value function
-will eventually converge to a depiction of the maximum future reward for a
-state-action pair. More specifically, the update function for a state-action
-pair is
+The general idea of Q-learning is to incrementally save the combination of a
+reward and the current estimate of the Q-value of an action and game state.
+An agent starts in state $s$, takes action $a$ and arrives in state $s'$ with
+reward $r$.  The update function uses the reward and the maximum of the Q-values of the
+next state $s'$. By always using the maximum value of the next state, the Q-value
+function will eventually converge the maximum discounted future reward for a
+state-action pair. The update function for a state-action pair is denoted by 
 \begin{equation}
 	\label{eq:qlearning}
 	Q(s, a) \gets Q(s, a) + \alpha \left(r + \gamma \max_{a' \in A} Q(s', a') - Q(s, a)\right),
 \end{equation}
 where $r$ is the reward that is achieved by using action $a$ in state $s$,
 leading to state $s'$. The algorithm has two parameters: $\gamma$ is the
-discount factor, which indicates the importance of future states. $\alpha$ is the
-learning rate, which determines how quickly the Q-values are updated.
-Q-learning is shown to converge, even in problems with a stochastic transition
-function, if $\alpha$, $\alpha$ decreases over time. However, in practice it is
-often set to a small constant. The Q-table can be used to find the optimal
-policy by, for each state $s$, selecting the action $a$ that maximizes $Q(s,
-a)$. Because after each action only one state-action pair is being updated,
-Q-learning can take a long time to converge, but it is guaranteed to converge to
-the optimal policy, given that during exploration, each state-action pair is
-visited an infinite number of times.
+discount factor and $\alpha$ is the learning rate, which determines the
+magnitude of the Q-value updates.  Q-learning is shown to converge if $\alpha$
+decreases over time. However, in practice it is often set to a small constant.
+The Q-table can be used to find the optimal policy by, for each state $s \in S$,
+selecting the action $a \in A$ that maximizes $Q(s, a)$. Because after each action
+only one state-action pair is being updated, Q-learning can take a long time to
+converge. It is, however, guaranteed to converge to the optimal policy, given that
+during exploration each state-action pair is visited an infinite number of times.
 
 \section{SMDP Q-learning}
 \label{subsec:smdp-qlearning}
 When options were introduced, they were used in combination with Q-learning. In
 order to be able to compare our contribution to the Q-learning approach, we
-implement a variant of \emph{SMDP Q-learning} \cite{sutton1999between} for VGDL,
-based on the description made by Sutton et al. in section 3.2. In general, SMDP
-Q-learning estimates the transition function and expected rewards for using an
-option in a certain state, in order to find an optimal policy over the option
-set $O$.
+implement \emph{SMDP Q-learning} \cite{sutton1999between} for VGDL, based on the
+description made by Sutton et al. in section 3.2 of their paper. In general,
+SMDP Q-learning estimates the expected rewards for using an option in a certain
+state, in order to find an optimal policy over the option set $O$.
 
 Like traditional Q-learning, SMDP Q-learning estimates a value function. The
 option-value function contains the expected return $Q(s, o)$ of using an option
@@ -264,14 +277,13 @@ the cumulative and discounted option reward from Equation
 \ref{eq:option-reward}, and step size parameter $\alpha$ is similar to the
 learning rate parameter from traditional Q-learning.  The difference with
 Equation \ref{eq:qlearning} is that here we take the $k$\textsuperscript{th}
-power of $\gamma$. The function of this is that the algorithm needs to discount
-the future reward more for options that take more time. Using this method, an
-option that takes half the time, but has more than double the reward of another
-option gets preferred.
+power of $\gamma$, which penalizes options that take more actions. Hereby, the
+desired effect is reached that an option that takes half the time, but has more
+than double the reward of another option gets preferred over the other.
 
 Using the Q-table, an option policy can be constructed. A \emph{greedy policy}
 selects the option that maximizes the expected return $Q(s, o)$ for any state
-$s$ and option $o \in O$ with $s$ in its initiation set $I(s)$. When a Q-table
+$s \in S$ and option $o \in O$ with $s$ in its initiation set $I_o$. When a Q-table
 is fully converged, the greedy policy is the optimal policy\footnote{Note that
 it is optimal for the maximum achievable by using only the options in the option
 set $O$.} \cite{sutton1999between}. Exploration is often done by using an
@@ -287,33 +299,39 @@ algorithm's focus to exploiting the currently known feasible states.
 In this thesis, algorithms will be benchmarked on the general video game playing
 problem. Recent developments in this area include the \emph{video game
 description language (VGDL)} \cite{schaul2013video}, a framework in which a
-large number of games can be defined easily an accessed in a similar manner.
-VGDL aims to be a description language for games that is clear, human readable
-and unambiguous. Games are easy to parse and it is possible to automatically
-generate them. Using a VGDL framework, algorithms can access all the games in a
-similar manner, resulting in a fair method to compare their performances on
-several games.
+large number of games can be defined and accessed in a similar manner.
+VGDL aims to be a clear, human readable and unambiguous description language for
+games. Games are easy to parse and it is possible to automatically generate
+them. Using a VGDL framework, algorithms can access all the games in a similar
+manner, resulting in a method to compare their performances on several games.
 
 To define a game in VGDL, two files are required. Firstly, the game description
 should be made, which defines for each type of object what character in the
 level description it corresponds to, what it looks like in a game visualization,
-how it interacts with the rest of the game, and when it disappears from the
+how it interacts with the rest of the game and when it disappears from the
 game. Secondly, a level description file is needed, in which each character maps
 to an object in the game. The location in the file corresponds to its grid
 location in the game. By defining these two files, a wide spectrum of games
-can be created. A more extensive explanation of VGDL can be found in Chapter
-\ref{subsec:games}.
+can be created. A more extensive explanation and an example of a game in VGDL
+can be found in Section \ref{subsec:games}.
 
-The General Video Game AI competition provides many games written in VGDL.
+The General Video Game AI competition provides games written in VGDL.
 Furthermore, it provides a Java framework in which algorithms can be
-benchmarked, using a static set of rules. Algorithms are only allowed to
-observe the game information: score, game tick (timestep), the set of possible
-actions and information about if the game is over and if the player won; Avatar
+benchmarked using a static set of rules. Algorithms are only allowed to observe
+the game information: score, game tick (timestep), the set of possible actions
+and information about if the game is over and if the player won; avatar
 information: its position, orientation, speed and resources; and screen
 information: Which sprites are on the screen, including their location and the
 size (in pixels) of the level grid's blocks.
 
-The algorithm proposed in this thesis will be benchmarked on the GVGAI game
+Algorithms have a limited amount of time to plan their actions, during which
+they can access a simulator called the \emph{forward model}. The forward model
+acts as a black box that returns a new state when an algorithm applies an
+action. The actions that are used on the forward model do not influence the real
+game score. Before the simulation time runs out, the algorithm should return an
+action to apply to the real game.
+
+The algorithms proposed in this thesis will be benchmarked on the GVGAI game
 sets, using the rules of the competition. This means that the algorithms do not
 have any access to the game and level descriptions. When an algorithms starts
 playing a game, it typically knows nothing of the game, except for the

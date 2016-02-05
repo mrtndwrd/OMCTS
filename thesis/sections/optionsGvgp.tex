@@ -1,6 +1,6 @@
 \chapter{Options for General Video Game Playing}
 
-Options have previously mostly been used in specific cases and for relatively
+In the past, options have mainly been used in specific cases and for relatively
 simple problems. To specify the problem domain, this chapter will cover how a
 game is defined in VGDL and how it is observed by the game playing algorithm.
 Furthermore, we will explain what options mean in the context of general video
@@ -11,26 +11,25 @@ on the domain of general video game playing.
 \section{Toy Problem}
 
 As described in the background section, the foundation of a game lies in two
-specifications. The game dynamics, and levels. The game dynamics are typically
-the same for each level and do not change over the course of a game. Levels
-define the layout of the game. Each level is different and typically the last
-level of a game is harder than the first level.
+specifications: the game's dynamics and its levels. A game has several levels,
+each of which is different.  Typically the last level of a game is harder than
+the first.  The game dynamics are the same for each level of a game. 
 
-In VGDL, the game description defines the game dynamics. Each game has one game
+In VGDL the game description defines the game dynamics. Each game has one game
 description file, which describes the game sprites and their interaction with
 each other. The levels are defined in separate level files and define the layout
 of the screen.
 
-In this section, we introduce our test game \emph{prey}. We created this game
+In this section we introduce our test game \emph{prey}. We created this game
 for testing the learning capacities of the algorithm. Furthermore, this section
 contains an in-depth explanation of the VGDL. The game aims to be simple to
 understand and easy to win. It should be possible to see any improvement an
-algorithm could achieve as well. We chose the \emph{predator \& prey} game, in
-which the player is a predator, that should catch its prey (an NPC) by walking
-into it. We decided to have three types of prey, one that never moves, one that
-moves once in 10 turns and one that moves once in 2 turns. This section
-describes how the game is made in VGDL and how a GVGAI agent can interact with
-it.
+algorithm could achieve as well. The game is based on the \emph{predator \&
+prey} game, in which the player is a predator, that should catch its prey (an
+NPC) by walking into it. We decided to have three types of prey, one that never
+moves, one that moves once in 10 turns and one that moves once in 2 turns. This
+section describes how the game is made in VGDL and how a GVGAI agent can
+interact with it.
 
 \lstinputlisting[basicstyle=\footnotesize, frame=tb, xleftmargin=.1\textwidth, %
 xrightmargin=.1\textwidth, caption=prey.txt, label=lst:preytxt, float=t]%
@@ -118,12 +117,13 @@ world as defined by the level description. It knows where all the sprites are,
 but it does not know in advance how these sprites interact. The other relevant
 observations for this game are the avatar's direction and speed and the game
 tick. When an algorithm plays the game, it has a limited amount of time to
-choose an action, based on the observation. It can access a \emph{forward
-model} that simulates the next state for applying a certain action. The forward
-model can be polled infinitely, but an action has to be returned by the
-algorithm within the action time.
+choose an action, based on the observation. It can access the \emph{forward
+model} that simulates the next state for applying an action. The forward model
+can be polled indefinitely, but an action has to be returned by the algorithm
+within the action time.
 
 \section{Option Set}
+\label{subsec:option-set}
 Human game players consider subgoals when they are playing a game. Some of these
 subgoals are game-independent. For example, in each game where a player has a
 movable avatar the player can decide it wants to go somewhere or avoid
@@ -171,7 +171,7 @@ designed and will be used in the experiments in Chapter \ref{sec:experiments}:
 				the avatar to the goal sprite is smaller than 3 actions and all the states
 				$s_{t+n}$ that do not contain the goal sprite.
 			\
-			\item Policy: apply the A Star action that leads to the goal sprite.
+			\item Policy: apply the action that leads to the goal sprite.
 		\end{itemize}
 	\item \texttt{GoToMovableOption} makes the agent walk towards a
 		movable until its location is the same as that of the movable
@@ -185,7 +185,7 @@ designed and will be used in the experiments in Chapter \ref{sec:experiments}:
 			\item Termination set: any state $s_{t+n}$ in which the goal sprite
 				location is the same as the avatar location and all the states
 				$s_{t+n}$ that do not contain the goal sprite.
-			\item Policy: apply the A Star action that leads to the goal sprite.
+			\item Policy: apply the action that leads to the goal sprite.
 		\end{itemize}
 	\item \texttt{GoToNearestSpriteOfType} makes the agent walk to the nearest
 		sprite of a specified type
@@ -198,7 +198,7 @@ designed and will be used in the experiments in Chapter \ref{sec:experiments}:
 				avatar is the same as a sprite with a type corresponding to
 				the subtype, or any state that has no sprites of this option's
 				subtype.
-			\item Policy: apply the A Star action that leads to the nearest
+			\item Policy: apply the action that leads to the nearest
 				sprite of this option's subtype.
 		\end{itemize}
 	\item \texttt{GoToPositionOption} makes the agent walk to a specific
@@ -212,7 +212,7 @@ designed and will be used in the experiments in Chapter \ref{sec:experiments}:
 				sprite has to be in the observation grid.
 			\item Termination set: any state $s_{t+n}$ in which the avatar
 				location is the same as the goal location.
-			\item Policy: apply the A Star action that leads to the goal
+			\item Policy: apply the action that leads to the goal
 				location.
 		\end{itemize}
 	\item \texttt{WaitAndShootOption} waits until an NPC is in a specific location and
@@ -243,8 +243,8 @@ contains three different sprite types (excluding the avatar and walls);
 monsters, a key and a portal. The first level contains three monsters, one key
 and one portal, and the aim of the game is to collect the key and walk towards
 the portal without being killed by the monsters. The score is increased by 1 if
-a monster is killed (i.e., its sprite is on the same location as the sword
-sprite) if the key is picked up, and when the game is won.
+a monster is killed ,i.e., its sprite is on the same location as the sword
+sprite, if the key is picked up, or when the game is won.
 \texttt{GoToMovableOption} and \texttt{GoNearMovableOptions} are created for
 each of the three monsters and for the key. A \texttt{GoToPositionOption} is
 created for the portal.  One \texttt{GoToNearestSpriteOfType} is created per
@@ -265,7 +265,7 @@ options can not lead to winning the game, it can use the \texttt{ActionOptions},
 that function the same as normal actions.
 
 The \texttt{GoTo\ldots} and \texttt{GoNear\ldots} options utilize an adaptation
-of the A Star algorithm to plan their routes. An adaptation is needed, because
+of the A Star algorithm to plan their routes \cite{hart1968formal}. An adaptation is needed, because
 at the beginning of the game there is no knowledge of which sprites are
 traversable by the avatar and which are not. Therefore, during every move that
 is simulated by the agent, the A Star module has to update its beliefs about the
@@ -293,17 +293,16 @@ This option set is used by the SMDP Q-learning algorithm. The algorithm was
 adjusted to work as an anytime algorithm in the GVGAI competition framework.
 Our implementation uses interruption when applying actions to the game, but not
 during planning. This way, the algorithm can identify options that are good
-during planning, but will not follow then in dangerous situations that have not
-been encountered during planning. This is advantageous in our situation, where
-there is only a short amount of planning time before an action has to be chosen.
-Furthermore, because of the time limitation we added a maximum search depth $d$
-to the algorithm that limits exploration to the direct surroundings of a state.
+during planning, but will not follow them in dangerous situations that have not
+been encountered during planning. Because of the time limitation we added a
+maximum search depth $d$ to the algorithm that limits exploration to the direct
+surroundings of a state.
 
 \begin{algorithm}[h]
 	\caption{$\mathsf{SMDP~Q-learning}(Q, O, s, t, d, o)$}
 	\label{alg:ql}
 	\begin{algorithmic}[1]
-		\State $\mathbf{i} \gets \emptyset$ \Comment{$i_o$ counts the number of steps an option has been used}
+		\State $\mathbf{i} \gets \emptyset$ \Comment{$i_o$ counts how many steps option $o$ has been used}
 		\While {$time\_taken < t$} \label{alg:ql:smainloop}
 			\State $s' \gets s$ \label{alg:ql:copys} \Comment{Copy the initial state}
 			\If{$s' \in \beta(o)$} \label{alg:ql:sno} \Comment{if option stops in state $s'$}
@@ -315,13 +314,13 @@ to the algorithm that limits exploration to the direct surroundings of a state.
 			\For{$depth$ \textbf{in} $\left\{ 0 \ldots d \right\} $} \label{alg:ql:sfor}
 				\State $a \gets \mathsf{get\_action}(o, s')$ 
 					\Comment{get action from $o$}
-				\State $(s', r) \gets \mathsf{apply\_action}(s', a)$ \label{alg:ql:apply}
+				\State $(s', r) \gets \mathsf{simulate\_action}(s', a)$ \label{alg:ql:apply}
 					\Comment{set $s'$ to new state, get reward $r$}
 				\State $\mathsf{update\_option}(Q, o, s', r, \mathbf{i})$ 
 					\Comment{Algorithm \ref{alg:update}}
 				\If{$s' \in \beta(o)$} 
 					\Comment{Same as lines \ref{alg:ql:sno} to \ref{alg:ql:eno}}
-					\State $o \gets \mathsf{epsilon\_greedy\_option}(s', Q, O)$ 
+					\State $o \gets \mathsf{epsilon\_greedy\_option}(s', Q, O)$ \label{alg:ql:epsgreedy}
 					\State $i_o \gets 0$
 				\EndIf
 			\EndFor \label{alg:ql:efor}
@@ -344,46 +343,49 @@ to the algorithm that limits exploration to the direct surroundings of a state.
 \end{algorithm}
 
 Our implementation of the algorithm is formalized in Algorithm \ref{alg:ql}. We
-initialize Q-learning with the table $Q$ (empty in the first game), a predefined
-option set $O$, the current state $s$, a time limit $t$, the maximum search
-depth $d$ and the currently followed option $o$ (for the first iteration of a
-game, initialize $o$ to any finished option). The algorithm starts with a loop
-that keeps running as long as the maximum time $t$ is not surpassed, from line
-\ref{alg:ql:smainloop} to \ref{alg:ql:emainloop}. In line \ref{alg:ql:copys},
-the initial state $s$ is copied to $s'$, for mutation in the inner loop. Then,
-in lines \ref{alg:ql:sno} to \ref{alg:ql:eno}, the algorithm checks if a new
-option is needed. If the currently used option $o$ is finished, meaning that
-state $s'$ is in its termination set $\beta(o)$, a new option is chosen with an
-epsilon greedy policy. 
+initialize Q-learning with the table $Q$ (0 for all states in the first game), a
+predefined option set $O$, the current state $s$, a time limit $t$, the maximum
+search depth $d$ and the currently followed option $o$ (for the first iteration
+of a game, initialize $o$ to any finished option). The algorithm starts with a
+loop that keeps running as long as the maximum time $t$ is not surpassed, from
+line \ref{alg:ql:smainloop} to \ref{alg:ql:emainloop}. In line
+\ref{alg:ql:copys}, the initial state $s$ is copied to $s'$ for mutation in the
+inner loop. Then, in lines \ref{alg:ql:sno} to \ref{alg:ql:eno}, the algorithm
+checks if a new option is needed. If the currently used option $o$ is finished,
+meaning that state $s'$ is in its termination set $\beta(o)$, a new option is
+chosen with an epsilon greedy policy. 
 
 Then, from lines \ref{alg:ql:sfor} to \ref{alg:ql:efor} the option provides an
-action, which is applied to the simulator in line \ref{alg:ql:apply}.
-Afterwards, the option's return, and possibly the Q-table, are updated by the
-function \textsf{update\_option} as displayed in Algorithm \ref{alg:update}.
-Finally, if the option is finished, a new option is selected with the
-epsilon greedy policy. The inner loop keeps restarting until a maximum depth is
-reached, after which the outer loop restarts from the initial state.
+action that is applied to the simulator in line \ref{alg:ql:apply} by using the
+function \textsf{simulate\_action}.  Afterwards, the function
+\textsf{update\_option}, displayed in Algorithm \ref{alg:update}, updates the
+option's return.  If the option is finished it updates the Q-table as well,
+after which a new option is selected by the epsilon greedy policy in line
+\ref{alg:ql:epsgreedy} of Algorithm \ref{alg:ql}. The inner loop keeps
+restarting until a maximum depth is reached, after which the outer loop restarts
+from the initial state.
 
 Algorithm \ref{alg:update} describes how our \textsf{update\_option}
 function works: first the step counter $i_o$ is increased. Secondly, the
 cumulative discounted reward is altered. If the option is finished, $Q$ is
 updated using Equation \ref{eq:smdp-qlearning} (note that in the equation the
-cumulative reward $o_r$ is $r$, and step counter $i_o$ is $k$). Note that by
-keeping the discounted option value, we do not have to save a reward history
-for the options.
+cumulative reward $o_r$ is $r$ and step counter $i_o$ is $k$). By maintaining
+the discounted option value, we do not have to save a reward history for the
+options.
 
-By repeatedly applying an epsilon greedy option's actions to the game, the
-Q-values of promising options should quickly converge to indicate which option
-should be chosen in which game state. When the time runs out, the algorithm
-returns the action chosen by the greedy option, which is the best option for
-state $s$ at that moment. After the action has been applied, the algorithm is
-restarted with the new state. Chapter \ref{sec:experiments} describes the
-experiments we have done with this implementation of SMDP Q-learning.
+By repeatedly applying an option's actions to the game, the Q-values of these
+options converge, indicating which option is more viable for a state.
+When the time runs out, the algorithm chooses the best option for the input
+state $s$ according to the Q-table and returns its action. After the action
+has been applied to the game, the algorithm is restarted with the new state.
+Section \ref{subsec:experiments-smdp-qlearning} describes the experiments we
+have done with this implementation of SMDP Q-learning.
 
 SMDP Q-learning is a robust algorithm that is theoretically able to learn the
 best option for each of the states in a game. The problem, however, is that the
-algorithm has a slow learning process. Furthermore, Q-learning requires that the
-algorithm saves all the states that were visited, which means that the Q-table
-can quickly grow to a size that is infeasible. Therefore, we propose a new
-algorithm that combines the advantages of using options with using Monte Carlo
-tree search.
+algorithm has a slow learning process, which means that it will take several
+game plays for SMDP Q-learning to find a good approximation of the Q-table.
+Furthermore, Q-learning requires that the algorithm saves all the state-option
+pairs that were visited, which means that the Q-table can quickly grow to a size
+that is infeasible. Therefore, we propose a new algorithm that combines the
+advantages of using options with Monte Carlo tree search.

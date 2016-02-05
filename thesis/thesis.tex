@@ -29,8 +29,8 @@
 \author{\href{mailto:mrtndwrd@gmail.com}{Maarten de Waard}}
 \birthdate{November 14\textsuperscript{th}, 1989}
 \birthplace{Alkmaar, the Netherlands}
-\defensedate{February 24\textsuperscript{th}, 2016}  
-\supervisor{\href{mailto:S.C.J.Bakkes@uva.com}{dr. ing. Sander Bakkes}}
+\defensedate{February 22\textsuperscript{nd}, 2016}  
+\supervisor{\href{mailto:SanderBakkes@gmailcom}{dr.\ ing.\ Sander Bakkes}}
 \supervisor{\href{mailto:D.M.Roijers@uva.nl}{Diederik Roijers, MSc.}}
 \committeemember{\href{mailto:M.W.VanSomeren@uva.nl}{dr.\ Maarten van Someren}}
 \committeemember{\href{mailto:P.H.Rodenburg@uva.nl}{dr.\ Piet Rodenburg}}
@@ -49,30 +49,31 @@
 
 \begin{abstract}
 	General video game playing is a popular research area in artificial
-	intelligence, because AI algorithms that successfully play many different
-	games, are often capable of solving other complex problems as well.  Monte
-	Carlo Tree Search (MCTS) is a popular AI algorithm that has been used for
+	intelligence, since AI algorithms that successfully play many different
+	games are often capable of solving other complex problems as well.  ``Monte
+	Carlo Tree Search'' (MCTS) is a popular AI algorithm that has been used for
 	general video game playing, as well as many other types of decision
-	problems. Often, in the domain of general video game AI, no prior knowledge
-	is available to the algorithms, even though many games have similar
-	mechanics. Furthermore, the MCTS algorithm always plans over actions and
-	does not incorporate any high level planning, as one would expect from a
-	human player. This thesis introduces a new algorithm called ``Option Monte
-	Carlo Tree Search (O-MCTS)''. It introduces general video game knowledge and
-	high level planning in the form of options, which are action sequences aimed
-	at achieving a specific subgoal. Furthermore, we introduce ``Option Learning
-	MCTS (OL-MCTS)'', which applies a progressive widening technique to the
-	expected returns of options for specific games.  As a comparison we
-	implement ``SMDP Q-learning'', the learning algorithm that is proposed in
-	combination with the options framework.  The new algorithms are compared to
-	MCTS and SMDP Q-learning on a diverse set of twenty-eight games from the
-	GVGAI competition. Our results indicate that by using MCTS's efficient tree
-	searching technique on options, O-MCTS performs better than SMDP Q-learning
-	on all games. It outperforms MCTS on most of them, especially those in which
-	a certain subgoal has to be reached before the game can be won.  Lastly, we
-	show that OL-MCTS improves its performance on specific games by learning
-	expected values for options and moving a bias to higher valued options.
-\end{abstract}
+	problems.  The MCTS algorithm always plans over actions and does not
+	incorporate any high level planning, as one would expect from a human
+	player. Furthermore, although many games have similar game dynamics, often
+	no prior knowledge is available to general video game playing algorithms.
+	In this thesis, we introduce a new algorithm called ``Option Monte Carlo
+	Tree Search'' (O-MCTS). It offers general video game knowledge and high
+	level planning in the form of options, which are action sequences aimed at
+	achieving a specific subgoal. Additionally, we introduce ``Option Learning
+	MCTS'' (OL-MCTS), which applies a progressive widening technique to the
+	expected returns of options in order to focus exploration on fruitful parts
+	of the search tree. Furthermore, we offer an implementation of ``SMDP
+	Q-learning'' for general video game playing, which is the algorithm
+	that is traditionally used in combination with options. Our algorithms
+	are compared to MCTS and SMDP Q-learning on a diverse set of twenty-eight
+	games from the GVGAI competition. Our results indicate that by using MCTS's
+	efficient tree searching technique on options, O-MCTS performs better than
+	SMDP Q-learning on all games. It outperforms MCTS on most of them,
+	especially those in which a certain subgoal has to be reached before the
+	game can be won.  Lastly, we show that OL-MCTS improves its performance on
+	specific games by learning expected values for options and moving a bias to
+	higher valued options.  \end{abstract}
 
 \tableofcontents
 

@@ -1,31 +1,26 @@
 \chapter{O-MCTS}
 \label{sec:planning}
 
-%\todo{hieronder: Dit is onze contributie, ``a novel algorithm'', ``key
-%insight'', ``main objective''}
-%\todo{Wat gaan we doen: herhalen main objective, teruggrijpen op background en
-%introductie}
-
-In order to simulate the use of subgoals, we will introduce planning over
+In order to simulate the use of subgoals we will introduce planning over
 options in MCTS, instead of SMDP Q-learning. In this chapter we introduce
 \emph{option Monte Carlo tree search (O-MCTS)}, a novel algorithm that plans
 over options using MCTS, enabling the use of options in complex MDPs. The
-resulting algorithm achieves higher scores on complex games that have several
-sub-goals than traditional MCTS and SMDP Q-learning.
+resulting algorithm achieves higher scores than MCTS and SMDP Q-learning on
+complex games that have several subgoals.
 
 Generally, O-MCTS works as follows: like in MCTS, a tree of states is
-built by simulating game plays. Instead of actions, the algorithm chooses
+built by simulating game plays. Instead of actions the algorithm chooses
 options. When an option is chosen, the actions returned by its policy are used
-to build the tree. When an option is finished, a new option has to be chosen.
-This enables the tree to branch on that point. This chapter describes in detail
-how this process works.
+to build the tree. When an option is finished a new option has to be chosen,
+which enables the tree to branch on that point. Since traditional MCTS branches
+on each action, whereas O-MCTS only branches when an option is finished, deeper
+search trees can be built in the same amount of time. This chapter describes
+how the process works in more detail.
 
-%\todo{How to combine options with MCTS - what problems (challenges) occur?}
-In normal MCTS, an action is represented by a connection from a state to a next
-state. An option spans over several actions, which influences the tree search
-method. Furthermore, when many options are defined, the branching factor of the
-algorithm increases significantly. This problem will be addressed in the next
-chapter, where we will incorporate learning in the algorithm.
+%An option spans over several actions, which influences the tree search
+%method. Furthermore, when many options are defined, the branching factor of the
+%algorithm increases significantly. This problem will be addressed in the next
+%chapter, where we will incorporate learning in the algorithm.
 
 \begin{figure}
 	\centering
@@ -36,26 +31,27 @@ leading to a blue box is an action chosen by the option represented by that box.
 	\label{fig:omcts-tree}
 \end{figure}
 
-Traditionally, when a node is at depth $n$, we know that $n$ actions have been
-chosen to arrive at that node and the time in that node is $t+n$. If nodes in
-O-MCTS would represent options and connections would represent option selection,
-this property would be lost, complicating the comparison of different nodes at
-the same level in the tree. Therefore, we chose to keep the tree representation
-the same: a node represents a state, a connection represents an action. An
-option spans several actions and therefore several nodes in the search tree, as
-denoted in Figure \ref{fig:omcts-tree}. We introduce a change in the expansion
-and selection strategies, which select options, rather than actions. When a node
-has an unfinished option, the next node will be created using an action selected
-by that option. When a node contains a finished option (meaning that the current
-state satisfies its termination condition $\beta$), a new option can be chosen
-by the expansion or selection strategy.
+In normal MCTS, an action is represented by a connection from a state to the
+next, so when a node is at depth $n$, we know that $n$ actions have been chosen
+to arrive at that node and the time in that node is $t+n$. If nodes in O-MCTS
+would represent options and connections would represent option selection, this
+property would be lost, because options span over several actions. This
+complicates the comparison of different nodes at the same level in the tree.
+Therefore, we chose to keep the tree representation the same: a node represents
+a state, a connection represents an action. An option spans several actions and
+therefore several nodes in the search tree, as denoted in Figure
+\ref{fig:omcts-tree}. We introduce a change in the expansion and selection
+strategies, which select options rather than actions. When a node has an
+unfinished option, the next node will be created using an action selected by
+that option. When a node contains a finished option (the current state satisfies
+its termination condition $\beta$), a new option can be chosen by the expansion
+or selection strategy.
 
 Methods exist for automatically generating options \cite{castro2012automatic},
-but these are only used on a simple room navigation problem and generating the
+but these have only been used on the room navigation problem and generating the
 options would take learning time which the GVGAI framework does not provide.
-Therefore, in this thesis options are hand defined. We created a set of options
-most of which use the A Star algorithm to navigate the agent towards a specific
-game sprite or location \cite{hart1968formal}.
+Therefore, in this thesis O-MCTS uses the option set that was proposed in
+Section \ref{subsec:option-set}.
 
 \begin{algorithm}[h]
 	\caption{$\mathsf{O-MCTS}(O, r, t, d)$}
@@ -71,7 +67,7 @@ game sprite or location \cite{hart1968formal}.
 				\Else
 					\State $\mathbf{p}_s \gets \{o_s\}$ \Comment{no new option can be selected}
 				\EndIf \label{alg:omcts:ep}
-				\State $\mathbf{m} \gets \cup_o (o_{s \in \mathbf{c}_s})$ \Comment{set $\mathbf{m}$ to expanded options}
+				\State $\mathbf{m} \gets \cup_o (o_{s \in \mathbf{c}_s})$ \Comment{set $\mathbf{m}$ to expanded options} \label{alg:omcts:m}
 				\If{$\mathbf{p}_s = \mathbf{m}$} \Comment{if all options are expanded}
 					\State $s' \gets \max_{c \in \mathbf{c}_s} \mathsf{uct}(s, c)$ \label{alg:omcts:uct} 
 						\Comment{child from Eq. \ref{eq:uct}}
@@ -99,39 +95,39 @@ game sprite or location \cite{hart1968formal}.
 We describe O-MCTS in Algorithm \ref{alg:omcts}. It is invoked with a set of
 options $O$, a root node $r$, a maximum runtime $t$ in milliseconds and a
 maximum search depth $d$. Two variables are instantiated. $C_s$ is a set of
-sets, containing the set of child nodes for each node and $\mathbf{o}$ contains
-which option is followed for each node. The main loop starts at line
+sets, containing the set of child nodes for each node. The set $\mathbf{o}$
+contains which option is followed for each node. The main loop starts at line
 \ref{alg:omcts:mainloop}, which keeps the algorithm running until time runs out.
 The inner loop runs until a node $s$ is reached that meets a stop criterion
 defined by the function \textsf{stop}, or a node is expanded into a new node.
 In lines \ref{alg:omcts:sp} until \ref{alg:omcts:ep}, $\mathbf{p}_s$ is set to
 all options that are available in $s$. If an option has not finished,
 $\mathbf{p}_s$ contains only the current option. Otherwise, it contains all the
-options $o$ that have state $s$ in their initiation set $I_o$. For example, when
-the agent is playing \textit{zelda} (see Figure \ref{fig:zelda} and the current state $s$
-shows no NPCs on screen. If there is an option $o$ that goes to NPCs, $I_o$ will
-not contain state $s$, because there are no NPCs on screen, rendering $o$
-useless in state $s$. $\mathbf{p}_s$ will thus not contain option $o$, since $s$
-is not in $o$'s initiation set $I_o$.
+options $o$ that have state $s$ in their initiation set $I_o$. For example,
+the agent is playing \textit{zelda} (see Figure \ref{fig:zelda}) and the current
+state $s$ shows no NPCs on screen. If $o$ is the \textit{AvoidNearestNpcOption},
+$I_o$ will not contain state $s$, because there are no NPCs on screen, rendering
+$o$ useless in state $s$. $\mathbf{p}_s$ will thus not contain option $o$.
 
-Then, the four phases of Figure \ref{fig:mcts} are implemented as follows.  If
-the set $\mathbf{p}_s$ is the same as the set of options in the children of $s$,
-$m$, i.e. all options have been explored at least once in node $s$, a new node
-$s'$ is \emph{selected} by \textsf{uct} In line \ref{alg:omcts:ss}, $s$ is
+The four phases of Figure \ref{fig:mcts} are implemented as follows.  In line
+\ref{alg:omcts:m}, $\mathbf{m}$ is set to the set of options chosen in the
+children of state $s$. If $\mathbf{p}_s$ is the same set as $\mathbf{m}$, i.e.,
+all possible options have been explored at least once in node $s$, a new node
+$s'$ is \emph{selected} by \textsf{uct}. In line \ref{alg:omcts:ss}, $s$ is
 instantiated with the new node $s'$, continuing the inner loop using this node.
-If some options are unexplored in node $s$, it is \emph{expanded} with a random,
-currently unexplored option by lines \ref{alg:omcts:sexpand} to
-\ref{alg:omcts:eexpand}. After expansion or when the stop criterion is reached,
-the tree selection loop is stopped and a \emph{rollout} is done, resulting in
+Else, some options are apparently unexplored in node $s$. It is \emph{expanded}
+with a random, currently unexplored option by lines \ref{alg:omcts:sexpand} to
+\ref{alg:omcts:eexpand}. After expansion or when the stop criterion is met,
+the inner loop is stopped and a \emph{rollout} is done, resulting in
 score difference $\delta$. This score difference is \emph{backed up} to the
 parent nodes of $s$ using the backup function, after which the tree traversal
 restarts with the root node $r$.
 
+\todo{Continue here:}
 A couple of functions are used by Algorithm \ref{alg:omcts}. The function
 \textsf{stop} returns true when either the game ends in state $s$ or the maximum
 depth is reached in $s$. The function \textsf{get\_action} lets option $o$
-choose the best action for the state in node $s$, \textsf{apply\_action} applies
-the action to state $s$ in the simulator, returning the resulting state.The
+choose the best action for the state in node $s$, The
 function \textsf{expand} creates a new child node for node $s$ with option $o$.
 Typically, the \textsf{rollout} function chooses random actions until
 \textsf{stop} returns true, after which the difference in score achieved by the

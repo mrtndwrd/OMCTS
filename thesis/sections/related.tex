@@ -14,17 +14,19 @@ network that has the last four pixel frames of a game as input and tries to
 predict the return of each action. A good policy can then be created by
 selecting the action with the highest return. This is one of the first
 algorithms that successfully combines neural network learning with reinforcement
-learning. In this case, however, it was not desirable to implement DQN, because
-in our testing framework, an algorithm has 40 milliseconds to choose an action,
-even when playing a game for the first time. DQN has to train for several days,
-before a good policy can be found.  Furthermore, it does not use a forward
-model, but always applies actions directly to the game in order to learn.
+learning. In this case, however, it was not desirable to implement DQN because
+of the limitations proposed by our testing framework. The GVGAI competition
+framework currently works best for planning algorithms, that use the forward
+model to quickly find good policies. Learning over the course of several games
+is difficult. In contrast, DQN typically trains on one game for several days
+before a good policy is found and does not utilize the forward model, but always
+applies actions directly to the game in order to learn.
 
-Although learning is currently not a goal in the GVGAI competition and not
-supported by the rules, there are results showing that several types of learning
-algorithms can improve their scores on many game plays, using a simple state
-representation \cite{samothrakis2015neuroevolution}. Their features consist
-of: 
+There are, however, examples of other learning algorithms that have been successfully
+implemented in the GVGAI framework. These 
+algorithms can improve their scores after playing a game for several times,
+using a simple state representation \cite{samothrakis2015neuroevolution}. Their
+features consist of: 
 \begin{itemize}%[noitemsep]
 	\item the game score, 
 	\item the game tick,
@@ -39,33 +41,32 @@ The results of the paper show that the algorithms are capable of learning in the
 course of 1000 game plays of the first level of each game. It has to be noted
 that no results of how many times the algorithms \emph{win} the game are
 reported and that it seems (looking at the score that is achieved) that many of
-the games are actually lost most of the times. Furthermore, the learning
-algorithms proposed in this thesis will focus more on early results than on long
-term learning.
+the games are actually lost most of the times. The learning algorithms proposed
+in this thesis will focus more on early results than on long term learning.
 
 An alternative tree search algorithm is PUMA, which applies forward search to
-options (referred to as macro-actions) and works on POMDPs.  PUMA automatically
-generates goal-oriented MDPs for specific subgoals, the advantage of which is
-that using this method, effective options can be generated without requiring any
-prior knowledge of the (PO)MDP. The disadvantage is that this takes a lot of
-computation time and thus would not work in the GVGAI framework, where only 40
-milliseconds of computation time is allowed between actions. Options generated
-for one game, would not necessarily be transferable to other games, meaning that
-option generation would have to be done prior to every game that the algorithm
-plays. Furthermore PUMA has to find out the optimal length per macro-action,
-whereas the algorithms proposed in this thesis can use options of variable
-length with starting an stopping conditions.
+options (referred to as macro-actions) and works on POMDPs, which means it does
+not restrict an MDP to be fully observable.  PUMA automatically generates
+goal-oriented MDPs for specific subgoals. The advantage of this is that
+effective options can be generated without requiring any prior knowledge of the
+(PO)MDP. The disadvantage is that this takes a lot of computation time and thus
+would not work in the GVGAI framework, in which only a limited amount of
+computation time is allowed between actions. Options generated for one game,
+would not necessarily be transferable to other games, meaning that option
+generation would have to be done prior to every game that the algorithm plays.
+Furthermore, PUMA has to find out the optimal length per macro-action, whereas
+the algorithms proposed in this thesis can use options of variable length.
 
 Another algorithm that uses MCTS with macro actions is called Purofvio.
 Purofvio plans over macro-actions which, in this case, are defined as repeating
 one action for a fixed number of times. No more complex options are defined.
-Generally, when executing an option, Purofvio executes only the actions chosen
-by that option, reducing the branching of MCTS. The algorithm is constructed for
-the physical traveling salesperson problem, in which (like GVGAI) the action
-time is set to 40 milliseconds. An important feature of this algorithm is that it can use
-the time budget of several actions to compute which macro-action to choose next.
-This is possible, because when a macro-action has been chosen, it is not
-reconsidered. The paper notes that their options must always be of the same
-size, because they found that otherwise MCTS seems to favor options with a
-longer time span over shorter options. It is suggested that Purofvio could work
-on other games as well, but this has not been shown.
+The algorithm is constructed for the physical traveling salesperson problem,
+which offers the same type of framework as the GVGAI competition: a simulator is
+available during limited action time, after which an action has to be returned.
+An important feature of this algorithm is that it can use the time budget of
+several actions to compute which macro-action to choose next.  This is possible
+because a macro-action is not reconsidered after it has been chosen. The paper
+notes that their options must always be of the same length, because they found
+that otherwise MCTS seems to favor options with a longer time span over shorter
+options. It is suggested that Purofvio could work on other games as well, but
+this has not been shown.
