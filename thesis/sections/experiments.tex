@@ -216,7 +216,7 @@ all the following experiments on this game set, each algorithm plays each of the
 In this section, the SMDP Q-learning implementation that was proposed in chapter
 \ref{subsec:smdp-qlearning-gvgp} is tested. Q-learning's first implementation
 requirement is a serialization of the state space.  Furthermore, to prevent the
-Q-table to become too big, we apply a state space reduction similar to that of
+Q-table to become too big we apply a state space reduction similar to that of
 other GVGAI learning algorithms \cite{samothrakis2015neuroevolution}.  The
 following values are saved:
 
@@ -236,7 +236,8 @@ following values are saved:
 
 Although this representation loses information about the map and the grid
 location of the avatar, it enables the algorithm to keep a smaller and more
-generalized Q-table and as a result work on more games without running out of
+generalized Q-table. As a result, it can work on more games without running out
+of
 memory.
 
 \begin{figure}
@@ -254,18 +255,18 @@ memory.
 	\label{fig:qlearning}
 \end{figure}
 
-In the first experiment, as a proof of concept of our implementation of SMDP
-Q-learning with our option set and state space reduction, we apply it to the
+The first experiment is a proof of concept of our implementation of SMDP
+Q-learning with our option set and state space reduction. We apply the algorithm to the
 first level of the toy problem, \textit{prey}. The results can be seen in figure
 \ref{fig:qlearning}. We can see that the algorithm wins consistently starting
-from the fifth game and that the time it takes to win converges to 6, which is
-the least number of steps possible to reach the prey.  We can conclude that it
+from the fifth game The time it takes to win converges to 6, which is
+the least number of steps possible to reach the prey. We can conclude that it
 wins consistently by applying the correct options. This indicates that the
 values for the Q-table converge to their optima. Unfortunately, when applied to
 the second level of \textit{prey}, which requires a more complex and longer
-action sequence, SMDP is not able to find a winning policy in the first 500
-games, after which its Q-table becomes too large to load in the initialization
-time and the algorithm is disqualified.
+action sequence, SMDP Q-learning is not able to find a winning policy in the
+first 500 games, after which its Q-table becomes too large to load in the
+initialization time and the algorithm is disqualified.
 
 \begin{figure}
 	\centering

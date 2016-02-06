@@ -84,19 +84,19 @@ actions (up, right, down, left). The prey has three instantiations, all of the
 type \texttt{RandomNPC}, which is an NPC that moves about in random directions:
 the \texttt{inactivePrey}, which only moves every 3000 steps (which is more than
 the timeout explained shortly, so it never moves); the \texttt{slowPrey} which
-moves once every 10 steps, and the \texttt{fastPrey} which moves once every 2
+moves once every 10 steps and the \texttt{fastPrey} which moves once every 2
 steps.  By default, the \texttt{MovingAvatar} can move once in each time step.
 
 Lines 10 to 14 describe the level mapping. These characters can be used in the
 level description files, to show where the sprites spawn. 
 
 In the interaction set, Line 17 means that if the prey walks into the avatar (or
-vice versa) this will kill the prey, and the player will get a score increase of
+vice versa) this will kill the prey and the player will get a score increase of
 one point. Line 18 dictates that no \texttt{movable} sprite can walk through
 walls.
 
 Lastly, in the termination set, line 21 shows that the player wins when there
-are no more sprites of the type \texttt{prey}, and line 22 shows that the player
+are no more sprites of the type \texttt{prey} and line 22 shows that the player
 loses after 100 time steps.
 
 Listing \ref{lst:prey1} shows a simple level description. This level is
@@ -241,14 +241,14 @@ game. For each sprite, an option instance of its corresponding subtype is
 created. For example, the game \textit{zelda}, as seen in Figure \ref{fig:zelda},
 contains three different sprite types (excluding the avatar and walls);
 monsters, a key and a portal. The first level contains three monsters, one key
-and one portal, and the aim of the game is to collect the key and walk towards
+and one portal. The aim of the game is to collect the key and walk towards
 the portal without being killed by the monsters. The score is increased by 1 if
 a monster is killed ,i.e., its sprite is on the same location as the sword
 sprite, if the key is picked up, or when the game is won.
 \texttt{GoToMovableOption} and \texttt{GoNearMovableOptions} are created for
 each of the three monsters and for the key. A \texttt{GoToPositionOption} is
 created for the portal.  One \texttt{GoToNearestSpriteOfType} is created per
-sprite type. One \texttt{WaitAndShootOption} is created for the monsters, and
+sprite type. One \texttt{WaitAndShootOption} is created for the monsters and
 one \texttt{AvoidNearestNpc\-Option} is created. This set of options is $O$, as
 defined in Section \ref{subsec:options}. In a state where, for example, all the
 monsters are dead, the possible option set $\mathbf{p}_s$ does not contain the
@@ -304,10 +304,10 @@ surroundings of a state.
 	\begin{algorithmic}[1]
 		\State $\mathbf{i} \gets \emptyset$ \Comment{$i_o$ counts how many steps option $o$ has been used}
 		\While {$time\_taken < t$} \label{alg:ql:smainloop}
-			\State $s' \gets s$ \label{alg:ql:copys} \Comment{Copy the initial state}
+			\State $s' \gets s$ \label{alg:ql:copys} \Comment{copy the initial state}
 			\If{$s' \in \beta(o)$} \label{alg:ql:sno} \Comment{if option stops in state $s'$}
 				\State $o \gets \mathsf{epsilon\_greedy\_option}(s', Q, O)$ 
-					\Comment{Get epsilon greedy option}
+					\Comment{get epsilon greedy option}
 				\State $i_o \gets 0$ \Comment{reset step counter $i_o$}
 			\EndIf \label{alg:ql:eno}
 			%\For{$depth$ \textbf{in} $\left{0 \ldots d\right}$}
@@ -319,7 +319,7 @@ surroundings of a state.
 				\State $\mathsf{update\_option}(Q, o, s', r, \mathbf{i})$ 
 					\Comment{Algorithm \ref{alg:update}}
 				\If{$s' \in \beta(o)$} 
-					\Comment{Same as lines \ref{alg:ql:sno} to \ref{alg:ql:eno}}
+					\Comment{same as lines \ref{alg:ql:sno} to \ref{alg:ql:eno}}
 					\State $o \gets \mathsf{epsilon\_greedy\_option}(s', Q, O)$ \label{alg:ql:epsgreedy}
 					\State $i_o \gets 0$
 				\EndIf
@@ -332,9 +332,9 @@ surroundings of a state.
 	\caption{$\mathsf{update\_option}(Q, o, s, r, \mathbf{i})$}
 	\label{alg:update}
 	\begin{algorithmic}[1]
-		\State $i_o \gets i_o + 1$ \Comment{Increase this option's step count by 1}
+		\State $i_o \gets i_o + 1$ \Comment{increase this option's step count by 1}
 		\State $o_r \gets o_r + \gamma^{i_o} r;$
-			\Comment{Change this option's discounted reward}
+			\Comment{change this option's discounted reward}
 		\If{$s \in \beta(o)$} \Comment{if option stops in state $s$}
 			\State $\mathsf{update\_Q}(o, s, o_r, i_o)$ \Comment{Equation
 			\ref{eq:smdp-qlearning} }

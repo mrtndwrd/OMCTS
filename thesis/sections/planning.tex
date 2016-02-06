@@ -63,14 +63,14 @@ Section \ref{subsec:option-set}.
 			\State $s \gets r$ \Comment{start from root node}
 			\While {$\neg \mathsf{stop}(s, d)$} \label{alg:omcts:innerloop}
 				\If{$s \in \beta(o_s)$} \label{alg:omcts:sp} \Comment{if option stops in state $s$}
-					\State $\mathbf{p}_s \gets \cup_o (s \in I_{o \in O})$ \Comment{$\mathbf{p}_s$ is available options}
+					\State $\mathbf{p}_s \gets \cup_o (s \in I_{o \in O})$ \Comment{$\mathbf{p}_s$ = available options}
 				\Else
 					\State $\mathbf{p}_s \gets \{o_s\}$ \Comment{no new option can be selected}
 				\EndIf \label{alg:omcts:ep}
 				\State $\mathbf{m} \gets \cup_o (o_{s \in \mathbf{c}_s})$ \Comment{set $\mathbf{m}$ to expanded options} \label{alg:omcts:m}
 				\If{$\mathbf{p}_s = \mathbf{m}$} \Comment{if all options are expanded}
 					\State $s' \gets \max_{c \in \mathbf{c}_s} \mathsf{uct}(s, c)$ \label{alg:omcts:uct} 
-						\Comment{child from Eq. \ref{eq:uct}}
+						\Comment{select child node (Eq. \ref{eq:uct})}
 					\State $s \gets s'$ \label{alg:omcts:ss} 
 						\Comment{continue loop with new node $s'$}
 				\Else \label{alg:omcts:sexpand}
@@ -86,7 +86,7 @@ Section \ref{subsec:option-set}.
 			\State $\delta \gets \mathsf{rollout}(s')$ \label{alg:omcts:rollout}
 				\Comment{simulate until $\mathsf{stop}$}
 			\State $\mathsf{back\_up}(s', \delta)$ \label{alg:omcts:backup}
-				\Comment{save reward to parent nodes}
+				\Comment{save reward to parent nodes (Eq. \ref{eq:backup})}
 		\EndWhile
 		\State \Return{$\mathsf{get\_action}(\max_{o \in c_r} \mathsf{value}(o), r)$}
 	\end{algorithmic}
@@ -123,44 +123,44 @@ score difference $\delta$. This score difference is \emph{backed up} to the
 parent nodes of $s$ using the backup function, after which the tree traversal
 restarts with the root node $r$.
 
-\todo{Continue here:}
-A couple of functions are used by Algorithm \ref{alg:omcts}. The function
+A number of functions is used by Algorithm \ref{alg:omcts}. The function
 \textsf{stop} returns true when either the game ends in state $s$ or the maximum
-depth is reached in $s$. The function \textsf{get\_action} lets option $o$
-choose the best action for the state in node $s$, The
-function \textsf{expand} creates a new child node for node $s$ with option $o$.
-Typically, the \textsf{rollout} function chooses random actions until
-\textsf{stop} returns true, after which the difference in score achieved by the
-rollout is returned.  In O-MCTS however, \textsf{rollout} always applies actions
-chosen by option $o$ first and applies random actions after $o$ is finished. The
-\textsf{back\_up} function traverses the tree through all parents of $s$,
-updating their expected value. Instead of backing up the mean value of the
+depth is reached in $s$. The function \textsf{get\_action} lets option $\omega$
+choose the best action for the state in node $s$, The function \textsf{expand}
+creates a new child node $s'$ for node $s$. $s'$ contains the state that is
+reached when action $a$ is applied to the state in node $s$. Typically, the
+\textsf{rollout} function chooses random actions until \textsf{stop} returns
+true, after which the difference in score achieved by the rollout is returned.
+In O-MCTS however, \textsf{rollout} always applies actions chosen by option $o$
+first and applies random actions after $o$ is finished. The \textsf{back\_up}
+function traverses the tree through all parents of $s$, updating their expected
+value. In contrast to traditional MCTS, which backs up the mean value of the
 reward to all parent nodes, a discounted value is backed up. The backup function
+for updating the value of ancestor node $s$ when a reward is reached in node $s'$
 looks like this:
 \begin{equation}
-	v_s \gets v_s + \delta\gamma^{d_s-d_{s'}}
+	\label{eq:backup}
+	v_s \gets v_s + \delta\gamma^{d_{s'}-d_{s}},
 \end{equation}
-where $\delta$ is the reward that is being backed up, $v_s$ is the value of the
-ancestor node $s$ that is being updated. $d_s$ and $d_{s'}$ are the node depths
-of tree nodes $s$ and $s'$. Thus, a node that is a further ancestor of node
-$s'$, will be updated with a smaller value. This discounting method is similar
-to that of SMDP Q-learning done in Equation \ref{eq:smdp-qlearning}, where
-$\gamma^k$ is used to discount for the length of an option. Our hypothesis is
-that this prevents the algorithm of favoring longer options, as is the problem
-with the Puma algorithm.
+where $\delta$ is the reward that is being backed up, $v_s$ is the value of node
+$s$. $d_s$ and $d_{s'}$ are the node depths of tree nodes $s$ and $s'$. Thus, a
+node that is a further ancestor of node $s'$ will be updated with a smaller
+value. This discounting method is similar to that of SMDP Q-learning done in
+Equation \ref{eq:smdp-qlearning}, where $\gamma^k$ is used to discount for the
+length of an option.
 
-When the time is up, the algorithm chooses an option from $c_r$ corresponding to
-the child node highest expected value. This option chooses the best
-action for the state in the root node and that action is returned. The agent
-plays out this action. 
+When the time limit is reached, the algorithm chooses an option from the
+children of the root node, $c_r$, corresponding to the child node with the
+highest expected value. Subsequently, the algorithm returns the action that is
+selected by this option for the state in the root node. This action is applied
+to the game.
 
-In the next state, the algorithm starts anew by creating a new root node from
-this state. Note that O-MCTS returns actions, not options. This way, when an
-option would eventually reach a state where the avatar dies, it does not have to
-be followed until it is finished. This can be seen as a version of option
-interruption as discussed in \cite{sutton1999between}.
+In the next state, the algorithm restarts by creating a new root node from
+this state. Note that since O-MCTS always returns the action chosen by the best
+option at that moment, the algorithm uses interruption.
 
-We expect that this implementation of MCTS with options enables the algorithm to
-create a deeper tree search, looking further ahead and that the usage of options
-will enable the algorithm to plan over subgoals. In the experiments chapter we
-show results that support our expectations.
+We expect that since this implementation of MCTS with options reduces the
+branching factor of the tree, the algorithm can do a deeper tree search.
+Furthermore, we expect that the algorithm will be able to
+identify and meet a game's subgoals by using options. In the experiments chapter we show results
+that support our expectations.
