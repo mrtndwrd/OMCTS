@@ -234,11 +234,10 @@ following values are saved:
 		\end{itemize}
 \end{itemize}
 
-Although this representation loses information about the map and the grid
-location of the avatar, it enables the algorithm to keep a smaller and more
-generalized Q-table. As a result, it can work on more games without running out
-of
-memory.
+Although with this representation information about the map and the grid
+location of the avatar is lost, it enables the algorithm to keep a smaller and
+more generalized Q-table. As a result, it can work on more games without running
+out of memory.
 
 \begin{figure}
 	\centering
@@ -290,9 +289,9 @@ in Figure \ref{fig:qlearning-scores} are normalized using the data of all the
 algorithms, including O-MCTS and OL-MCTS and the random algorithm. The best
 score achieved by any of the algorithms in a level of a game is 1, the worst is
 normalized to 0. Like the game descriptions in Section \ref{subsec:games}, the
-bars are ordered by the performance of the random algorithm, from left to right
+bars are ordered by the performance of the random algorithm. From left to right
 its win ratio and score decreases, from which we can assume that the leftmost
-game is the easiest, and the rightmost is the hardest.
+game is the easiest and the rightmost is the hardest.
 
 The bars labeled Q-LEARNING1 show the performance of SMDP Q-learning in
 the first game it plays. It is then allowed three subsequent games to learn.
@@ -308,7 +307,7 @@ will increase. However, the framework does not allow this, and the size of the
 Q-table might still become infeasible, since the number of states in these
 games is many times larger than the type of problem that SMDP Q-learning with
 options was demonstrated with \cite{sutton1999between}. For this reason, in the
-next section the results of SMDP Q-learning will omitted and we will compare
+next section the results of SMDP Q-learning will be omitted and we will compare
 O-MCTS to MCTS.
 
 \section{O-MCTS}
@@ -344,12 +343,18 @@ O-MCTS outperforms MCTS in the games \textit{missile command}, \textit{bait},
 or achieving a higher mean score. By looking at the algorithm's actions for
 these games, we can see that O-MCTS succeeds in efficiently planning paths in a
 dangerous environment, enabling it to do a further forward search than the
-ordinary Monte Carlo tree search. \textit{Camel race} requires the player to
-move to the right for 80 consecutive turns, which is hard for MCTS, since
-it only looks 10 turns ahead. O-MCTS always wins, since it can plan forward a
-lot further. In \textit{Overload}, a sword has to be picked up before the avatar
-can finish the game, which seems to be too hard for MCTS, but poses less of a
-problem for O-MCTS.  Furthermore, in Zelda we can see that the MCTS algorithm
+ordinary Monte Carlo tree search. 
+\textit{Camel race} requires the player to
+move to the right for 80 consecutive turns to reach the finish line. No
+intermediate rewards are given to indicate that the agent is walking in the
+right direction. This is hard for MCTS, since it only looks 10 turns ahead.
+O-MCTS always wins this game, since it can plan forward a lot further.
+Furthermore, the rollouts of the option for walking towards the finish line have
+a bigger chance of reaching the finish line than the random rollouts executed by
+MCTS. 
+In \textit{Overload}, a sword has to be picked up before the avatar can finish the
+game, which seems to be too hard for MCTS, but poses less of a problem for
+O-MCTS.  Furthermore, in \textit{zelda} we can see that the MCTS algorithm
 achieves roughly the same score as O-MCTS, but does not win the game, since
 picking up the key and walking towards the door is a difficult action sequence.
 We assume that the mean score achieved by MCTS is because it succeeds in killing
@@ -365,12 +370,12 @@ big number of different sprites, for each of which several options have to be
 created by O-MCTS. When the number of options becomes too big, constructing the
 set of possible options $\mathbf{p}_s$ for every state $s$ becomes so
 time-consuming that the algorithm has too little time to build a tree and find
-the best possible action. To test this hypothesis, we increased the computation
+the best possible action. To test this hypothesis we increased the computation
 time for O-MCTS to 120ms and found that the win ratio of O-MCTS increases to
 around $0.8$ for \textit{seaquest} and \textit{plaque attack}, whereas the win
 ratio for MCTS increased to $0.9$ and $0.7$ respectively. This means that with
 more action time, the difference between O-MCTS and MCTS is reduced for
-\textit{seaquest} and that, O-MCTS outperforms MCTS on \textit{plaque attack}.
+\textit{seaquest} and O-MCTS outperforms MCTS on \textit{plaque attack}.
 
 \begin{figure}
 	\centering
@@ -426,8 +431,8 @@ should be able to improve performance on these games.
 
 This section describes the improvements that can be found on the O-MCTS
 algorithm, when a bias can be learned towards certain more feasible options. The
-improvement that was proposed in Chapter \ref{sec:learning} is compared in this
-section with O-MCTS.
+improvement that was proposed in Chapter \ref{sec:learning} is compared to
+the performance of O-MCTS in this section.
 
 Firstly, by running Option Learning MCTS on the toy problem \textit{prey}, we
 demonstrate its capacity to learn, similar to what was done in section
@@ -491,7 +496,7 @@ sorting of all the options has to take place in each tree node. The learning
 algorithm significantly improves score and win ratio for the game \textit{bait},
 which is a game in which the objective is to reach a goal portal after
 collecting a key.  The player can push boxes around to open paths. There are
-holes in the ground that kill the player, unless they are filled with boxes,
+holes in the ground that kill the player unless they are filled with boxes,
 which make both the hole and the box disappear. Figure
 \ref{fig:learning-results} shows the improvement in score and win ratio for this
 game. There are two likely explanations for this improvement: 1.) There are
@@ -536,8 +541,6 @@ algorithm.
 
 Summarizing, our tests indicate that on complex games O-MCTS outperforms MCTS.
 For other games it performs at least as well, as long as the number of game
-sprites is not too high. 
-%TODO: How many sprites?
-The OL-MCTS algorithm performs worse than O-MCTS before learning, on some of the
-games, like \textit{surround}, \textit{plaqueattack}, and \textit{bait}, but
-can, for some of the games, increase performance significantly.
+sprites is not too high.  The OL-MCTS algorithm can increase performance for
+some of the games, such as \textit{bait} and \textit{plaque attack}. On other
+games, little to no increased perfromance can be found. 

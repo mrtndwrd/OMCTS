@@ -13,32 +13,35 @@ the protocol that is used by the GVGAI competition to implement the many
 different games the competition offers, each of which uses the same interaction
 framework with the game playing algorithms.
 
-In this thesis, games are considered to be an unknown environment and an agent
+In this thesis games are considered to be an unknown environment and an agent
 has to learn by interacting with it. After interaction, agents receive
 rewards that can be either positive or negative. This type of problem is called
-reinforcement learning \cite{wiering2012reinforcement}.
+reinforcement learning \cite{wiering2012reinforcement}. The concepts introduced
+in this chapter all relate to reinforcement learning.
 
 \section{Markov Decision Processes}
 \label{subsec:mdps}
-In this thesis, games will be treated as MDPs, which provide a mathematical
+In this thesis games will be treated as MDPs, which provide a mathematical
 framework for use in decision making problems. An MDP is formally defined as a
-tuple $\langle S, A, T, R \rangle$, where $S$ denotes the set of states. Since an MDP
-is fully observable, a state contains all the information of the
-game's current condition: locations of sprites like monsters and portals; the
-location, direction and speed of the avatar; which resources the avatar has
-picked up; etcetera. $A$ is a finite set of actions, the input an agent can
-deliver to the game. $T$ is a transition function defined as $T : S \times A
-\times S \rightarrow \left[0,1\right]$. It specifies the probabilities over the
-possible next states, when taking an action in a state.  $R$ is a reward
-function defined as $R: S \times A \times S \rightarrow \mathbb{R}$. In this
-case, when the game score changes, the difference is viewed as the reward.
-Algorithms typically maximize the cumulative reward, which is analogous to the
-score. An MDP by definition has the \emph{Markov property}, which means that the
-conditional probability distribution of future states depends only upon the
-present state. No information from previous states is needed. Algorithms do not
-have access to $T$ and $R$ in the scope of this thesis.
+tuple $\langle S, A, T, R \rangle$, where $S$ denotes the set of states, $A$ is
+the set of possible actions, $T$ is the transition function and $R$ is the
+reward function. Since an MDP is fully observable, a state in $S$ contains all
+the information of the game's current condition: locations of sprites like
+monsters and portals; the location, direction and speed of the avatar; which
+resources the avatar has picked up; etcetera. $A$ is a finite set of actions,
+the input an agent can deliver to the game. $T$ is a transition function defined
+as $T : S \times A \times S \rightarrow \left[0,1\right]$. It specifies the
+probabilities over the possible next states, when taking an action in a state.
+$R$ is a reward function defined as $R: S \times A \times S \rightarrow
+\mathbb{R}$. In this case, when the game score changes, the difference is viewed
+as the reward.  Algorithms typically maximize the cumulative reward, which is
+analogous to the score. An MDP by definition has the \emph{Markov property},
+which means that the conditional probability distribution of future states
+depends only upon the present state. No information from previous states is
+needed. In the scope of this thesis algorithms do not have access to $T$ and
+$R$.
 
-For example, for the game Zelda, a state $s$ consists of the location, rotation
+For example, for the game \textit{zelda}, a state $s$ consists of the location, rotation
 and speed of the avatar and the location of the avatar's sword, the monsters, the
 walls and the key and portal that need to be found. $S$ is the set of all
 possible states, so all possible combinations of these variables. The action set
@@ -50,7 +53,7 @@ transition defines the change in location of the monsters and the avatar and if
 any of the sprites disappear, e.g., when the avatar picks up the key. Note that,
 since the transition function is not by definition deterministic, the resulting
 state from an action $a$ in state $s$ is not necessarily the same state
-(a \emph{non player character} (NPC) that moves about randomly can move in any direction between
+(a \emph{non player character (NPC)} that moves about randomly can move in any direction between
 states independent of the agent's action). The reward function describes the
 change in game score, given a state, action and resulting next state. For
 example, when the avatar kills a monster with the action \textsc{use}, its score
@@ -73,7 +76,8 @@ been used to approximate intractable integrals. Abrahamson
 \cite{abramson1990expected} demonstrated theoretically that this sampling method
 might be useful for action selection in games as well.  In 2001, Monte Carlo
 methods were effectively used for bridge \cite{ginsberg2001gib}. The real
-success of MCTS started in 2006, when the tree search method and UCT formula
+success of MCTS started in 2006, when the tree search method and \emph{upper
+confidence tree (UCT)} formula
 were introduced, yielding very good results in Computer Go
 \cite{gelly2006modification}. Since 2006, the algorithm has been extended with
 many variations and is still being used for other (computer) games
@@ -108,12 +112,11 @@ strategy is used to create a new node, after which a rollout takes place and the
 results are backed up.
 
 The selection strategy selects optimal actions in internal tree nodes by
-analyzing the values of their child nodes. An effective and popular
-selection strategy is the \emph{upper confidence tree (UCT)}
-\cite{kocsis2006bandit}. This balances the choice between poorly explored
-actions with a high uncertainty about their value and actions that have been
-explored extensively, but have a higher value. A child node $j$ is selected to
-maximize
+analyzing the values of their child nodes. An effective and popular selection
+strategy is the UCT formula \cite{kocsis2006bandit}. This balances the choice
+between poorly explored actions with a high uncertainty about their value and
+actions that have been explored extensively, but have a higher value. A child
+node $j$ is selected to maximize
 \begin{equation}
 	\label{eq:uct}
 	UCT = v_{s'} C_p \sqrt{\frac{2 \ln n_s}{n_{s'}}}
@@ -297,13 +300,13 @@ algorithm's focus to exploiting the currently known feasible states.
 \label{subsec:vgdl}
 
 In this thesis, algorithms will be benchmarked on the general video game playing
-problem. Recent developments in this area include the \emph{video game
-description language (VGDL)} \cite{schaul2013video}, a framework in which a
-large number of games can be defined and accessed in a similar manner.
-VGDL aims to be a clear, human readable and unambiguous description language for
-games. Games are easy to parse and it is possible to automatically generate
-them. Using a VGDL framework, algorithms can access all the games in a similar
-manner, resulting in a method to compare their performances on several games.
+problem. Recent developments in this area include VGDL \cite{schaul2013video}, a
+framework in which a large number of games can be defined and accessed in a
+similar manner.  VGDL aims to be a clear, human readable and unambiguous
+description language for games. Games are easy to parse and it is possible to
+automatically generate them. Using a VGDL framework, algorithms can access all
+the games in a similar manner, resulting in a method to compare their
+performances on several games.
 
 To define a game in VGDL, two files are required. Firstly, the game description
 should be made, which defines for each type of object what character in the

@@ -25,7 +25,7 @@ offer the player computer-controlled contestants.  Recent research focuses on
 the earlier introduced general video game playing.  A common approach is to use
 a tree search in order to select the best action for any given game state. In
 every new game state, the tree search is restarted until the game ends.  A
-popular example is \emph{Monte Carlo tree search (MCTS)}.  MCTS owes its fame to
+popular example is \emph{Monte Carlo tree search (MCTS)}, which owes its fame to
 playing games \cite{gelly2006modification}, but is used for other
 decision-theoretic problems as well, e.g., scheduling problems or combinatorial
 optimization problems (see \cite{browne2012survey}, section 7.8 for an
@@ -33,14 +33,17 @@ extensive list).
 
 A method to test the performance of a general video game playing algorithm is
 by using the framework of the \emph{general video game AI (GVGAI)} competition
-\cite{perez2014}.  A number of algorithms have been submitted to this
-competition, many of which rely on a tree search method \cite{perez2015open,
-ross2014general, agent2015torsten}
+\cite{perez2014}. In this competition, algorithm designers can test their
+algorithms on a set of diverse games. When submitted to the competition, the
+algorithms are applied to an unknown set of games in the same framework to test
+their general applicability. Many of the algorithms submitted to this contest
+rely on a tree search method \cite{perez2015open, ross2014general,
+agent2015torsten}.
 
 A limitation in tree search algorithms is that since many games are too complex
 to plan far ahead in a limited time frame, many tree algorithms incorporate a
 maximum search depth. As a result, tree search based methods often only
-considers short-term score differences and does not incorporate long-term
+consider short-term score differences and do not incorporate long-term
 plans. Moreover, many algorithms lack common video game knowledge and do not
 use any of the knowledge gained from the previous games.
 
