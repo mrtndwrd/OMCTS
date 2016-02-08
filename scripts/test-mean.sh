@@ -30,13 +30,13 @@ rm tables/*
 # oopsie, forgot some games:
 #games="surround infection butterflies missilecommand aliens plants bait camelRace survivezombies firestorms lemmings firecaster pacman overload chase zelda boulderdash digdug roguelike boloadventures boulderchase eggomania portals frogs"
 
-games="prey"
+games="seaquest plaqueattack"
 
 # Config variables:
-controllers="mrtndwrd.Agent"
-#controllers="controllers.sampleRandom.Agent"
-levels="0 3"
-number_of_games="10"
+#controllers="mrtndwrd.Agent"
+controllers="controllers.sampleMCTS.Agent"
+levels="0 1 2 3 4"
+number_of_games="1"
 number_of_tests="20"
 
 gamma="0.9"
@@ -47,7 +47,7 @@ uct_start_visits="40"
 learning="true"
 naive="false"
 steepness="2.5"
-max_action_time="40"
+max_action_time="120"
 use_mean_reward="true"
 
 ant

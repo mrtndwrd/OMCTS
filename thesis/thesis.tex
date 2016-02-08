@@ -19,9 +19,15 @@
 \usepackage{subfigure}
 \usepackage{bm}
 \usepackage{makebox}
+\usepackage{afterpage}
 
 \newcommand{\todo}[1]{{\bfseries\sffamily{\textcolor{red}{TODO:} #1}}}
 \newcommand{\cn}{{\colorbox{red}{\color{white}{[citation needed]}}}}
+\newcommand\blankpage{%
+ \null
+ \thispagestyle{empty}%
+ \addtocounter{page}{-1}%
+ \newpage}
 
 \usepackage{illcmolthesis} % For title page, slightly modified
 
@@ -46,6 +52,8 @@
 	numberstyle=\color{gray},
 }
 \maketitle
+\blankpage
+
 
 \begin{abstract}
 	General video game playing is a popular research area in artificial
@@ -74,6 +82,8 @@
 	before the game can be won.  Lastly, we show that OL-MCTS improves its
 performance on specific games by learning expected values for options and moving
 a bias to higher valued options.  \end{abstract}
+
+\blankpage
 
 \tableofcontents
 
