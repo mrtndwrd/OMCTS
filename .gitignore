@@ -16,4 +16,8 @@ actions.txt
 *.pyc
 *.bbl
 *.blg
+*.nav 
+defense/*.nav 
+*.snm
 src/mrtndwrd.zip
+defense/presentation.nav
