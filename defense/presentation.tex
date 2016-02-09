@@ -1,5 +1,5 @@
-%\documentclass[aspectratio=169]{beamer}
-\documentclass{beamer}
+\documentclass[aspectratio=169]{beamer}
+%\documentclass{beamer}
 \usepackage{graphicx,amsmath}
 \usepackage{algorithmicx}
 \usepackage{algorithm}
@@ -56,19 +56,32 @@
 
 \section{Background}
 
+\subsection{General Video Game Playing}
+\begin{frame}
+	\frametitle{General Video Game Playing \cite{perez2014, schaul2013video}}
+\end{frame}
+
 \subsection{Markov Decision Processes}
 \begin{frame}
-	\frametitle{Markov Decision Processes (MDPs)}
+	%TODO: Is dit de juiste cite?
+	\frametitle{Markov Decision Processes (MDPs) \cite{sutton1998reinforcement}}
 	States, actions, reward. Maximise cumulative reward over time.
 	\begin{figure}
 	\centering
-	\includegraphics[height=.4\textwidth]{includes/mdp}
+	\includegraphics[height=.6\textheight]{includes/mdp}
+	\end{figure}
+\end{frame}
+\begin{frame}
+	\frametitle{Games as MDPs}
+	\begin{figure}
+	\centering
+	\includegraphics[height=.9\textheight]{includes/gameboy}
 	\end{figure}
 \end{frame}
 
 \subsection{Monte Carlo Tree Search}
 \begin{frame}
-	\frametitle{Monte Carlo Tree Search}
+	\frametitle{Monte Carlo Tree Search\cite{gelly2006modification}}
 	\begin{figure}
 	\centering
 	\includegraphics[height=.94\textheight]{includes/mcts}
@@ -77,17 +90,33 @@
 
 \subsection{Options}
 \begin{frame}
-	\frametitle{Options}
+	\frametitle{Options \cite{sutton1999between, barto2003recent}}
+	\only<1-2>{
+		\begin{itemize}
+			\item Sequence of actions for reaching a specific subgoal
+			\visible<2>{\item For example: ``move towards the nearest NPC''}
+		\end{itemize}
+		\visible<2>{
+			\begin{figure}
+				\centering
+				\includegraphics[height=.6\textheight]{includes/goToMovableOption}
+			\end{figure}
+		}
+	}
+	\only<3-4>{
+		\begin{block}{Formally, $\langle I, \pi, \beta \rangle$}
+			\begin{itemize}
+				\item $I = $ initiation set \only<4>{-- Any state with NPCs in it}
+				\item $\pi = $ policy \only<4>{-- The arrows in the previous slide}
+				\item $\beta = $ termination condition \only<4>{-- The monster's location = the avatar's location}
+			\end{itemize}
+		\end{block}
+	}
 \end{frame}
 
 \subsection{SMDP Q-learning}
 \begin{frame}
-	\frametitle{SMDP Q-learning}
-\end{frame}
-
-\subsection{General Video Game Playing}
-\begin{frame}
-	\frametitle{General Video Game Playing}
+	\frametitle{SMDP Q-learning \cite{sutton1999between}}
 \end{frame}
 
 \section{Options for GVGP}
@@ -161,6 +190,13 @@
 
 \begin{frame}
 	\frametitle{OL-MCTS}
+\end{frame}
+
+\section{References}
+\begin{frame}[allowframebreaks]
+	\frametitle{References}
+	\tiny{\bibliographystyle{abbrv} }
+	\bibliography{bib}
 \end{frame}
 
 \end{document}
