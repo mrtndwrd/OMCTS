@@ -19,5 +19,6 @@ actions.txt
 *.nav 
 defense/*.nav 
 *.snm
+*.vrb
 src/mrtndwrd.zip
 defense/presentation.nav
