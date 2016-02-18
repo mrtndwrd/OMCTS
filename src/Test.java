@@ -1,6 +1,7 @@
 import core.ArcadeMachine;
 
 import java.util.Random;
+import java.util.Scanner;
 
 /**
  * Created with IntelliJ IDEA.
@@ -49,6 +50,8 @@ public class Test
         String recordActionsFile = "actions.txt"; //where to record the actions executed. null if not to save.
         int seed = new Random().nextInt();
 
+        Scanner scan = new Scanner(System.in);
+
         //Game and level to play
         int gameIdx = 5;
         int levelIdx = 4; //level names from 0 to 4 (game_lvlN.txt).
@@ -59,6 +62,9 @@ public class Test
         // ArcadeMachine.playOneGame(game, level1, recordActionsFile, seed);
 
         // 2. This plays a game in a level by the controller.
+        ArcadeMachine.runOneGame(game, level1, visuals, sampleMCTSController, recordActionsFile, seed);
+        System.out.println("Type something to start next");
+        scan.next();
         ArcadeMachine.runOneGame(game, level1, visuals, myController, recordActionsFile, seed);
 
         // 3. This replays a game from an action file previously recorded
