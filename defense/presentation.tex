@@ -17,7 +17,7 @@
 
 \author[Maarten de Waard]{Maarten de Waard\\\small{Supervised by Diederik
 	Roijers and Sander Bakkes}}
-	\title[O-MCTS for GVGP]{Monte Carlo Tree Search with Options for General Video Game Playing}
+	\title[O-MCTS for GVGP]{Monte Carlo Tree Search with Options\\for General Video Game Playing}
 \date{February 22\textsuperscript{nd}\\Public Thesis Defense}
 \usetheme{Berkeley}
 
@@ -41,17 +41,17 @@
 \end{frame}
 
 \begin{frame}
-	\frametitle{Decision Theory \& General Video Game Playing}
-	\begin{block}{Decision Theory}
-		\begin{itemize}
-			\item A general AI algorithm is capable of solving different problems
-			\item Creating general AI algorithms is a step to \emph{strong AI}
-		\end{itemize}
-	\end{block}
+	\frametitle{Introduction}
 	\begin{block}{General Video Game Playing}
 		\begin{itemize}
 			\item Games as problem setting
 			\item Real world problems can be modelled as games
+		\end{itemize}
+	\end{block}
+	\begin{block}{Artificial Intelligence}
+		\begin{itemize}
+			\item A general AI algorithm is capable of solving different problems
+			\item Creating general AI algorithms is considered a step towards \emph{strong AI}
 		\end{itemize}
 	\end{block}
 \end{frame}
@@ -64,9 +64,13 @@
 	\begin{block}{General Video Game AI competition}
 		\begin{itemize}
 			\item Several sets of games
-			\item Pitch algorithms against each other
-			\item 40 ms of action time
-			\item Forward model as simulator
+			\item Compare algorithms by testing them on many games
+			% Move this to first slide of experiments
+			% \item Framework:
+			% 	\begin{itemize}
+			% 		\item 40 ms of action time
+			% 		\item Forward model as simulator
+			% 	\end{itemize}
 		\end{itemize}
 	\end{block}
 	\begin{block}{Video Game Description Language}
@@ -82,7 +86,7 @@
 \begin{frame}
 	%TODO: Is dit de juiste cite?
 	\frametitle{Markov Decision Processes (MDPs) \cite{sutton1998reinforcement}}
-	States, actions, reward. Maximise cumulative reward over time.
+	States, actions, transitions, reward. Maximize cumulative reward over time.
 	\begin{figure}
 	\centering
 	\includegraphics[height=.6\textheight]{includes/mdp}
@@ -101,7 +105,7 @@
 	\frametitle{Monte Carlo Tree Search\cite{gelly2006modification}}
 	\begin{figure}
 	\centering
-	\includegraphics[height=.94\textheight]{includes/mcts}
+	\includegraphics[width=.94\textwidth]{includes/mcts-wide}
 	\end{figure}
 \end{frame}
 
@@ -152,19 +156,27 @@
 
 \section{General Video Game Playing}
 \begin{frame}
-	\frametitle{Terminology}
+	\frametitle{Framework}
 	\begin{columns}
-		\column{.5\textwidth}
-		\begin{itemize}
-			\item Game
-			\item Level
-			\item Sprites
-			\item Avatar
-			\item NPC
-			\item Movable vs. Non-movable
-		\end{itemize}
-		\column{.5\textwidth}
-		\includegraphics[width=\columnwidth]{includes/zelda}
+		\column{.55\textwidth}
+		\begin{block}{Terminology}
+			\begin{itemize}
+				\item Games with levels
+				\item Sprites
+				\item Avatar
+				\item NPC
+				\item Movable vs. Non-movable
+			\end{itemize}
+		\end{block}
+		\begin{block}{GVGAI}
+			\begin{itemize}
+				\item Forward model as simulator
+				\item 40 milliseconds action time
+				\item 1 second initialization time
+			\end{itemize}
+		\end{block}
+		\column{.4\textwidth}
+			\includegraphics[width=\columnwidth]{includes/zelda}
 	\end{columns}
 
 \end{frame}
@@ -290,8 +302,8 @@ wwwwwww
 			\begin{itemize}
 				\item Formula to bias towards selecting child node for option
 					with higher value or variance
-				\item Usable as both \emph{exploration} and \emph{selection}
-					step in the first $v$ node visits
+				\item Usable for both the \emph{exploration} and
+					\emph{selection} step in the first $v$ node visits
 			\end{itemize}
 		\column{.5\textwidth}
 			\centering
@@ -405,8 +417,6 @@ wwwwwww
 		\begin{itemize}
 			\item Remove infeasible options from the option set entirely
 			\item Try other backup methods
-			\item Discount the option values: value recent findings over old
-				ones
 		\end{itemize}
 	\end{block}
 \end{frame}
