@@ -53,7 +53,7 @@ public class Test
         Scanner scan = new Scanner(System.in);
 
         //Game and level to play
-        int gameIdx = 5;
+        int gameIdx = 0;
         int levelIdx = 4; //level names from 0 to 4 (game_lvlN.txt).
         String game = gamesPath + games[gameIdx] + ".txt";
         String level1 = gamesPath + games[gameIdx] + "_lvl" + levelIdx +".txt";
