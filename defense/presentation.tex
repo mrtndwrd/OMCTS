@@ -1,5 +1,5 @@
-\documentclass[aspectratio=169]{beamer}
-%\documentclass{beamer}
+%\documentclass[aspectratio=169]{beamer}
+\documentclass{beamer}
 \usepackage{graphicx,amsmath}
 \usepackage{listings}
 \usepackage{algorithmicx}
@@ -58,6 +58,24 @@
 
 \section{Background}
 
+\begin{frame}
+	\frametitle{Terminology}
+	\begin{columns}
+		\column{.4\textwidth}
+			\begin{itemize}
+				\item Games with levels
+				\item Sprites
+				\begin{itemize}
+					\item Avatar
+					\item NPC
+					\item Movable vs. Non-movable
+				\end{itemize}
+			\end{itemize}
+		\column{.5\textwidth}
+			\includegraphics[width=\columnwidth]{includes/zelda}
+	\end{columns}
+\end{frame}
+
 \subsection{General Video Game Playing}
 \begin{frame}
 	\frametitle{General Video Game Playing \cite{perez2014, schaul2013video}}
@@ -66,11 +84,12 @@
 			\item Several sets of games
 			\item Compare algorithms by testing them on many games
 			% Move this to first slide of experiments
-			% \item Framework:
-			% 	\begin{itemize}
-			% 		\item 40 ms of action time
-			% 		\item Forward model as simulator
-			% 	\end{itemize}
+			\item Framework:
+				\begin{itemize}
+					\item Forward model as simulator
+					\item Limited action time
+					\item Limited initialization time
+				\end{itemize}
 		\end{itemize}
 	\end{block}
 	\begin{block}{Video Game Description Language}
@@ -154,43 +173,33 @@
 	\end{block}
 \end{frame}
 
-\section{General Video Game Playing}
+\section{Methods}
+\subsection[GVGP]{General Video Game Playing}
 \begin{frame}
-	\frametitle{Framework}
-	\begin{columns}
-		\column{.55\textwidth}
-		\begin{block}{Terminology}
-			\begin{itemize}
-				\item Games with levels
-				\item Sprites
-				\item Avatar
-				\item NPC
-				\item Movable vs. Non-movable
-			\end{itemize}
-		\end{block}
-		\begin{block}{GVGAI}
-			\begin{itemize}
-				\item Forward model as simulator
-				\item 40 milliseconds action time
-				\item 1 second initialization time
-			\end{itemize}
-		\end{block}
-		\column{.4\textwidth}
-			\includegraphics[width=\columnwidth]{includes/zelda}
-	\end{columns}
-
+	\frametitle{Option Set}
+	\begin{itemize}
+		\item Action
+		\item Avoid nearest NPC
+		\item Go near movable
+		\item Go to movable
+		\item Go to nearest sprite of type
+		\item Go to position
+		\item Wait and shoot
+	\end{itemize}
 \end{frame}
+
 \begin{frame}[fragile, allowframebreaks]
 	\frametitle{Game Description}
 	\begin{lstlisting}[caption=Game Description, frame=tb]
+
 BasicGame
   SpriteSet
     movable >
       avatar    > MovingAvatar img=avatar
       prey      > img=monster
-        inactivePrey    > RandomNPC cooldown=3000
-        slowPrey        > RandomNPC cooldown=10
-        fastPrey        > RandomNPC cooldown=2
+        inactivePrey > RandomNPC cooldown=3000
+        slowPrey     > RandomNPC cooldown=10
+        fastPrey     > RandomNPC cooldown=2
 
 
 
@@ -229,24 +238,11 @@ wwwwwww
 	\end{columns}
 \end{frame}
 
+\subsection[O-MCTS]{Option Monte Carlo Tree Search}
 \begin{frame}
-	\frametitle{Option Set}
-	\begin{itemize}
-		\item Action
-		\item Avoid nearest NPC
-		\item Go near movable
-		\item Go to movable
-		\item Go to nearest sprite of type
-		\item Go to position
-		\item Wait and shoot
-	\end{itemize}
-\end{frame}
-
-\section{O-MCTS}
-\begin{frame}
-	\frametitle{Option MCTS}
+	\frametitle{Option Monte Carlo Tree Search}
 	\begin{columns}
-		\column{.6\textwidth}
+		\column{.7\textwidth}
 		\small
 		\vspace{-.5em}
 		\begin{algorithmic}[1]
@@ -268,14 +264,14 @@ wwwwwww
 			\State \Return {action from option with highest value}
 		\end{algorithmic}
 
-		\column{.4\textwidth}
+		\column{.3\textwidth}
 		\includegraphics[width=\columnwidth]{includes/omcts}
 	\end{columns}
 \end{frame}
 
-\section{OL-MCTS}
+\subsection[OL-MCTS]{Option Learning Monte Carlo Tree Search}
 \begin{frame}
-	\frametitle{Option Learning MCTS - Option Values}
+	\frametitle{OL-MCTS - Option Values}
 	\begin{block}{Option Types}
 		\begin{itemize}
 			\item Type: \emph{go to movable}, \emph{avoid nearest NPC}, etc.
@@ -296,7 +292,7 @@ wwwwwww
 	\end{block}
 \end{frame}
 \begin{frame}
-	\frametitle{Option Learning MCTS - Crazy Stone Algorithm \cite{coulom2007efficient}}
+	\frametitle{OL-MCTS - Crazy Stone Algorithm \cite{coulom2007efficient}}
 	\begin{columns}
 		\column{.5\textwidth}
 			\begin{itemize}
@@ -314,6 +310,7 @@ wwwwwww
 \section{Demo}
 \begin{frame}
 	\frametitle{Demo}
+	\includegraphics[width=\textwidth]{includes/camelrace}
 \end{frame}
 
 \section{Experiments}
@@ -365,7 +362,7 @@ wwwwwww
 \begin{frame}
 	\frametitle{O-MCTS}
 	\begin{columns}
-		\column{.3\textwidth}
+		\column{.4\textwidth}
 		\begin{block}{Outperforms MCTS in}
 			\begin{itemize}
 				\item \textit{missile command}
@@ -383,7 +380,7 @@ wwwwwww
 		\column{.6\textwidth}
 		The new algorithm \ldots
 			\begin{itemize}
-				\item outperforms SMDP Q-learning on every game 
+				\item outperforms SMDP Q-learning in every game 
 				\item look further ahead than most tree searching alternatives
 				\item excels in games with small level grid, low number of
 					sprites and high complexity
