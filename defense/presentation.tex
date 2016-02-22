@@ -362,7 +362,7 @@ wwwwwww
 \begin{frame}
 	\frametitle{O-MCTS}
 	\begin{columns}
-		\column{.4\textwidth}
+		\column{.35\textwidth}
 		\begin{block}{Outperforms MCTS in}
 			\begin{itemize}
 				\item \textit{missile command}
@@ -381,11 +381,9 @@ wwwwwww
 		The new algorithm \ldots
 			\begin{itemize}
 				\item outperforms SMDP Q-learning in every game 
-				\item look further ahead than most tree searching alternatives
-				\item excels in games with small level grid, low number of
-					sprites and high complexity
-				\item performs below expectation on games with many sprites or a
-					big level grid
+				\item look further ahead than MCTS
+				\item excels in specific games
+				\item performs worse on four games
 			\end{itemize}
 	\end{columns}
 \end{frame}
