@@ -10,7 +10,7 @@ subgoal. Additionally, we introduce "Option Learning MCTS", which applies a
 progressive widening technique to the expected returns of options in order to
 focus exploration on fruitful parts of the search tree.
 
-Dependencies: 
+## Dependencies
 
 - scripts/test-mean.sh 
 	- parallel
