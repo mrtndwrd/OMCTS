@@ -1,22 +1,26 @@
 \section{Related Work}
 \label{sec:related}
-This section covers some popular alternative methods for general video game
-playing or tree search with options. \emph{Deep Q networks
-(DQN)} is a popular algorithm that trains a convolutional neural network for a
-game \cite{mnih2013playing}, \emph{Planning under Uncertainty with Macro-Actions
+This chapter covers some popular alternative methods for general video game
+playing and prior work on tree search with options. \emph{Deep Q networks (DQN)}
+is a popular algorithm that trains a convolutional neural network for a game
+\cite{mnih2013playing}, \emph{Planning under Uncertainty with Macro-Actions
 (PUMA)} is a forward search algorithm that uses extended actions in
-\emph{partially observable MDPs (POMDPs)} \cite{he2010puma}.  \emph{Purofvio} is
+\emph{partially observable MDPs (POMDPs)} \cite{he2010puma}. \emph{Purofvio} is
 an algorithm that combines MCTS with macro-actions that consist of repeating one
 action several times \cite{powley2012monte}.
 
-DQN trains a convolutional neural network that has the last four frames of a
-game as input and tries to predict the Q-values of each action. A good policy
-can then be created by selecting the action with the highest Q-value. We decided
-not to use DQN, because in our testing framework, an algorithm has 40
-milliseconds to choose an action, even when playing a game for the first time.
-DQN learns for several days, after which a good policy can be learned.
-Furthermore, DQN does not use a forward model, but always applies actions
-directly to the game in order to learn.
+DQN is a general video game playing algorithm that trains a convolutional neural
+network that has the last four pixel frames of a game as input and tries to
+predict the return of each action. A good policy can then be created by
+selecting the action with the highest return. In this case it was not desirable
+to implement DQN because of the limitations proposed by our testing framework.
+The GVGAI competition framework currently works best for planning algorithms
+that use the forward model to quickly find good policies. Learning over the
+course of several games is difficult. In contrast, DQN typically trains on one
+game for several days before a good policy is found and does not utilize the
+forward model, but always applies actions directly to the game in order to
+learn.
+
 
 Another alternative is the PUMA algorithm, which applies forward search to
 options (referred to as macro-actions) and works on POMDPs. PUMA automatically

@@ -1,21 +1,23 @@
 \section{Conclusions and Future Work}
 \label{sec:conclusion}
 We can conclude that the Option MCTS algorithm almost always performs at least
-as good as MCTS. O-MCTS excels in games with a small amount of game sprites, but
-high complexity, such as \textit{zelda}, \textit{overload} and \textit{eggomania}.
-Furthermore, O-MCTS can do a further lookahead than most tree searching
-alternatives, resulting in a high performance on \textit{camel race}. The
-algorithm does struggle with a high amount of sprites, since many options have
-to be constructed and checked each round, leaving too little time for exploring
-options. Our results of OL-MCTS indicate that learning
-option values can aid the algorithm in improving win ratio and score, but not
-for all games.
+as good as MCTS. The O-MCTS algorithm excels in games with both a small level
+grid or a small amount of sprites and high complexity, such as \textit{zelda},
+\textit{overload} and \textit{eggomania}.  Furthermore, O-MCTS can look further
+ahead than most tree searching alternatives, resulting in a high performance on
+games like \textit{camel race}, in which reinforcement is sparse. This confirms
+our hypothesis that using options, O-MCTS can win more games than MCTS. The
+algorithm performs worse than expected in games with a high amount of sprites,
+since the size of the option set becomes so large that maintaining it takes a
+lot of time, leaving too little time for tree building. Over all twenty-eight
+games, O-MCTS wins more games than MCTS.
 
-Our results with OL-MCTS indicate that it is possible to detect infeasible
-options, meaning that in the future, it should be possible to completely remove
-options from the option set, that have low expected rewards for certain games.
-We expect that this could reduce the computation time O-MCTS needs to construct
-and check all the options.
+The results of OL-MCTS indicate that it is possible to learn about which options
+work better, meaning that in the future it should be possible to completely
+remove infeasible options that have low expected rewards from the option set. We
+expect that this could reduce the computation time O-MCTS needs to construct and
+check all the options. However, more work needs to be done in this area to
+enable improvement.
 
 Furthermore, more research should be done in the influence of the option set.
 Currently the effectiveness of the algorithm strongly relies on the A Star
@@ -28,11 +30,13 @@ MDPs similar to PUMA's, the algorithm could probably increase sturdiness.
 
 In order to improve the learning algorithms, some other improvements can be
 investigated. Firstly, the backup method can be tweaked. In
-\cite{coulom2007efficient}, in stead of the mean value, other values, like the
-maximum return are used in the backup phase. Furthermore, the mean and standard
-deviation of option returns are now calculated over all the games, without
-regarding how long ago this game was played. This might lead to underrated
-options, for example with doors that unlock under specific conditions (for
-example when the key is picked up in \textit{zelda}).  Using a maximum return,
-or discounting the option values might have a different effect.
+\cite{coulom2007efficient}, instead of the mean value other values like the
+maximum return are used in the backup phase. This has a positive effect on the
+action (or in our case option) choices, resulting in a better performance.
+Furthermore, the mean and standard deviation of option returns are now
+calculated over all the games, without regarding how long ago this game was
+played. This might lead to underrated options, for example with doors that
+unlock under specific conditions (for example when the key is picked up in
+\textit{zelda}).  Using a maximum return or discounting the option values might
+have a different effect.
 
