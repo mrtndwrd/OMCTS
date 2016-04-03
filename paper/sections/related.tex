@@ -2,12 +2,12 @@
 \label{sec:related}
 This chapter covers some popular alternative methods for general video game
 playing and prior work on tree search with options. \emph{Deep Q networks (DQN)}
-is a popular algorithm that trains a convolutional neural network for a game
-\cite{mnih2013playing}, \emph{Planning under Uncertainty with Macro-Actions
+is a popular algorithm that trains a convolutional neural network for a
+game~\cite{mnih2013playing}, \emph{Planning under Uncertainty with Macro-Actions
 (PUMA)} is a forward search algorithm that uses extended actions in
-\emph{partially observable MDPs (POMDPs)} \cite{he2010puma}. \emph{Purofvio} is
+\emph{partially observable MDPs (POMDPs)}~\cite{he2010puma}. \emph{Purofvio} is
 an algorithm that combines MCTS with macro-actions that consist of repeating one
-action several times \cite{powley2012monte}.
+action several times~\cite{powley2012monte}.
 
 DQN is a general video game playing algorithm that trains a convolutional neural
 network that has the last four pixel frames of a game as input and tries to
@@ -21,12 +21,11 @@ game for several days before a good policy is found and does not utilize the
 forward model, but always applies actions directly to the game in order to
 learn.
 
-
 Another alternative is the PUMA algorithm, which applies forward search to
 options (referred to as macro-actions) and works on POMDPs. PUMA automatically
 generates goal-oriented MDPs for specific subgoals, the advantage of which is
 that effective options can be created without requiring any prior knowledge of
-the (PO)MDP. The disadvantage is that this takes a lot of computation time and
+the (PO)MDP\@. The disadvantage is that this takes a lot of computation time and
 thus would not work in the GVGAI framework, where only 40 milliseconds of
 computation time is allowed between actions. Furthermore PUMA has to find out the
 optimal length per macro-action, our algorithm can use options of variable

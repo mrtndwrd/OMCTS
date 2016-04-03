@@ -1,26 +1,19 @@
 \section{O-MCTS}
 \label{sec:planning}
 
-In order to simulate the use of subgoals we will introduce planning over
-options in MCTS, instead of SMDP Q-learning. In this chapter we introduce
-\emph{option Monte Carlo tree search (O-MCTS)}, a novel algorithm that plans
-over options using MCTS, enabling the use of options in complex MDPs. The
-resulting algorithm achieves higher scores than MCTS and SMDP Q-learning on
-complex games that have several subgoals.
+O-MCTS is a novel algorithm that simulates the use of subgoals by planning over
+options using MCTS, enabling the otherwise infeasible use of options in complex
+MDPs\@. The resulting algorithm achieves higher scores than MCTS on complex
+games that have several subgoals.
 
 Generally, O-MCTS works as follows: like in MCTS, a tree of states is
-built by simulating game plays. Instead of actions the algorithm chooses
-options. When an option is chosen, the actions returned by its policy are used
+built by simulating game plays. The algorithm chooses options instead of
+actions. When an option is chosen, the actions returned by its policy are used
 to build the tree. When an option is finished a new option has to be chosen,
 which enables the tree to branch on that point. Since traditional MCTS branches
 on each action, whereas O-MCTS only branches when an option is finished, deeper
-search trees can be built in the same amount of time. This chapter describes
-how the process works in more detail.
-
-%An option spans over several actions, which influences the tree search
-%method. Furthermore, when many options are defined, the branching factor of the
-%algorithm increases significantly. This problem will be addressed in the next
-%chapter, where we will incorporate learning in the algorithm.
+search trees can be built in the same amount of time. This section describes how
+the process works in more detail.
 
 \begin{figure}
 	\centering
@@ -32,32 +25,23 @@ how the process works in more detail.
 \label{fig:omcts-tree}
 \end{figure}
 
-In normal MCTS, an action is represented by a connection from a state to the
-next, so when a node is at depth $n$, we know that $n$ actions have been chosen
-to arrive at that node and the time in that node is $t+n$. If nodes in O-MCTS
-would represent options and connections would represent option selection, this
-property would be lost, because options span over several actions. This
-complicates the comparison of different nodes at the same level in the tree.
-Therefore, we chose to keep the tree representation the same: a node represents
-a state, a connection represents an action. An option spans several actions and
-therefore several nodes in the search tree, as denoted in Figure~\ref{fig:omcts-tree}. We introduce a change in the expansion and selection
-strategies, which select options rather than actions. When a node has an
-unfinished option, the next node will be created using an action selected by
+
+The tree representation of an O-MCTS tree is the same as in MCTS\@: a node
+represents a state, a connection represents an action. An option spans several
+actions and therefore several nodes in the search tree, as denoted in
+Figure~\ref{fig:omcts-tree}. We introduce a change in the expansion and
+selection strategies, which select options rather than actions. When a node has
+an unfinished option, the next node will be created using an action selected by
 that option. When a node contains a finished option (the current state satisfies
 its termination condition $\beta$), a new option can be chosen by the expansion
-or selection strategy.
-
-%Methods exist for automatically generating options \cite{castro2012automatic},
-%but these have only been used on the room navigation problem and generating the
-%options would take learning time which the GVGAI framework does not provide.
-%Therefore, in this paper O-MCTS uses the option set that was proposed in
-%Section~\ref{subsec:option-set}.
+or selection strategy. The search tree can only branch when an option is
+finished.
 
 \begin{algorithm}[h]
 	\caption{$\mathsf{O-MCTS}(O, r, t, d)$}
 \label{alg:omcts}
 	\begin{algorithmic}[1]
-		\State $C_{s \in[S} \gets \emptyset$ \Comment{$\mathbf{c}_s$ is the set of children nodes of $s$}
+		\State $C_{s \in S} \gets \emptyset$ \Comment{$\mathbf{c}_s$ is the set of children nodes of $s$}
 		\State $\mathbf{o} \gets \emptyset$ \Comment{$o_s$ will hold the option followed in $s$}
 		\While {$time\_taken < t$} \label{alg:omcts:mainloop}
 			\State $s \gets r$ \Comment{start from root node}
@@ -65,20 +49,20 @@ or selection strategy.
 				\If{$s \in \beta(o_s)$} \label{alg:omcts:sp} \Comment{if option stops in state $s$}
 					\State $\mathbf{p}_s \gets \cup_o (s \in I_{o \in O})$ \Comment{$\mathbf{p}_s$ = available options}
 				\Else
-					\State $\mathbf{p}_s \gets \{o_s\}$ \Comment{no new option can be selected}
+					\State $\mathbf{p}_s \gets \{o_s\}$ \Comment{continue with current option}
 				\EndIf \label{alg:omcts:ep}
 				\State $\mathbf{m} \gets \cup_o (o_{s \in \mathbf{c}_s})$ \Comment{set $\mathbf{m}$ to expanded options} \label{alg:omcts:m}
 				\If{$\mathbf{p}_s = \mathbf{m}$} \Comment{if all options are expanded}
 					\State $s' \gets \max_{c \in \mathbf{c}_s} \mathsf{uct}(s, c)$ \label{alg:omcts:uct} 
-						\Comment{select child node (Eq.~\ref{eq:uct})}
+						\Comment{Eq.~\ref{eq:uct}}
 					\State $s \gets s'$ \label{alg:omcts:ss} 
-						\Comment{continue loop with new node $s'$}
+						\Comment{continue loop with child}
 				\Else \label{alg:omcts:sexpand}
 					\State $\omega \gets \mathsf{random\_element}(\mathbf{p}_s - \mathbf{m})$ 
 					\State $a \gets \mathsf{get\_action}(\omega, s)$ 
 					\State $s' \gets \mathsf{expand}(s, a)$ 
 						\Comment{create child $s'$ using $a$}
-						\State $\mathbf{c}_s \gets \mathbf{c}_s \cup \{s'\}$ \Comment{add $s'$ to $\mathbf{c}_s$}
+						\State $\mathbf{c}_s \gets \mathbf{c}_s \cup \{s'\}$ \Comment{add to set of children}
 					\State $o_{s'} \gets \omega$
 					\State \textbf{break} \label{alg:omcts:break}
 				\EndIf \label{alg:omcts:eexpand}
@@ -95,7 +79,7 @@ or selection strategy.
 	\centering
 	\includegraphics[width=\columnwidth]{includes/zelda}
 	\caption{Visual representation of the game \textit{zelda}.}
-	\label{fig:zelda}
+\label{fig:zelda}
 \end{figure}
 
 We describe O-MCTS in Algorithm~\ref{alg:omcts}. It is invoked with a set of
@@ -154,7 +138,7 @@ node that is a further ancestor of node $s'$ will be updated with a smaller
 value.
 
 When the time limit is reached, the algorithm chooses an option from the
-children of the root node, $c_r$, corresponding to the child node with the
+children of the root node, $\mathbf{c}_r$, corresponding to the child node with the
 highest expected value. Subsequently, the algorithm returns the action that is
 selected by this option for the state in the root node. This action is applied
 to the game.
@@ -166,5 +150,5 @@ option at that moment, the algorithm uses interruption.
 We expect that since this implementation of MCTS with options reduces the
 branching factor of the tree, the algorithm can do a deeper tree search.
 Furthermore, we expect that the algorithm will be able to
-identify and meet a game's subgoals by using options. In the experiments chapter we show results
-that support our expectations.
+identify and meet a game's subgoals by using options. In the experiments section
+we show results that support our expectations.

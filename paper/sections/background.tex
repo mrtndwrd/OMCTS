@@ -32,27 +32,28 @@ $R$.
 \begin{figure}
 	\centering
 	\includegraphics[width=.6\columnwidth]{includes/mcts-eps-converted-to.pdf}
-	\caption{One Monte Carlo tree search iteration}
-	\label{fig:mcts}
+	\caption{One MCTS iteration. This process is repeated in order to improve
+	the estimates of action values.}
+\label{fig:mcts}
 \end{figure}
 
 \label{subsec:mcts}
 Monte Carlo methods have their roots in statistical physics, where they have
-been used to approximate intractable integrals. Abrahamson
-\cite{abramson1990expected} demonstrated theoretically that this sampling method might be
+been used to approximate intractable integrals. 
+Abrahamson~\cite{abramson1990expected} demonstrated theoretically that this sampling method might be
 useful for action selection in games as well.  In 2001, Monte Carlo methods were
-effectively used for bridge \cite{ginsberg2001gib}. The real success of MCTS
+effectively used for bridge~\cite{ginsberg2001gib}. The real success of MCTS
 started in 2006, when the tree search method and UCT formula were introduced,
-yielding very good results in Computer Go \cite{gelly2006modification}. Since
+yielding very good results in Computer Go~\cite{gelly2006modification}. Since
 2006, the algorithm has been extended with many variations is still being used
-for other computer games \cite{browne2012survey}, including the GVGAI
-competition \cite{perez2014knowledge}.
+for other computer games~\cite{browne2012survey}, including the GVGAI
+competition~\cite{perez2014knowledge}.
 
 This section explains how MCTS approximates action values for states.  A tree is
 built incrementally from the states and actions that are visited in a game. Each
 node in the tree represents a state and each connection in the tree represents
 an action taken in that state leading to a new state, which is represented by
-the next tree node.  The process, as explained in Figure \ref{fig:mcts},
+the next tree node.  The process, as explained in Figure~\ref{fig:mcts},
 consists of four phases that are constantly repeated. It is started with the
 current game state, which is represented by the root node of the tree. The first
 action is chosen by an \emph{expansion} strategy and subsequently simulated.
@@ -70,7 +71,7 @@ results are backed up.
 
 The selection strategy selects optimal actions in internal tree nodes by
 analyzing the values of their child nodes. An effective and popular selection
-strategy is the UCT formula \cite{kocsis2006bandit}. This balances the choice
+strategy is the UCT formula~\cite{kocsis2006bandit}. This balances the choice
 between poorly explored actions with a high uncertainty about their value and
 actions that have been explored extensively, but have a higher value. A child
 node $j$ is selected to maximize
@@ -94,7 +95,7 @@ factor of the tree by only expanding the nodes selected by a special expansion
 strategy. A specific example is the \emph{crazy stone} algorithm
 \cite{coulom2007efficient}, which is an expansion strategy that was designed
 specifically for Go. We will use an adaptation of this strategy in the algorithm
-proposed in Section \ref{sec:learning}.  When using crazy stone, an action $i$
+proposed in Section~\ref{sec:learning}.  When using crazy stone, an action $i$
 is selected with a probability proportional to $u_i$
 \begin{equation}
 	\label{eq:crazystone}
@@ -102,8 +103,8 @@ is selected with a probability proportional to $u_i$
 \sigma_i^2\right)}}\right) + \varepsilon_i
 \end{equation}
 Each action has an estimated value $\mu_i$ ordered in such a way that $\mu_0 >
-\mu_1 > \ldots > \mu_N$, and a variance $\sigma_i^2$. K is a constant
-that influences the exploration -- exploitation trade off. $\varepsilon_i$ prevents
+\mu_1 > \cdots > \mu_N$, and a variance $\sigma_i^2$. K is a constant
+that influences the exploration --- exploitation trade off. $\varepsilon_i$ prevents
 the probability of selecting a move to reach zero and its value is proportional
 to the ordering of the expected values of the possible actions. 
 \begin{equation}
@@ -120,15 +121,14 @@ of all rewards backed up to that node.
 
 \subsection{Options}
 \label{subsec:options}
-%\todo{Options}
 
 In order to mimic human game playing strategies, such as defining subgoals and
-subtasks, we use options. Options have been proposed by Sutton et al.  as a
+subtasks, we use options. Options have been proposed by Sutton et al.\ as a
 method to incorporate temporal abstraction in the field of reinforcement
-learning \cite{sutton1999between}. The majority of the research seems to focus
+learning~\cite{sutton1999between}. The majority of the research seems to focus
 on learning algorithms and little work has been done on combining options with
-tree search methods, which offer a model free planning framework
-\cite{barto2003recent}.  
+tree search methods, which offer a model free planning
+framework~\cite{barto2003recent}.
 
 An option is a predefined method of reaching a specific
 subgoal. Formally, it is a triple $\langle I, \pi, \beta\rangle$ in which $I
@@ -149,11 +149,15 @@ This often means that the option has reached its subgoal, or a criterion is met
 that renders the option obsolete (e.g., its goal does not exist anymore).
 Afterwards, the agent chooses a new option that will be followed.
 
+A popular algorithm that uses options in stead of actions is SMDP
+Q-learning~\cite{sutton1999between}. In general, it estimates the expected
+rewards for using an option in a certain state, in order to find an optimal
+policy over the option set.
+
 \subsection{General Video Game Playing}
 \label{subsec:vgdl}
-%\todo{Video Game Description Language}
 In this paper, algorithms will be benchmarked on the general video game playing
-problem. Recent developments in this area include VGDL \cite{schaul2013video}, a
+problem. Recent developments in this area include VGDL~\cite{schaul2013video}, a
 framework in which a large number of games can be defined and accessed in a
 similar manner.  VGDL aims to be a clear, human readable and unambiguous
 description language for games. Games are easy to parse and it is possible to
@@ -161,7 +165,7 @@ automatically generate them. Using a VGDL framework, algorithms can access all
 the games in a similar manner, resulting in a method to compare their
 performances on several games.
 
-The General Video Game AI competition provides games written in VGDL.
+The General Video Game AI competition provides games written in VGDL\@.
 Furthermore, it provides a Java framework in which algorithms can be
 benchmarked using a static set of rules. Algorithms are only allowed to observe
 the game information: score, game tick (timestep), the set of possible actions
@@ -180,5 +184,5 @@ action to apply to the real game.
 The algorithms proposed in this paper will be benchmarked on the GVGAI game
 sets, using the rules of the competition. This means that the algorithms do not
 have any access to the game and level descriptions. When an algorithms starts
-playing a game, it typically knows nothing of the game, except for the
+playing a game, it typically knows nothing of the game except for the
 observations described above.
