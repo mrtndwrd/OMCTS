@@ -46,7 +46,7 @@ def barplot_stats(stats, show_score, filename=None, ignore_controllers=[]):
 	controllers = sorted(stats.keys())
 	name = 'score' if show_score else 'wins'
 	# Loop through stats
-	fig = plt.figure(figsize=(5, 3.5))
+	fig = plt.figure(figsize=(5, 1.5))
 	ax = fig.add_subplot(111)
 	for i, (controller, dic) in enumerate(sorted(stats.iteritems())):
 		print "controller:", controller
@@ -110,7 +110,7 @@ def barplot_games(stats, show_score, filename=None, order_by_controller=None,
 				order_by_column)
 
 	# Create figure and get some axis
-	fig = plt.figure(figsize=(14, 3.3))
+	fig = plt.figure(figsize=(7, 3.3))
 	# Add some space to the bottom
 	plt.subplots_adjust(bottom=.3)
 	ax = fig.add_subplot(111)

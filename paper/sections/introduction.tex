@@ -1,27 +1,26 @@
 \section{Introduction}
 \label{sec:introduction}
 
-An increasingly important goal in decision theory is creating AI algorithms that
-are capable of solving more than one problem. A general AI, instead of a
-specific alternative, is considered a step towards creating a strong AI.  An
-especially challenging domain of AI is general video game playing.  Since many
-real-world problems can be modeled as a game, algorithms that can play complex
-games successfully are often highly effective problem solvers in other areas.
-Although decision theory and general video game playing are different research
-areas, both can benefit from each other.  An increase in performance in general
-video game playing can be found by using algorithms designed for complex
-decision-theoretic problems, whereas the algorithms that are created for general
-video game playing can be applied to other decision-theoretic problems.
-Furthermore, applying decision-theoretic algorithms to a new class of problems,
-like general video game playing, can lead to a better understanding of the
-algorithms, and new insights in their strengths and weaknesses. 
+%An increasingly important goal in decision theory is creating AI algorithms that
+%are capable of solving more than one problem. A general AI, instead of a
+%specific alternative, is considered a step towards creating a strong AI.  An
+%especially challenging domain of AI is general video game playing.  Since many
+%real-world problems can be modeled as a game, algorithms that can play complex
+%games successfully are often highly effective problem solvers in other areas.
+%Although decision theory and general video game playing are different research
+%areas, both can benefit from each other.  An increase in performance in general
+%video game playing can be found by using algorithms designed for complex
+%decision-theoretic problems, whereas the algorithms that are created for general
+%video game playing can be applied to other decision-theoretic problems.
+%Furthermore, applying decision-theoretic algorithms to a new class of problems,
+%like general video game playing, can lead to a better understanding of the
+%algorithms, and new insights in their strengths and weaknesses. 
 
-% TODO: Move this further?
-Recent research focusses on algorithms capable of solving several games with
-different types of objectives. A common approach is to use a tree search in
-order to select the best action for any given game state. In every new game
-state, the tree search is restarted until the game ends.  A popular example is
-\emph{Monte Carlo tree search (MCTS)}.
+Recent game programming research focusses on algorithms capable of solving
+several games with different types of objectives. A common approach is to use a
+tree search in order to select the best action for any given game state. In
+every new game state, the tree search is restarted until the game ends.  A
+popular example is \emph{Monte Carlo tree search (MCTS)}.
 
 A method to test the performance of a general video game playing algorithm is
 by using the framework of the \emph{general video game AI (GVGAI)} competition
@@ -52,16 +51,16 @@ subgoal of playing the game.
 
 In certain situations, it is clear how such a subgoal can be achieved and a
 sequence of actions, or \emph{policy}, can be defined to achieve it. A policy to
-achieve a specific subgoal is called an option \cite{sutton1999between}. Thus, an option selects an 
-action, given a game state, that aims at satisfying its subgoal. Options, in
-this context, are game-independent. For example, an option that has reaching a
-specific location in the game (for example a portal) as its objective selects
-actions using a path planning heuristic that will reach the goal location. 
-The probability of this kind of subgoal being achieved by an algorithm that
-does not use options is smaller, especially when the road to the subgoal does
-not indicate any advantage for the player. For instance, in the first few
-iterations of MCTS, the algorithm will be equally motivated to move 10 steps
-into the direction of a certain game sprite as it will be to do any other
+achieve a specific subgoal is called an option~\cite{sutton1999between}. Thus,
+an option selects an action, given a game state, that aims at satisfying its
+subgoal. Options, in this context, are game-independent. For example, an option
+that has reaching a specific location in the game (for example a portal) as its
+objective selects actions using a path planning heuristic that will reach the
+goal location.  The probability of this kind of subgoal being achieved by an
+algorithm that does not use options is smaller, especially when the road to the
+subgoal does not indicate any advantage for the player. For instance, in the
+first few iterations of MCTS, the algorithm will be equally motivated to move 10
+steps into the direction of a certain game sprite as it will be to do any other
 combination of 10 actions. 
 
 Therefore, we propose a new algorithm called \emph{option Monte Carlo tree
@@ -78,4 +77,4 @@ The new algorithms are benchmarked against MCTS on games from the General Video
 Game AI competition. Our results indicate that the O-MCTS and OL-MCTS algorithms
 outperform MCTS in games that require a high level of action planning, e.g.,
 games in which something has to be picked up before a door can be opened. In
-most other games, O-MCTS and OL-MCTS perform at least as good as MCTS.
+most other games, O-MCTS and OL-MCTS perform at least as good as MCTS\@.

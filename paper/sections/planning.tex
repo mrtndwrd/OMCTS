@@ -24,11 +24,12 @@ how the process works in more detail.
 
 \begin{figure}
 	\centering
-	\epsfig{file=includes/omcts.eps, width=.5\columnwidth}
-	\caption{The search tree constructed by O-MCTS. In each blue box, one option
-	is followed. The arrows represent actions chosen by the option. An arrow
-leading to a blue box is an action chosen by the option represented by that box.}
-	\label{fig:omcts-tree}
+	\includegraphics[width=.5\columnwidth]{includes/omcts-eps-converted-to.pdf}
+	\caption{The search tree constructed by O-MCTS\@. In each blue box, one
+	option is followed. The arrows represent actions chosen by the option. An
+	arrow leading to a blue box is an action chosen by the option represented by
+	that box.}
+\label{fig:omcts-tree}
 \end{figure}
 
 In normal MCTS, an action is represented by a connection from a state to the
@@ -39,25 +40,24 @@ property would be lost, because options span over several actions. This
 complicates the comparison of different nodes at the same level in the tree.
 Therefore, we chose to keep the tree representation the same: a node represents
 a state, a connection represents an action. An option spans several actions and
-therefore several nodes in the search tree, as denoted in Figure
-\ref{fig:omcts-tree}. We introduce a change in the expansion and selection
+therefore several nodes in the search tree, as denoted in Figure~\ref{fig:omcts-tree}. We introduce a change in the expansion and selection
 strategies, which select options rather than actions. When a node has an
 unfinished option, the next node will be created using an action selected by
 that option. When a node contains a finished option (the current state satisfies
 its termination condition $\beta$), a new option can be chosen by the expansion
 or selection strategy.
 
-Methods exist for automatically generating options \cite{castro2012automatic},
-but these have only been used on the room navigation problem and generating the
-options would take learning time which the GVGAI framework does not provide.
-Therefore, in this paper O-MCTS uses the option set that was proposed in
-Section \ref{subsec:option-set}.
+%Methods exist for automatically generating options \cite{castro2012automatic},
+%but these have only been used on the room navigation problem and generating the
+%options would take learning time which the GVGAI framework does not provide.
+%Therefore, in this paper O-MCTS uses the option set that was proposed in
+%Section~\ref{subsec:option-set}.
 
 \begin{algorithm}[h]
 	\caption{$\mathsf{O-MCTS}(O, r, t, d)$}
-	\label{alg:omcts}
+\label{alg:omcts}
 	\begin{algorithmic}[1]
-		\State $C_{s \in S} \gets \emptyset$ \Comment{$\mathbf{c}_s$ is the set of children nodes of $s$}
+		\State $C_{s \in[S} \gets \emptyset$ \Comment{$\mathbf{c}_s$ is the set of children nodes of $s$}
 		\State $\mathbf{o} \gets \emptyset$ \Comment{$o_s$ will hold the option followed in $s$}
 		\While {$time\_taken < t$} \label{alg:omcts:mainloop}
 			\State $s \gets r$ \Comment{start from root node}
@@ -70,7 +70,7 @@ Section \ref{subsec:option-set}.
 				\State $\mathbf{m} \gets \cup_o (o_{s \in \mathbf{c}_s})$ \Comment{set $\mathbf{m}$ to expanded options} \label{alg:omcts:m}
 				\If{$\mathbf{p}_s = \mathbf{m}$} \Comment{if all options are expanded}
 					\State $s' \gets \max_{c \in \mathbf{c}_s} \mathsf{uct}(s, c)$ \label{alg:omcts:uct} 
-						\Comment{select child node (Eq. \ref{eq:uct})}
+						\Comment{select child node (Eq.~\ref{eq:uct})}
 					\State $s \gets s'$ \label{alg:omcts:ss} 
 						\Comment{continue loop with new node $s'$}
 				\Else \label{alg:omcts:sexpand}
@@ -86,7 +86,7 @@ Section \ref{subsec:option-set}.
 			\State $\delta \gets \mathsf{rollout}(s')$ \label{alg:omcts:rollout}
 				\Comment{simulate until $\mathsf{stop}$}
 			\State $\mathsf{back\_up}(s', \delta)$ \label{alg:omcts:backup}
-				\Comment{save reward to parent nodes (Eq. \ref{eq:backup})}
+				\Comment{save reward to parent nodes (Eq.~\ref{eq:backup})}
 		\EndWhile
 		\State \Return{$\mathsf{get\_action}(\max_{o \in c_r} \mathsf{value}(o), r)$}
 	\end{algorithmic}
@@ -98,38 +98,38 @@ Section \ref{subsec:option-set}.
 	\label{fig:zelda}
 \end{figure}
 
-We describe O-MCTS in Algorithm \ref{alg:omcts}. It is invoked with a set of
+We describe O-MCTS in Algorithm~\ref{alg:omcts}. It is invoked with a set of
 options $O$, a root node $r$, a maximum runtime $t$ in milliseconds and a
 maximum search depth $d$. Two variables are instantiated. $C_s$ is a set of
 sets, containing the set of child nodes for each node. The set $\mathbf{o}$
-contains which option is followed for each node. The main loop starts at line
-\ref{alg:omcts:mainloop}, which keeps the algorithm running until time runs out.
+contains which option is followed for each node. The main loop starts at 
+line~\ref{alg:omcts:mainloop}, which keeps the algorithm running until time runs out.
 The inner loop runs until a node $s$ is reached that meets a stop criterion
 defined by the function \textsf{stop}, or a node is expanded into a new node.
-In lines \ref{alg:omcts:sp} until \ref{alg:omcts:ep}, $\mathbf{p}_s$ is set to
+In lines~\ref{alg:omcts:sp} until~\ref{alg:omcts:ep}, $\mathbf{p}_s$ is set to
 all options that are available in $s$. If an option has not finished,
 $\mathbf{p}_s$ contains only the current option. Otherwise, it contains all the
 options $o$ that have state $s$ in their initiation set $I_o$. For example,
-the agent is playing \textit{zelda} (see Figure \ref{fig:zelda}) and the current
+the agent is playing \textit{zelda} (see Figure~\ref{fig:zelda}) and the current
 state $s$ shows no NPCs on screen. If $o$ is the \textit{AvoidNearestNpcOption},
 $I_o$ will not contain state $s$, because there are no NPCs on screen, rendering
 $o$ useless in state $s$. $\mathbf{p}_s$ will thus not contain option $o$.
 
-The four phases of Figure \ref{fig:mcts} are implemented as follows.  In line
-\ref{alg:omcts:m}, $\mathbf{m}$ is set to the set of options chosen in the
+The four phases of Figure~\ref{fig:mcts} are implemented as follows.  In 
+line~\ref{alg:omcts:m}, $\mathbf{m}$ is set to the set of options chosen in the
 children of state $s$. If $\mathbf{p}_s$ is the same set as $\mathbf{m}$, i.e.,
 all possible options have been explored at least once in node $s$, a new node
-$s'$ is \emph{selected} by \textsf{uct}. In line \ref{alg:omcts:ss}, $s$ is
+$s'$ is \emph{selected} by \textsf{uct}. In line~\ref{alg:omcts:ss}, $s$ is
 instantiated with the new node $s'$, continuing the inner loop using this node.
 Else, some options are apparently unexplored in node $s$. It is \emph{expanded}
-with a random, currently unexplored option by lines \ref{alg:omcts:sexpand} to
-\ref{alg:omcts:eexpand}. After expansion or when the stop criterion is met,
+with a random, currently unexplored option by lines~\ref{alg:omcts:sexpand}
+to~\ref{alg:omcts:eexpand}. After expansion or when the stop criterion is met,
 the inner loop is stopped and a \emph{rollout} is done, resulting in
 score difference $\delta$. This score difference is \emph{backed up} to the
 parent nodes of $s$ using the backup function, after which the tree traversal
 restarts with the root node $r$.
 
-A number of functions is used by Algorithm \ref{alg:omcts}. The function
+A number of functions is used by Algorithm~\ref{alg:omcts}. The function
 \textsf{stop} returns true when either the game ends in state $s$ or the maximum
 depth is reached in $s$. The function \textsf{get\_action} lets option $\omega$
 choose the best action for the state in node $s$, The function \textsf{expand}
@@ -151,9 +151,7 @@ looks like this:
 where $\delta$ is the reward that is being backed up, $v_s$ is the value of node
 $s$. $d_s$ and $d_{s'}$ are the node depths of tree nodes $s$ and $s'$. Thus, a
 node that is a further ancestor of node $s'$ will be updated with a smaller
-value. This discounting method is similar to that of SMDP Q-learning done in
-Equation \ref{eq:smdp-qlearning}, where $\gamma^k$ is used to discount for the
-length of an option.
+value.
 
 When the time limit is reached, the algorithm chooses an option from the
 children of the root node, $c_r$, corresponding to the child node with the
