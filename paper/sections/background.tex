@@ -22,31 +22,29 @@ probabilities over the possible next states, when taking an action in a state.
 $R$ is a reward function defined as $R: S \times A \times S \rightarrow
 \mathbb{R}$. In this case, when the game score changes, the difference is viewed
 as the reward.  Algorithms typically maximize the cumulative reward, which is
-analogous to the score. An MDP by definition has the \emph{Markov property},
-which means that the conditional probability distribution of future states
-depends only upon the present state. No information from previous states is
-needed. In the scope of this paper algorithms do not have access to $T$ and
-$R$.
+analogous to the score. In the scope of this paper algorithms do not have access
+to $T$ and $R$.
 
 \subsection{Monte Carlo Tree Search}
 \begin{figure}
 	\centering
-	\includegraphics[width=.6\columnwidth]{includes/mcts-eps-converted-to.pdf}
+	\includegraphics[width=\columnwidth]{includes/mcts-wide-eps-converted-to}
 	\caption{One MCTS iteration. This process is repeated in order to improve
 	the estimates of action values.}
 \label{fig:mcts}
 \end{figure}
 
 \label{subsec:mcts}
-Monte Carlo methods have their roots in statistical physics, where they have
-been used to approximate intractable integrals. 
-Abrahamson~\cite{abramson1990expected} demonstrated theoretically that this sampling method might be
-useful for action selection in games as well.  In 2001, Monte Carlo methods were
-effectively used for bridge~\cite{ginsberg2001gib}. The real success of MCTS
-started in 2006, when the tree search method and UCT formula were introduced,
-yielding very good results in Computer Go~\cite{gelly2006modification}. Since
-2006, the algorithm has been extended with many variations is still being used
-for other computer games~\cite{browne2012survey}, including the GVGAI
+%Monte Carlo methods have their roots in statistical physics, where they have
+%been used to approximate intractable integrals. 
+%Abrahamson~\cite{abramson1990expected} demonstrated theoretically that this sampling method might be
+%useful for action selection in games as well.  In 2001, Monte Carlo methods were
+%effectively used for bridge~\cite{ginsberg2001gib}. 
+The real success of MCTS started in 2006, when the tree search method and UCT
+formula were introduced, yielding very good results in Computer
+Go~\cite{gelly2006modification}. Since 2006, the algorithm has been extended
+with many variations is still being used for other computer
+games~\cite{browne2012survey}, including the GVGAI
 competition~\cite{perez2014knowledge}.
 
 This section explains how MCTS approximates action values for states.  A tree is
@@ -105,13 +103,10 @@ is selected with a probability proportional to $u_i$
 Each action has an estimated value $\mu_i$ ordered in such a way that $\mu_0 >
 \mu_1 > \cdots > \mu_N$, and a variance $\sigma_i^2$. K is a constant
 that influences the exploration --- exploitation trade off. $\varepsilon_i$ prevents
-the probability of selecting a move to reach zero and its value is proportional
-to the ordering of the expected values of the possible actions. 
-\begin{equation}
-	\label{eq:epsilon}
-	\varepsilon_i = \frac{0.1 + 2^{-i} + a_i}{N}
-\end{equation}
-Where $a_i$ is 1 when an action is \emph{an atari move}, a go-specific
+the probability of selecting a move to reach zero. Its value is proportional
+to the ordering of the expected values of the possible actions: $\varepsilon_i =
+\frac{0.1 + 2^{-i} + a_i}{N}$\@.
+Here, $a_i$ is 1 when an action is \emph{an atari move}, a go-specific
 move that can otherwise easily be underestimated by MCTS, and otherwise 0.
 
 After a rollout, the reward is backed up, which means that the estimated value
@@ -135,21 +130,15 @@ subgoal. Formally, it is a triple $\langle I, \pi, \beta\rangle$ in which $I
 \subseteq S$ is an initiation set, $\pi: S \times A \rightarrow [0, 1]$ is a
 policy and $\beta: S^+ \rightarrow[0,1]$ is a termination condition.
 
-The initiation set $I$ is a set of states in which the
-option can be started. This set can be different for each option. The option's
-policy $\pi$ defines the actions that should be taken for each state. The
-termination condition $\beta$ is used to decide if an option is finished, given
-that the agent arrived at a certain state.
-
 When an agent starts in state $s$, it can choose from all of the options $o \in
 O$ that have $s$ in its initiation set $I_o$. Then the option's policy $\pi$ is
 followed, possibly for several time steps. The agent stops following the policy
 as soon as it reaches a state that satisfies a termination condition in $\beta$.
-This often means that the option has reached its subgoal, or a criterion is met
-that renders the option obsolete (e.g., its goal does not exist anymore).
+This means that the option has reached its subgoal, or a criterion is met that
+renders the option obsolete (e.g., its goal does not exist anymore).
 Afterwards, the agent chooses a new option that will be followed.
 
-A popular algorithm that uses options in stead of actions is SMDP
+A popular algorithm that uses options instead of actions is SMDP
 Q-learning~\cite{sutton1999between}. In general, it estimates the expected
 rewards for using an option in a certain state, in order to find an optimal
 policy over the option set.
@@ -166,20 +155,12 @@ the games in a similar manner, resulting in a method to compare their
 performances on several games.
 
 The General Video Game AI competition provides games written in VGDL\@.
-Furthermore, it provides a Java framework in which algorithms can be
-benchmarked using a static set of rules. Algorithms are only allowed to observe
-the game information: score, game tick (timestep), the set of possible actions
-and information about if the game is over and if the player won; avatar
-information: its position, orientation, speed and resources; and screen
-information: Which sprites are on the screen, including their location and the
-size (in pixels) of the level grid's blocks.
-
-Algorithms have a limited amount of time to plan their actions, during which
-they can access a simulator called the \emph{forward model}. The forward model
-acts as a black box that returns a new state when an algorithm applies an
-action. The actions that are used on the forward model do not influence the real
-game score. Before the simulation time runs out, the algorithm should return an
-action to apply to the real game.
+The games function as a black box from which algorithms can only observe the
+game state. In each game tick, algorithms have limited time to plan their
+action, during which they can access a simulator called the \emph{forward
+model}, which returns new states for actions. The actions that are used on the
+forward model do not influence the real game score. Algorithms should return
+actions to apply to the real game before their simulation time runs out.
 
 The algorithms proposed in this paper will be benchmarked on the GVGAI game
 sets, using the rules of the competition. This means that the algorithms do not

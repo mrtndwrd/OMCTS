@@ -39,29 +39,26 @@ use any of the knowledge gained from the previous games.
 
 In contrast, when humans play a game we expect them to do assumptions about its
 mechanics, e.g., pressing the left button often results in the player's avatar
-moving to the left on the screen. Players can use these assumptions to learn how
-to play a game more quickly. Furthermore, human players are able to have an
-abstraction layer over their action choices; instead of choosing one action at a
-time they define a specific subgoal for themselves: when there is a portal on
-screen, a human player is likely to try to find out what the portal does by
-walking towards its sprite (the image of the portal on the screen). The player
-will remember the effect of the portal sprite, and use that information for the
-rest of the game. In this case, walking towards the portal can be seen as a
-subgoal of playing the game.
+moving to the left on the screen. 
+%Players can use these assumptions to learn how to play a game more quickly. 
+Furthermore, we expect human players define specific subgoals for themselves:
+when there is a portal on screen, a player is likely to try to find out what the
+portal does by walking towards its sprite. The player will remember the effect
+of the portal sprite and use that information for the rest of the game. Walking
+towards the portal can be seen as a subgoal of playing the game.
 
-In certain situations, it is clear how such a subgoal can be achieved and a
+In certain situations it is clear how such a subgoal can be achieved and a
 sequence of actions, or \emph{policy}, can be defined to achieve it. A policy to
 achieve a specific subgoal is called an option~\cite{sutton1999between}. Thus,
 an option selects an action, given a game state, that aims at satisfying its
-subgoal. Options, in this context, are game-independent. For example, an option
-that has reaching a specific location in the game (for example a portal) as its
-objective selects actions using a path planning heuristic that will reach the
-goal location.  The probability of this kind of subgoal being achieved by an
-algorithm that does not use options is smaller, especially when the road to the
-subgoal does not indicate any advantage for the player. For instance, in the
-first few iterations of MCTS, the algorithm will be equally motivated to move 10
-steps into the direction of a certain game sprite as it will be to do any other
-combination of 10 actions. 
+subgoal. In this paper, options are game-independent. The options are expected
+to guide the exploration of a game's search space to feasible areas.
+
+%In contrast to an algorithm with path planning options, the probability of an algorithm that does not use options to reach a specific game sprite is
+%smaller, especially when the road to the subgoal does not indicate any advantage
+%for the player. For instance, in the first few iterations of MCTS, the algorithm
+%will be equally motivated to move 10 steps into the direction of a certain game
+%sprite as it will be to do any other combination of 10 actions. 
 
 Therefore, we propose a new algorithm called \emph{option Monte Carlo tree
 search (O-MCTS)} that extends MCTS to use options. Because O-MCTS chooses

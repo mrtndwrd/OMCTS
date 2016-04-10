@@ -75,12 +75,12 @@ finished.
 		\State \Return{$\mathsf{get\_action}(\max_{o \in c_r} \mathsf{value}(o), r)$}
 	\end{algorithmic}
 \end{algorithm}
-\begin{figure}
-	\centering
-	\includegraphics[width=\columnwidth]{includes/zelda}
-	\caption{Visual representation of the game \textit{zelda}.}
-\label{fig:zelda}
-\end{figure}
+%\begin{figure}
+%	\centering
+%	\includegraphics[width=\columnwidth]{includes/zelda}
+%	\caption{Visual representation of the game \textit{zelda}.}
+%\label{fig:zelda}
+%\end{figure}
 
 We describe O-MCTS in Algorithm~\ref{alg:omcts}. It is invoked with a set of
 options $O$, a root node $r$, a maximum runtime $t$ in milliseconds and a
@@ -93,11 +93,11 @@ defined by the function \textsf{stop}, or a node is expanded into a new node.
 In lines~\ref{alg:omcts:sp} until~\ref{alg:omcts:ep}, $\mathbf{p}_s$ is set to
 all options that are available in $s$. If an option has not finished,
 $\mathbf{p}_s$ contains only the current option. Otherwise, it contains all the
-options $o$ that have state $s$ in their initiation set $I_o$. For example,
-the agent is playing \textit{zelda} (see Figure~\ref{fig:zelda}) and the current
-state $s$ shows no NPCs on screen. If $o$ is the \textit{AvoidNearestNpcOption},
-$I_o$ will not contain state $s$, because there are no NPCs on screen, rendering
-$o$ useless in state $s$. $\mathbf{p}_s$ will thus not contain option $o$.
+options $o$ that have state $s$ in their initiation set $I_o$. For example, the
+agent is playing \textit{zelda} and the current state $s$ shows no NPCs on
+screen. If $o$ is the \textit{AvoidNearestNpcOption}, $I_o$ will not contain
+state $s$, because there are no NPCs on screen, rendering $o$ useless in state
+$s$. $\mathbf{p}_s$ will thus not contain option $o$.
 
 The four phases of Figure~\ref{fig:mcts} are implemented as follows.  In 
 line~\ref{alg:omcts:m}, $\mathbf{m}$ is set to the set of options chosen in the

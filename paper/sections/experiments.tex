@@ -36,45 +36,34 @@ For these experiments we construct an option set which is aimed at providing
 action sequences for any type of game, since the aim here is general video game
 playing. Note that a more specific set of options can be created when the
 algorithm should be tailored to only one type of games and similarly: options
-can be added and removed from the set easily.  The following options are
-designed by us and used in the experiments of this paper.
+can be added and removed from the set easily.
 
-\begin{itemize}[noitemsep]
-	\item \texttt{ActionOption} executes a specific action once and then
-		stops.
-	\item \texttt{AvoidNearestNpcOption} makes the agent avoid the nearest NPC
-	\item \texttt{GoNearMovableOption} makes the agent walk towards a
-		movable game sprite (defined as movable by the VGDL) and stops when it
-		is within a certain range of the movable
-	\item \texttt{GoToMovableOption} makes the agent walk towards a
-		movable until its location is the same as that of the movable
-	\item \texttt{GoToNearestSpriteOfType} makes the agent walk to the nearest sprite of
-		a specific type
-	\item \texttt{GoToPositionOption} makes the agent walk to a specific position
-	\item \texttt{WaitAndShootOption} waits until an NPC is in a specific location and
-		then uses its weapon.
-\end{itemize}
+The option set consists of one option that executes a specific action once, an
+option that avoids the nearest NPC by moving away from it, an option that moves
+to a movable sprite until it is close to it (but not on it). There are options
+that go to a movable sprite and options to go to a certain position in the game.
+Lastly we added an option that waits until an NPC is at a certain distance and
+then fires the weapon.
 
 For each option type, a subtype per visible sprite type is created during the
 game. For each sprite, an option instance of its corresponding subtype is
-created. For example, the game \textit{zelda}, as seen in Figure~\ref{fig:zelda},
-contains three different sprite types (excluding the avatar and walls);
-monsters, a key and a portal. The first level contains three monsters, one key
-and one portal. The aim of the game is to collect the key and walk towards
-the portal without being killed by the monsters. The score is increased by 1 if
-a monster is killed, i.e., its sprite is on the same location as the sword
-sprite, if the key is picked up, or when the game is won.
-\texttt{GoToMovableOption} and \texttt{GoNearMovableOptions} are created for
-each of the three monsters and for the key. A \texttt{GoToPositionOption} is
-created for the portal.  One \texttt{GoToNearestSpriteOfType} is created per
-sprite type. One \texttt{WaitAndShootOption} is created for the monsters and
-one \texttt{AvoidNearestNpc\-Option} is created. This set of options is $O$, as
-defined in Section~\ref{subsec:options}. In a state where, for example, all the
-monsters are dead, the possible option set $\mathbf{p}_s$ does not contain the
-\texttt{AvoidNearestNpcOption} and \texttt{GoToMovableOption}s and
-\texttt{GoNearMovableOption}s for the monsters.
+created. For example, the game \textit{zelda} contains three different sprite
+types (excluding the avatar and walls); monsters, a key and a portal. The first
+level contains three monsters, one key and one portal. The aim of the game is to
+collect the key and walk towards the portal without being killed by the
+monsters. The score is increased by 1 if a monster is killed, i.e., its sprite
+is on the same location as the sword sprite, if the key is picked up, or when
+the game is won.  \emph{go to movable} and \emph{go near movable} options are
+created for each of the three monsters and for the key. A \emph{go to position}
+option is created for the portal.  One \emph{go to nearest sprite of type}
+option is created per sprite type. One \emph{wait and shoot} option is created
+for the monsters and one \emph{avoid nearest NPC} option is created. This set of
+options is $O$, as defined in Section~\ref{subsec:options}. In a state where,
+for example, all the monsters are dead, the possible option set $\mathbf{p}_s$
+does not contain the \emph{avoid nearest NPC}, \emph{go to movable} and \emph{go
+near movable} options for the monsters.
 
-The \texttt{GoTo\ldots} and \texttt{GoNear\ldots} options utilize an adaptation
+The \emph{GoTo\ldots} and \emph{GoNear\ldots} options utilize an adaptation
 of the A Star algorithm to plan their routes~\cite{hart1968formal}. An
 adaptation is needed, because at the beginning of the game there is no knowledge
 of which sprites are traversable by the avatar and which are not. Therefore,
@@ -106,22 +95,21 @@ default value of maximum search depth of 10. Both algorithms have \textsf{uct}
 constant $C_p = \sqrt{2}$. Unfortunately, comparing to Q-learning with options
 was impossible, because the state space of these games is too big for the
 algorithm to learn any reasonable behavior. All the experiments are run on an
-Intel i7-2600, 3.40GHz quad core processor with 6 GB of DDR3, 1333 MHz RAM
+Intel i7--2600, 3.40GHz quad core processor with 6 GB of DDR3, 1333 MHz RAM
 memory. In all the following experiments on this game set, each algorithm plays
 each of the 5 levels of every game 20 times. 
 
-\subsection{O-MCTS}
-\label{subsec:omcts}
-This section describes the results of the option Monte Carlo tree search
-algorithm in comparison with the standard Monte Carlo tree search algorithm.
-This demonstrates the improvement that can be achieved by using our method to
-enhance MCTS with our option set.
-The games in this and the following experiments are ordered by the performance
-an algorithm that always chooses a random action, indicating the complexity of
-the games.  From left to right, the random algorithm's win ratio and score
-decreases. Figure~\ref{fig:scores} shows the win ratio and normalized
-score of the algorithms for each game. In short, the O-MCTS algorithms performs
-at least as good as MCTS in almost all games, and better in most.
+%\subsection{O-MCTS}
+%\label{subsec:omcts}
+First, we will describe the results of the O-MCTS algorithm in comparison with
+MCTS\@.  This demonstrates the improvement that can be achieved by using our
+method to enhance MCTS with our option set.  The games in this and the following
+experiments are ordered by the performance an algorithm that always chooses a
+random action, indicating the complexity of the games.  From left to right, the
+random algorithm's win ratio and score decreases. Figure~\ref{fig:scores} shows
+the win ratio and normalized score of the algorithms for each game. In short,
+the O-MCTS algorithms performs at least as good as MCTS in almost all games, and
+better in most.
 
 O-MCTS outperforms MCTS in the games \textit{missile command}, \textit{bait},
 \textit{camel race}, \textit{survive zombies}, \textit{firestorms},
@@ -129,8 +117,7 @@ O-MCTS outperforms MCTS in the games \textit{missile command}, \textit{bait},
 \textit{chase}, \textit{boulderchase} and \textit{eggomania} winning more games
 or achieving a higher mean score. By looking at the algorithm's actions for
 these games, we can see that O-MCTS succeeds in efficiently planning paths in a
-dangerous environment, enabling it to do a further forward search than the
-ordinary Monte Carlo tree search. 
+dangerous environment, enabling it to do a further forward search than MCTS\@. 
 \textit{Camel race} requires the player to
 move to the right for 80 consecutive turns to reach the finish line. No
 intermediate rewards are given to indicate that the agent is walking in the
@@ -176,11 +163,11 @@ more action time, the difference between O-MCTS and MCTS is reduced for
 	\caption{Normalized win ratio and score comparison of OL-MCTS and O-MCTS\@.
 	OL-MCTS outperforms O-MCTS by a small margin in some games. In the games
 	that are not shown both algorithms perform equally.}
-	\label{fig:scores-olmcts}
+\label{fig:scores-olmcts}
 \end{figure}
 
-\subsection{OL-MCTS}
-\label{subsec:olmcts}
+%\subsection{OL-MCTS}
+%\label{subsec:olmcts}
 Secondly, we compare OL-MCTS to O-MCTS by running it on the same set of games.
 The option learning algorithm is allowed four learning games, after which the
 fifth is used for the comparisons. Figure~\ref{fig:scores-olmcts} shows the
@@ -205,9 +192,9 @@ are sprites that kill the player, which are evaded by the algorithm when it has
 learned to do so.  2.) The algorithm learns that it should pick up the key.
 
 Furthermore, we can see small improvements on the games \textit{seaquest} and
-\textit{jaws}, on which O-MCTS performs worse than MCTS\@.  Although OL-MCTS does
-not exceed the score of the original Monte Carlo tree search algorithm, this
-improvement suggests that OL-MCTS is on the right path of improving O-MCTS\@.
+\textit{jaws}, on which O-MCTS performs worse than MCTS\@.  Although OL-MCTS
+does not exceed the score of the MCTS algorithm, this improvement suggests
+that OL-MCTS is on the right path of improving O-MCTS\@.
 
 \begin{figure}
 	\centering
