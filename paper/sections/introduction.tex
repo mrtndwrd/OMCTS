@@ -31,21 +31,19 @@ their general applicability. Many of the algorithms submitted to this contest
 rely on a tree search method.
 
 A limitation in tree search algorithms is that since many games are too complex
-to plan far ahead in a limited time frame, many tree algorithms incorporate a
-maximum search depth. As a result, tree search based methods often only
-consider short-term score differences and do not incorporate long-term
-plans. Moreover, many algorithms lack common video game knowledge and do not
-use any of the knowledge gained from the previous games.
+to plan far ahead in a limited time frame, many of these algorithms incorporate
+a maximum search depth. As a result, tree search based methods often only
+consider short-term score differences and do not incorporate long-term plans.
+Moreover, many algorithms lack common video game knowledge and do not use any of
+the knowledge gained from the previous games.
 
 In contrast, when humans play a game we expect them to do assumptions about its
 mechanics, e.g., pressing the left button often results in the player's avatar
-moving to the left on the screen. 
-%Players can use these assumptions to learn how to play a game more quickly. 
-Furthermore, we expect human players define specific subgoals for themselves:
-when there is a portal on screen, a player is likely to try to find out what the
-portal does by walking towards its sprite. The player will remember the effect
-of the portal sprite and use that information for the rest of the game. Walking
-towards the portal can be seen as a subgoal of playing the game.
+moving to the left on the screen.  Furthermore, we expect human players to define
+specific subgoals for themselves: when there is a portal on screen, a player is
+likely to try to find out what the portal does by walking towards it.  The
+player will remember the effect of this and use that information for the rest of
+the game.
 
 In certain situations it is clear how such a subgoal can be achieved and a
 sequence of actions, or \emph{policy}, can be defined to achieve it. A policy to
@@ -60,18 +58,18 @@ to guide the exploration of a game's search space to feasible areas.
 %will be equally motivated to move 10 steps into the direction of a certain game
 %sprite as it will be to do any other combination of 10 actions. 
 
-Therefore, we propose a new algorithm called \emph{option Monte Carlo tree
-search (O-MCTS)} that extends MCTS to use options. Because O-MCTS chooses
-between options rather than actions when playing a game, we expect it to be able
-to plan at a higher level of abstraction. Furthermore, we introduce \emph{option
-learning MCTS (OL-MCTS)}, an extension of O-MCTS that approximates which of the
-available options is more feasible for the game it is playing. This can
-be used to shift the focus of the tree search exploration to more promising
+We propose a new algorithm called \emph{option Monte Carlo tree search (O-MCTS)}
+that extends MCTS to use options. Because O-MCTS chooses between options rather
+than actions when playing a game, we expect it to be able to plan more
+efficiently, at a higher level of abstraction. Furthermore, we introduce
+\emph{option learning MCTS (OL-MCTS)}, an extension of O-MCTS that approximates
+which of the available options is more feasible for the game it is playing. This
+can be used to shift the focus of the tree search exploration to more promising
 options. This information can be transferred in order to increase performance on
 the next level.
 
-The new algorithms are benchmarked against MCTS on games from the General Video
-Game AI competition. Our results indicate that the O-MCTS and OL-MCTS algorithms
+The new algorithms are benchmarked against MCTS on games from the GVGAI
+competition. Our results indicate that the O-MCTS and OL-MCTS algorithms
 outperform MCTS in games that require a high level of action planning, e.g.,
 games in which something has to be picked up before a door can be opened. In
 most other games, O-MCTS and OL-MCTS perform at least as good as MCTS\@.

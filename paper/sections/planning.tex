@@ -17,7 +17,7 @@ the process works in more detail.
 
 \begin{figure}
 	\centering
-	\includegraphics[width=.5\columnwidth]{includes/omcts-eps-converted-to.pdf}
+	\includegraphics[width=.4\columnwidth]{includes/omcts-eps-converted-to.pdf}
 	\caption{The search tree constructed by O-MCTS\@. In each blue box, one
 	option is followed. The arrows represent actions chosen by the option. An
 	arrow leading to a blue box is an action chosen by the option represented by
@@ -72,7 +72,7 @@ finished.
 			\State $\mathsf{back\_up}(s', \delta)$ \label{alg:omcts:backup}
 				\Comment{save reward to parent nodes (Eq.~\ref{eq:backup})}
 		\EndWhile
-		\State \Return{$\mathsf{get\_action}(\max_{o \in c_r} \mathsf{value}(o), r)$}
+		\State \Return{$\mathsf{get\_action}(\max_{o \in \mathbf{c}_r} \mathsf{value}(o), r)$}
 	\end{algorithmic}
 \end{algorithm}
 %\begin{figure}

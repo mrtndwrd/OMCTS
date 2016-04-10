@@ -22,21 +22,19 @@ forward model, but always applies actions directly to the game in order to
 learn.
 
 Another alternative is the PUMA algorithm, which applies forward search to
-options (referred to as macro-actions) and works on POMDPs. PUMA automatically
-generates goal-oriented MDPs for specific subgoals, the advantage of which is
-that effective options can be created without requiring any prior knowledge of
-the (PO)MDP\@. The disadvantage is that this takes a lot of computation time and
-thus would not work in the GVGAI framework, where only 40 milliseconds of
-computation time is allowed between actions. Furthermore PUMA has to find out the
-optimal length per macro-action, our algorithm can use options of variable
-length with starting an stopping conditions.
+options and works on POMDPs. PUMA automatically generates goal-oriented MDPs for
+specific subgoals, the advantage of which is that effective options can be
+created without requiring any prior knowledge of the (PO)MDP\@. The disadvantage
+is that this takes a lot of computation time and thus would not work in the
+GVGAI framework, where only 40 milliseconds of computation time is allowed
+between actions. Furthermore PUMA has to find out the optimal length per
+macro-action, our algorithm can use options of variable length with starting an
+stopping conditions.
 
 Another algorithm that uses MCTS with macro actions is called Purofvio.
-Purofvio plans over macro-actions which, in this case, are defined as repeating
-one action several times. No more complex options are defined. The paper notes
-that their options must always be of the same size, because they found that
-otherwise MCTS seems to favor options with a longer time span over shorter
-options. Furthermore Purofvio is only created for the physical travelling
+Purofvio plans over macro-actions which are defined as repeating one action
+several times. No more complex options are defined.  All the options are of
+exactly the same size. Purofvio is created solely for the physical travelling
 salesperson problem. Although Purofvio could also work on other games, we
 decided to create a different algorithm, that is capable of using more complex
 options.

@@ -86,6 +86,7 @@ is followed in that node to tweak the option selection. When it starts using
 			\State $\delta \gets \mathsf{rollout}(s')$ \label{alg:olmcts:rollout}
 			\State $\mathsf{back\_up}(s', \delta)$ \label{alg:olmcts:backup}
 		\EndWhile
+		\State \Return{$\mathsf{get\_action}(\max_{o \in \mathbf{c}_r} \mathsf{value}(o), r)$}
 	\end{algorithmic}
 \end{algorithm}
 
