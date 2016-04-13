@@ -14,13 +14,13 @@ outperforms MCTS in most games.}
 \label{fig:scores}
 \end{figure*}
 
-This section describes the experiments that have been done on
-O-MCTS and OL-MCTS\@. The algorithms are compared to the MCTS
-algorithm, as described in Section~\ref{subsec:mcts}. All algorithms are run on a set of
-twenty-eight different games in the VGDL framework. The set consists of all the
-games from the first four training sets of the GVGAI competition, excluding
-puzzle games that can be solved by an exhaustive search and have no random
-component (e.g. NPCs). Each game has five levels.
+In this section we describe our experiments on O-MCTS and OL-MCTS\@. The
+algorithms are compared to the MCTS algorithm, as described in
+Section~\ref{subsec:mcts}. All algorithms are run on a set of twenty-eight
+different games in the VGDL framework. The set consists of all the games from
+the first four training sets of the GVGAI competition, excluding puzzle games
+that can be solved by an exhaustive search and have no random component (e.g.
+NPCs). Each game has five levels.
 
 Firstly, we compare O-MCTS to MCTS by showing the win ratio and mean score of
 both algorithms on all the games. Secondly we show the improvement that OL-MCTS
@@ -65,46 +65,47 @@ does not contain the \emph{avoid nearest NPC}, \emph{go to movable} and \emph{go
 near movable} options for the monsters.
 
 The \emph{go to \ldots} and \emph{go near \ldots} options utilize an adaptation
-of the A Star algorithm to plan their routes~\cite{hart1968formal}. An
+of the $A^*$ algorithm to plan their routes~\cite{hart1968formal}. An
 adaptation is needed, because at the beginning of the game there is no knowledge
 of which sprites are traversable by the avatar and which are not. Therefore,
-during every move that is simulated by the agent, the A Star module has to
+during every move that is simulated by the agent, the $A^*$ module has to
 update its beliefs about the location of walls and other blocking objects. This
 is accomplished by comparing the movement the avatar wanted to make to the
 movement that was actually made in game. If the avatar did not move, it is
 assumed that all the sprites on the location the avatar should have arrived in
-are blocking sprites. Our A Star keeps a \emph{wall score} for each sprite type.
+are blocking sprites. Our $A^*$ keeps a \emph{wall score} for each sprite type.
 When a sprite blocks the avatar, its wall score is increased by one.
 Additionally, to prevent the avatar from walking into deadly sprites, when a
 sprite kills the avatar, its wall score is increased by 100.  Traditionally the
-A Star's heuristic uses the distance between two points. Our A Star adaptation
+$A^*$'s heuristic uses the distance between two points. Our $A^*$ adaptation
 adds the wall score of the goal location to this heuristic, encouraging the
-algorithm to take paths with a low wall score. This method enables A Star to
+algorithm to take paths with a low wall score. This method enables $A^*$ to
 try to traverse paths that were unavailable earlier, while preferring safe and
 easily traversable paths. For example in \textit{zelda}, a door is closed until
-a key is picked up. Our A Star implementation will still be able to plan a path
+a key is picked up. Our $A^*$ implementation will still be able to plan a path
 to the door once the key is picked up, to win the game.
 
 We empirically optimize the parameters of the O(L)-MCTS algorithm
 for these experiments. We use discount factor $\gamma = 0.9$, maximum action
 time $t = 40$ milliseconds. The maximum search depth $d$ is set to 70, which is
 higher than most alternative tree search algorithms, for example in the GVGAI
-competition, use. The number of node visits after which \textsf{uct} is used,
+competition, use. This is possible because the search tree has a relatively low
+branching factor. The number of node visits after which \textsf{uct} is used,
 $v$, is set to 40. Crazy stone parameter $K$ is set to $0.5$.  For comparison,
-we use the MCTS algorithm provided with the Java implementation of VGDL with its
-default value of maximum search depth of 10. Both algorithms have \textsf{uct}
-constant $C_p = \sqrt{2}$. Unfortunately, comparing to Q-learning with options
-was impossible, because the state space of these games is too big for the
-algorithm to learn any reasonable behavior. All the experiments are run on an
-Intel i7--2600, 3.40GHz quad core processor with 6 GB of DDR3, 1333 MHz RAM
-memory. In all the following experiments on this game set, each algorithm plays
-each of the 5 levels of every game 20 times.
+we use the MCTS algorithm provided with the Java implementation of VGDL which
+employs a maximum tree depth of 10, because the branching factor is higher. Both
+algorithms have \textsf{uct} constant $C_p = \sqrt{2}$. Unfortunately, comparing
+to Q-learning with options was impossible, because the state space of these
+games is too big for the algorithm to learn any reasonable behavior. All the
+experiments are run on an Intel i7--2600, 3.40GHz quad core processor with 6 GB
+of DDR3, 1333 MHz RAM memory. In all the following experiments on this game set,
+each algorithm plays each of the 5 levels of every game 20 times.
 
 %\subsection{O-MCTS}
 %\label{subsec:omcts}
 First, we will describe the results of the O-MCTS algorithm in comparison with
 MCTS\@.  This demonstrates the improvement that can be achieved by using our
-method to enhance MCTS with our option set.  The games in this and the following
+algorithm.  The games in this and the following
 experiments are ordered from left to right by the performance of an algorithm
 that always chooses a random action, indicating the complexity of the games.
 Figure~\ref{fig:scores} shows the win ratio and normalized score of the
@@ -179,7 +180,7 @@ algorithm after learning for four games.
 We can see that, although the first iteration of OL-MCTS sometimes performs a
 bit worse than O-MCTS, the fifth iteration often scores at least as high, or
 higher than O-MCTS\@. We expect that the loss of performance in OL-MCTS1 is
-a result of the extra overhead that is added by the crazy stone algorithm: A
+a result of the extra overhead that is added by the crazy stone algorithm: a
 sorting of all the option values has to take place in each tree node. The
 learning algorithm significantly improves score and win ratio for the game
 \textit{bait}.

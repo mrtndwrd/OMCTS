@@ -1,19 +1,17 @@
 \section{O-MCTS}
 \label{sec:planning}
 
-O-MCTS is a novel algorithm that simulates the use of subgoals by planning over
-options using MCTS, enabling the otherwise infeasible use of options in complex
-MDPs\@. The resulting algorithm achieves higher scores than MCTS on complex
-games that have several subgoals.
-
-Generally, O-MCTS works as follows: like in MCTS, a tree of states is
-built by simulating game plays. The algorithm chooses options instead of
-actions. When an option is chosen, the actions returned by its policy are used
-to build the tree. When an option is finished a new option has to be chosen,
-which enables the tree to branch on that point. Since traditional MCTS branches
-on each action, whereas O-MCTS only branches when an option is finished, deeper
-search trees can be built in the same amount of time. This section describes how
-the process works in more detail.
+We propose O-MCTS, a novel algorithm that simulates the use of subgoals by
+planning over options using MCTS, enabling the otherwise infeasible use of
+options in complex MDPs\@. The resulting algorithm achieves higher scores than
+MCTS on complex games that have several subgoals. It works as follows: like in
+MCTS, a tree of states is built by simulating game plays. The algorithm chooses
+options instead of actions. When an option is chosen, the actions returned by
+its policy are used to build the tree. When an option is finished a new option
+has to be chosen, which enables the tree to branch on that point. Since
+traditional MCTS branches on each action, whereas O-MCTS only branches when an
+option is finished, deeper search trees can be built in the same amount of time.
+This section describes how the process works in more detail.
 
 \begin{figure}
 	\centering
@@ -28,7 +26,7 @@ the process works in more detail.
 
 The tree representation of an O-MCTS tree is the same as in MCTS\@: a node
 represents a state, a connection represents an action. An option spans several
-actions and therefore several nodes in the search tree, as denoted in
+actions and therefore several nodes in the search tree, as shown in
 Figure~\ref{fig:omcts-tree}. We introduce a change in the expansion and
 selection strategies, which select options rather than actions. When a node has
 an unfinished option, the next node will be created using an action selected by
@@ -99,19 +97,19 @@ screen. If $o$ is the \textit{AvoidNearestNpcOption}, $I_o$ will not contain
 state $s$, because there are no NPCs on screen, rendering $o$ useless in state
 $s$. $\mathbf{p}_s$ will thus not contain option $o$.
 
-The four phases of Figure~\ref{fig:mcts} are implemented as follows.  In 
-line~\ref{alg:omcts:m}, $\mathbf{m}$ is set to the set of options chosen in the
-children of state $s$. If $\mathbf{p}_s$ is the same set as $\mathbf{m}$, i.e.,
-all possible options have been explored at least once in node $s$, a new node
-$s'$ is \emph{selected} by \textsf{uct}. In line~\ref{alg:omcts:ss}, $s$ is
-instantiated with the new node $s'$, continuing the inner loop using this node.
-Else, some options are apparently unexplored in node $s$. It is \emph{expanded}
-with a random, currently unexplored option by lines~\ref{alg:omcts:sexpand}
+O-MCTS consists of the same four phases as MCTS\@. In line~\ref{alg:omcts:m},
+$\mathbf{m}$ is set to the set of options chosen in the children of state $s$.
+If $\mathbf{p}_s$ is the same set as $\mathbf{m}$, i.e., all possible options
+have been explored at least once in node $s$, a new node $s'$ is \emph{selected}
+by \textsf{uct}. In line~\ref{alg:omcts:ss}, $s$ is instantiated with the new
+node $s'$, continuing the inner loop using this node.  Else, some options are
+apparently unexplored in node $s$. It is \emph{expanded} with a random,
+currently unexplored option by lines~\ref{alg:omcts:sexpand}
 to~\ref{alg:omcts:eexpand}. After expansion or when the stop criterion is met,
-the inner loop is stopped and a \emph{rollout} is done, resulting in
-score difference $\delta$. This score difference is \emph{backed up} to the
-parent nodes of $s$ using the backup function, after which the tree traversal
-restarts with the root node $r$.
+the inner loop is stopped and a \emph{rollout} is done, resulting in score
+difference $\delta$. This score difference is \emph{backed up} to the parent
+nodes of $s$ using the backup function, after which the tree traversal restarts
+with the root node $r$.
 
 A number of functions is used by Algorithm~\ref{alg:omcts}. The function
 \textsf{stop} returns true when either the game ends in state $s$ or the maximum
@@ -148,7 +146,7 @@ this state. Note that since O-MCTS always returns the action chosen by the best
 option at that moment, the algorithm uses interruption.
 
 We expect that since this implementation of MCTS with options reduces the
-branching factor of the tree, the algorithm can do a deeper tree search.
-Furthermore, we expect that the algorithm will be able to
-identify and meet a game's subgoals by using options. In the experiments section
-we show results that support our expectations.
+branching factor of the tree, as can be seen in figure~\ref{fig:omcts-tree}, the
+algorithm can do a deeper tree search.  Furthermore, we expect that the
+algorithm will be able to identify and meet a game's subgoals by using options.
+In the experiments section we show results that support our expectations.

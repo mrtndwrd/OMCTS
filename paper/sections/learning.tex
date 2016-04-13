@@ -3,9 +3,10 @@
 Although we expect O-MCTS to be an improvement over MCTS, we also expect the
 branching factor of O-MCTS's search tree to increase as the number of options
 increases.  When many options are defined, exploring all the options becomes
-infeasible. In this chapter, we will define \emph{option values}: the expected
+infeasible. In this section, we will define \emph{option values}: the expected
 mean and variance of an option.We adjust O-MCTS to learn the option values
-and focus more on the options with higher option values. We call the new
+and focus more on the options with higher option values. Especially when a level
+is played several times, we expect this to be advantageous. We call the new
 algorithm \emph{Option Learning MCTS (OL-MCTS)}. We expect that OL-MCTS can
 create deeper search trees than O-MCTS in the same amount of time, which results
 in more accurate node values and an increased performance. Furthermore, we
@@ -27,7 +28,7 @@ represents the returns that were achieved in the past by an option for a game.
 Similarly, the variance of all the returns of an option $o$ is saved to
 $\sigma_o$.
 
-For the purpose of generalizing, we divide the set of options into \emph{types}
+For the purpose of generalisation, we divide the set of options into \emph{types}
 and \emph{subtypes}. The option for going to a movable sprite has type
 \emph{GoToMovableOption}. An instance of this option exists for each movable
 sprite in the game. A subtype is made for each sprite type (i.e., each
@@ -90,23 +91,23 @@ is followed in that node to tweak the option selection. When it starts using
 	\end{algorithmic}
 \end{algorithm}
 
-The new algorithm can be seen in Algorithm~\ref{alg:olmcts} and has two major
+The new algorithm (Algorithm~\ref{alg:olmcts}) has two major
 modifications. The updates of the option values are done in
 line~\ref{alg:olmcts:update}. The function \textsf{update\_values} takes the
 return of the option $o$ and updates its mean $\mu_o$ and variance $\sigma_o$ by
 calculating the new mean and variance of all returns of that option subtype. The
 second modification starts on line~\ref{alg:olmcts:ns}, where the algorithm
-applies crazy stone if the current node has been visited less than $v$ times, or
-alternatively applies UCT similarly to O-MCTS\@. The \textsf{crazy\_stone}
-function returns a set of weights over the set of possible options
-$\mathbf{p}_s$. A weighted random then chooses a new option $\omega$ by using
-these weights.  If $\omega$ has not been explored yet, i.e., there is no child
-node of $s$ in $c_s$ that uses this option, the algorithm chooses and applies an
-action and breaks to rollout in lines~\ref{alg:olmcts:scs}
-to~\ref{alg:olmcts:ecs}. This is similar to the expansion steps in O-MCTS\@. If
-$\omega$ has been explored in this node before the corresponding child node $s'$
-is selected from $c_s$ and the loop continues like when \textsf{uct} selects a
-child.
+applies crazy stone if the current node has been visited less than $v$ times.
+If the node is visited more than $v$ times, it applies UCT similarly to
+O-MCTS\@.  The \textsf{crazy\_stone} function returns a set of weights over the
+set of possible options $\mathbf{p}_s$. A weighted random then chooses a new
+option $\omega$ by using these weights.  If $\omega$ has not been explored yet,
+i.e., there is no child node of $s$ in $c_s$ that uses this option, the
+algorithm chooses and applies an action and breaks to rollout in
+lines~\ref{alg:olmcts:scs} to~\ref{alg:olmcts:ecs}. This is similar to the
+expansion steps in O-MCTS\@. If $\omega$ has been explored in this node before
+the corresponding child node $s'$ is selected from $c_s$ and the loop continues
+like when \textsf{uct} selects a child.
 
 We expect that by learning option values and applying crazy stone, the algorithm
 can create deeper search trees than O-MCTS\@. These trees are focused more on
