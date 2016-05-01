@@ -35,9 +35,9 @@ the levels of each game.
 
 For these experiments we construct an option set which is aimed at providing
 action sequences for any type of game, since the aim here is general video game
-playing.  Note that since the option set is a variable of the algorithm, a more
-specific set of options can be created when the algorithm should be tailored to
-only one type of game.
+playing.  Note that since the option set is a variable of the algorithm, either
+a more specific or automatically generated set of options can be used by the
+algorithm as well.
 
 The set of option types consists of one option that executes a specific action
 once, an option that avoids the nearest NPC by moving away from it, an option
@@ -85,15 +85,15 @@ easily traversable paths. For example in \textit{zelda}, a door is closed until
 a key is picked up. Our $A^*$ implementation will still be able to plan a path
 to the door once the key is picked up, to win the game.
 
-We empirically optimize the parameters of the O(L)-MCTS algorithm
-for these experiments. We use discount factor $\gamma = 0.9$, maximum action
-time $t = 40$ milliseconds. The maximum search depth $d$ is set to 70, which is
-higher than most alternative tree search algorithms, for example in the GVGAI
-competition, use. This is possible because the search tree has a relatively low
-branching factor. The number of node visits after which \textsf{uct} is used,
-$v$, is set to 40. Crazy stone parameter $K$ is set to $0.5$.  For comparison,
-we use the MCTS algorithm provided with the Java implementation of VGDL which
-employs a maximum tree depth of 10, because the branching factor is higher. Both
+We empirically optimize the parameters of the algorithms for these experiments.
+We use discount factor $\gamma = 0.9$, maximum action time $t = 40$
+milliseconds. The maximum search depth $d$ is set to 70, which is higher than
+most alternative tree search algorithms, for example in the GVGAI competition,
+use. This is possible because the search tree has a relatively low branching
+factor. The number of node visits after which \textsf{uct} is used, $v$, is set
+to 40. Crazy stone parameter $K$ is set to $0.5$.  For comparison, we use the
+MCTS algorithm provided with the Java implementation of VGDL which employs a
+maximum tree depth of 10, because the branching factor is higher. Both
 algorithms have \textsf{uct} constant $C_p = \sqrt{2}$. Unfortunately, comparing
 to Q-learning with options was impossible, because the state space of these
 games is too big for the algorithm to learn any reasonable behavior. All the
@@ -189,9 +189,9 @@ learning algorithm significantly improves score and win ratio for the game
 %are holes in the ground that kill the player unless they are filled with boxes,
 %which make both the hole and the box disappear.
 Figure~\ref{fig:learning-results} shows the improvement in score and win ratio
-for this game. There are two likely explanations for this improvement: 1.) There
+for this game. There are two likely explanations for this improvement: 1. There
 are sprites that kill the player, which are evaded by the algorithm when it has
-learned to do so.  2.) The algorithm learns that it should pick up the key.
+learned to do so.  2. The algorithm learns that it should pick up the key.
 
 Furthermore, we can see small improvements on the games \textit{seaquest} and
 \textit{jaws}, on which O-MCTS performs worse than MCTS\@.  Although OL-MCTS
@@ -213,16 +213,16 @@ that OL-MCTS is on the right path of improving O-MCTS\@.
 	all games.}
 \end{figure}
 
-\subsection{Totals}
+\subsection{Results}
 \label{subsec:totals}
-Figure~\ref{fig:total-results} shows the sum of wins over all games, all levels.
-It shows a significant ($p < 0.05$) improvement of O-MCTS and OL-MCTS over
-MCTS\@.  There is no significant difference in performance of OL-MCTS over
-O-MCTS, although our results suggest that it does improve for a subset of the
-games.
-
 Summarizing, our tests indicate that on complex games O-MCTS outperforms MCTS\@.
 For other games it performs at least as well, as long as the number of game
 sprites is not too high.  The OL-MCTS algorithm can increase performance for
 some of the games, such as \textit{bait} and \textit{plaque attack}. On other
 games, little to no increased performance can be found.
+
+An overview of the results is depicted in Figure~\ref{fig:total-results}, which
+shows the sum of wins over all games, all levels.  It shows a significant ($p <
+0.05$) improvement of O-MCTS and OL-MCTS over MCTS\@.  There is no significant
+difference between performance of OL-MCTS over O-MCTS, although our results
+suggest that it does improve for a subset of the games.

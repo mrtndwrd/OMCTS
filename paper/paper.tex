@@ -125,27 +125,28 @@ Email: \href{mailto:s.c.j.bakkes@uvt.nl}{S.C.J.Bakkes@uvt.nl}}
 
 \maketitle
 \begin{abstract}
-	Many decision-theoretic algorithms are used in general video game playing,
-	because they are highly effective problem solvers.  ``Monte Carlo Tree
-	Search'' (MCTS) is a popular decision-theoretic algorithm that has often
-	been used for general video game playing.  The MCTS algorithm always plans
-	over actions and does not incorporate any high level planning, as one would
+	General video game playing is a challenging research area in which the goal
+	is to find one algorithm that can play many games successfully.  ``Monte
+	Carlo Tree Search'' (MCTS) is a popular algorithm that has often been used
+	for this purpose. It incrementally builds a search tree based on observed
+	states after applying actions. However, the MCTS algorithm always plans over
+	actions and does not incorporate any higher level planning, as one would
 	expect from a human player. Furthermore, although many games have similar
 	game dynamics, often no prior knowledge is available to general video game
 	playing algorithms.  In this paper, we introduce a new algorithm called
 	``Option Monte Carlo Tree Search'' (O-MCTS). It offers general video game
-	knowledge and high level planning in the form of options, which are action
-	sequences aimed at achieving a specific subgoal. Additionally, we introduce
-	``Option Learning MCTS'' (OL-MCTS), which applies a progressive widening
-	technique to the expected returns of options in order to focus exploration
-	on fruitful parts of the search tree. Our new algorithms are compared to
-	MCTS on a diverse set of twenty-eight games from the general video game AI
-	competition. Our results indicate that by using MCTS's efficient tree
-	searching technique on options, O-MCTS outperforms MCTS on most of the
-	games, especially those in which a certain subgoal has to be reached before
-	the game can be won.  Lastly, we show that OL-MCTS improves its performance
-	on specific games by learning expected values for options and moving a bias
-	to higher valued options.
+	knowledge and high level planning in the form of ``options'', which are
+	action sequences aimed at achieving a specific subgoal. Additionally, we
+	introduce ``Option Learning MCTS'' (OL-MCTS), which applies a progressive
+	widening technique to the expected returns of options in order to focus
+	exploration on fruitful parts of the search tree. Our new algorithms are
+	compared to MCTS on a diverse set of twenty-eight games from the general
+	video game AI competition. Our results indicate that by using MCTS's
+	efficient tree searching technique on options, O-MCTS outperforms MCTS on
+	most of the games, especially those in which a certain subgoal has to be
+	reached before the game can be won.  Lastly, we show that OL-MCTS improves
+	its performance on specific games by learning expected values for options
+	and moving a bias to higher valued options.
 \end{abstract}
 
 % A category with the (minimum) three required fields

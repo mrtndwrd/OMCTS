@@ -2,15 +2,15 @@ import sys, os, argparse
 from collections import defaultdict
 import numpy as np
 
-#EXCLUDED_GAMES = ['sokoban', 'brainman', 'chipschallenge', 'modality',
-#	'realportals', 'painter', 'realsokoban', 'thecitadel', 'zenpuzzle',
-#	'catapults', 'labyrinth', 'escape', ]
 EXCLUDED_GAMES = ['sokoban', 'brainman', 'chipschallenge', 'modality',
 	'realportals', 'painter', 'realsokoban', 'thecitadel', 'zenpuzzle',
-	'catapults', 'labyrinth', 'escape', 'infection', 'butterflies',
-	'missilecommand', 'whackamole', 'aliens', 'plants', 'camelrace',
-	'survivezombies', 'pacman', 'firestorms', 'boulderdash',
-	'overload', 'roguelike', 'boulderchase', 'zelda', 'chase', 'digudug', ]
+	'catapults', 'labyrinth', 'escape', ]
+#EXCLUDED_GAMES = ['sokoban', 'brainman', 'chipschallenge', 'modality',
+#	'realportals', 'painter', 'realsokoban', 'thecitadel', 'zenpuzzle',
+#	'catapults', 'labyrinth', 'escape', 'infection', 'butterflies',
+#	'missilecommand', 'whackamole', 'aliens', 'plants', 'camelrace',
+#	'survivezombies', 'pacman', 'firestorms', 'boulderdash',
+#	'overload', 'roguelike', 'boulderchase', 'zelda', 'chase', 'digudug', ]
 
 EXCLUDED_LEVELS = []
 

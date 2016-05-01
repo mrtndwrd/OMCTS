@@ -40,17 +40,18 @@ the knowledge gained from the previous games.
 In contrast, when humans play a game we expect them to make assumptions about
 its mechanics, e.g., pressing the left button often results in the player's
 avatar moving to the left on the screen.  Furthermore, we expect human players
-to define specific subgoals for themselves: when there is a portal on screen, a
-player is likely to try to find out what the portal does by walking towards it.
-The player will remember the effect of this and use that information for the
-rest of the game.
+to define specific subgoals for themselves, e.g., when there is a portal on
+screen, a player is likely to try to find out what the portal does by walking
+towards it.  The player will remember the effect of this and use that
+information for the rest of the game.
 
 In certain situations it is clear how such a subgoal can be achieved and a
-sequence of actions, or \emph{policy}, can be defined to achieve it. A policy to
-achieve a specific subgoal is called an option~\cite{sutton1999between}. Thus,
-an option selects an action, given a game state, that aims at satisfying its
-subgoal. In this paper, options are game-independent. The options are expected
-to guide the exploration of a game's search space to feasible areas.
+\emph{policy}, which defines which actions to take in which state, can be
+defined to achieve it. A policy to achieve a specific subgoal is called an
+\emph{option}~\cite{sutton1999between}.  Thus, an option selects an action,
+given a game state, that aims at satisfying its subgoal. In this paper, options
+are game-independent. The options are expected to guide the exploration of a
+game's search space to feasible areas.
 
 %In contrast to an algorithm with path planning options, the probability of an algorithm that does not use options to reach a specific game sprite is
 %smaller, especially when the road to the subgoal does not indicate any advantage

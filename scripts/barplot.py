@@ -8,13 +8,14 @@ from matplotlib import pyplot as plt
 
 WIDTH=0.8
 COLORS = ['black', 'blue', 'red', 'yellow','magenta', 'cyan',  'orange']
-COLORS_DICT = {'MCTS': 'black',
-	'O-MCTS': 'blue',
-	'OL-MCTS1': 'red',
-	'OL-MCTS5': 'yellow',
-	'Q-LEARNING1': 'magenta',
-	'Q-LEARNING4': 'cyan',
-	'RANDOM': 'orange'}
+HATCHES = ('-', '+', 'x', '\\', '*', 'o', 'O', '.')
+COLORS_DICT = {'MCTS': ('blue', '.'),
+	'O-MCTS': ('cyan', '\\'),
+	'OL-MCTS1': ('dodgerblue', '/'),
+	'OL-MCTS5': ('slategrey', '//'),
+	'Q-LEARNING1': ('yellow', 'o'),
+	'Q-LEARNING4': ('black', 'O'),
+	'RANDOM': ('orange', '-')}
 
 def plot_means(directory='output', style='bar', show_score=False, filename=None,
 		ignore_controllers=[]):
@@ -46,7 +47,7 @@ def barplot_stats(stats, show_score, filename=None, ignore_controllers=[]):
 	controllers = sorted(stats.keys())
 	name = 'score' if show_score else 'wins'
 	# Loop through stats
-	fig = plt.figure(figsize=(5, 1.5))
+	fig = plt.figure(figsize=(2.5, 1.5))
 	ax = fig.add_subplot(111)
 	for i, (controller, dic) in enumerate(sorted(stats.iteritems())):
 		print "controller:", controller
@@ -110,7 +111,7 @@ def barplot_games(stats, show_score, filename=None, order_by_controller=None,
 				order_by_column)
 
 	# Create figure and get some axis
-	fig = plt.figure(figsize=(7, 3.3))
+	fig = plt.figure(figsize=(14, 3.3))
 	# Add some space to the bottom
 	plt.subplots_adjust(bottom=.3)
 	ax = fig.add_subplot(111)
@@ -148,11 +149,14 @@ def barplot_games(stats, show_score, filename=None, order_by_controller=None,
 		show_variance = False
 		if show_variance:
 			rects.append(ax.bar(ind + (i-(.5*number_of_bars) + 1) * width,
-				totals, width, color=get_color(controller), yerr=variances,
+				totals, width, #color=get_color(controller),
+				color='white',
+				hatch=get_hatch(controller), yerr=variances,
 				error_kw=dict(elinewith=2, ecolor='black')))
 		else:
 			rects.append(ax.bar(ind + (i-(.5*number_of_bars) + 1) * width,
-				totals, width, color=get_color(controller)))
+				totals, width, color=get_color(controller),
+				hatch=get_hatch(controller)))
 
 	ax.set_xlim(-width,len(ind)+width)
 	#ax.set_ylim(0,45)
@@ -185,9 +189,15 @@ def barplot_games(stats, show_score, filename=None, order_by_controller=None,
 
 def get_color(controller):
 	if controller in COLORS_DICT.keys():
-		return COLORS_DICT[controller]
+		return COLORS_DICT[controller][0]
 	else:
 		return random.choice(COLORS)
+
+def get_hatch(controller):
+	if controller in COLORS_DICT.keys():
+		return COLORS_DICT[controller][1]
+	else:
+		return random.choice(HATCHES)
 
 def order_labels(controller_stats, index):
 	""" Orders the labels in controller_stats by the index in the scores """

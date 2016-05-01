@@ -87,7 +87,7 @@ sets, containing the set of child nodes for each node. The set $\mathbf{o}$
 contains which option is followed for each node. The main loop starts at 
 line~\ref{alg:omcts:mainloop}, which keeps the algorithm running until time runs out.
 The inner loop runs until a node $s$ is reached that meets a stop criterion
-defined by the function \textsf{stop}, or a node is expanded into a new node.
+defined by the function \emph{stop}, or a node is expanded into a new node.
 In lines~\ref{alg:omcts:sp} until~\ref{alg:omcts:ep}, $\mathbf{p}_s$ is set to
 all options that are available in $s$. If an option has not finished,
 $\mathbf{p}_s$ contains only the current option. Otherwise, it contains all the
@@ -101,7 +101,7 @@ O-MCTS consists of the same four phases as MCTS\@. In line~\ref{alg:omcts:m},
 $\mathbf{m}$ is set to the set of options chosen in the children of state $s$.
 If $\mathbf{p}_s$ is the same set as $\mathbf{m}$, i.e., all possible options
 have been explored at least once in node $s$, a new node $s'$ is \emph{selected}
-by \textsf{uct}. In line~\ref{alg:omcts:ss}, $s$ is instantiated with the new
+by UCT. In line~\ref{alg:omcts:ss}, $s$ is instantiated with the new
 node $s'$, continuing the inner loop using this node.  Else, some options are
 apparently unexplored in node $s$. It is \emph{expanded} with a random,
 currently unexplored option by lines~\ref{alg:omcts:sexpand}
@@ -112,15 +112,15 @@ nodes of $s$ using the backup function, after which the tree traversal restarts
 with the root node $r$.
 
 A number of functions is used by Algorithm~\ref{alg:omcts}. The function
-\textsf{stop} returns true when either the game ends in state $s$ or the maximum
-depth is reached in $s$. The function \textsf{get\_action} lets option $\omega$
-choose the best action for the state in node $s$, The function \textsf{expand}
+\emph{stop} returns true when either the game ends in state $s$ or the maximum
+depth is reached in $s$. The function \emph{get\_action} lets option $\omega$
+choose the best action for the state in node $s$, The function \emph{expand}
 creates a new child node $s'$ for node $s$. $s'$ contains the state that is
 reached when action $a$ is applied to the state in node $s$. Typically, the
-\textsf{rollout} function chooses random actions until \textsf{stop} returns
+\emph{rollout} function chooses random actions until \emph{stop} returns
 true, after which the difference in score achieved by the rollout is returned.
-In O-MCTS however, \textsf{rollout} always applies actions chosen by option $o$
-first and applies random actions after $o$ is finished. The \textsf{back\_up}
+In O-MCTS however, \emph{rollout} always applies actions chosen by option $o$
+first and applies random actions after $o$ is finished. The \emph{back\_up}
 function traverses the tree through all parents of $s$, updating their expected
 value. In contrast to traditional MCTS, which backs up the mean value of the
 reward to all parent nodes, a discounted value is backed up. The backup function

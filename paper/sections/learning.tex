@@ -44,9 +44,9 @@ expansion phase of OL-MCTS\@.  As a result, not all children of a node will be
 expanded, but only the ones selected based on crazy stone. When using crazy
 stone, we can select the same option several times, this enables deeper
 exploration of promising subtrees, even during the expansion phase. After a
-predefined number of visits $v$ to a node, the selection strategy \textsf{uct}
+predefined number of visits $v$ to a node, the selection strategy UCT
 is followed in that node to tweak the option selection. When it starts using
-\textsf{uct}, no new expansions will be done in this node.
+UCT, no new expansions will be done in this node.
 
 \begin{algorithm}[h]
 	\caption{$\mathsf{OL-MCTS}(O, r, t, d, v, \mu, \sigma)$}
@@ -79,7 +79,7 @@ is followed in that node to tweak the option selection. When it starts using
 					\Else \Comment{option $\omega$ already expanded}
 						\State $s' \gets s \in \mathbf{c}_s : o_s = \omega$ \label{alg:olmcts:s} \Comment{child that uses $\omega$}
 					\EndIf
-				\Else \Comment{apply \textsf{uct}}
+				\Else \Comment{apply UCT}
 					\State $s' \gets \mathsf{uct}(s)$ \label{alg:olmcts:uct}
 				\EndIf \label{alg:olmcts:ecs}
 				\State $s \gets s'$ \label{alg:olmcts:ss}
@@ -93,13 +93,13 @@ is followed in that node to tweak the option selection. When it starts using
 
 The new algorithm (Algorithm~\ref{alg:olmcts}) has two major
 modifications. The updates of the option values are done in
-line~\ref{alg:olmcts:update}. The function \textsf{update\_values} takes the
+line~\ref{alg:olmcts:update}. The function \emph{update\_values} takes the
 return of the option $o$ and updates its mean $\mu_o$ and variance $\sigma_o$ by
 calculating the new mean and variance of all returns of that option subtype. The
 second modification starts on line~\ref{alg:olmcts:ns}, where the algorithm
 applies crazy stone if the current node has been visited less than $v$ times.
 If the node is visited more than $v$ times, it applies UCT similarly to
-O-MCTS\@.  The \textsf{crazy\_stone} function returns a set of weights over the
+O-MCTS\@.  The \emph{crazy\_stone} function returns a set of weights over the
 set of possible options $\mathbf{p}_s$. A weighted random then chooses a new
 option $\omega$ by using these weights.  If $\omega$ has not been explored yet,
 i.e., there is no child node of $s$ in $c_s$ that uses this option, the
@@ -107,7 +107,7 @@ algorithm chooses and applies an action and breaks to rollout in
 lines~\ref{alg:olmcts:scs} to~\ref{alg:olmcts:ecs}. This is similar to the
 expansion steps in O-MCTS\@. If $\omega$ has been explored in this node before
 the corresponding child node $s'$ is selected from $c_s$ and the loop continues
-like when \textsf{uct} selects a child.
+like when UCT selects a child.
 
 We expect that by learning option values and applying crazy stone, the algorithm
 can create deeper search trees than O-MCTS\@. These trees are focused more on
