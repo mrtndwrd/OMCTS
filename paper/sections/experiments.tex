@@ -2,15 +2,21 @@
 \label{sec:experiments}
 \begin{figure*}
 \centering
-\includegraphics[width=\textwidth]{includes/wins}
-%\vspace{-.4cm}
-%\caption{Win ratio of the algorithms per game on all levels.}
-%\label{fig:wins}
-\centering
-\includegraphics[width=\textwidth]{includes/scores}
-\vspace{-.8cm}
+% \subfigure[wins]{%
+% \includegraphics[width=\textwidth]{includes/wins}%
+% }
+% %\vspace{-.4cm}
+% %\caption{Win ratio of the algorithms per game on all levels.}
+% %\label{fig:wins}
+% %\centering
+% \subfigure[scores]{%
+% \includegraphics[width=\textwidth]{includes/scores}%
+% }
+	\includegraphics[width=\textwidth]{includes/wins}
+	\includegraphics[width=\textwidth]{includes/scores}
+	\vspace{-.8cm}
 \caption{Win ratio and mean normalized score of the algorithms per game. O-MCTS
-outperforms MCTS in most games.}
+outperforms MCTS.}
 \label{fig:scores}
 \end{figure*}
 
@@ -44,7 +50,8 @@ once, an option that avoids the nearest NPC by moving away from it, an option
 that moves to a movable sprite until it is close to it (but not on it). There
 are options that go to a movable sprite and options to go to a certain position
 in the game.  Lastly we create an option that waits until an NPC is at a certain
-distance and then fires the weapon.
+distance and then fires the weapon. The specifics about the option set can be
+found in the original thesis~\cite{de2016monte}.
 
 For each option type, a subtype per visible sprite type is created during the
 game. For each sprite, an option instance of its corresponding subtype is
@@ -83,9 +90,10 @@ algorithm to take paths with a low wall score. This method enables $A^*$ to
 try to traverse paths that were unavailable earlier, while preferring safe and
 easily traversable paths. For example in \textit{zelda}, a door is closed until
 a key is picked up. Our $A^*$ implementation will still be able to plan a path
-to the door once the key is picked up, to win the game.
+to the door once the key is picked up, to win the game. Note that because the
+games can be stochastic, $A^*$ has to be recalculated for each simulation.
 
-We empirically optimize the parameters of the algorithms for these experiments.
+We empirically optimize the parameters of the algorithms for the experiments.
 We use discount factor $\gamma = 0.9$, maximum action time $t = 40$
 milliseconds. The maximum search depth $d$ is set to 70, which is higher than
 most alternative tree search algorithms, for example in the GVGAI competition,
@@ -110,7 +118,7 @@ experiments are ordered from left to right by the performance of an algorithm
 that always chooses a random action, indicating the complexity of the games.
 Figure~\ref{fig:scores} shows the win ratio and normalized score of the
 algorithms for each game. In short, the O-MCTS algorithms performs at least as
-good as MCTS in almost all games, and better in most.
+good as MCTS in almost all games, and better in more than half.
 
 O-MCTS outperforms MCTS in the games \textit{missile command}, \textit{bait},
 \textit{camel race}, \textit{survive zombies}, \textit{firestorms},
@@ -127,26 +135,23 @@ O-MCTS always wins this game, since it can plan forward a lot further.
 Furthermore, the rollouts of the option for walking towards the finish line have
 a bigger chance of reaching the finish line than the random rollouts executed by
 MCTS\@.
-In \textit{Overload}, a sword has to be picked up before the avatar can finish the
-game, which seems to be too hard for MCTS, but poses less of a problem for
-O-MCTS\@.  Furthermore, in \textit{zelda} we can see that the MCTS algorithm
-achieves roughly the same score as O-MCTS, but does not win the game, since
-picking up the key and walking towards the door is a difficult action sequence.
-We assume that the mean score achieved by MCTS is because it succeeds in killing
-the monsters, whereas O-MCTS achieves its score by picking up the key and
-walking to the door.  These results indicate that O-MCTS performs better than
-MCTS in games where a sequence subgoals have to be reached.
+In \textit{zelda} we can see that the MCTS algorithm achieves roughly the same
+score as O-MCTS, but does not win the game, since picking up the key and walking
+towards the door is a difficult action sequence.  We assume that the mean score
+achieved by MCTS is because it succeeds in killing the monsters, whereas O-MCTS
+achieves its score by picking up the key and walking to the door.  These results
+indicate that O-MCTS performs better than MCTS in games where a sequence
+subgoals have to be reached.
 
 The MCTS algorithm performs better than O-MCTS in \textit{pacman},
 \textit{whackamole}, \textit{jaws}, \textit{seaquest} and \textit{plaque attack}
 (note that for \textit{seaquest}, O-MCTS has a higher mean score, but wins less
-than MCTS). A parallel between these games is that they have a very
-big number of different sprites, for each of which several options have to be
+than MCTS). A parallel between these games is that they have a big number of sprites, for each of which several options have to be
 created by O-MCTS\@. When the number of options becomes too big, constructing the
 set of possible options $\mathbf{p}_s$ for every state $s$ becomes so
 time-consuming that the algorithm has too little time to build a tree and find
-the best possible action. To test this hypothesis we increased the computation
-time for O-MCTS to 120ms and found that the win ratio of O-MCTS increases to
+the best possible action. To test this hypothesis we ran the same test with an increased computation
+time of 120ms and found that the win ratio of O-MCTS increases to
 around $0.8$ for \textit{seaquest} and \textit{plaque attack}, whereas the win
 ratio for MCTS increased to $0.9$ and $0.7$ respectively. This means that with
 more action time, the difference between O-MCTS and MCTS is reduced for
@@ -190,13 +195,13 @@ learning algorithm significantly improves score and win ratio for the game
 %which make both the hole and the box disappear.
 Figure~\ref{fig:learning-results} shows the improvement in score and win ratio
 for this game. There are two likely explanations for this improvement: 1. There
-are sprites that kill the player, which are evaded by the algorithm when it has
-learned to do so.  2. The algorithm learns that it should pick up the key.
+are sprites that kill the player, which the algorithm learns to avoid  2. The
+algorithm learns that it should pick up the key.
 
-Furthermore, we can see small improvements on the games \textit{seaquest} and
-\textit{jaws}, on which O-MCTS performs worse than MCTS\@.  Although OL-MCTS
-does not exceed the score of the MCTS algorithm, this improvement suggests
-that OL-MCTS is on the right path of improving O-MCTS\@.
+Furthermore, we can see small improvements on the games \textit{seaquest},
+\textit{plaque attack} and \textit{jaws}, on which O-MCTS performs worse than
+MCTS\@.  Although OL-MCTS does not exceed the score of the MCTS algorithm, this
+improvement suggests that OL-MCTS is on the right path of improving O-MCTS\@.
 
 \begin{figure}
 	\centering

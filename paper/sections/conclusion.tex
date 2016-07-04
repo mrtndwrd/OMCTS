@@ -6,11 +6,13 @@ level grid or a small amount of sprites and high complexity, such as
 \textit{zelda}, \textit{overload} and \textit{eggomania}.  Furthermore, O-MCTS
 can look further ahead than most tree searching alternatives, resulting in a
 high performance on games like \textit{camel race}, in which reinforcement is
-sparse. This confirms our hypothesis that using options, O-MCTS can win more
-games than MCTS\@. The algorithm performs worse than expected in games with a
-high amount of sprites, since the size of the option set becomes so large that
-maintaining it takes a lot of time, leaving too little time for tree building.
-Over all twenty-eight games, O-MCTS wins more games than MCTS\@.
+sparse. An inherent advantage of having deep search trees is that the
+probability of an promising option not finishing reduces. We confirm our
+hypothesis that by using options O-MCTS can win more games than MCTS\@. The
+algorithm performs worse than expected in games with a high amount of sprites,
+since the size of the option set becomes so large that maintaining it takes a
+lot of time, leaving too little time for tree building.  Over all twenty-eight
+games, O-MCTS wins more games than MCTS\@.
 
 The results of OL-MCTS indicate that it is possible to learn about which options
 work better, meaning that in the future it should be possible to completely
