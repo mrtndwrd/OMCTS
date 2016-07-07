@@ -48,7 +48,7 @@ Feedback to handle
     before (like overload). Furthermore, the "test" of this hypothesis seems a
     bit inconclusive to me. How many times have the games been run in this 120ms
     setting? As it stands, with different "better" algorithms in those two
-    games, it feels it's just noise to me. ~~
+    games, it feels it's just noise to me.~~
 - Reviewer 3:
   - No idea how to improve from his comments
 - Reviewer 4:

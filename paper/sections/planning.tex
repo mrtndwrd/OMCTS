@@ -82,20 +82,21 @@ finished.
 
 We describe O-MCTS in Algorithm~\ref{alg:omcts}. It is invoked with a set of
 options $O$, a root node $r$, a maximum runtime $t$ in milliseconds and a
-maximum search depth $d$. Two variables are instantiated. $C_s$ is a set of
-sets, containing the set of child nodes for each node. The set $\mathbf{o}$
-contains which option is followed for each node. The main loop starts at 
-line~\ref{alg:omcts:mainloop}, which keeps the algorithm running until time runs out.
-The inner loop runs until a node $s$ is reached that meets a stop criterion
-defined by the function \emph{stop}, or a node is expanded into a new node.
-In lines~\ref{alg:omcts:sp} until~\ref{alg:omcts:ep}, $\mathbf{p}_s$ is set to
-all options that are available in $s$. If an option has not finished,
+maximum search depth $d$. The set of options used for our experiments is
+described in Section~\ref{sec:experiments}. Two variables are instantiated.
+$C_s$ is a set of sets, containing the set of child nodes for each node. The set
+$\mathbf{o}$ contains which option is followed for each node. The main loop
+starts at line~\ref{alg:omcts:mainloop}, which keeps the algorithm running until
+time runs out.  The inner loop runs until a node $s$ is reached that meets a
+stop criterion defined by the function \emph{stop}, or a node is expanded into a
+new node.  In lines~\ref{alg:omcts:sp} until~\ref{alg:omcts:ep}, $\mathbf{p}_s$
+is set to all options that are available in $s$. If an option has not finished,
 $\mathbf{p}_s$ contains only the current option. Otherwise, it contains all the
 options $o$ that have state $s$ in their initiation set $I_o$. For example, the
 agent is playing \textit{zelda} and the current state $s$ shows no NPCs on
-screen. If $o$ is the \textit{AvoidNearestNpcOption}, $I_o$ will not contain
-state $s$, because there are no NPCs on screen, rendering $o$ useless in state
-$s$. $\mathbf{p}_s$ will thus not contain option $o$.
+screen. If $o$ is an option for avoiding NPCs, $I_o$ will not contain state $s$,
+because there are no NPCs on screen, rendering $o$ useless in state $s$.
+$\mathbf{p}_s$ will thus not contain option $o$.
 
 O-MCTS consists of the same four phases as MCTS\@. In line~\ref{alg:omcts:m},
 $\mathbf{m}$ is set to the set of options chosen in the children of state $s$.
